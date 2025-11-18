@@ -4,14 +4,4 @@
     <div class="preference-setting__card__content">{{ content }}</div>
     <ion-toggle mode="ios" [(ngModel)]="isEnabled" (ionChange)="onChange()"> </ion-toggle>
   </div>
-  <div *ngIf="key === 'defaultCurrency' && isEnabled" class="preference-setting__input-container">
-    <input
-      class="preference-setting__input-container__input smartlook-show"
-      type="text"
-      placeholder="Select currency"
-      [ngModel]="defaultCurrency"
-      (click)="openCurrencyModal()"
-    />
-    <mat-icon class="fy-select--icon" svgIcon="arrow-down"></mat-icon>
-  </div>
 </div>

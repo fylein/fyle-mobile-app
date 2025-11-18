@@ -1,11 +1,20 @@
-import { Component, EventEmitter, OnDestroy, OnInit, Input, AfterViewInit, ViewChild, Inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Input,
+  AfterViewInit,
+  ViewChild,
+  inject,
+  input,
+} from '@angular/core';
 import { CameraPreviewPictureOptions } from '@capacitor-community/camera-preview';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
@@ -17,16 +26,15 @@ import { CameraPreviewComponent } from './camera-preview/camera-preview.componen
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
-import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
+import { TranslocoService } from '@jsverse/transloco';
+import { AsyncPipe } from '@angular/common';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Image = Partial<{
@@ -38,15 +46,54 @@ type Image = Partial<{
   selector: 'app-capture-receipt',
   templateUrl: './capture-receipt.component.html',
   styleUrls: ['./capture-receipt.component.scss'],
+  imports: [CameraPreviewComponent, AsyncPipe],
 })
 export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private navController = inject(NavController);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private networkService = inject(NetworkService);
+
+  private popoverController = inject(PopoverController);
+
+  private loaderService = inject(LoaderService);
+
+  private orgService = inject(OrgService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private cameraPreviewService = inject(CameraPreviewService);
+
+  private devicePlatform = inject(DEVICE_PLATFORM);
+
+  private translocoService = inject(TranslocoService);
+
+  private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('cameraPreview') cameraPreview: CameraPreviewComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isModal = false;
 
-  @Input() allowGalleryUploads = true;
+  readonly allowGalleryUploads = input(true);
 
-  @Input() allowBulkFyle = true;
+  readonly allowBulkFyle = input(true);
 
   isBulkMode: boolean;
 
@@ -60,36 +107,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   isBulkModePromptShown = false;
 
+  isSaveReceiptForLater = false;
+
   bulkModeToastMessageRef: MatSnackBarRef<ToastMessageComponent>;
 
   nativeSettings = NativeSettings;
-
-  constructor(
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private router: Router,
-    private navController: NavController,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
-    private networkService: NetworkService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private orgService: OrgService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private authService: AuthService,
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
-  ) {}
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       map((connected) => !connected),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -100,12 +129,10 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.noOfReceipts = 0;
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
+  addMultipleExpensesToQueue(base64ImagesWithSource: Image[]): Observable<void[]> {
     return from(base64ImagesWithSource).pipe(
       concatMap((res: Image) => this.addExpenseToQueue(res)),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce<void, void[]>((acc, curr) => acc.concat(curr), []),
     );
   }
 
@@ -131,7 +158,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           },
         ];
         return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null);
-      })
+      }),
     );
   }
 
@@ -150,8 +177,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   showBulkModeToastMessage(): void {
-    const message =
-      'If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.';
+    const message = this.translocoService.translate('captureReceipt.bulkModeInfo');
     this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('information', { message }),
       panelClass: ['msb-bulkfyle-prompt'],
@@ -186,8 +212,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         map(
           (employeeSettings) =>
-            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled
-        )
+            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+        ),
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
@@ -203,9 +229,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  saveSingleCapture(): void {
+  saveSingleCapture(isSaveReceiptForLater: boolean): void {
     this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
-      if (isOffline) {
+      if (isOffline || isSaveReceiptForLater) {
         this.onSingleCaptureOffline();
       } else {
         this.navigateToExpenseForm();
@@ -221,8 +247,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       shareReplay(1),
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
-      map((receiptPreviewData) => receiptPreviewData?.data),
-      filter((receiptPreviewDetails) => !!receiptPreviewDetails)
+      map((receiptPreviewData) => {
+        this.isSaveReceiptForLater = receiptPreviewData?.data?.isSaveReceiptForLater;
+        return receiptPreviewData?.data;
+      }),
+      filter((receiptPreviewDetails) => !!receiptPreviewDetails),
     );
 
     receiptPreviewDetails$
@@ -242,14 +271,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.loaderService.showLoader();
         return this.isModal;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     saveReceipt$
       .pipe(
         filter((isModal) => !!isModal),
         switchMap(() => from(receiptPreviewModal)),
-        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss())
+        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss()),
       )
       .subscribe(() => {
         setTimeout(() => {
@@ -259,7 +288,9 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }, 0);
       });
 
-    saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
+    saveReceipt$
+      .pipe(filter((isModal) => !isModal))
+      .subscribe(() => this.saveSingleCapture(this.isSaveReceiptForLater));
   }
 
   addPerformanceTrackers(): void {
@@ -278,7 +309,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
         const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
-        // eslint-disable-next-line @typescript-eslint/dot-notation
         const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
         // Converting the duration to seconds and fix it to 3 decimal places
@@ -300,8 +330,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0
-        )
+            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0,
+        ),
       )
       .subscribe((receiptPreviewDetails) => {
         this.isBulkMode = true;
@@ -317,13 +347,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length
+            !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length,
         ),
         switchMap(() => {
-          this.loaderService.showLoader('Please wait...', 10000);
+          this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 10000);
           return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -344,7 +374,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     return from(this.createReceiptPreviewModal('bulk')).pipe(
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
-      map((receiptPreviewDetails) => receiptPreviewDetails?.data)
+      map((receiptPreviewDetails) => receiptPreviewDetails?.data),
     );
   }
 
@@ -353,15 +383,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   showLimitReachedPopover(): Observable<HTMLIonPopoverElement> {
+    const title = this.translocoService.translate('captureReceipt.limitReachedTitle');
+    const message = this.translocoService.translate('captureReceipt.limitReachedMessage');
+    const primaryCta = {
+      text: this.translocoService.translate('captureReceipt.ok'),
+    };
+
     const limitReachedPopover = this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Limit Reached',
-        message:
-          'You’ve added the maximum limit of 20 receipts. Please review and save these as expenses before adding more.',
-        primaryCta: {
-          text: 'Ok',
-        },
+        title,
+        message,
+        primaryCta,
       },
       cssClass: 'pop-up-in-center',
     });
@@ -403,15 +436,17 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
-    let title = 'Camera permission';
+    let title = this.translocoService.translate('captureReceipt.cameraPermissionTitle');
     if (permissionType === 'GALLERY') {
-      title = galleryPermissionName + ' permission';
+      title = isIos
+        ? this.translocoService.translate('captureReceipt.photosPermissionTitle')
+        : this.translocoService.translate('captureReceipt.storagePermissionTitle');
     }
 
-    const cameraPermissionMessage = `To capture photos, please allow Fyle to access your camera. Click Open Settings and allow access to Camera and ${galleryPermissionName}`;
-    const galleryPermissionMessage = `Please allow Fyle to access device photos. Click Settings and allow ${galleryPermissionName} access`;
-
-    const message = permissionType === 'CAMERA' ? cameraPermissionMessage : galleryPermissionMessage;
+    const message =
+      permissionType === 'CAMERA'
+        ? this.translocoService.translate('captureReceipt.cameraPermissionMessage', { galleryPermissionName })
+        : this.translocoService.translate('captureReceipt.galleryPermissionMessage', { galleryPermissionName });
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -419,11 +454,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('captureReceipt.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('captureReceipt.cancel'),
           action: 'CANCEL',
         },
       },
@@ -436,7 +471,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     from(this.setupPermissionDeniedPopover(permissionType))
       .pipe(
         tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -449,46 +484,37 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  onGalleryUpload(): void {
+  // eslint-disable-next-line complexity
+  async onGalleryUpload(): Promise<void> {
     this.trackingService.instafyleGalleryUploadOpened({});
-
-    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
-
-    const receiptsFromGallery$ = checkPermission$.pipe(
-      filter((permission) => !!permission),
-      switchMap(() => {
-        const galleryUploadOptions = {
-          maximumImagesCount: 10,
-          outputType: 1,
+    const permissions = await this.cameraService.checkPermissions();
+    if (permissions?.photos === 'granted' || permissions?.photos === 'limited') {
+      await this.loaderService.showLoader(this.translocoService.translate('captureReceipt.pleaseWait'), 0);
+      try {
+        const images = await this.cameraService.pickImages({
+          limit: 10,
           quality: 70,
-        };
-        return from(this.imagePicker.getPictures(galleryUploadOptions));
-      }),
-      shareReplay(1)
-    );
-
-    checkPermission$.subscribe((hasPermission) => {
-      if (!hasPermission) {
-        return this.showPermissionDeniedPopover('GALLERY');
-      }
-    });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))
-      .subscribe((receiptsFromGallery) => {
-        receiptsFromGallery.forEach((receiptBase64) => {
-          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
+        });
+        for (const file of images.photos) {
+          const base64 = await this.utilityService.webPathToBase64(file.webPath);
           this.base64ImagesWithSource.push({
             source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
+            base64Image: base64,
           });
-        });
-        this.openReceiptPreviewModal();
-      });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
-      .subscribe(() => this.setUpAndStartCamera());
+        }
+        return this.openReceiptPreviewModal();
+      } catch (error) {
+        this.setUpAndStartCamera();
+        throw error;
+      } finally {
+        await this.loaderService.hideLoader();
+      }
+    } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
+      await this.cameraService.requestCameraPermissions(['photos']);
+      this.onGalleryUpload();
+    } else {
+      return this.showPermissionDeniedPopover('GALLERY');
+    }
   }
 
   ngAfterViewInit(): void {

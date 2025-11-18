@@ -1,4 +1,4 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, Injector, inject, input } from '@angular/core';
 
 import {
   NG_VALUE_ACCESSOR,
@@ -6,11 +6,16 @@ import {
   UntypedFormBuilder,
   UntypedFormGroup,
   NgControl,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { FyNumberComponent } from '../../../shared/components/fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-currency',
@@ -23,10 +28,21 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  imports: [FormsModule, ReactiveFormsModule, NgClass, FyNumberComponent, TranslocoPipe],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
-  @Input() txnDt: Date;
+  private fb = inject(UntypedFormBuilder);
 
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private injector = inject(Injector);
+
+  readonly txnDt = input<Date>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() homeCurrency: string;
 
   fg: UntypedFormGroup;
@@ -41,13 +57,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit {
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: any) => void = noop;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector
-  ) {}
 
   get valid() {
     if (this.ngControl.touched) {

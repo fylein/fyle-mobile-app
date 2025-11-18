@@ -1,5 +1,5 @@
-@import '../../../../theme/colors';
-@import '../../../../assets/styles/fy_select';
+@use '../../../../theme/colors';
+@use '../../../../assets/styles/fy_select';
 
 .corporate-card {
   width: 100%;
@@ -13,9 +13,10 @@
   border-radius: 16px;
   background: url('../../../../assets/images/corporate-card-bg.png') no-repeat center;
   background-size: cover;
+  color: colors.$pure-white;
 
   &__bank-name {
-    color: $dark-grey;
+    opacity: 0.7;
     font-size: 14px;
     line-height: 8px;
   }
@@ -34,8 +35,8 @@
     &--default {
       width: 38px;
       height: 26px;
-      background-color: $white;
-      border: 1px solid $lighter-grey;
+      background-color: colors.$white;
+      border: 1px solid colors.$lighter-grey;
       border-radius: 5px;
       display: flex;
       align-items: center;
@@ -44,7 +45,7 @@
       &__icon {
         width: 18px;
         height: 18px;
-        color: $grey-light;
+        color: colors.$grey-light;
       }
     }
 
@@ -82,14 +83,13 @@
   }
 
   &__feed-label {
-    color: $black-light;
+    opacity: 0.7;
     font-size: 14px;
     line-height: normal;
   }
 
   &__feed-value {
     font-size: 14px;
-    color: $blue-black;
     line-height: 1.16;
   }
 
@@ -102,26 +102,27 @@
   &__feed-live-dot {
     width: 8px;
     height: 8px;
-    background-color: $green;
+    background-color: colors.$green;
     border-radius: 50%;
   }
 
   &__more-options-btn {
     background: transparent;
+    display: flex;
   }
 
   &__more-options-btn-icon {
     width: 20px;
     height: 20px;
-    color: $dark-grey;
+    color: colors.$pure-white;
   }
 }
 
 .corporate-card-badge-container {
   display: flex;
   align-items: center;
-  background-color: $pure-white;
-  border: 1px solid $grey-2;
+  background-color: colors.$pure-white;
+  border: 1px solid colors.$grey-2;
   border-radius: 5px;
   max-height: 20px;
   padding: 4px;
@@ -129,7 +130,7 @@
 }
 
 .corporate-card-badge {
-  color: $dark-grey;
+  color: colors.$dark-grey;
   text-align: center;
   font-size: 12px;
   line-height: 8px;

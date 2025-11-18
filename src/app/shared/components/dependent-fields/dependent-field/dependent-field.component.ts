@@ -1,9 +1,12 @@
-import { ChangeDetectorRef, Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ChangeDetectorRef, Component, forwardRef, Input, inject, input } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
+import { ModalController } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-dependent-field',
@@ -16,20 +19,37 @@ import { DependentFieldModalComponent } from './dependent-field-modal/dependent-
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class DependentFieldComponent implements ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() placeholder: string;
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() valid = true;
+  readonly valid = input(true);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() fieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
   displayValue: string;
@@ -37,12 +57,6 @@ export class DependentFieldComponent implements ControlValueAccessor {
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: unknown) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
-  ) {}
 
   async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({

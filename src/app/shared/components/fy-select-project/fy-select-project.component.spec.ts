@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FySelectProjectComponent } from './fy-select-project.component';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
@@ -10,20 +10,34 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
+import { of } from 'rxjs';
 
 describe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
   let fixture: ComponentFixture<FySelectProjectComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FySelectProjectComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule, MatIconModule, MatIconTestingModule],
+      imports: [
+        
+        FormsModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        FySelectProjectComponent,
+      ],
       providers: [
         {
           provide: ModalController,
@@ -33,6 +47,10 @@ describe('FySelectProjectComponent', () => {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FySelectProjectComponent);
@@ -40,6 +58,19 @@ describe('FySelectProjectComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectProject.selectLabel': 'Select {{label}}',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
 
     fixture.detectChanges();
@@ -89,13 +120,15 @@ describe('FySelectProjectComponent', () => {
       component: FyProjectSelectModalComponent,
       componentProps: {
         currentSelection: undefined,
-        cacheName: component.cacheName,
-        selectionElement: component.selectionElement,
-        categoryIds: component.categoryIds,
-        defaultValue: component.defaultValue,
-        recentlyUsed: component.recentlyUsed,
+        cacheName: component.cacheName(),
+        selectionElement: component.selectionElement(),
+        categoryIds: component.categoryIds(),
+        defaultValue: component.defaultValue(),
+        recentlyUsed: component.recentlyUsed(),
         label: component.label,
-        isProjectCategoryRestrictionsEnabled: component.isProjectCategoryRestrictionsEnabled,
+        isProjectCategoryRestrictionsEnabled: component.isProjectCategoryRestrictionsEnabled(),
+        isSelectedProjectDisabled: component.isSelectedProjectDisabled(),
+        selectedDisabledProject: component.selectedDisabledProject(),
       },
       mode: 'ios',
       cssClass: 'fy-modal',

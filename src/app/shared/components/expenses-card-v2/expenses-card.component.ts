@@ -1,7 +1,18 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
+import {
+  Component,
+  ElementRef,
+  inject,
+  Input,
+  OnInit,
+  ViewChild,
+  input,
+  output,
+  EventEmitter,
+  computed,
+} from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { IonIcon, IonSpinner, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
+import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
@@ -14,8 +25,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
@@ -27,55 +37,185 @@ import { ExpensesService as SharedExpenseService } from 'src/app/core/services/p
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { ExpenseMissingMandatoryFields } from 'src/app/core/models/platform/v1/expense-missing-mandatory-fields.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { signal } from '@angular/core';
+import {
+  NgClass,
+  NgStyle,
+  NgTemplateOutlet,
+  AsyncPipe,
+  LowerCasePipe,
+  TitleCasePipe,
+  CurrencyPipe,
+} from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatIcon } from '@angular/material/icon';
+import { PendingGasChargeInfoComponent } from '../pending-gas-charge-info/pending-gas-charge-info.component';
+import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { ExpenseState } from '../../pipes/expense-state.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
+import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
   selector: 'app-expense-card-v2',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    CurrencySymbolPipe,
+    DateFormatPipe,
+    ExactCurrencyPipe,
+    ExpenseState,
+    FyCurrencyPipe,
+    HumanizeCurrencyPipe,
+    IonIcon,
+    IonSpinner,
+    LowerCasePipe,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgStyle,
+    NgTemplateOutlet,
+    PendingGasChargeInfoComponent,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class ExpensesCardComponent implements OnInit {
+  private sharedExpenseService = inject(SharedExpenseService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private fileService = inject(FileService);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private modalController = inject(ModalController);
+
+  private platform = inject(Platform);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private translocoService = inject(TranslocoService);
+
+  private readonly isInstaFyleEnabled = computed(() =>
+    this.platformEmployeeSettingsService
+      .get()
+      .pipe(
+        map(
+          (employeeSettings) =>
+            employeeSettings.insta_fyle_settings.allowed && employeeSettings.insta_fyle_settings.enabled,
+        ),
+      ),
+  );
+
+  // Cache key for localStorage
+  private static readonly CACHE_KEY = 'mandatory_expense_fields_cache';
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
-  @Input() expense: Expense;
+  readonly expense = input<Expense>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseTxnDate: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseCreatedAt: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedElements: Expense[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFirstOfflineExpense: boolean;
 
-  @Input() attachments;
+  readonly attachments = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isOutboxExpense: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromViewReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromPotentialDuplicates: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expenseIndex: number;
 
-  @Input() isDismissable: boolean;
+  readonly isDismissable = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ expense: Expense; expenseIndex: number }> = new EventEmitter<{
+  readonly goToTransaction = output<{
     expense: Expense;
     expenseIndex: number;
   }>();
 
-  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly cardClickedForSelection = output<Expense>();
 
-  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly setMultiselectMode = output<Expense>();
 
-  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly dismissed = output<Expense>();
 
-  @Output() showCamera = new EventEmitter<boolean>();
+  readonly showCamera = output<boolean>();
+
+  missingMandatoryFields: ExpenseMissingMandatoryFields;
+
+  allMandatoryExpenseFields: ExpenseField[];
+
+  // map of mandatory expense fields id to their names
+  mandatoryFieldsMap: Record<number, string>;
+
+  // array of missing mandatory field names
+  missingMandatoryFieldNames: string[] = [];
+
+  // processed display text for missing fields
+  missingFieldsDisplayText = '';
+
+  // count of remaining fields not displayed
+  remainingFieldsCount = 0;
 
   inlineReceiptDataUrl: string;
 
@@ -93,8 +233,6 @@ export class ExpensesCardComponent implements OnInit {
 
   paymentModeIcon: string;
 
-  isScanInProgress: boolean;
-
   isProjectEnabled$: Observable<boolean>;
 
   attachmentUploadInProgress = false;
@@ -103,11 +241,18 @@ export class ExpensesCardComponent implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  isSycing$: Observable<boolean>;
-
   category: string;
 
-  isScanCompleted: boolean;
+  readonly isScanCompleted = computed(() => {
+    const isInstaFyleEnabled = this.isInstaFyleEnabled();
+    const expense = this.expense();
+    if (isInstaFyleEnabled && (this.homeCurrency === 'USD' || this.homeCurrency === 'INR') && expense) {
+      return this.checkIfScanIsCompleted(expense);
+    }
+    return true;
+  });
+
+  readonly isScanInProgress = computed(() => !this.isScanCompleted() && !this.expense().extracted_data);
 
   imageTransperencyOverlay = 'linear-gradient(rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), ';
 
@@ -123,29 +268,14 @@ export class ExpensesCardComponent implements OnInit {
 
   vendorDetails: string;
 
-  constructor(
-    private transactionService: TransactionService,
-    private sharedExpenseService: SharedExpenseService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private fileService: FileService,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private modalController: ModalController,
-    private platform: Platform,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService
-  ) {}
+  readonly isPendingGasCharge = signal<boolean>(false);
+
+  private sharedExpensesService = inject(SharedExpensesService);
 
   get isSelected(): boolean {
     if (this.selectedElements) {
-      if (this.expense.id) {
-        return this.selectedElements.some((expense) => this.expense.id === expense.id);
+      if (this.expense().id) {
+        return this.selectedElements.some((expense) => this.expense().id === expense.id);
       } else {
         return this.selectedElements.some((expense) => isEqual(this.expense, expense));
       }
@@ -155,17 +285,17 @@ export class ExpensesCardComponent implements OnInit {
 
   onGoToTransaction(): void {
     if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit({ expense: this.expense, expenseIndex: this.expenseIndex });
+      this.goToTransaction.emit({ expense: this.expense(), expenseIndex: this.expenseIndex });
     }
   }
 
   getReceipt(): void {
-    if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
+    if (this.expense()?.category?.name?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/mileage.svg';
-    } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
+    } else if (this.expense()?.category?.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
-      if (!this.expense.file_ids?.length) {
+      if (!this.expense().file_ids?.length) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/list.svg';
@@ -178,75 +308,51 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiemOrMileage(): boolean {
     return (
-      (this.expense?.category?.name?.toLowerCase() === 'per diem' ||
-        this.expense?.category?.name?.toLowerCase() === 'mileage') &&
-      (this.expense.amount === 0 || this.expense.claim_amount === 0)
+      (this.expense()?.category?.name?.toLowerCase() === 'per diem' ||
+        this.expense()?.category?.name?.toLowerCase() === 'mileage') &&
+      (this.expense().amount === 0 || this.expense().claim_amount === 0)
     );
   }
 
-  checkIfScanIsCompleted(): boolean {
+  checkIfScanIsCompleted(expense: Expense): boolean {
     const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage();
 
     const hasUserManuallyEnteredData =
       isZeroAmountPerDiemOrMileage ||
-      ((this.expense.amount || this.expense.claim_amount) &&
-        isNumber(this.expense.amount || this.expense.claim_amount));
-    const isRequiredExtractedDataPresent = this.expense.extracted_data?.amount;
+      ((expense.amount || expense.claim_amount) && isNumber(this.expense().amount || this.expense().claim_amount));
+    const isRequiredExtractedDataPresent = expense.extracted_data?.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
-    // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired = this.expense.created_at && dayjs(this.expense.created_at).diff(Date.now(), 'day') < 0;
+    const hasScanExpired = expense.created_at && dayjs(expense.created_at).diff(Date.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
-  }
-
-  handleScanStatus(): void {
-    const that = this;
-    that.isScanInProgress = false;
-    that.isScanCompleted = false;
-
-    if (!that.isOutboxExpense) {
-      that.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
-        if (
-          employeeSettings.insta_fyle_settings.allowed &&
-          employeeSettings.insta_fyle_settings.enabled &&
-          (that.homeCurrency === 'USD' || that.homeCurrency === 'INR')
-        ) {
-          that.isScanCompleted = that.checkIfScanIsCompleted();
-          that.isScanInProgress = !that.isScanCompleted && !this.expense.extracted_data;
-        } else {
-          that.isScanCompleted = true;
-          that.isScanInProgress = false;
-        }
-      });
-    }
   }
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
+      this.expense().source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense().is_reimbursable;
   }
 
   setIsPolicyViolated(): void {
-    this.isPolicyViolated = this.expense.is_policy_flagged;
+    this.isPolicyViolated = this.expense().is_policy_flagged;
   }
 
   setExpenseDetails(): void {
-    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
+    this.category = this.expense()?.category?.name?.toLowerCase();
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';
 
-    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
-    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
-    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
+    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense());
+    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense());
+    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense());
 
     this.setIsPolicyViolated();
 
-    if (!this.expense.id) {
+    if (!this.expense().id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
+      const currentDate = (this.expense().spent_at || this.expense().created_at).toDateString();
       const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -262,43 +368,45 @@ export class ExpensesCardComponent implements OnInit {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
-    this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
-    );
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
+
+    this.missingMandatoryFields = this.expense().missing_mandatory_fields;
+
+    // get the mandatory expense fields using cached approach
+    this.ensureMandatoryFieldsMap();
 
     this.currencyService
       .getHomeCurrency()
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.setExpenseDetails();
 
-    this.handleScanStatus();
-
     this.isIos = this.platform.is('ios');
+
+    this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(this.expense()));
   }
 
   setOtherData(): void {
-    if (this.expense?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
-      if (this.expense?.matched_corporate_card_transaction_ids?.length > 0) {
+    if (this.expense()?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense()?.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'card';
       } else {
         this.paymentModeIcon = 'card';
       }
     } else {
-      if (this.expense?.is_reimbursable) {
+      if (this.expense()?.is_reimbursable) {
         this.paymentModeIcon = 'cash';
       } else {
         this.paymentModeIcon = 'cash-slash';
@@ -308,13 +416,13 @@ export class ExpensesCardComponent implements OnInit {
 
   onSetMultiselectMode(): void {
     if (!this.isSelectionModeEnabled) {
-      this.setMultiselectMode.emit(this.expense);
+      this.setMultiselectMode.emit(this.expense());
     }
   }
 
   onTapTransaction(): void {
     if (this.isSelectionModeEnabled) {
-      this.cardClickedForSelection.emit(this.expense);
+      this.cardClickedForSelection.emit(this.expense());
     }
   }
 
@@ -324,7 +432,7 @@ export class ExpensesCardComponent implements OnInit {
       !(
         this.isMileageExpense ||
         this.isPerDiem ||
-        this.expense.file_ids?.length > 0 ||
+        this.expense().file_ids?.length > 0 ||
         this.isFromPotentialDuplicates
       ) &&
       !this.isSelectionModeEnabled
@@ -406,7 +514,7 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails as ReceiptDetail);
-          const message = 'Receipt added to Expense successfully';
+          const message = this.translocoService.translate('expensesCard.receiptAdded');
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success-with-camera-icon'],
@@ -417,12 +525,6 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  matchReceiptWithEtxn(fileObj: FileObject): void {
-    this.expense.file_ids = [];
-    this.expense.file_ids.push(fileObj.id);
-    fileObj.transaction_id = this.expense.id;
-  }
-
   attachReceipt(receiptDetails: ReceiptDetail): void {
     this.attachmentUploadInProgress = true;
     const attachmentType = this.fileService.getAttachmentType(receiptDetails.type);
@@ -431,12 +533,11 @@ export class ExpensesCardComponent implements OnInit {
     from(this.transactionOutboxService.fileUpload(receiptDetails.dataUrl, attachmentType))
       .pipe(
         switchMap((fileObj: FileObject) => {
-          this.matchReceiptWithEtxn(fileObj);
-          return this.expensesService.attachReceiptToExpense(this.expense.id, fileObj.id);
+          return this.expensesService.attachReceiptToExpense(this.expense().id, fileObj.id);
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        })
+        }),
       )
       .subscribe(() => {
         this.isReceiptPresent = true;
@@ -446,31 +547,188 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true)
+      startWith(true),
     );
   }
 
   dismiss(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    this.dismissed.emit(this.expense);
+    this.dismissed.emit(this.expense());
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
+    const title = this.translocoService.translate('expensesCard.sizeLimitExceeded');
+    const message = this.translocoService.translate('expensesCard.fileTooLarge', {
+      maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+    });
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0
-        )}MB in size. Please reduce the file size and try again.`,
+        title,
+        message,
         primaryCta: {
-          text: 'OK',
+          text: this.translocoService.translate('expensesCard.ok'),
         },
       },
       cssClass: 'pop-up-in-center',
     });
 
     await sizeLimitExceededPopover.present();
+  }
+
+  /**
+   * Gets cached mandatory fields map from localStorage
+   */
+  private getCachedMandatoryFieldsMap(): Record<number, string> {
+    try {
+      const cachedData = localStorage.getItem(ExpensesCardComponent.CACHE_KEY);
+      return cachedData ? (JSON.parse(cachedData) as Record<number, string>) : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  /**
+   * Sets mandatory fields map to localStorage
+   */
+  private setCachedMandatoryFieldsMap(fieldsMap: Record<number, string>): void {
+    try {
+      localStorage.setItem(ExpensesCardComponent.CACHE_KEY, JSON.stringify(fieldsMap));
+    } catch (error) {
+      // Ignore localStorage errors (e.g., quota exceeded)
+    }
+  }
+
+  /**
+   * Gets array of missing mandatory field names from the missingMandatoryFields object
+   */
+  private getMissingMandatoryFieldNames(): string[] {
+    const missingFieldNames: string[] = [];
+
+    if (!this.missingMandatoryFields) {
+      return missingFieldNames;
+    }
+
+    // Check receipt field
+    if (this.missingMandatoryFields.receipt) {
+      missingFieldNames.push('receipt');
+    }
+
+    // Check currency field
+    if (this.missingMandatoryFields.currency) {
+      missingFieldNames.push('currency');
+    }
+
+    // Check amount field
+    if (this.missingMandatoryFields.amount) {
+      missingFieldNames.push('amount');
+    }
+
+    // Check expense field IDs and get their names from the map
+    if (this.missingMandatoryFields.expense_field_ids?.length > 0) {
+      this.missingMandatoryFields.expense_field_ids.forEach((fieldId) => {
+        const fieldName = this.mandatoryFieldsMap?.[fieldId];
+        if (fieldName) {
+          missingFieldNames.push(fieldName);
+        }
+      });
+    }
+
+    return missingFieldNames;
+  }
+
+  /**
+   * Processes missing field names with character limits and ellipsis support.
+   * Converts field names to lowercase, truncates long names, and tracks overflow count.
+   * @param maxCharacters - Maximum character count for display (default: 20)
+   * @param maxWordLength - Maximum length for individual words before ellipsis (default: 12)
+   */
+  // eslint-disable-next-line complexity
+  private processMissingFieldsForDisplay(maxCharacters = 20, maxWordLength = 12): void {
+    if (!this.missingMandatoryFieldNames.length) {
+      this.missingFieldsDisplayText = '';
+      this.remainingFieldsCount = 0;
+      return;
+    }
+
+    const processedFields: string[] = [];
+    let currentLength = 0;
+    let remainingCount = 0;
+
+    for (let i = 0; i < this.missingMandatoryFieldNames.length; i++) {
+      let fieldName = this.missingMandatoryFieldNames[i];
+
+      if (fieldName && fieldName.length > 0) {
+        fieldName = fieldName.toLowerCase();
+      }
+
+      if (fieldName.length > maxWordLength) {
+        fieldName = fieldName.substring(0, maxWordLength - 3) + '...';
+      }
+
+      const separator = processedFields.length > 0 ? ', ' : '';
+      const potentialLength = currentLength + separator.length + fieldName.length;
+
+      if (potentialLength > maxCharacters && processedFields.length > 0) {
+        remainingCount = this.missingMandatoryFieldNames.length - i;
+        break;
+      }
+
+      processedFields.push(fieldName);
+      currentLength = potentialLength;
+    }
+
+    this.missingFieldsDisplayText = processedFields.join(', ');
+    this.remainingFieldsCount = remainingCount;
+  }
+
+  /**
+   * Creates and caches a map of mandatory expense fields (ID -> name).
+   * Uses cached data when available, otherwise makes API call to fetch fields.
+   * Populates missing field names and processes them for display after map is ready.
+   */
+  private ensureMandatoryFieldsMap(): void {
+    const requiredFieldIds = this.missingMandatoryFields?.expense_field_ids || [];
+    const cachedMap = this.getCachedMandatoryFieldsMap();
+    const allIdsPresent = requiredFieldIds.every((id) => cachedMap.hasOwnProperty(id));
+
+    // If all required field IDs are present in the cached map, use the cached map
+    if (allIdsPresent && requiredFieldIds.length > 0) {
+      this.mandatoryFieldsMap = cachedMap;
+      this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+      this.processMissingFieldsForDisplay();
+      return;
+    }
+
+    this.expenseFieldsService.getMandatoryExpenseFields().subscribe({
+      next: (mandatoryExpenseFields) => {
+        if (mandatoryExpenseFields && Array.isArray(mandatoryExpenseFields)) {
+          this.allMandatoryExpenseFields = mandatoryExpenseFields;
+
+          const newFieldsMap: Record<number, string> = {};
+          mandatoryExpenseFields.forEach((field) => {
+            if (field && field.id && field.field_name) {
+              newFieldsMap[field.id] = field.field_name;
+            }
+          });
+
+          this.mandatoryFieldsMap = newFieldsMap;
+          this.setCachedMandatoryFieldsMap(newFieldsMap);
+          this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+          this.processMissingFieldsForDisplay();
+        } else {
+          this.mandatoryFieldsMap = cachedMap;
+          this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+          this.processMissingFieldsForDisplay();
+        }
+      },
+      // Fallback to existing cache if API call fails
+      error: () => {
+        this.mandatoryFieldsMap = cachedMap;
+        this.missingMandatoryFieldNames = this.getMissingMandatoryFieldNames();
+        this.processMissingFieldsForDisplay();
+      },
+    });
   }
 }

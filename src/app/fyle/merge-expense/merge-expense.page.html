@@ -8,10 +8,10 @@
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="fg">
+  @if (fg) {
     <form #formContainer [formGroup]="fg" class="merge-expenses--form">
       <div class="merge-expenses--internal-block">
-        <ng-container *ngIf="expenseOptions$|async as expenseOptions">
+        @if (expenseOptions$ | async; as expenseOptions) {
           <app-fy-select
             [disabled]="disableFormElements || disableExpenseToKeep"
             [label]="'Expense to Keep'"
@@ -20,23 +20,22 @@
             [nullOption]="false"
             [options]="expenseOptions"
             [enableSearch]="false"
-            formControlName="target_txn_id"
-            [touchedInParent]="fg.controls.target_txn_id.touched"
-            [validInParent]="fg.controls.target_txn_id.valid"
+            formControlName="target_expense_id"
+            [touchedInParent]="fg.controls.target_expense_id.touched"
+            [validInParent]="fg.controls.target_expense_id.valid"
           >
           </app-fy-select>
-        </ng-container>
+        }
       </div>
-      <div *ngIf="fg.controls.target_txn_id.touched && fg.controls.target_txn_id.invalid" class="merge-expenses--error">
-        Please select a valid expense
-      </div>
-
-      <app-fy-alert-info *ngIf="expenseToKeepInfoText" [message]="expenseToKeepInfoText" [type]="'information'">
-      </app-fy-alert-info>
-
-      <ng-container *ngIf="genericFieldsOptions$|async as genericFieldsOptions">
-        <ng-container *ngIf="projectDependentFieldsMapping$|async as projectDependentFieldsMapping">
-          <ng-container *ngIf="costCenterDependentFieldsMapping$|async as costCenterDependentFieldsMapping">
+      @if (fg.controls.target_expense_id.touched && fg.controls.target_expense_id.invalid) {
+        <div class="merge-expenses--error">Please select a valid expense</div>
+      }
+      @if (expenseToKeepInfoText) {
+        <app-fy-alert-info [message]="expenseToKeepInfoText" [type]="'information'"> </app-fy-alert-info>
+      }
+      @if (genericFieldsOptions$ | async; as genericFieldsOptions) {
+        @if (projectDependentFieldsMapping$ | async; as projectDependentFieldsMapping) {
+          @if (costCenterDependentFieldsMapping$ | async; as costCenterDependentFieldsMapping) {
             <app-generic-fields-form
               formControlName="genericFields"
               [amountOptionsData]="genericFieldsOptions.amountOptionsData"
@@ -63,13 +62,12 @@
               (receiptChanged)="onReceiptChanged($event)"
               (paymentModeChanged)="onPaymentModeChanged()"
             ></app-generic-fields-form>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-
+          }
+        }
+      }
       <ng-template #categoryDependentFields>
-        <ng-container *ngIf="systemCategories?.includes(selectedCategoryName)">
-          <ng-container *ngIf="categoryDependentFieldsOptions$|async as categoryDependentFieldsOptions">
+        @if (systemCategories?.includes(selectedCategoryName)) {
+          @if (categoryDependentFieldsOptions$ | async; as categoryDependentFieldsOptions) {
             <app-category-dependent-fields-form
               formControlName="categoryDependent"
               [location1OptionsData]="categoryDependentFieldsOptions.location1OptionsData"
@@ -85,23 +83,22 @@
               [disableFormElements]="disableFormElements"
               (fieldsTouched)="onCategoryDependentFieldsTouched($event)"
             ></app-category-dependent-fields-form>
-          </ng-container>
-        </ng-container>
+          }
+        }
       </ng-template>
-
-      <ng-container *ngIf="customInputs$ | async as customInputs">
+      @if (customInputs$ | async; as customInputs) {
         <app-custom-inputs-fields-form
           formControlName="custom_inputs"
           [disableFormElements]="disableFormElements"
           [customInputs]="customInputs"
           [combinedCustomProperties]="combinedCustomProperties"
         ></app-custom-inputs-fields-form>
-      </ng-container>
+      }
     </form>
-  </ng-container>
+  }
 </ion-content>
 
-<ng-container *ngIf="fg">
+@if (fg) {
   <ion-footer class="merge-expenses--footer-container">
     <ion-toolbar mode="md">
       <div class="merge-expenses--footer-toolbar">
@@ -120,4 +117,4 @@
       </div>
     </ion-toolbar>
   </ion-footer>
-</ng-container>
+}

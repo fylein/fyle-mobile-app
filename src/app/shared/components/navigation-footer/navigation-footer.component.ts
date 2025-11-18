@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, inject } from '@angular/core';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -6,28 +6,36 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { Observable } from 'rxjs';
+import { FyNavFooterComponent } from './fy-nav-footer/fy-nav-footer.component';
 
 @Component({
   selector: 'app-navigation-footer',
   templateUrl: './navigation-footer.component.html',
   styleUrls: ['./navigation-footer.component.scss'],
+  imports: [FyNavFooterComponent],
 })
 export class NavigationFooterComponent implements OnInit {
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportExpenseCount: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeExpenseIndex: number;
 
   reportExpenseIds: string[];
 
   view: ExpenseView;
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private trackingService: TrackingService,
-    private approverExpensesService: ApproverExpensesService,
-    private spenderExpensesService: SpenderExpensesService
-  ) {}
 
   ngOnInit(): void {
     const expenseIds = this.activatedRoute.snapshot.params.txnIds as string;

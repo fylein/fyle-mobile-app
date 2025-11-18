@@ -1,7 +1,34 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { ExpenseState } from './expense-state.pipe';
 
 describe('ExpenseStatePipe', () => {
-  const pipe = new ExpenseState();
+  let pipe: ExpenseState;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    });
+
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    pipe = TestBed.runInInjectionContext(() => new ExpenseState());
+
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.expenseState.incomplete': 'incomplete',
+        'pipes.expenseState.complete': 'complete',
+        'pipes.expenseState.submitted': 'submitted',
+        'pipes.expenseState.approved': 'approved',
+        'pipes.expenseState.paymentPending': 'payment_pending',
+        'pipes.expenseState.processing': 'processing',
+        'pipes.expenseState.closed': 'closed',
+      };
+      return translations[key] || key;
+    });
+  });
 
   it('transforms "" state to ""', () => {
     expect(pipe.transform('')).toBe('');

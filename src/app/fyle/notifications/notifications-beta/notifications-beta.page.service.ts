@@ -3,14 +3,15 @@ import { NotificationConfig } from 'src/app/core/models/notification-config.mode
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class NotificationsBetaPageService {
-  getInitialDelegateNotificationPreference(orgUserSettings: OrgUserSettings): 'onlyMe' | 'onlyDelegate' | 'both' {
-    const notificationSettings = orgUserSettings.notification_settings;
+  getInitialDelegateNotificationPreference(employeeSettings: EmployeeSettings): 'onlyMe' | 'onlyDelegate' | 'both' {
+    const notificationSettings = employeeSettings.notification_settings;
     if (notificationSettings.notify_user === true && notificationSettings.notify_delegatee === false) {
       return 'onlyMe';
     } else if (notificationSettings.notify_user === false && notificationSettings.notify_delegatee === true) {
@@ -20,8 +21,8 @@ export class NotificationsBetaPageService {
     }
   }
 
-  getExpenseNotifications(): NotificationEventItem[] {
-    return [
+  getExpenseNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
+    const expenseNotifications = [
       {
         event: 'When an expense is created via email',
         email: true,
@@ -43,10 +44,21 @@ export class NotificationsBetaPageService {
         eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
       },
     ];
+
+    const allowedRoles = ['ADMIN', 'FINANCE'];
+    if (currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
+      expenseNotifications.push({
+        event: 'When an expense is marked as personal',
+        email: true,
+        eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+      });
+    }
+
+    return expenseNotifications;
   }
 
-  getReportNotifications(): NotificationEventItem[] {
-    return [
+  getReportNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
+    const reportNotifications = [
       {
         event: 'When an expense report is submitted',
         email: true,
@@ -73,6 +85,17 @@ export class NotificationsBetaPageService {
         eventEnum: NotificationEventsEnum.EREIMBURSEMENTS_COMPLETED,
       },
     ];
+
+    const allowedRoles = ['ADMIN', 'FINANCE', 'PAYMENT_PROCESSOR'];
+    if (currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
+      reportNotifications.push({
+        event: 'When an expense report is ready to process',
+        email: true,
+        eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
+      });
+    }
+
+    return reportNotifications;
   }
 
   getAdvanceNotifications(): NotificationEventItem[] {
@@ -112,14 +135,15 @@ export class NotificationsBetaPageService {
 
   getEmailNotificationsConfig(
     orgSettings: OrgSettings,
-    orgUserSettings: OrgUserSettings
+    employeeSettings: EmployeeSettings,
+    currentEou: ExtendedOrgUser,
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;
     advanceNotificationsConfig: NotificationConfig;
   } {
     const unsubscribedEventsByAdmin: string[] = orgSettings.admin_email_settings?.unsubscribed_events ?? [];
-    const unsubscribedEventsByUser: string[] = orgUserSettings.notification_settings.email?.unsubscribed_events ?? [];
+    const unsubscribedEventsByUser: string[] = employeeSettings.notification_settings.email_unsubscribed_events ?? [];
 
     // Filter out admin-disabled notifications first, then apply user preferences
     const processNotifications = (notifications: NotificationEventItem[]): NotificationEventItem[] =>
@@ -130,8 +154,8 @@ export class NotificationsBetaPageService {
           email: !unsubscribedEventsByUser.includes(notification.eventEnum),
         }));
 
-    const expenseNotifications = processNotifications(this.getExpenseNotifications());
-    const reportNotifications = processNotifications(this.getReportNotifications());
+    const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou));
+    const reportNotifications = processNotifications(this.getReportNotifications(currentEou));
     const advanceNotifications = processNotifications(this.getAdvanceNotifications());
 
     const expenseNotificationsConfig = {

@@ -109,6 +109,7 @@ export interface AchSettings extends CommonOrgSettings {
   expedite_source?: boolean;
   expedite_destination?: boolean;
   pipeline_amount_limit?: number;
+  is_suspended?: boolean;
 }
 
 export interface BankStatementParserEndpointSettings {
@@ -152,7 +153,7 @@ export interface AutoFyleSettings extends CommonOrgSettings {
   background_enabled?: boolean;
 }
 
-export interface DefaultOrgUserSettings {
+export interface DefaultOuSettings {
   auto_fyle_settings?: AutoFyleSettings;
 }
 
@@ -378,7 +379,7 @@ export interface OrgSettingsResponse {
   bank_feed_request_settings?: BankFeedRequestSettings;
   card_expense_creation_settings?: CommonOrgSettings;
   ach_settings?: AchSettings;
-  default_ou_settings?: DefaultOrgUserSettings;
+  default_ou_settings?: DefaultOuSettings;
   org_personal_cards_settings?: CommonOrgSettings;
   bank_data_aggregation_settings?: OrgBankDataAggregationSettings;
   per_diem_settings?: PerDiemSettings;
@@ -462,6 +463,7 @@ export interface OrgSettingsResponse {
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
+  is_new_critical_policy_violation_flow_enabled?: boolean;
 }
 
 export interface UiPolicySettings {
@@ -577,4 +579,5 @@ export interface OrgSettings {
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
+  is_new_critical_policy_violation_flow_enabled?: boolean;
 }

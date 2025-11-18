@@ -1,5 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -12,12 +11,12 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ViewExpensePage } from './view-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -42,7 +41,7 @@ import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { expenseData, platformExpenseDataWithPendingGasCharge } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
@@ -60,6 +59,8 @@ import {
 } from 'src/app/core/mock-data/platform-report.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { cloneDeep } from 'lodash';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -78,7 +79,7 @@ describe('ViewExpensePage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
@@ -87,6 +88,7 @@ describe('ViewExpensePage', () => {
   let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -122,7 +124,7 @@ describe('ViewExpensePage', () => {
       'expenseFlagUnflagClicked',
     ]);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getSystemCategories',
       'getSystemCategoriesWithTaxi',
@@ -139,13 +141,13 @@ describe('ViewExpensePage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
+    const sharedExpensesServiceSpy = jasmine.createSpyObj('SharedExpensesService', ['isPendingGasCharge']);
 
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewExpensePage],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
       providers: [
         {
           useValue: loaderServiceSpy,
@@ -205,7 +207,7 @@ describe('ViewExpensePage', () => {
         },
         {
           useValue: orgSettingsServiceSpy,
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
         },
         {
           useValue: categoriesServiceSpy,
@@ -236,6 +238,10 @@ describe('ViewExpensePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: SharedExpensesService,
+          useValue: sharedExpensesServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -257,10 +263,10 @@ describe('ViewExpensePage', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     spenderExpenseCommentService = TestBed.inject(
-      SpenderExpenseCommentService
+      SpenderExpenseCommentService,
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;
     approverExpenseCommentService = TestBed.inject(
-      ApproverExpenseCommentService
+      ApproverExpenseCommentService,
     ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -271,7 +277,7 @@ describe('ViewExpensePage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -280,6 +286,7 @@ describe('ViewExpensePage', () => {
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -378,7 +385,7 @@ describe('ViewExpensePage', () => {
     it('should get policy details for team expenses', () => {
       component.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
@@ -388,7 +395,7 @@ describe('ViewExpensePage', () => {
     it('should get policy details for individual expenses', () => {
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states)
+        of(expensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
@@ -557,8 +564,8 @@ describe('ViewExpensePage', () => {
       component.customProperties$.subscribe((customProperties) => {
         expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          expenseData.category_id,
-          expenseData.custom_fields as Partial<CustomInput>[]
+          expenseData.category_id.toString(),
+          expenseData.custom_fields as Partial<CustomInput>[],
         );
         done();
       });
@@ -574,7 +581,7 @@ describe('ViewExpensePage', () => {
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps as Partial<CustomInput>[],
-          projectIdNumber
+          projectIdNumber,
         );
         done();
       });
@@ -590,7 +597,7 @@ describe('ViewExpensePage', () => {
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps as Partial<CustomInput>[],
-          costCenterId
+          costCenterId,
         );
         done();
       });
@@ -933,7 +940,7 @@ describe('ViewExpensePage', () => {
         expect(approverFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expense.file_ids);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           urlsBulkData[0].name,
-          urlsBulkData[0].download_url
+          urlsBulkData[0].download_url,
         );
       });
       tick(500);
@@ -1133,4 +1140,28 @@ describe('ViewExpensePage', () => {
     expect(modalSpy.present).toHaveBeenCalledTimes(1);
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
   }));
+
+  describe('Pending Gas Charge Functionality', () => {
+    it('should return true when expense is a pending gas charge', () => {
+      const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+      sharedExpensesService.isPendingGasCharge.and.returnValue(true);
+
+      const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeTrue();
+      expect(sharedExpensesService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+
+    it('should return false when expense is not a pending gas charge', () => {
+      const mockExpense = cloneDeep(expenseData);
+
+      sharedExpensesService.isPendingGasCharge.and.returnValue(false);
+
+      const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+      expect(result).toBeFalse();
+      expect(sharedExpensesService.isPendingGasCharge).toHaveBeenCalledWith(mockExpense);
+    });
+  });
 });

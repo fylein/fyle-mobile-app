@@ -1,4 +1,4 @@
-@import '../../../../../assets/styles/fy_select';
+@use '../../../../../assets/styles/fy_select';
 
 .selection-modal {
   color: black;
@@ -70,12 +70,6 @@
 
   &--cta-container {
     margin: 12px;
-  }
-
-  &--primary-cta {
-    width: 100%;
-    height: 48px;
-    --border-radius: 4px !important;
   }
 
   &--check {

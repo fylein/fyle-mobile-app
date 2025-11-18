@@ -13,25 +13,43 @@ import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { platformReportData } from '../mock-data/platform-report.data';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
-
+import { TranslocoService } from '@jsverse/transloco';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 describe('ReportService', () => {
   let reportService: ReportService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache', 'onLogout']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformService', ['post']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['post']);
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionsService', ['allowedActions']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Configure the translate spy to return expected values
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.report.automaticSubmissionOnDate': '(Automatic Submission On {date})',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && params.date) {
+        translation = translation.replace('{date}', params.date);
+      }
+
+      return translation;
+    });
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         ReportService,
         DatePipe,
@@ -60,18 +78,25 @@ describe('ReportService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
 
     reportService = TestBed.inject(ReportService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -173,7 +198,7 @@ describe('ReportService', () => {
         expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
           'reports',
           ['approve', 'create', 'delete'],
-          orgSettingsRes
+          orgSettingsRes,
         );
         done();
       });

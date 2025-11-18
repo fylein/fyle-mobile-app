@@ -1,21 +1,52 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
 import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('AutoSubmissionInfoCardComponent', () => {
   let component: AutoSubmissionInfoCardComponent;
   let fixture: ComponentFixture<AutoSubmissionInfoCardComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [AutoSubmissionInfoCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TranslocoModule, AutoSubmissionInfoCardComponent],
+      providers: [
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AutoSubmissionInfoCardComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'autoSubmissionInfoCard.nextSubmissionOn': 'Next submission on',
+        'autoSubmissionInfoCard.completeExpenses': 'Complete expenses',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

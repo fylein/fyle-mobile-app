@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { PlatformApiPayload } from '../models/platform/platform-api-payload.model';
 import { EnrollCardPayload } from '../models/platform/enroll-card-payload.model';
@@ -14,7 +14,7 @@ import { CardNetworkType } from '../enums/card-network-type';
   providedIn: 'root',
 })
 export class RealTimeFeedService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   isCardNumberValid(cardNumber: string): boolean {
     if (!cardNumber) {

@@ -1,26 +1,45 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonButton, IonFooter, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-review-footer',
   templateUrl: './review-footer.component.html',
   styleUrls: ['./review-footer.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    IonButton,
+    IonFooter,
+    IonToolbar,
+    TranslocoPipe
+  ],
 })
 export class ReviewFooterComponent implements OnInit {
+  private trackingService = inject(TrackingService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeIndex: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reviewList: Array<Expense>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() saveAndPrevLoader: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() saveAndNextLoader: boolean;
 
-  @Output() saveAndGoToPrev = new EventEmitter();
+  readonly saveAndGoToPrev = output();
 
-  @Output() saveAndGoToNext = new EventEmitter();
-
-  constructor(private trackingService: TrackingService) {}
+  readonly saveAndGoToNext = output();
 
   ngOnInit() {}
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { YodleeAccessToken } from '../models/yoodle-token.model';
@@ -8,7 +8,7 @@ import { DateService } from './date.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { PersonalCardDateFilter } from '../models/personal-card-date-filter.model';
 import { PlatformPersonalCardFilterParams } from '../models/platform/platform-personal-card-filter-params.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -18,17 +18,25 @@ import { PlatformPersonalCardTxn } from '../models/platform/platform-personal-ca
 import { PlatformPersonalCardQueryParams } from '../models/platform/platform-personal-card-query-params.model';
 import { PersonalCardSyncTxns } from '../models/platform/platform-personal-card-syn-txns.model';
 import { environment } from 'src/environments/environment';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PersonalCardsService {
-  constructor(private dateService: DateService, private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private dateService = inject(DateService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private translocoService = inject(TranslocoService);
 
   addTransactionTypeToTxns(txns: PlatformPersonalCardTxn[]): PlatformPersonalCardTxn[] {
     return txns.map((txn) => ({
       ...txn,
-      transactionType: txn.amount < 0 ? 'credit' : 'debit',
+      transactionType:
+        txn.amount < 0
+          ? this.translocoService.translate('services.personalCards.transactionCredit')
+          : this.translocoService.translate('services.personalCards.transactionDebit'),
       amount: Math.abs(txn.amount),
     }));
   }
@@ -48,8 +56,8 @@ export class PersonalCardsService {
             ({
               access_token: res.data.access_token,
               fast_link_url: environment.YODLEE_FAST_LINK_URL,
-            } as YodleeAccessToken)
-        )
+            }) as YodleeAccessToken,
+        ),
       );
   }
 
@@ -125,7 +133,7 @@ export class PersonalCardsService {
       offset: 0,
       limit: 10,
       queryParams: {},
-    }
+    },
   ): Observable<PlatformApiResponse<PlatformPersonalCardTxn[]>> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPersonalCardTxn[]>>('/personal_card_transactions', {
@@ -140,13 +148,13 @@ export class PersonalCardsService {
         map((res) => ({
           ...res,
           data: this.addTransactionTypeToTxns(res.data),
-        }))
+        })),
       );
   }
 
   matchExpense(
     transactionSplitGroupId: string,
-    externalExpenseId: string
+    externalExpenseId: string,
   ): Observable<{
     external_expense_id: string;
     transaction_split_group_id: string;
@@ -163,7 +171,7 @@ export class PersonalCardsService {
         map((res) => ({
           transaction_split_group_id: res.data.matched_expense_ids[0],
           external_expense_id: res.data.id,
-        }))
+        })),
       );
   }
 
@@ -196,7 +204,7 @@ export class PersonalCardsService {
 
   generateDateParams(
     data: { range: string; endDate?: string; startDate?: string },
-    currentParams: Partial<PlatformPersonalCardFilterParams>
+    currentParams: Partial<PlatformPersonalCardFilterParams>,
   ): Partial<PlatformPersonalCardFilterParams> {
     let dateRangeQuickFilter = '';
     if (data.range === 'This Month') {
@@ -226,7 +234,7 @@ export class PersonalCardsService {
 
     if (data.range === 'Custom Range') {
       dateRangeQuickFilter = `(and(spent_at.gte.${new Date(data.startDate).toISOString()},spent_at.lt.${new Date(
-        data.endDate
+        data.endDate,
       ).toISOString()}))`;
     }
     if (!currentParams.queryParams) {
@@ -305,7 +313,7 @@ export class PersonalCardsService {
   generateTxnDateParams(
     newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
-    type: string
+    type: string,
   ): void {
     let queryType: string;
     if (type === 'createdOn') {
@@ -320,21 +328,21 @@ export class PersonalCardsService {
       if (dateFilter.name === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
         newQueryParams.or.push(
-          `(and(${queryType}.gte.${thisMonth.from.toISOString()},${queryType}.lt.${thisMonth.to.toISOString()}))`
+          `(and(${queryType}.gte.${thisMonth.from.toISOString()},${queryType}.lt.${thisMonth.to.toISOString()}))`,
         );
       }
 
       if (dateFilter.name === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
         newQueryParams.or.push(
-          `(and(${queryType}.gte.${thisWeek.from.toISOString()},${queryType}.lt.${thisWeek.to.toISOString()}))`
+          `(and(${queryType}.gte.${thisWeek.from.toISOString()},${queryType}.lt.${thisWeek.to.toISOString()}))`,
         );
       }
 
       if (dateFilter.name === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
         newQueryParams.or.push(
-          `(and(${queryType}.gte.${lastMonth.from.toISOString()},${queryType}.lt.${lastMonth.to.toISOString()}))`
+          `(and(${queryType}.gte.${lastMonth.from.toISOString()},${queryType}.lt.${lastMonth.to.toISOString()}))`,
         );
       }
 
@@ -346,7 +354,7 @@ export class PersonalCardsService {
     newQueryParams: Partial<PlatformPersonalCardQueryParams>,
     filters: Partial<PersonalCardFilter>,
     type: string,
-    queryType: string
+    queryType: string,
   ): void {
     const dateFilter = filters[type] as PersonalCardDateFilter;
     if (dateFilter.name === DateFilters.custom) {
@@ -364,7 +372,7 @@ export class PersonalCardsService {
 
   generateCreditParams(
     newQueryParams: Partial<PlatformPersonalCardQueryParams>,
-    filters: Partial<PersonalCardFilter>
+    filters: Partial<PersonalCardFilter>,
   ): void {
     if (filters.transactionType) {
       const txnType = filters.transactionType.toLowerCase();
@@ -397,21 +405,21 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Updated date',
+        label: this.translocoService.translate('services.personalCards.updatedDate'),
         type: 'date',
-        value: `${startDate} to ${endDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeTo', { startDate, endDate }),
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Updated date',
+        label: this.translocoService.translate('services.personalCards.updatedDate'),
         type: 'date',
-        value: `>= ${startDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeFrom', { startDate }),
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Updated date',
+        label: this.translocoService.translate('services.personalCards.updatedDate'),
         type: 'date',
-        value: `<= ${endDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeToInclusive', { endDate }),
       });
     }
   }
@@ -419,17 +427,17 @@ export class PersonalCardsService {
   private generateCreditTrasactionsFilterPills(filters: Partial<PersonalCardFilter>, filterPills: FilterPill[]): void {
     if (filters.transactionType === 'Credit') {
       filterPills.push({
-        label: 'Transactions Type',
+        label: this.translocoService.translate('services.personalCards.transactionsType'),
         type: 'string',
-        value: 'Credit',
+        value: this.translocoService.translate('services.personalCards.creditPillValue'),
       });
     }
 
     if (filters.transactionType === 'Debit') {
       filterPills.push({
-        label: 'Transactions Type',
+        label: this.translocoService.translate('services.personalCards.transactionsType'),
         type: 'string',
-        value: 'Debit',
+        value: this.translocoService.translate('services.personalCards.debitPillValue'),
       });
     }
   }
@@ -440,21 +448,21 @@ export class PersonalCardsService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: `${startDate} to ${endDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeTo', { startDate, endDate }),
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: `>= ${startDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeFrom', { startDate }),
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: `<= ${endDate}`,
+        value: this.translocoService.translate('services.personalCards.dateRangeToInclusive', { endDate }),
       });
     }
   }
@@ -463,33 +471,33 @@ export class PersonalCardsService {
     const dateFilter = filters[type] as PersonalCardDateFilter;
     if (dateFilter.name === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: 'this Week',
+        value: this.translocoService.translate('services.personalCards.thisWeekPillValue'),
       });
     }
 
     if (dateFilter.name === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: 'this Month',
+        value: this.translocoService.translate('services.personalCards.thisMonthPillValue'),
       });
     }
 
     if (dateFilter.name === DateFilters.all) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: 'All',
+        value: this.translocoService.translate('services.personalCards.allPillValue'),
       });
     }
 
     if (dateFilter.name === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Created date',
+        label: this.translocoService.translate('services.personalCards.createdDate'),
         type: 'date',
-        value: 'Last Month',
+        value: this.translocoService.translate('services.personalCards.lastMonthPillValue'),
       });
     }
 

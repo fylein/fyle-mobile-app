@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { PendingVerificationPage } from './pending-verification.page';
@@ -8,12 +7,14 @@ import { of, throwError } from 'rxjs';
 import { authResData1 } from 'src/app/core/mock-data/auth-response.data';
 import { By } from '@angular/platform-browser';
 import { UntypedFormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { HttpErrorResponse } from '@angular/common/http';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { Directive, NO_ERRORS_SCHEMA } from '@angular/core';
+import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 
 describe('PendingVerificationPage', () => {
   let component: PendingVerificationPage;
@@ -26,14 +27,21 @@ describe('PendingVerificationPage', () => {
   let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let fb: UntypedFormBuilder;
 
+  // mock for FormButtonValidationDirective
+  @Directive({ selector: '[appFormButtonValidation]' })
+  class MockFormButtonValidationDirective {
+  }
+
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resendVerificationLink']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-      declarations: [PendingVerificationPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule, FormsModule, ReactiveFormsModule],
+      imports: [
+        RouterTestingModule,
+        PendingVerificationPage,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -57,6 +65,14 @@ describe('PendingVerificationPage', () => {
           useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
         },
       ],
+    }).overrideComponent(PendingVerificationPage, {
+      remove: {
+        imports: [FormButtonValidationDirective],
+      },
+      add: {
+        imports: [MockFormButtonValidationDirective],
+        schemas: [NO_ERRORS_SCHEMA],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(PendingVerificationPage);

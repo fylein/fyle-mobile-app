@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, OnInit, inject } from '@angular/core';
+import { IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { SupportDialogPage } from 'src/app/fyle/help/support-dialog/support-dialog.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { switchMap, finalize } from 'rxjs/operators';
@@ -10,25 +10,37 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 
 @Component({
   selector: 'app-help',
   templateUrl: './help.page.html',
   styleUrls: ['./help.page.scss'],
+  imports: [
+    FyMenuIconComponent,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar
+  ],
 })
 export class HelpPage implements OnInit {
+  private modalController = inject(ModalController);
+
+  private employeesService = inject(EmployeesService);
+
+  private loaderService = inject(LoaderService);
+
+  private trackingService = inject(TrackingService);
+
+  private authService = inject(AuthService);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
   orgAdmins: PlatformApiResponse<Partial<Employee>[]>;
 
   contactSupportLoading = false;
-
-  constructor(
-    private modalController: ModalController,
-    private employeesService: EmployeesService,
-    private loaderService: LoaderService,
-    private trackingService: TrackingService,
-    private authService: AuthService,
-    private browserHandlerService: BrowserHandlerService
-  ) {}
 
   openContactSupportDialog(): void {
     this.contactSupportLoading = true;
@@ -44,9 +56,9 @@ export class HelpPage implements OnInit {
             id: 'neq.' + eou.ou.id,
             order: 'full_name.asc',
             limit: 5,
-          })
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((orgAdmins) => {
         this.orgAdmins = orgAdmins;

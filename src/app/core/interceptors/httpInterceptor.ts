@@ -7,14 +7,14 @@ import {
   HttpParams,
   HttpRequest,
 } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { BehaviorSubject, EMPTY, Observable, forkJoin, from, iif, of, throwError } from 'rxjs';
 import { catchError, concatMap, filter, mergeMap, take } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { DeviceService } from '../services/device.service';
 import { RouterAuthService } from '../services/router-auth.service';
@@ -25,19 +25,23 @@ import { UserEventService } from '../services/user-event.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
+  private jwtHelperService = inject(JwtHelperService);
+
+  private tokenService = inject(TokenService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private deviceService = inject(DeviceService);
+
+  private userEventService = inject(UserEventService);
+
+  private storageService = inject(StorageService);
+
+  private secureStorageService = inject(SecureStorageService);
+
   public accessTokenCallInProgress = false;
 
   public accessTokenSubject = new BehaviorSubject<string>(null);
-
-  constructor(
-    private jwtHelperService: JwtHelperService,
-    private tokenService: TokenService,
-    private routerAuthService: RouterAuthService,
-    private deviceService: DeviceService,
-    private userEventService: UserEventService,
-    private storageService: StorageService,
-    private secureStorageService: SecureStorageService
-  ) {}
 
   secureUrl(url: string): boolean {
     if (url.indexOf('localhost') >= 0 || url.indexOf('.fylehq.com') >= 0 || url.indexOf('.fyle.tech') >= 0) {
@@ -75,7 +79,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         return EMPTY;
       }),
       concatMap((authResponse) => this.routerAuthService.newAccessToken(authResponse.access_token)),
-      concatMap(() => from(this.tokenService.getAccessToken()))
+      concatMap(() => from(this.tokenService.getAccessToken())),
     );
   }
 
@@ -97,26 +101,26 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                 this.accessTokenCallInProgress = false;
                 this.accessTokenSubject.next(newAccessToken);
                 return of(newAccessToken);
-              })
+              }),
             );
           } else {
             return this.accessTokenSubject.pipe(
               filter((result) => result !== null),
               take(1),
-              concatMap(() => from(this.tokenService.getAccessToken()))
+              concatMap(() => from(this.tokenService.getAccessToken())),
             );
           }
         } else {
           return of(accessToken);
         }
-      })
+      }),
     );
   }
 
   getUrlWithoutQueryParam(url: string): string {
     const queryIndex = Math.min(
       url.indexOf('?') !== -1 ? url.indexOf('?') : url.length,
-      url.indexOf(';') !== -1 ? url.indexOf(';') : url.length
+      url.indexOf(';') !== -1 ? url.indexOf(';') : url.length,
     );
     if (queryIndex !== url.length) {
       url = url.substring(0, queryIndex);
@@ -158,7 +162,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
                   mergeMap((newToken) => {
                     request = request.clone({ headers: request.headers.set('Authorization', 'Bearer ' + newToken) });
                     return next.handle(request);
-                  })
+                  }),
                 );
               } else if (
                 (error.status === 404 && error.headers.get('X-Mobile-App-Blocked') === 'true') ||
@@ -172,9 +176,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
               }
             }
             return throwError(error);
-          })
+          }),
         );
-      })
+      }),
     );
   }
 }

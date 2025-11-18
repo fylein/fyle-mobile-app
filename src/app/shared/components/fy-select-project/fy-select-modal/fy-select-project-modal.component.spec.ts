@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { FyProjectSelectModalComponent } from './fy-select-project-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
+import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { map, of } from 'rxjs';
 import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';
@@ -54,9 +54,9 @@ describe('FyProjectSelectModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let inputElement: HTMLInputElement;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
@@ -64,23 +64,31 @@ describe('FyProjectSelectModalComponent', () => {
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
       'getAll',
       'filterRequired',
       'getCategoryById',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
       imports: [
-        IonicModule.forRoot(),
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
         BrowserAnimationsModule,
+        TranslocoModule,
+        FyProjectSelectModalComponent,
+        FyHighlightTextComponent,
+        HighlightPipe,
       ],
       providers: [
         ChangeDetectorRef,
@@ -105,7 +113,7 @@ describe('FyProjectSelectModalComponent', () => {
           useValue: utilityServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -115,6 +123,10 @@ describe('FyProjectSelectModalComponent', () => {
         {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -127,14 +139,29 @@ describe('FyProjectSelectModalComponent', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectProjectModal.selectLabel': 'Select {{label}}',
+        'fySelectProjectModal.searchPlaceholder': 'Search',
+        'fySelectProjectModal.clearAriaLabel': 'Clear',
+        'fySelectProjectModal.none': 'None',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((paramKey) => {
+          translation = translation.replace(`{{${paramKey}}}`, params[paramKey]);
+        });
+      }
+      return translation;
+    });
     projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -185,7 +212,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -215,7 +242,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -246,7 +273,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          undefined
+          undefined,
         );
         expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
@@ -281,7 +308,7 @@ describe('FyProjectSelectModalComponent', () => {
             limit: 20,
           },
           component.isProjectCategoryRestrictionsEnabled,
-          []
+          [],
         );
         done();
       });
@@ -379,7 +406,7 @@ describe('FyProjectSelectModalComponent', () => {
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
         { label: 'Staging Project', value: testProjectV2 },
-        'label'
+        'label',
       );
     });
   });
@@ -426,13 +453,15 @@ describe('FyProjectSelectModalComponent', () => {
     }));
   });
 
-  it('should show label on the screen', () => {
+  it('should show label on the screen', fakeAsync(() => {
     component.activeCategories$ = of([]);
     component.label = 'Projects';
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--title'))).toEqual('Select Projects');
-  });
+    discardPeriodicTasks();
+  }));
 
   it('should close the modal on clicking done CTA', () => {
     spyOn(component, 'onDoneClick');
@@ -464,7 +493,7 @@ describe('FyProjectSelectModalComponent', () => {
           label: project.project_name,
           value: project,
         },
-      ])
+      ]),
     );
     fixture.detectChanges();
 

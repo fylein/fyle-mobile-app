@@ -1,16 +1,16 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .fy-header {
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
   &--title {
     line-height: 1.3;
-    color: $black;
+    color: colors.$black;
     font-weight: 500;
     padding: 18px 0 18px 12px;
   }
 
   &--toolbar {
-    border-bottom: 1px solid $grey-2;
+    border-bottom: 1px solid colors.$grey-2;
     &__hide {
       border-bottom: none;
     }
@@ -19,7 +19,7 @@
   &--simple-search-cancel {
     font-size: 14px;
     line-height: 18px;
-    color: $black-light;
+    color: colors.$black-light;
     text-transform: capitalize;
     margin: 0;
   }

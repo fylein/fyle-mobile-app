@@ -1,26 +1,28 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
+import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { splitExpData, splitExpTransformedData } from 'src/app/core/mock-data/expense.data';
-
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { expectedFileData1, fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { categorieListRes, recentUsedCategoriesRes } from 'src/app/core/mock-data/org-category-list-item.data';
 
 import {
-  filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
   sortedCategory,
@@ -78,12 +80,11 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -105,18 +106,13 @@ import {
   unflattenedAccount1Data,
   advanceWallet1Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
+import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import {
-  apiV2ResponseMultiple,
-  expectedProjectsResponse,
-  testActiveCategoryList,
-} from 'src/app/core/test-data/projects.spec.data';
+import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
 import {
-  apiExpenses2,
   expenseData,
   platformExpenseData,
   platformExpenseWithExtractedData,
@@ -156,7 +152,6 @@ export function TestCases5(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
@@ -165,7 +160,7 @@ export function TestCases5(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -179,7 +174,6 @@ export function TestCases5(getTestBed) {
     let platform: jasmine.SpyObj<Platform>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
-
     beforeEach(() => {
       const TestBed = getTestBed();
       TestBed.compileComponents();
@@ -210,18 +204,17 @@ export function TestCases5(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -231,13 +224,12 @@ export function TestCases5(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
-
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
         paymentMode: [, Validators.required],
@@ -294,7 +286,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            true
+            true,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -317,7 +309,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -340,7 +332,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -363,7 +355,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -375,15 +367,15 @@ export function TestCases5(getTestBed) {
 
     describe('setupBalanceFlag():', () => {
       it('should setup balance available flag', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -394,7 +386,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
@@ -402,7 +394,7 @@ export function TestCases5(getTestBed) {
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -413,7 +405,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false when account changes to null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(null));
+        accountsService.getMyAccounts.and.returnValue(of(null));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.setupBalanceFlag();
@@ -421,7 +413,7 @@ export function TestCases5(getTestBed) {
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -432,15 +424,15 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return false when orgSettings is null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -451,15 +443,15 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should return true for advance wallets', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
         component.setupBalanceFlag();
         tick(500);
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
+          expect(res).toBeFalse();
+          expect(accountsService.getMyAccounts).toHaveBeenCalledOnceWith();
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
           expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
         });
@@ -494,7 +486,7 @@ export function TestCases5(getTestBed) {
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
           apiV2ResponseMultiple[1],
           sortedCategory,
-          true
+          true,
         );
       }));
 
@@ -517,7 +509,7 @@ export function TestCases5(getTestBed) {
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
           apiV2ResponseMultiple[1],
           sortedCategory,
-          true
+          true,
         );
       }));
 
@@ -550,7 +542,7 @@ export function TestCases5(getTestBed) {
         };
 
         const expectedRecentCategories = recentUsedCategoriesRes.filter((category) =>
-          projectWithRestrictions.project_org_category_ids.includes(category.value.id)
+          projectWithRestrictions.project_org_category_ids.includes(category.value.id),
         );
 
         component.setupFilteredCategories();
@@ -593,6 +585,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getCategoryOnAdd').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         component.isConnected$ = of(true);
+        component.isLoading = false;
         component.setupCustomFields();
         tick(500);
 
@@ -657,13 +650,13 @@ export function TestCases5(getTestBed) {
 
         component.getSelectedCategory().subscribe((res) => {
           expect(res).toEqual(orgCategoryData);
-          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.org_category_id);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.category_id);
           done();
         });
       });
 
       it('should return null if category is not present in expense', (done) => {
-        component.etxn$ = of({ ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, org_category_id: null } });
+        component.etxn$ = of({ ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, category_id: null } });
         fixture.detectChanges();
 
         component.getSelectedCategory().subscribe((res) => {
@@ -701,7 +694,7 @@ export function TestCases5(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
             employeeSettingsData.default_project_id,
-            sortedCategory
+            sortedCategory,
           );
           done();
         });
@@ -781,7 +774,7 @@ export function TestCases5(getTestBed) {
         expect(res).toEqual(unflattenedAccount1Data);
         expect(accountsService.getEtxnSelectedPaymentMode).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
-          accountOptionData1
+          accountOptionData1,
         );
         done();
       });
@@ -791,13 +784,13 @@ export function TestCases5(getTestBed) {
       it('should get default payment modes', (done) => {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData);
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = true;
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
-          expect(res).toEqual(accountOptionData1[1].value);
-          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledOnceWith();
+          expect(res).toEqual(accountOptionData1[0].value);
           done();
         });
       });
@@ -805,13 +798,13 @@ export function TestCases5(getTestBed) {
       it('should return the first item in account options if expense was not created from CCC', (done) => {
         component.paymentModes$ = of(accountOptionData1);
         component.employeeSettings$ = of(employeeSettingsData2);
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
         component.isCreatedFromCCC = false;
+        platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData2));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
         fixture.detectChanges();
 
         component.getDefaultPaymentModes().subscribe((res) => {
           expect(res).toEqual(accountOptionData1[0].value);
-          expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledOnceWith();
           done();
         });
       });
@@ -832,7 +825,7 @@ export function TestCases5(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsedProjects).toHaveBeenCalledOnceWith({
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
-          categoryIds: [`${unflattenedTxnWithCategory.tx.org_category_id}`],
+          categoryIds: [`${unflattenedTxnWithCategory.tx.category_id}`],
           isProjectCategoryRestrictionsEnabled: true,
           activeCategoryList: sortedCategory,
         });
@@ -943,21 +936,6 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    it('setCategoryOnValueChange(): should change category value if vendor changes', fakeAsync(() => {
-      component.setCategoryOnValueChange();
-      spyOn(component, 'setCategoryFromVendor');
-      tick(500);
-
-      component.fg.controls.vendor_id.setValue({
-        name: 'vendor',
-        default_category: 'TAXI',
-      });
-      fixture.detectChanges();
-      tick(500);
-
-      expect(component.setCategoryFromVendor).toHaveBeenCalledOnceWith('TAXI');
-    }));
-
     describe('setupFormInit():', () => {
       it('should setup form', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
@@ -973,8 +951,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -984,7 +960,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
+
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1005,8 +981,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1016,7 +990,6 @@ export function TestCases5(getTestBed) {
           etxn: unflattenedTxnData,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       //TODO: Reduce the number of test by moving it to beforeEach
@@ -1034,8 +1007,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedTxnData);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1045,7 +1016,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1063,7 +1033,6 @@ export function TestCases5(getTestBed) {
           etxn: unflattenedTxnData,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
         expect(component.fg.value.paymentMode).toEqual(accountOptionData1[1].value);
       }));
 
@@ -1081,8 +1050,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of({
           ...unflattenedTxnData,
           tx: {
@@ -1103,7 +1070,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue([
           ...txnCustomProperties,
@@ -1138,7 +1104,6 @@ export function TestCases5(getTestBed) {
           },
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('should setup up form for a draft expense with policy violation', fakeAsync(() => {
@@ -1155,8 +1120,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectCategoryRestrictions));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(unflattenedExp2);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1166,7 +1129,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         customFieldsService.standardizeCustomFields.and.returnValue(filledCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
         activatedRoute.snapshot.params.extractData = true;
@@ -1189,11 +1151,8 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
         expect(component.parseFile).toHaveBeenCalledTimes(1);
         expect(component.attachedReceiptsCount).toEqual(1);
       }));
@@ -1212,8 +1171,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1223,7 +1180,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1244,8 +1200,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1255,7 +1209,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form without amount and same currency as home currency', fakeAsync(() => {
@@ -1272,8 +1225,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency2);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1283,7 +1234,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1304,8 +1254,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1315,7 +1263,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency2,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form for an expense with different currencies and DRAFT state', fakeAsync(() => {
@@ -1332,8 +1279,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1343,7 +1288,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1364,8 +1308,6 @@ export function TestCases5(getTestBed) {
         expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
         expect(component.getReceiptCount).toHaveBeenCalledTimes(1);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
@@ -1375,7 +1317,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency3,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
       it('setup form for an expense with different currencies and DRAFT state if recently used categories are undefined', fakeAsync(() => {
@@ -1392,8 +1333,6 @@ export function TestCases5(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.hideLoader.and.resolveTo();
-        loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency3);
         component.taxGroups$ = of(taxGroupData);
         component.employeeSettings$ = of(employeeSettingsData);
@@ -1403,7 +1342,6 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(undefined);
         component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
-        spyOn(component, 'setCategoryOnValueChange');
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1421,7 +1359,6 @@ export function TestCases5(getTestBed) {
           etxn: setupFormExpenseWoCurrency3,
           category: orgCategoryData,
         });
-        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
     });
 
@@ -1492,7 +1429,7 @@ export function TestCases5(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1551,7 +1488,7 @@ export function TestCases5(getTestBed) {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
 
         component.isRTFEnabled$.subscribe((isRTFEnabled) => {
           expect(isRTFEnabled).toBeTrue();
@@ -1634,7 +1571,7 @@ export function TestCases5(getTestBed) {
 
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           generateUrlsBulkData1[0].name,
-          generateUrlsBulkData1[0].download_url
+          generateUrlsBulkData1[0].download_url,
         );
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
@@ -1703,7 +1640,7 @@ export function TestCases5(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1716,7 +1653,7 @@ export function TestCases5(getTestBed) {
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
@@ -1779,7 +1716,7 @@ export function TestCases5(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         spyOn(component, 'setupNetworkWatcher');
         taxGroupService.get.and.returnValue(of(taxGroupData));
         recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
@@ -1793,10 +1730,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
-        const mockFileObject = cloneDeep(expectedFileData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['id_1', 'id_2']);
@@ -1839,7 +1773,7 @@ export function TestCases5(getTestBed) {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
 
         component.isRTFEnabled$.subscribe((isRTFEnabled) => {
           expect(isRTFEnabled).toBeFalse();
@@ -1905,7 +1839,7 @@ export function TestCases5(getTestBed) {
         expect(component.getEditExpenseObservable).toHaveBeenCalledTimes(1);
 
         component.isCCCAccountSelected$.subscribe((res) => {
-          expect(res).toBeTrue();
+          expect(res).toBeFalse();
         });
 
         expect(component.platformExpense$).toBeUndefined();
@@ -1916,7 +1850,7 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual([]);
         });
 
-        expect(fileService.findByTransactionId).not.toHaveBeenCalled();
+        expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
         expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
         expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
 

@@ -12,7 +12,7 @@
                   'task--icon__expense': task.icon === 'list',
                   'task--icon__advance': task.icon === 'wallet',
                   'task--icon__mobile': task.icon === 'phone',
-                  'task--icon__card': task.icon === 'card'
+                  'task--icon__card': task.icon === 'card',
                 }"
                 [src]="'../../../../../assets/svg/' + task.icon + '.svg'"
               ></ion-icon>
@@ -28,39 +28,34 @@
             </ion-col>
           </ion-row>
           <ion-row>
-            <ion-col *ngIf="!task.hideAmount" size="4" class="task--amount task--header-col">
-              <span class="task--amount-currency">
-                {{ currencySymbol$ | async }}
-              </span>
-              {{ task.amount }}
-            </ion-col>
+            @if (!task.hideAmount) {
+              <ion-col size="4" class="task--amount task--header-col">
+                <span class="task--amount-currency">
+                  {{ currencySymbol$ | async }}
+                </span>
+                {{ task.amount }}
+              </ion-col>
+            }
           </ion-row>
           <ion-row>
-            <ion-col *ngIf="task.hideAmount" class="task--subheader">
-              {{ task.subheader }}
-            </ion-col>
+            @if (task.hideAmount) {
+              <ion-col class="task--subheader">
+                {{ task.subheader }}
+              </ion-col>
+            }
           </ion-row>
           <ion-row class="ion-justify-content-start task--cta-row">
-            <ion-col *ngFor="let cta of task.ctas" class="task--cta">
-              {{ cta.content }}
-            </ion-col>
+            @for (cta of task.ctas; track cta) {
+              <ion-col class="task--cta">
+                {{ cta.content }}
+              </ion-col>
+            }
             <ion-col class="task--cta-row-icon-container">
               <ion-icon class="task--cta-row-icon" src="../../../../../assets/svg/arrow-right.svg"></ion-icon>
             </ion-col>
           </ion-row>
         </ion-col>
       </ion-row>
-      <ng-container *ngIf="showReportAutoSubmissionInfo">
-        <ion-row>
-          <ion-col class="ion-col-no-padding">
-            <app-auto-submission-info-card
-              [autoSubmissionReportDate]="autoSubmissionReportDate"
-              (cardClicked)="onInfoCardClicked()"
-            >
-            </app-auto-submission-info-card>
-          </ion-col>
-        </ion-row>
-      </ng-container>
     </ion-grid>
   </div>
 </div>

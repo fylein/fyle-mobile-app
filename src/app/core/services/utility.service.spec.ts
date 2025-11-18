@@ -1,5 +1,5 @@
 import { TestBed, fakeAsync } from '@angular/core/testing';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
 import {
@@ -16,7 +16,7 @@ import { cloneDeep } from 'lodash';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
 
@@ -61,7 +61,7 @@ describe('UtilityService', () => {
   it('should discard null characters', () => {
     const mockStr = 'Fyle\u0000 Expense!\u0000';
     expect(utilityService.discardNullChar(mockStr)).toEqual(
-      mockStr.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '')
+      mockStr.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, ''),
     );
   });
 
@@ -124,7 +124,7 @@ describe('UtilityService', () => {
     it('should sort single advance', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(0, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -132,7 +132,7 @@ describe('UtilityService', () => {
     it('should sort multiple advances', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(1, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -140,7 +140,7 @@ describe('UtilityService', () => {
     it('should sort advances by approval date', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(utilityService.sortAllAdvances(1, SortingParam.approvalDate, publicAdvanceRequestRes.data)).toEqual(
-        publicAdvanceRequestRes.data
+        publicAdvanceRequestRes.data,
       );
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -148,7 +148,7 @@ describe('UtilityService', () => {
     it('should sort advances by project', () => {
       spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(
-        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, publicAdvanceRequestRes.data)
+        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, publicAdvanceRequestRes.data),
       ).toEqual(publicAdvanceRequestRes.data);
       expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
@@ -162,7 +162,7 @@ describe('UtilityService', () => {
   it('getAmountWithCurrencyFromString(): should return amount with currency from a string', () => {
     const mockStr = 'Expense will be capped to USD 100';
     expect(utilityService.getAmountWithCurrencyFromString(mockStr)).toEqual(
-      mockStr.match(/capped to ([a-zA-Z]{1,3} \d+)/i)
+      mockStr.match(/capped to ([a-zA-Z]{1,3} \d+)/i),
     );
   });
 
@@ -301,6 +301,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
 
@@ -318,6 +319,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       const mockFeatureConfig = cloneDeep(featureConfigOptInData);
       mockFeatureConfig.value = null;
@@ -337,6 +339,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.returnValue(of(undefined));
 
@@ -355,6 +358,7 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
       authService.getEou.and.resolveTo(mockEou);
       featureConfigService.getConfiguration.and.throwError(error);
 

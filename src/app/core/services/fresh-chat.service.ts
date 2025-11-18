@@ -1,5 +1,4 @@
-/* eslint-disable max-len */
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
 import { Device } from '@capacitor/device';
@@ -21,12 +20,13 @@ declare global {
   providedIn: 'root',
 })
 export class FreshChatService {
-  constructor(
-    private authService: AuthService,
-    private storageService: StorageService,
-    private networkService: NetworkService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
-  ) {}
+  private authService = inject(AuthService);
+
+  private storageService = inject(StorageService);
+
+  private networkService = inject(NetworkService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
   getWindow(): Window {
     return window;

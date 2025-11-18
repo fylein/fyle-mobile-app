@@ -1,27 +1,77 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgModel } from '@angular/forms';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
+import { NgModel, FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription, from, noop, of } from 'rxjs';
+import { Observable, Subscription, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from '../../core/models/platform/v1/report.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonRow,
+  IonSkeletonText,
+  IonToolbar,
+} from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
   styleUrls: ['./my-create-report.page.scss'],
+  imports: [
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonRow,
+    IonSkeletonText,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+  ],
 })
 export class MyCreateReportPage implements OnInit {
-  @ViewChild('reportTitleInput') reportTitleInput: NgModel;
+  private activatedRoute = inject(ActivatedRoute);
+
+  private currencyService = inject(CurrencyService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private storageService = inject(StorageService);
+
+  private expensesService = inject(ExpensesService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  readonly reportTitleInput = viewChild<NgModel>('reportTitleInput');
 
   readyToReportExpenses: PlatformExpense[];
 
@@ -49,18 +99,7 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
-  constructor(
-    private transactionService: TransactionService,
-    private activatedRoute: ActivatedRoute,
-    private currencyService: CurrencyService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private storageService: StorageService,
-    private expensesService: ExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
-  ) {}
+  isLoading = true;
 
   detectTitleChange(): void {
     if (!this.reportTitle && this.reportTitle === '') {
@@ -100,7 +139,7 @@ export class MyCreateReportPage implements OnInit {
     }
   }
 
-  ctaClickedEvent(reportActionType): Subscription {
+  ctaClickedEvent(reportActionType: 'create_draft_report' | 'submit_report'): Subscription {
     this.showReportNameError = false;
     if (!this.reportTitle && this.reportTitle.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
@@ -127,7 +166,7 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             switchMap((report: Report) => {
               if (expenseIDs.length) {
@@ -139,7 +178,7 @@ export class MyCreateReportPage implements OnInit {
             finalize(() => {
               this.saveDraftReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       } else {
@@ -151,12 +190,12 @@ export class MyCreateReportPage implements OnInit {
               this.trackingService.createReport({
                 Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
-              })
+              }),
             ),
             finalize(() => {
               this.saveReportLoading = false;
               this.router.navigate(['/', 'enterprise', 'my_reports']);
-            })
+            }),
           )
           .subscribe(noop);
       }
@@ -187,7 +226,9 @@ export class MyCreateReportPage implements OnInit {
     const expenseIDs = this.selectedElements.map((ele) => ele.id);
     this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
-    if (this.reportTitleInput && !this.reportTitleInput.dirty) {
+    // suggest a title if the report title is not dirty or empty (reportTitleInput is not available in the ionViewWillEnter)
+    const reportTitleInput = this.reportTitleInput();
+    if ((reportTitleInput && !reportTitleInput.dirty) || (!reportTitleInput && !this.reportTitle)) {
       return this.spenderReportsService.suggestPurpose(expenseIDs).subscribe((res) => {
         this.reportTitle = res;
       });
@@ -207,6 +248,7 @@ export class MyCreateReportPage implements OnInit {
   ionViewWillEnter(): void {
     this.isSelectedAll = true;
     this.selectedElements = [];
+    this.isLoading = true;
 
     this.checkTxnIds();
 
@@ -217,18 +259,12 @@ export class MyCreateReportPage implements OnInit {
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
     };
 
-    from(this.loaderService.showLoader())
+    this.orgSettingsService
+      .get()
       .pipe(
-        switchMap(() =>
-          this.orgSettingsService
-            .get()
-            .pipe(
-              map(
-                (orgSetting) =>
-                  orgSetting?.corporate_credit_card_settings?.enabled &&
-                  orgSetting?.pending_cct_expense_restriction?.enabled
-              )
-            )
+        map(
+          (orgSetting) =>
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled,
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -254,11 +290,11 @@ export class MyCreateReportPage implements OnInit {
                 }
               });
               return expenses;
-            })
-          )
+            }),
+          ),
         ),
-        finalize(() => from(this.loaderService.hideLoader())),
-        shareReplay(1)
+        finalize(() => (this.isLoading = false)),
+        shareReplay(1),
       )
       .subscribe((res) => {
         this.readyToReportExpenses = res;

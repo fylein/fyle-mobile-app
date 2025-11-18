@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, ModalController, PopoverController } from '@ionic/angular';
+import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import {
   BehaviorSubject,
   Observable,
@@ -17,7 +17,7 @@ import {
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
@@ -35,12 +35,60 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { isNumber } from 'lodash';
+import { MatIcon } from '@angular/material/icon';
+import { CorporateCardComponent } from '../../shared/components/corporate-card/corporate-card.component';
+import { VirtualCardComponent } from '../../shared/components/virtual-card/virtual-card.component';
+import { AsyncPipe } from '@angular/common';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
   styleUrls: ['./manage-corporate-cards.page.scss'],
+  imports: [
+    AsyncPipe,
+    CorporateCardComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    VirtualCardComponent
+  ],
 })
 export class ManageCorporateCardsPage {
+  private router = inject(Router);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private popoverController = inject(PopoverController);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private realTimeFeedService = inject(RealTimeFeedService);
+
+  private trackingService = inject(TrackingService);
+
+  private virtualCardsService = inject(VirtualCardsService);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private authService = inject(AuthService);
+
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
   virtualCardDetails$: Observable<{ [id: string]: CardDetailsCombinedResponse }>;
@@ -66,22 +114,6 @@ export class ManageCorporateCardsPage {
   showSegment = false;
 
   filteredCorporateCards: PlatformCorporateCard[] = [];
-
-  constructor(
-    private router: Router,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private actionSheetController: ActionSheetController,
-    private popoverController: PopoverController,
-    private orgSettingsService: OrgSettingsService,
-    private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService,
-    private virtualCardsService: VirtualCardsService,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private authService: AuthService
-  ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
     return ManageCardsPageSegment;
@@ -119,7 +151,7 @@ export class ManageCorporateCardsPage {
           includeCurrentAmount: true,
         };
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
-      })
+      }),
     );
   }
 
@@ -134,7 +166,7 @@ export class ManageCorporateCardsPage {
       catchError(() => {
         this.filteredCorporateCards = [];
         return of([]);
-      })
+      }),
     );
 
     const orgSettings$ = this.orgSettingsService.get();
@@ -144,26 +176,28 @@ export class ManageCorporateCardsPage {
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
           orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
-      }))
+      })),
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
         ([orgSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
-      )
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
     this.isAddCorporateCardVisible$ = this.checkAddCorporateCardVisibility();
   }
@@ -213,7 +247,7 @@ export class ManageCorporateCardsPage {
         }
 
         return actionSheetButtons;
-      })
+      }),
     );
   }
 
@@ -250,7 +284,7 @@ export class ManageCorporateCardsPage {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 
@@ -258,9 +292,9 @@ export class ManageCorporateCardsPage {
     return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).pipe(
       map(
         ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) =>
-          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled
+          isVisaRTFEnabled || isMastercardRTFEnabled || isYodleeEnabled,
       ),
-      catchError(() => of(false))
+      catchError(() => of(false)),
     );
   }
 

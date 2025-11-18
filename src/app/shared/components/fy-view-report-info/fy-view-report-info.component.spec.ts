@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/approver/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ModalController, SegmentCustomEvent } from '@ionic/angular';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
+import { ModalController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -18,6 +19,7 @@ import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -26,10 +28,10 @@ describe('FyViewReportInfoComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let datePipe: DatePipe;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const mockPlatformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'get',
@@ -41,11 +43,17 @@ describe('FyViewReportInfoComponent', () => {
     ]);
     const mockTrackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewReportInfo']);
     const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails', 'getEou']);
-    const mockOrgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const mockOrgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const mockModalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyViewReportInfoComponent],
+      imports: [TranslocoModule, FyViewReportInfoComponent, MatIconTestingModule],
       providers: [
         {
           provide: SharedExpensesService,
@@ -63,9 +71,8 @@ describe('FyViewReportInfoComponent', () => {
           provide: AuthService,
           useValue: mockAuthServiceSpy,
         },
-
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: mockOrgSettingsServiceSpy,
         },
         {
@@ -73,6 +80,7 @@ describe('FyViewReportInfoComponent', () => {
           useValue: mockModalControllerSpy,
         },
         DatePipe,
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -82,11 +90,11 @@ describe('FyViewReportInfoComponent', () => {
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.isReportView = true;
     component.isEmployeeView = false;
@@ -95,7 +103,45 @@ describe('FyViewReportInfoComponent', () => {
     component.amountCurrencyWiseDetails = {};
     component.employeeDetails = {};
     component.isSwipe = false;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyViewReportInfo.viewInfo': 'View info',
+        'fyViewReportInfo.report': 'Report',
+        'fyViewReportInfo.amount': 'Amount',
+        'fyViewReportInfo.employee': 'Employee',
+        'fyViewReportInfo.reportName': 'Report Name',
+        'fyViewReportInfo.owner': 'Owner',
+        'fyViewReportInfo.reportNumber': 'Report Number',
+        'fyViewReportInfo.createdDate': 'Created date',
+        'fyViewReportInfo.totalAmount': 'Total Amount',
+        'fyViewReportInfo.reimbursable': 'Reimbursable',
+        'fyViewReportInfo.employeeId': 'Employee ID',
+        'fyViewReportInfo.organization': 'Organization',
+        'fyViewReportInfo.department': 'Department',
+        'fyViewReportInfo.subDepartment': 'Sub Department',
+        'fyViewReportInfo.location': 'Location',
+        'fyViewReportInfo.level': 'Level',
+        'fyViewReportInfo.employeeTitle': 'Employee Title',
+        'fyViewReportInfo.businessUnit': 'Business Unit',
+        'fyViewReportInfo.mobile': 'Mobile',
+        'fyViewReportInfo.allowedCostCenters': 'Allowed Cost Centers',
+        'fyViewReportInfo.ccc': 'CCC',
+        'fyViewReportInfo.advance': 'Advance',
+        'fyViewReportInfo.componentWiseSplit': 'Component wise split',
+        'fyViewReportInfo.nonReimbursable': 'Non-reimbursable',
+        'fyViewReportInfo.currencyWiseSplit': 'Currency wise split',
+        'fyViewReportInfo.oneExpense': '1 Expense',
+        'fyViewReportInfo.expenses': ' Expenses',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -324,7 +370,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));
@@ -350,7 +396,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).not.toHaveBeenCalledOnceWith(
-        platformReportData.employee.id
+        platformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
     }));
@@ -385,7 +431,7 @@ describe('FyViewReportInfoComponent', () => {
       tick(1000);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.getAllowedCostCentersByEmployeeId).toHaveBeenCalledOnceWith(
-        modifiedPlatformReportData.employee.id
+        modifiedPlatformReportData.employee.id,
       );
       expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
     }));

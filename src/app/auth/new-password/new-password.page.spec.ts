@@ -1,6 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { NewPasswordPage } from './new-password.page';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -16,9 +14,10 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { RouterTestingModule } from '@angular/router/testing';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('NewPasswordPage', () => {
   let component: NewPasswordPage;
@@ -45,8 +44,7 @@ describe('NewPasswordPage', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
 
     TestBed.configureTestingModule({
-      declarations: [NewPasswordPage],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule],
+      imports: [ ReactiveFormsModule, RouterTestingModule, NewPasswordPage, getTranslocoTestingModule()],
       providers: [
         UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
@@ -62,7 +60,7 @@ describe('NewPasswordPage', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              params: { refreshToken: 'token123' },
+              params: { token: 'token123' },
             },
           },
         },

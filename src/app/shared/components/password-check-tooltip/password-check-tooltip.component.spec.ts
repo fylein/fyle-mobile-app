@@ -1,22 +1,47 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { PasswordCheckTooltipComponent } from './password-check-tooltip.component';
 import { By } from '@angular/platform-browser';
 import { SimpleChanges } from '@angular/core';
-
+import { of } from 'rxjs';
 describe('PasswordCheckTooltipComponent', () => {
   let component: PasswordCheckTooltipComponent;
   let fixture: ComponentFixture<PasswordCheckTooltipComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [PasswordCheckTooltipComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TranslocoModule, PasswordCheckTooltipComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PasswordCheckTooltipComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'passwordCheckTooltip.heading': 'Password should contain:',
+        'passwordCheckTooltip.ariaLabel': 'Password requirements checklist',
+        'passwordCheckTooltip.lengthRequirement': '12 to 32 characters',
+        'passwordCheckTooltip.uppercaseRequirement': '1 uppercase character',
+        'passwordCheckTooltip.lowercaseRequirement': '1 lowercase character',
+        'passwordCheckTooltip.numberRequirement': '1 number',
+        'passwordCheckTooltip.specialCharRequirement': '1 special character',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

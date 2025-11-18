@@ -1,24 +1,35 @@
-import { Component, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { Component, inject, input } from '@angular/core';
+import { IonContent, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { FyOptInComponent } from '../fy-opt-in/fy-opt-in.component';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-promote-opt-in-modal',
   templateUrl: './promote-opt-in-modal.component.html',
   styleUrls: ['./promote-opt-in-modal.component.scss'],
+  imports: [
+    IonContent,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class PromoteOptInModalComponent {
-  @Input() extendedOrgUser: ExtendedOrgUser;
+  private modalController = inject(ModalController);
 
-  constructor(private modalController: ModalController, private popoverController: PopoverController) {}
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly extendedOrgUser = input<ExtendedOrgUser>(undefined);
 
   async optInClick(): Promise<void> {
     const optInModal = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        extendedOrgUser: this.extendedOrgUser,
+        extendedOrgUser: this.extendedOrgUser(),
       },
     });
 
@@ -32,24 +43,22 @@ export class PromoteOptInModalComponent {
   }
 
   getSkipOptInMessageBody(): string {
-    return `<div>
-              <p>You can't send receipts and expense details via text message if you don't opt in.</p>
-              <p>Are you sure you want to skip?<p>  
-            </div>`;
+    return this.translocoService.translate('promoteOptInModal.skipMessageBody');
   }
 
   async skip(): Promise<void> {
+    const title = this.translocoService.translate('promoteOptInModal.areYouSure');
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Are you sure?',
+        title,
         message: this.getSkipOptInMessageBody(),
         primaryCta: {
-          text: 'Yes, skip opt in',
+          text: this.translocoService.translate('promoteOptInModal.yesSkipOptIn'),
           action: 'continue',
         },
         secondaryCta: {
-          text: 'No, go back',
+          text: this.translocoService.translate('promoteOptInModal.noGoBack'),
           action: 'cancel',
         },
       },

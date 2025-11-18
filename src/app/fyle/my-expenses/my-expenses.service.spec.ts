@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { MyExpensesService } from './my-expenses.service';
 import {
   expenseFiltersData1,
@@ -38,16 +39,70 @@ import {
 import { filter1, filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
 import { filterOptions2 } from 'src/app/core/mock-data/filter-options.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.myExpenses.sortBy': 'Sort by',
+        'services.myExpenses.amountHighToLowPill': 'amount - high to low',
+        'services.myExpenses.amountLowToHighPill': 'amount - low to high',
+        'services.myExpenses.dateOldToNewPill': 'date - old to new',
+        'services.myExpenses.dateNewToOldPill': 'date - new to old',
+        'services.myExpenses.regularExpenses': 'Regular Expenses',
+        'services.myExpenses.perDiem': 'Per Diem',
+        'services.myExpenses.mileage': 'Mileage',
+        'services.myExpenses.expenseType': 'Expense type',
+        'services.myExpenses.date': 'Date',
+        'services.myExpenses.thisWeekPill': 'this Week',
+        'services.myExpenses.thisMonthPill': 'this Month',
+        'services.myExpenses.lastMonthPill': 'Last Month',
+        'services.myExpenses.all': 'All',
+        'services.myExpenses.to': ' to ',
+        'services.myExpenses.greaterThanOrEqual': '>= ',
+        'services.myExpenses.lessThanOrEqual': '<= ',
+        'services.myExpenses.receiptsAttached': 'Receipts attached',
+        'services.myExpenses.potentialDuplicates': 'Potential duplicates',
+        'services.myExpenses.splitExpense': 'Split expense',
+        'services.myExpenses.cardsEndingIn': 'Cards ending in...',
+        'services.myExpenses.type': 'Type',
+        'services.myExpenses.incomplete': 'Incomplete',
+        'services.myExpenses.complete': 'Complete',
+        'services.myExpenses.thisWeek': 'This Week',
+        'services.myExpenses.thisMonth': 'This Month',
+        'services.myExpenses.lastMonth': 'Last Month',
+        'services.myExpenses.custom': 'Custom',
+        'services.myExpenses.yes': 'Yes',
+        'services.myExpenses.no': 'No',
+        'services.myExpenses.policyViolated': 'Policy violated',
+        'services.myExpenses.cannotReport': 'Cannot Report',
+        'services.myExpenses.blocked': 'Blocked',
+        'services.myExpenses.dateNewToOldSort': 'Date - New to Old',
+        'services.myExpenses.dateOldToNewSort': 'Date - Old to New',
+        'services.myExpenses.amountHighToLowSort': 'Amount - High to Low',
+        'services.myExpenses.amountLowToHighSort': 'Amount - Low to High',
+        'services.myExpenses.categoryAToZSort': 'Category - A to Z',
+        'services.myExpenses.categoryZToASort': 'Category - Z to A',
+        'services.myExpenses.categoryAToZPill': 'category - a to z',
+        'services.myExpenses.categoryZToAPill': 'category - z to a',
+        'services.myExpenses.policyViolatedPill': 'policy violated',
+        'services.myExpenses.cannotReportPill': 'cannot report',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
-      providers: [MyExpensesService],
+      imports: [HttpClientTestingModule],
+      providers: [MyExpensesService, { provide: TranslocoService, useValue: translocoServiceSpy }],
     });
 
     myExpensesService = TestBed.inject(MyExpensesService);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -77,7 +132,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData3
+        expenseFiltersData3,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData3);
@@ -91,7 +146,7 @@ describe('MyExpensesService', () => {
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
-        expenseFiltersData4
+        expenseFiltersData4,
       );
 
       expect(convertedFilters).toEqual(expenseFiltersData4);
@@ -130,10 +185,10 @@ describe('MyExpensesService', () => {
     const filterPill = [];
     myExpensesService.generateTypeFilterPills(
       { ...expenseFiltersData1, type: [ExpenseType.EXPENSE, ExpenseType.PER_DIEM, ExpenseType.MILEAGE, 'custom'] },
-      filterPill
+      filterPill,
     );
     expect(filterPill).toEqual([
-      { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
+      { label: 'Expense type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
     ]);
   });
 
@@ -360,7 +415,8 @@ describe('MyExpensesService', () => {
   });
 
   it('getFilters(): should return all the filters', () => {
-    const filters = myExpensesService.getFilters();
+    const orgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+    const filters = myExpensesService.getFilters(orgSettings);
 
     expect(filters).toEqual(filterOptions2);
   });
@@ -384,15 +440,15 @@ describe('MyExpensesService', () => {
 
     expect(myExpensesService.convertTxnDtSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertAmountSortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
     expect(myExpensesService.convertCategorySortToSelectedFilters).toHaveBeenCalledOnceWith(
       expenseFiltersData1,
-      selectedFilters9
+      selectedFilters9,
     );
   });
 
@@ -415,7 +471,7 @@ describe('MyExpensesService', () => {
 
       myExpensesService.convertCategorySortToSelectedFilters(
         { ...expenseFiltersData1, sortDir: 'desc' },
-        generatedFilters
+        generatedFilters,
       );
 
       expect(generatedFilters).toEqual([

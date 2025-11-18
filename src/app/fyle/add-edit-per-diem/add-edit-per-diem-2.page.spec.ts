@@ -12,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -31,8 +31,8 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
 import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';
@@ -125,7 +125,7 @@ export function TestCases2(getTestBed) {
     let tokenService: jasmine.SpyObj<TokenService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
@@ -169,14 +169,14 @@ export function TestCases2(getTestBed) {
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -210,7 +210,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -274,7 +274,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component.fg, 'updateValueAndValidity');
         component.etxn$ = of(unflattenedTxnData);
@@ -298,7 +298,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -316,7 +316,7 @@ export function TestCases2(getTestBed) {
       it('should return custom inputs if etxn.tx.org_category_id is undefined', () => {
         component.fg.value.custom_inputs = undefined;
         const mockEtxn = cloneDeep(unflattenedTxnData);
-        mockEtxn.tx.org_category_id = undefined;
+        mockEtxn.tx.category_id = undefined;
         component.etxn$ = of(mockEtxn);
         categoriesService.getAll.and.returnValue(of([orgCategoryData]));
         component.getCustomInputs().subscribe((res) => {
@@ -340,7 +340,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).not.toHaveBeenCalled();
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
@@ -366,7 +366,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
@@ -383,131 +383,6 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    describe('checkAdvanceAccountAndBalance():', () => {
-      it('should return false if account is not present', () => {
-        const result = component.checkAdvanceAccountAndBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('checkAdvanceWalletsWithSufficientBalance():', () => {
-      it('should return false if advance wallet is not present', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if advance wallet has balance', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(advanceWallet1Data);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('setupBalanceFlag():', () => {
-      it('should setup balance available flag', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when account changes to null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(null));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(null);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when orgSettings is null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(null));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return true for advance wallets', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-    });
-
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
         activatedRoute.snapshot.params = {
@@ -520,8 +395,6 @@ export function TestCases2(getTestBed) {
         storageService.get.and.resolveTo(true);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
         platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
@@ -547,7 +420,7 @@ export function TestCases2(getTestBed) {
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         currencyService.getAmountWithCurrencyFraction.and.returnValue(23);
         currencyService.getExchangeRate.and.returnValue(of(12));
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
         perDiemService.getRates.and.returnValue(of(expectedPerDiems));
@@ -559,7 +432,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -590,7 +463,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -619,7 +492,7 @@ export function TestCases2(getTestBed) {
       it('should call orgSettingsService.get, employeeSettingsService.get, perDiemService.getRates and reportService.getAutoSubmissionReportName once and update isNewReportsFlowEnabled', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         component.ionViewWillEnter();
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
         expect(perDiemService.getRates).toHaveBeenCalledTimes(1);
         expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
@@ -629,12 +502,9 @@ export function TestCases2(getTestBed) {
         expect(component.isNewReportsFlowEnabled).toBeTrue();
       });
 
-      it('should set isAdvancesEnabled$, individualPerDiemRatesEnabled$ and recentlyUsedValues$', () => {
+      it('should set individualPerDiemRatesEnabled$ and recentlyUsedValues$', () => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWoTax));
         component.ionViewWillEnter();
-        component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toBeTrue();
-        });
         component.individualPerDiemRatesEnabled$.subscribe((res) => {
           expect(res).toBeFalse();
         });
@@ -645,13 +515,10 @@ export function TestCases2(getTestBed) {
         expect(recentlyUsedItemsService.getRecentlyUsed).toHaveBeenCalledTimes(1);
       });
 
-      it('should set isAdvancesEnabled$ to true and recentlyUsedValues$ to null if orgSettings.advances.enabled is true and device is offline', () => {
+      it('should set recentlyUsedValues$ to null if orgSettings.advances.enabled is true and device is offline', () => {
         component.isConnected$ = of(false);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         component.ionViewWillEnter();
-        component.isAdvancesEnabled$.subscribe((res) => {
-          expect(res).toBeTrue();
-        });
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toBeNull();
         });
@@ -660,37 +527,23 @@ export function TestCases2(getTestBed) {
 
       it('should update canCreatePerDiem$ to true if perDiemRates is not empty array', (done) => {
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if perDiemRates is empty array', (done) => {
         perDiemService.getAllowedPerDiems.and.returnValue(of([]));
         perDiemService.getRates.and.returnValue(of([]));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to true if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are not empty', (done) => {
@@ -698,18 +551,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
-            expect(res).toBeTrue();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith(expectedPerDiems);
+          expect(res).toBeTrue();
+          done();
+        });
       });
 
       it('should update canCreatePerDiem$ to false if enable_individual_per_diem_rates is enabled in orgSettings and allowedPerDiemRates and perDiemRates are empty', (done) => {
@@ -719,18 +565,11 @@ export function TestCases2(getTestBed) {
         mockOrgSettings.advanced_per_diems_settings.enable_employee_restriction = true;
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
         component.ionViewWillEnter();
-        component.canCreatePerDiem$
-          .pipe(
-            finalize(() => {
-              expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
-          )
-          .subscribe((res) => {
-            expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
-            expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
-            expect(res).toBeFalse();
-            done();
-          });
+        component.canCreatePerDiem$.subscribe((res) => {
+          expect(perDiemService.getAllowedPerDiems).toHaveBeenCalledOnceWith([]);
+          expect(res).toBeFalse();
+          done();
+        });
       });
 
       it('should update txnFields$, homeCurrency$, subCategories$, projectCategoryIds$, isProjectVisible$ and comments$ correctly', (done) => {
@@ -759,7 +598,7 @@ export function TestCases2(getTestBed) {
             {
               categoryIds: ['129140', '129112', '16582', '201952'],
             },
-            orgCategoryData1
+            orgCategoryData1,
           );
           expect(res).toBeTrue();
         });
@@ -836,7 +675,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes
+            recentlyUsedRes,
           );
           expect(res).toEqual(expectedCCdata2);
         });
@@ -1041,16 +880,6 @@ export function TestCases2(getTestBed) {
         expect(component.recentCostCenters).toEqual(expectedCCdata2);
         expect(component.fg.controls.costCenter.value).toEqual(expectedCCdata2[0].value);
         expect(component.presetCostCenterId).toEqual(2411);
-      }));
-
-      it('should set paymentModeInvalid$', fakeAsync(() => {
-        spyOn(component, 'isPaymentModeValid').and.returnValue(of(false));
-        component.ionViewWillEnter();
-        tick(1000);
-        component.paymentModeInvalid$.subscribe((res) => {
-          expect(component.isPaymentModeValid).toHaveBeenCalledTimes(1);
-          expect(res).toBeFalse();
-        });
       }));
     });
   });

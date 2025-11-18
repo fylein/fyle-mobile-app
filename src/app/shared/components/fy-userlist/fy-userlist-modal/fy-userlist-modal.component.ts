@@ -1,27 +1,78 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { Observable, fromEvent, from, of } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonSpinner, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
   selector: 'app-fy-userlist-modal',
   templateUrl: './fy-userlist-modal.component.html',
   styleUrls: ['./fy-userlist-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyUserlistModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  private modalController = inject(ModalController);
 
+  private cdr = inject(ChangeDetectorRef);
+
+  private employeesService = inject(EmployeesService);
+
+  readonly searchBarRef = viewChild<ElementRef>('searchBar');
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelections: string[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<Partial<Employee>[]>;
 
-  @Input() placeholder;
+  readonly placeholder = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() allowCustomValues: boolean;
 
   value = '';
@@ -42,19 +93,11 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   selectable = true;
 
-  removable = true;
-
   addOnBlur = true;
 
   selectedItemDict = {};
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private employeesService: EmployeesService
-  ) {}
 
   getSelectedItemDict(): Record<string, boolean> {
     return this.currentSelections.reduce((acc, curr) => {
@@ -92,7 +135,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
@@ -113,8 +156,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         eouc.map((eou) => {
           eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           return eou;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -135,8 +178,8 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
             eou.is_selected = this.currentSelections.indexOf(eou.email) > -1;
           }
           return eou;
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -163,18 +206,18 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
               // set focus on input once data is loaded
-              const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+              const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
               searchInput.focus();
-            })
-          )
-        )
+            }),
+          ),
+        ),
       );
     }
   }
 
   filterSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email),
     );
     return searchedEmployees;
   }
@@ -218,25 +261,25 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
               newArr.push(newItem);
               newlyAddedItems = newArr.concat(newlyAddedItems);
               return newlyAddedItems.filter(
-                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase)
+                (item) => item?.email?.length > 0 && item.email.toLowerCase().includes(searchTextLowerCase),
               );
             }
             return newlyAddedItems;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
   }
 
   ngAfterViewInit(): void {
-    const searchElement = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchElement = this.searchBarRef().nativeElement as HTMLInputElement;
 
     this.filteredOptions$ = fromEvent<KeyboardEvent>(searchElement, 'keyup').pipe(
       map((event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
       debounceTime(400),
-      switchMap((searchText: string) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText)),
     );
 
     if (this.allowCustomValues) {
@@ -245,7 +288,7 @@ export class FyUserlistModalComponent implements OnInit, AfterViewInit {
         startWith(''),
         distinctUntilChanged(),
         debounceTime(400),
-        switchMap((searchText: string) => this.processNewlyAddedItems(searchText))
+        switchMap((searchText: string) => this.processNewlyAddedItems(searchText)),
       );
     }
     this.cdr.detectChanges();

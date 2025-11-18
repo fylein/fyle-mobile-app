@@ -1,30 +1,55 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
+import { IonButton, IonFooter, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { getCurrencySymbol } from '@angular/common';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { PolicyViolationRuleComponent } from '../policy-violation-rule/policy-violation-rule.component';
+import { PolicyViolationActionComponent } from './policy-violation-action/policy-violation-action.component';
 
 @Component({
   selector: 'app-fy-policy-violation',
   templateUrl: './fy-policy-violation.component.html',
   styleUrls: ['./fy-policy-violation.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonFooter,
+    IonToolbar,
+    MatIcon,
+    PolicyViolationActionComponent,
+    PolicyViolationRuleComponent,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FyPolicyViolationComponent implements OnInit {
-  @Input() policyViolationMessages: string[];
+  private modalController = inject(ModalController);
 
+  private policyService = inject(PolicyService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly policyViolationMessages = input<string[]>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() policyAction: FinalExpensePolicyState;
 
-  @Input() showComment = true;
+  readonly showComment = input(true);
 
-  @Input() showCTA = true;
+  readonly showCTA = input(true);
 
-  @Input() showHeader = true;
+  readonly showHeader = input(true);
 
-  @Input() showDragBar = true;
+  readonly showDragBar = input(true);
 
-  @Input() showCloseIcon = false;
+  readonly showCloseIcon = input(false);
 
   form: UntypedFormGroup;
 
@@ -40,13 +65,7 @@ export class FyPolicyViolationComponent implements OnInit {
 
   cappedAmountString: string;
 
-  constructor(
-    private modalController: ModalController,
-    private policyService: PolicyService,
-    private utilityService: UtilityService
-  ) {}
-
-  constructAdditionalApproverAction() {
+  constructAdditionalApproverAction(): void {
     if (this.needAdditionalApproval) {
       let emails = [];
       this.policyAction.run_summary.forEach((summary: string) => {
@@ -56,12 +75,12 @@ export class FyPolicyViolationComponent implements OnInit {
       });
 
       if (emails && emails.length > 0) {
-        this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails);
+        this.approverEmailsRequiredMsg = this.policyService.getApprovalString(emails as string[]);
       }
     }
   }
 
-  constructCappingAction() {
+  constructCappingAction(): void {
     if (this.isExpenseCapped) {
       let cappedAmountMatches = [];
       this.policyAction.run_summary.forEach((summary: string) => {
@@ -71,17 +90,18 @@ export class FyPolicyViolationComponent implements OnInit {
       });
 
       if (cappedAmountMatches && cappedAmountMatches.length > 0) {
-        const cappedAmount = cappedAmountMatches[1];
+        const cappedAmount = cappedAmountMatches[1] as string;
         if (cappedAmount) {
           const cappedAmountSplit = cappedAmount.split(' ');
-          this.cappedAmountString =
-            'Expense will be capped to ' + getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1];
+          this.cappedAmountString = this.translocoService.translate('fyPolicyViolation.cappedTo', {
+            amount: getCurrencySymbol(cappedAmountSplit[0], 'wide', 'en') + cappedAmountSplit[1],
+          });
         }
       }
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.form = new UntypedFormGroup({
       comment: new UntypedFormControl(''),
     });
@@ -97,12 +117,13 @@ export class FyPolicyViolationComponent implements OnInit {
     }
   }
 
-  cancel() {
+  cancel(): void {
     this.modalController.dismiss();
   }
 
-  continue() {
+  continue(): void {
     this.modalController.dismiss({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       comment: this.form.value.comment,
     });
   }

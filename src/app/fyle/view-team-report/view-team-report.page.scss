@@ -1,4 +1,4 @@
-@import './../../../theme/colors.scss';
+@use './../../../theme/colors.scss';
 $submitted-color: #4798ff;
 $approved-color: #67bc53;
 $closed-color: #64b5a6;
@@ -16,12 +16,12 @@ $sent-back-color: #da1e28;
 
   &--btn-container {
     &__btn {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
   &--container {
-    --background: #{$white};
+    --background: #{colors.$white};
   }
 
   &--send-back {
@@ -41,8 +41,8 @@ $sent-back-color: #da1e28;
 
   &--disabled-info {
     position: absolute;
-    background-color: $blue-black;
-    color: $pure-white;
+    background-color: colors.$blue-black;
+    color: colors.$pure-white;
     padding: 20px;
     bottom: 72px;
     z-index: 999;
@@ -56,7 +56,7 @@ $sent-back-color: #da1e28;
     border: solid transparent;
     content: ' ';
     position: absolute;
-    border-bottom-color: $blue-black;
+    border-bottom-color: colors.$blue-black;
     border-width: 8px;
     transform: rotate(180deg);
   }
@@ -70,7 +70,7 @@ $sent-back-color: #da1e28;
   &--icon-close {
     height: 12px !important;
     width: 22px !important;
-    color: $pure-white;
+    color: colors.$pure-white;
   }
 
   &--view-info-container {
@@ -83,7 +83,7 @@ $sent-back-color: #da1e28;
     padding: 1px 4px;
     font-size: 12px;
     font-weight: 500;
-    color: $light-grey;
+    color: colors.$light-grey;
 
     &__icon {
       height: 18px;
@@ -99,7 +99,7 @@ $sent-back-color: #da1e28;
   }
 
   &--approvers-section {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     border-radius: 16px;
     box-shadow: 0px 4px 4px rgba(22, 21, 40, 0.08);
     margin-top: -10%;
@@ -108,7 +108,7 @@ $sent-back-color: #da1e28;
   }
 
   &--approvers {
-    color: $black-light;
+    color: colors.$black-light;
     padding: 18px 10px 0;
   }
 
@@ -150,11 +150,11 @@ $sent-back-color: #da1e28;
     }
 
     &__approval_disabled {
-      background-color: $gray-3;
+      background-color: colors.$gray-3;
     }
 
     &__text {
-      color: $black-light;
+      color: colors.$black-light;
       font-size: 12px;
       font-weight: 500;
       line-height: 1.5;
@@ -162,22 +162,22 @@ $sent-back-color: #da1e28;
   }
 
   &--history-container {
-    background: $pure-white;
+    background: colors.$pure-white;
     border-radius: 16px;
     padding: 24px 0;
   }
 
   &--comments {
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     height: 100%;
     position: absolute;
   }
 
   &--unreported-cta {
     padding: 10px 16px;
-    background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
+    background-color: colors.$brand-primary;
     border-radius: 4px;
-    color: $pure-white;
+    color: colors.$pure-white;
     letter-spacing: 0px;
     font-size: 12px;
   }
@@ -191,7 +191,6 @@ $sent-back-color: #da1e28;
 
     &__icon {
       padding-left: 6px;
-      color: $brand-primary-light;
     }
   }
 
@@ -214,7 +213,7 @@ $sent-back-color: #da1e28;
     align-items: center;
     gap: 2px;
     border-radius: 4px;
-    color: $blue-black;
+    color: colors.$blue-black;
     text-align: center;
     font-size: 12px;
     font-style: normal;
@@ -252,7 +251,7 @@ $sent-back-color: #da1e28;
   }
 
   &--approval-state-block {
-    padding: 8px;
+    padding: 16px 8px 8px;
   }
 
   &--report-state-pill {
@@ -269,13 +268,8 @@ $sent-back-color: #da1e28;
     margin-bottom: 8px;
   }
 
-  &--primary-cta {
-    margin: 12px;
-    height: 48px;
-  }
-
   &--amount {
-    color: $white;
+    color: colors.$white;
     font-size: 18px;
     display: flex;
     align-items: center;
@@ -292,7 +286,7 @@ $sent-back-color: #da1e28;
   &--purpose-amount-block {
     display: flex;
     justify-content: space-between;
-    color: $pure-white;
+    color: colors.$pure-white;
 
     &__purpose {
       font-size: 14px;
@@ -320,12 +314,12 @@ $sent-back-color: #da1e28;
     font-size: 12px;
 
     &__text {
-      color: $light-grey;
+      color: colors.$light-grey;
       opacity: 0.8;
     }
 
     &__date {
-      color: $pure-white;
+      color: colors.$pure-white;
     }
   }
 
@@ -338,12 +332,12 @@ $sent-back-color: #da1e28;
     font-size: 12px;
 
     &__text {
-      color: $light-grey;
+      color: colors.$light-grey;
       opacity: 0.8;
     }
 
     &__name {
-      color: $pure-white;
+      color: colors.$pure-white;
     }
   }
 
@@ -356,11 +350,11 @@ $sent-back-color: #da1e28;
 
     &__segment.md {
       padding: 0 16px;
-      border-bottom: 1px solid $grey-lighter;
+      border-bottom: 1px solid colors.$grey-lighter;
     }
 
     &__btn {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 14px;
       font-weight: 500;
       width: 100%;
@@ -368,10 +362,9 @@ $sent-back-color: #da1e28;
   }
 
   &--primary-cta {
-    --background: linear-gradient(162.38deg, #ff3366 3.01%, #fe5196 111.5%);
-    border-radius: 4px;
+    --background: #{colors.$brand-primary};
     line-height: 18px;
-    color: $pure-white;
+    color: colors.$pure-white;
     height: 52px;
     text-transform: inherit;
     width: 94%;
@@ -390,7 +383,7 @@ $sent-back-color: #da1e28;
 
 .view-comment {
   &--container {
-    background: $pure-white;
+    background: colors.$pure-white;
     padding: 16px;
     border-radius: 16px;
     box-shadow: 0px -2px 40px rgb(215 215 215 / 40%);
@@ -408,13 +401,13 @@ $sent-back-color: #da1e28;
   }
 
   &--self-comment {
-    background-color: $light-blue;
+    background-color: colors.$light-blue;
     margin-left: 24px;
     margin-right: 10px;
   }
 
   &--others-comment {
-    background-color: $light-purple;
+    background-color: colors.$light-purple;
     margin-right: 24px;
     margin-left: 10px;
   }
@@ -423,27 +416,27 @@ $sent-back-color: #da1e28;
     left: 5px;
     font-size: 14px;
     line-height: 18px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 8px;
   }
 
   &--comment-timestamp {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--type-comment-block {
     height: 40px;
     display: flex;
-    background-color: $pure-white;
-    border: 1px solid $outline-grey;
+    background-color: colors.$pure-white;
+    border: 1px solid colors.$outline-grey;
     border-radius: 4px;
     padding: 6px;
-    color: $black-2;
+    color: colors.$black-2;
 
     &:focus {
-      border: 1px solid $black-light;
+      border: 1px solid colors.$black-light;
     }
   }
 
@@ -451,17 +444,16 @@ $sent-back-color: #da1e28;
     width: calc(100% - 40px);
     height: 30px;
     border: none;
-    padding-top: 5px;
   }
 
   &--send-icon {
     margin-left: 10px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--add-comment-container {
     padding: 20px;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
   }
 
   &--close {
@@ -476,12 +468,12 @@ $sent-back-color: #da1e28;
   }
 
   &--self-profile {
-    background: linear-gradient(0deg, $light-blue, $light-blue);
+    background: linear-gradient(0deg, colors.$light-blue, colors.$light-blue);
     margin-right: 8px;
   }
 
   &--others-profile {
-    background: $light-purple;
+    background: colors.$light-purple;
     margin-left: 8px;
   }
 
@@ -511,14 +503,14 @@ $sent-back-color: #da1e28;
   &--date {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
     margin-top: 16px;
   }
 
   &--comment-detail {
     font-size: 16px;
     line-height: 20px;
-    color: $dark-blue;
+    color: colors.$dark-blue;
   }
 
   &--zero-state-block {
@@ -529,4 +521,106 @@ $sent-back-color: #da1e28;
     margin: 16% 0;
     padding: 12px 0;
   }
+}
+
+// Skeleton Loading Styles
+.view-reports--skeleton-purpose {
+  height: 20px;
+  width: 80%;
+  margin: 0;
+}
+
+.view-reports--skeleton-state {
+  height: 20px;
+  width: 100%;
+  margin: 0;
+}
+
+.view-reports--skeleton-amount {
+  height: 24px;
+  width: 60%;
+  margin: 8px 0 0;
+}
+
+.view-reports--skeleton-employee {
+  height: 20px;
+  width: 70%;
+  margin: 8px 0 0;
+}
+
+.view-reports--skeleton-date {
+  height: 20px;
+  width: 70%;
+  margin: 0;
+}
+
+.view-reports--skeleton-info {
+  height: 20px;
+  width: 80%;
+  margin: 0;
+}
+
+.view-reports--skeleton-approvers-header {
+  height: 20px;
+  width: 30%;
+  margin: 10px 10px 16px;
+}
+
+.view-reports--skeleton-approver-name {
+  height: 20px;
+  width: 40%;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.view-reports--skeleton-approver-state {
+  height: 20px;
+  width: 40%;
+  margin-bottom: 20px;
+  display: inline-block;
+  float: right;
+}
+
+.view-reports--skeleton-segment {
+  height: 40px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.view-reports--skeleton-expense-item {
+  padding: 16px;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  .view-reports--skeleton-expense-icon {
+    height: 40px;
+    width: 40px;
+    margin: 0;
+    border-radius: 4px;
+  }
+
+  .view-reports--skeleton-expense-title {
+    height: 20px;
+    width: 80%;
+    margin: 0 0 8px;
+  }
+
+  .view-reports--skeleton-expense-subtitle {
+    height: 16px;
+    width: 60%;
+    margin: 0;
+  }
+
+  .view-reports--skeleton-expense-amount {
+    height: 20px;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+.view-reports--wrapper {
+  padding: 16px;
+}
+
+.full-height {
+  height: 100%;
 }

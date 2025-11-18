@@ -1,29 +1,60 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form.component';
-import { FormArray, UntypedFormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   customInputsFieldData1,
   expectedCustomInputsFieldControlValues,
   expectedCustomInputsFieldWithoutControl,
 } from 'src/app/core/mock-data/custom-inputs-field.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('CustomInputsFieldsFormComponent', () => {
   let component: CustomInputsFieldsFormComponent;
   let fixture: ComponentFixture<CustomInputsFieldsFormComponent>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [CustomInputsFieldsFormComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [UntypedFormBuilder],
+      imports: [ TranslocoModule, CustomInputsFieldsFormComponent],
+      providers: [
+        UntypedFormBuilder,
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CustomInputsFieldsFormComponent);
     component = fixture.componentInstance;
+
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'customInputsFieldsForm.select': 'Select',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -45,6 +76,7 @@ describe('CustomInputsFieldsFormComponent', () => {
     expect(component.customFieldsForm.value).toEqual({
       fields: [
         {
+          id: '1',
           name: 'Merchant',
           value: 'Jio',
         },

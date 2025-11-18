@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { DateParams } from '../models/date-parameters.model';
 
 @Injectable({
@@ -13,7 +13,7 @@ export class DateService {
   month = this.today.getMonth();
 
   // '12:00', '12:30' has been removed since cron dosn't support 24
-  // eslint-disable-next-line max-len
+
   timeIntervals = [
     '1:00',
     '1:30',

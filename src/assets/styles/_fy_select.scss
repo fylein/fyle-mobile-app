@@ -1,10 +1,10 @@
-@import '../../theme/colors.scss';
+@use '../../theme/colors.scss';
 $sub-title: #ababab;
 
 // autocomplete loader SCSS and animation
 %autocomplete-loader {
   animation: loading-circular 0.5s linear infinite;
-  fill: $brand-primary;
+  fill: colors.$brand-primary;
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -41,7 +41,7 @@ $sub-title: #ababab;
 }
 
 %fy-select-list-element-default-border-color-font {
-  border-bottom: 1px solid $grey-lighter;
+  border-bottom: 1px solid colors.$grey-lighter;
   font-weight: 400;
   font-size: 14px;
   line-height: 18px;
@@ -53,14 +53,13 @@ $sub-title: #ababab;
   font-weight: 400;
   height: 100%;
   line-height: 26px;
-  color: $black;
+  color: colors.$black;
   margin-left: -15%;
   text-align: center;
 }
 
 %fy-select-search-input {
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 8px;
   line-height: 18px;
   margin-top: -4px;
 }
@@ -69,24 +68,24 @@ $sub-title: #ababab;
   margin: 0;
   padding: 10px 15px;
   font-size: 14px;
-  border-bottom: 1px solid $grey-lighter;
+  border-bottom: 1px solid colors.$grey-lighter;
   color: $sub-title;
 }
 
 %fy-select-mat-form-field {
-  font-size: 11px;
+  font-size: 14px;
   width: 94%;
   padding: 4px;
 }
 
 %fy-select-check {
-  color: $brand-primary;
+  color: colors.$brand-primary;
   font-size: 20px;
 }
 
 %fy-select-cta {
-  --background: #{$pure-white};
-  --color: #{$brand-primary};
+  --background: #{colors.$pure-white};
+  --color: #{colors.$brand-primary};
   --box-shadow: none;
   text-transform: capitalize;
   margin-left: -16%;
@@ -98,4 +97,5 @@ $sub-title: #ababab;
   height: 16px;
   width: 16px;
   margin-left: 10px;
+  padding: 0;
 }

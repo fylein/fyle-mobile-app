@@ -1,6 +1,16 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, inject, viewChild } from '@angular/core';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { Subscription, finalize, from, switchMap } from 'rxjs';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -12,25 +22,79 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass, DecimalPipe } from '@angular/common';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-fy-opt-in',
   templateUrl: './fy-opt-in.component.html',
   styleUrls: ['./fy-opt-in.component.scss'],
+  imports: [
+    DecimalPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    NgOtpInputComponent,
+    TranslocoPipe,
+  ],
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
-  @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
+  private modalController = inject(ModalController);
 
+  private orgUserService = inject(OrgUserService);
+
+  private authService = inject(AuthService);
+
+  private mobileNumberVerificationService = inject(MobileNumberVerificationService);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private loaderService = inject(LoaderService);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private userEventService = inject(UserEventService);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly mobileInputEl = viewChild<ElementRef<HTMLInputElement>>('mobileInput');
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
   mobileNumberInputValue: string;
@@ -64,20 +128,6 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     },
   };
 
-  constructor(
-    private modalController: ModalController,
-    private orgUserService: OrgUserService,
-    private authService: AuthService,
-    private mobileNumberVerificationService: MobileNumberVerificationService,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private loaderService: LoaderService,
-    private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService,
-    private userEventService: UserEventService
-  ) {}
-
   get OptInFlowState(): typeof OptInFlowState {
     return OptInFlowState;
   }
@@ -88,7 +138,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.mobileInputEl.nativeElement.focus();
+      this.mobileInputEl().nativeElement.focus();
     }, 400);
   }
 
@@ -125,9 +175,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.mobileNumberInputValue?.length) {
-      this.mobileNumberError = 'Please enter mobile number';
+      this.mobileNumberError = this.translocoService.translate('fyOptIn.enterMobileNumber');
     } else if (!this.mobileNumberInputValue.match(/^\+1\d{10}$/)) {
-      this.mobileNumberError = 'Please enter a valid number with +1 country code. Try re-entering your number.';
+      this.mobileNumberError = this.translocoService.translate('fyOptIn.invalidMobileNumber');
     }
   }
 
@@ -171,15 +221,19 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
         if (this.otpAttemptsLeft > 0) {
           if (action === 'CLICK') {
-            this.toastWithoutCTA('Code sent successfully', ToastType.SUCCESS, 'msb-success-with-camera-icon');
+            this.toastWithoutCTA(
+              this.translocoService.translate('fyOptIn.codeSent'),
+              ToastType.SUCCESS,
+              'msb-success-with-camera-icon',
+            );
             this.ngOtpInput.setValue('');
           }
           this.startTimer();
         } else {
           this.toastWithoutCTA(
-            'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+            this.translocoService.translate('fyOptIn.otpLimitReached'),
             ToastType.FAILURE,
-            'msb-failure-with-camera-icon'
+            'msb-failure-with-camera-icon',
           );
           this.disableResendOtp = true;
         }
@@ -195,27 +249,31 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
               message: 'OTP_MAX_ATTEMPTS_REACHED',
             });
             this.toastWithoutCTA(
-              'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+              this.translocoService.translate('fyOptIn.otpLimitReached'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
             this.ngOtpInput?.setValue('');
             this.disableResendOtp = true;
           } else if (errorMessage.includes('invalid parameter')) {
             this.toastWithoutCTA(
-              'Invalid mobile number. Please try again.',
+              this.translocoService.translate('fyOptIn.invalidMobileTryAgain'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
           } else if (errorMessage.includes('expired')) {
             this.toastWithoutCTA(
-              'The code has expired. Please request a new one.',
+              this.translocoService.translate('fyOptIn.codeExpired'),
               ToastType.FAILURE,
-              'msb-failure-with-camera-icon'
+              'msb-failure-with-camera-icon',
             );
             this.ngOtpInput?.setValue('');
           } else {
-            this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+            this.toastWithoutCTA(
+              this.translocoService.translate('fyOptIn.invalidCode'),
+              ToastType.FAILURE,
+              'msb-failure-with-camera-icon',
+            );
             this.ngOtpInput?.setValue('');
           }
         }
@@ -227,11 +285,11 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   verifyOtp(otp: string): void {
     this.verifyingOtp = true;
-    from(this.loaderService.showLoader('Verifying code...'))
+    from(this.loaderService.showLoader(this.translocoService.translate('fyOptIn.verifyingCode')))
       .pipe(
         switchMap(() => this.mobileNumberVerificationService.verifyOtp(otp)),
         switchMap(() => this.authService.refreshEou()),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe({
         complete: () => {
@@ -240,7 +298,11 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.userEventService.clearTaskCache();
         },
         error: () => {
-          this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA(
+            this.translocoService.translate('fyOptIn.invalidCode'),
+            ToastType.FAILURE,
+            'msb-failure-with-camera-icon',
+          );
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;
         },
@@ -248,7 +310,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   onOtpChange(otp: string): void {
-    if (otp.length === 6) {
+    if (otp?.length === 6) {
       this.verifyOtp(otp);
     }
   }
@@ -279,7 +341,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
     this.trackingService.clickedOnHelpArticle();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
-      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message',
     );
   }
 

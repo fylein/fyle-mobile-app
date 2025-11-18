@@ -1,17 +1,35 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, input, output } from '@angular/core';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgClass, NgStyle } from '@angular/common';
+import { IonCol, IonGrid, IonIcon, IonItem, IonLabel, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-sidemenu-content-item',
   templateUrl: './sidemenu-content-item.component.html',
   styleUrls: ['./sidemenu-content-item.component.scss'],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonRow,
+    NgClass,
+    NgStyle,
+    RouterLink,
+    RouterLinkActive
+  ],
 })
 export class SidemenuContentItemComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() sidemenuItem: Partial<SidemenuItem>;
 
-  @Input() showDivider: boolean;
+  readonly showDivider = input<boolean>(undefined);
 
-  @Output() redirect = new EventEmitter<Partial<SidemenuItem>>();
+  readonly redirect = output<Partial<SidemenuItem>>();
 
   isRoute = true;
 

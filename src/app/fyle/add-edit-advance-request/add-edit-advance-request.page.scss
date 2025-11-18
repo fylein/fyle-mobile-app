@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .add-edit-advance-request {
   &--form {
@@ -19,7 +19,7 @@
       --padding-start: 8px !important;
       --padding-end: 8px !important;
       width: auto !important;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -106,7 +106,7 @@
     margin-bottom: 12px;
 
     &__invalid {
-      border-color: $red;
+      border-color: colors.$negative-500;
     }
   }
 
@@ -118,10 +118,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -130,7 +130,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -142,14 +142,14 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0 !important;
   }
 
   &--checkbox {
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--date-input {
@@ -171,30 +171,23 @@
   }
 
   &--mandatory-text {
-    color: $red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -16px;
     font-size: 12px;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--amount-error {
-    color: $red;
+    color: colors.$negative-500;
     font-size: 12px;
     margin: -8px 0 0 52%;
-  }
-
-  &--primary-cta {
-    height: 48px;
-    width: 100%;
-    --border-radius: 4px !important;
-    text-transform: inherit;
   }
 
   &--cta-container {
@@ -215,13 +208,13 @@
     justify-content: center;
     flex-direction: column;
     border-radius: 4px;
-    color: $gray-3;
+    color: colors.$gray-3;
     margin: 12px 12px 0 0;
     height: 64px;
   }
 
   &--receipt-image {
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     min-width: 64px;
     min-height: 64px;
     max-width: 64px;
@@ -232,7 +225,7 @@
 
   &--spinner-icon {
     margin-top: 12px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--receipt-image-subheader {
@@ -252,7 +245,7 @@
     font-size: 64px;
     height: 36px;
     width: 34px;
-    background-color: $light-grey;
+    background-color: colors.$light-grey;
     border-radius: 16px;
   }
 
@@ -261,7 +254,7 @@
     padding-top: 10px;
     padding-bottom: 6px;
     &__count {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 24px;
       font-weight: 400;
       padding-top: 24px;
@@ -272,5 +265,32 @@
     top: 2%;
     left: 4%;
     font-size: 24px;
+  }
+}
+
+// Skeleton Loading Styles
+.add-edit-advance-request {
+  &--skeleton-container {
+    padding: 16px;
+  }
+
+  &--skeleton-currency {
+    height: 60px;
+    border-radius: 8px;
+    margin-top: 16px;
+    width: 120px;
+  }
+
+  &--skeleton-label {
+    height: 16px;
+    width: 100px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &--skeleton-input {
+    height: 28px;
+    border-radius: 8px;
+    margin-bottom: 16px;
   }
 }

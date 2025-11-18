@@ -1,8 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'initials',
-})
+@Pipe({ name: 'initials' })
 export class InitialsPipe implements PipeTransform {
   transform(name: string): string {
     if (!name) {

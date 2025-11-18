@@ -9,40 +9,42 @@
     </ion-row>
     <ion-row>
       <ion-col>
-        <div class="fy-delete-dialog--body" [innerHTML]="body"></div>
+        <div class="fy-delete-dialog--body" [innerHTML]="body()"></div>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="infoMessage" class="fy-delete-dialog--info-container">
-      <ion-col size="1">
-        <mat-icon class="fy-delete-dialog--info-container__icon" svgIcon="info-circle-fill"></mat-icon>
-      </ion-col>
-      <ion-col>
-        <div class="fy-delete-dialog--info-container__message">
-          {{ infoMessage }}
-        </div>
-      </ion-col>
-    </ion-row>
+    @if (infoMessage) {
+      <ion-row class="fy-delete-dialog--info-container">
+        <ion-col size="1">
+          <mat-icon class="fy-delete-dialog--info-container__icon" svgIcon="info-circle-fill"></mat-icon>
+        </ion-col>
+        <ion-col>
+          <div class="fy-delete-dialog--info-container__message">
+            {{ infoMessage }}
+          </div>
+        </ion-col>
+      </ion-row>
+    }
     <ion-row class="fy-delete-dialog--cta-container">
       <ion-col size="6">
         <div
           [ngClass]="{ 'fy-delete-dialog--cancel__disabled': deleteCallInProgress }"
-          class="fy-delete-dialog--cancel"
+          class="fy-delete-dialog--cancel btn-outline-secondary"
           (click)="cancel()"
         >
-          Cancel
+          {{ 'fyDeleteDialog.cancel' | transloco }}
         </div>
       </ion-col>
       <ion-col size="6">
         <div
-          class="fy-delete-dialog--delete"
-          [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete }"
+          class="fy-delete-dialog--delete btn-primary"
+          [ngClass]="{ 'fy-delete-dialog--delete-disabled': disableDelete() }"
           (click)="delete()"
           appFormButtonValidation
-          [loaderPosition]="LoaderPosition.prefix"
+          [loaderPosition]="LoaderPosition.postfix"
           [loading]="deleteCallInProgress"
-          [loadingText]="ctaLoadingText ? ctaLoadingText : 'Deleting'"
+          [loadingText]="ctaLoadingText ? ctaLoadingText : ('fyDeleteDialog.deleting' | transloco)"
         >
-          {{ ctaText ? ctaText : 'Delete' }}
+          {{ ctaText ? ctaText : ('fyDeleteDialog.delete' | transloco) }}
         </div>
       </ion-col>
     </ion-row>

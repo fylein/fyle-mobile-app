@@ -1,8 +1,8 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular';
+import { IonCol, IonGrid, IonRefresher, IonRefresherContent, IonRow, IonSkeletonText, ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular/standalone';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -28,7 +28,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -40,14 +40,79 @@ import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { FyFilterPillsComponent } from '../../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card/auto-submission-info-card.component';
+import { TasksCardComponent } from './tasks-card/tasks-card.component';
+import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
   styleUrls: ['./tasks.component.scss'],
+  imports: [
+    AsyncPipe,
+    AutoSubmissionInfoCardComponent,
+    FyFilterPillsComponent,
+    FyZeroStateComponent,
+    IonCol,
+    IonGrid,
+    IonRefresher,
+    IonRefresherContent,
+    IonRow,
+    IonSkeletonText,
+    NgClass,
+    TasksCardComponent,
+    TranslocoPipe
+  ],
 })
 export class TasksComponent implements OnInit {
-  @Output() optedIn = new EventEmitter<void>();
+  private taskService = inject(TasksService);
+
+  private transactionService = inject(TransactionService);
+
+  private reportService = inject(ReportService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private modalController = inject(ModalController);
+
+  private trackingService = inject(TrackingService);
+
+  private loaderService = inject(LoaderService);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private networkService = inject(NetworkService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private authService = inject(AuthService);
+
+  private orgService = inject(OrgService);
+
+  private popoverController = inject(PopoverController);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly optedIn = output<void>();
 
   tasks$: Observable<DashboardTask[]>;
 
@@ -77,30 +142,6 @@ export class TasksComponent implements OnInit {
 
   isYodleeEnabled$: Observable<boolean>;
 
-  constructor(
-    private taskService: TasksService,
-    private transactionService: TransactionService,
-    private reportService: ReportService,
-    private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService,
-    private expensesService: ExpensesService,
-    private advanceRequestService: AdvanceRequestService,
-    private modalController: ModalController,
-    private trackingService: TrackingService,
-    private loaderService: LoaderService,
-    private matBottomSheet: MatBottomSheet,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
-    private authService: AuthService,
-    private orgService: OrgService,
-    private popoverController: PopoverController,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
-  ) {}
-
   ngOnInit(): void {
     this.setupNetworkWatcher();
   }
@@ -129,7 +170,7 @@ export class TasksComponent implements OnInit {
         const showTeamReportTask = currentOrg.id === primaryOrg.id;
         return this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters, showTeamReportTask);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.tasks$.subscribe((tasks) => {
@@ -150,8 +191,7 @@ export class TasksComponent implements OnInit {
        * and hide it if the user is navigating to tasks section from teams section
        * Since we don't have tasks for team advances, have added a check only for team reports filter
        */
-      this.showReportAutoSubmissionInfoCard =
-        autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
+      this.showReportAutoSubmissionInfoCard = autoSubmissionReportDate && paramFilters !== 'team_reports';
     });
 
     const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters as string;
@@ -222,7 +262,7 @@ export class TasksComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -248,47 +288,47 @@ export class TasksComponent implements OnInit {
       componentProps: {
         filterOptions: [
           {
-            name: 'Expenses',
+            name: this.translocoService.translate('tasks.expenses'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Complete',
+                label: this.translocoService.translate('tasks.complete'),
                 value: 'UNREPORTED',
               },
               {
-                label: 'Draft',
+                label: this.translocoService.translate('tasks.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Duplicate',
+                label: this.translocoService.translate('tasks.duplicate'),
                 value: 'DUPLICATE',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Reports',
+            name: this.translocoService.translate('tasks.reports'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('tasks.sentBack'),
                 value: 'SENT_BACK',
               },
               {
-                label: 'Unsubmitted',
+                label: this.translocoService.translate('tasks.unsubmitted'),
                 value: 'DRAFT',
               },
               {
-                label: 'Unapproved',
+                label: this.translocoService.translate('tasks.unapproved'),
                 value: 'TEAM',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Advances',
+            name: this.translocoService.translate('tasks.advances'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('tasks.sentBack'),
                 value: 'SENT_BACK',
               },
             ],
@@ -314,7 +354,7 @@ export class TasksComponent implements OnInit {
   }
 
   onFilterClose(filterPillType: string): void {
-    if (filterPillType === 'Expenses') {
+    if (filterPillType === this.translocoService.translate('tasks.expenses')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftExpenses: false,
@@ -323,7 +363,7 @@ export class TasksComponent implements OnInit {
       });
     }
 
-    if (filterPillType === 'Reports') {
+    if (filterPillType === this.translocoService.translate('tasks.reports')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         draftReports: false,
@@ -331,7 +371,7 @@ export class TasksComponent implements OnInit {
       });
     }
 
-    if (filterPillType === 'Advances') {
+    if (filterPillType === this.translocoService.translate('tasks.advances')) {
       this.applyFilters({
         ...this.loadData$.getValue(),
         sentBackAdvances: false,
@@ -445,6 +485,7 @@ export class TasksComponent implements OnInit {
       if (data && data.action === 'SUCCESS') {
         this.trackingService.optedInFromTasks();
         this.doRefresh();
+        // TODO: The 'emit' function requires a mandatory void argument
         this.optedIn.emit();
       }
     });
@@ -467,21 +508,23 @@ export class TasksComponent implements OnInit {
   onAddCorporateCardClick(): void {
     const orgSettings$ = this.orgSettingsService.get();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$]).pipe(
       map(
         ([orgSettings]) =>
-          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled
-      )
+          orgSettings.bank_data_aggregation_settings.allowed && orgSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
       async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
@@ -501,7 +544,7 @@ export class TasksComponent implements OnInit {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 
@@ -510,12 +553,12 @@ export class TasksComponent implements OnInit {
       state: 'in.(DRAFT)',
       report_id: 'is.null',
     };
-    from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
+    from(this.loaderService.showLoader(this.translocoService.translate('tasks.loadingExpenses'), 3000))
       .pipe(
         switchMap(() =>
           this.expensesService.getAllExpenses({
             queryParams,
-          })
+          }),
         ),
         map((expenses) => {
           const initialExpense = expenses[0];
@@ -525,7 +568,7 @@ export class TasksComponent implements OnInit {
             allExpenseIds,
           };
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(({ initial, allExpenseIds }) => {
         let category;
@@ -543,6 +586,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else if (category === 'per diem') {
@@ -554,6 +598,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         } else {
@@ -565,6 +610,7 @@ export class TasksComponent implements OnInit {
               id: initial.tx.id,
               txnIds: JSON.stringify(allExpenseIds),
               activeIndex: 0,
+              navigate_back: true,
             },
           ]);
         }
@@ -579,10 +625,10 @@ export class TasksComponent implements OnInit {
         limit: 1,
       };
 
-      from(this.loaderService.showLoader('Opening your report...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           if (res[0]?.id) {
@@ -604,10 +650,10 @@ export class TasksComponent implements OnInit {
         state: 'eq.SENT_BACK',
       };
 
-      from(this.loaderService.showLoader('Opening your advance request...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingAdvance')))
         .pipe(
           switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
@@ -628,10 +674,10 @@ export class TasksComponent implements OnInit {
           next_approver_user_ids: `cs.[${eou.us.id}]`,
           state: `eq.${ReportState.APPROVER_PENDING}`,
         };
-        return from(this.loaderService.showLoader('Opening your report...'))
+        return from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
           .pipe(
             switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
-            finalize(() => this.loaderService.hideLoader())
+            finalize(() => this.loaderService.hideLoader()),
           )
           .subscribe((res) => {
             if (res[0]?.id) {
@@ -656,10 +702,10 @@ export class TasksComponent implements OnInit {
         limit: 1,
       };
 
-      from(this.loaderService.showLoader('Opening your report...'))
+      from(this.loaderService.showLoader(this.translocoService.translate('tasks.openingReport')))
         .pipe(
           switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe((res) => {
           if (res[0]?.id) {
@@ -681,16 +727,16 @@ export class TasksComponent implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
+    return from(this.loaderService.showLoader(this.translocoService.translate('tasks.addingExpenseToReport'))).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => this.loaderService.hideLoader()),
     );
   }
 
   showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
-      redirectionText: 'View Report',
+      redirectionText: this.translocoService.translate('tasks.viewReport'),
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
@@ -717,7 +763,7 @@ export class TasksComponent implements OnInit {
     const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
       map(
         (orgSetting) =>
-          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled,
       ),
       switchMap((filterPendingTxn: boolean) =>
         this.expensesService.getAllExpenses(params).pipe(
@@ -730,10 +776,10 @@ export class TasksComponent implements OnInit {
                   return true;
                 }
               })
-              .map((expenses) => expenses.id)
-          )
-        )
-      )
+              .map((expenses) => expenses.id),
+          ),
+        ),
+      ),
     );
 
     this.spenderReportsService
@@ -745,8 +791,10 @@ export class TasksComponent implements OnInit {
               // (JSON.stringify(openReport.approvals.map((approval) => approval.state)) -> Filter report if any approver approved this report.
               !openReport.approvals ||
               (openReport.approvals &&
-                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
-          )
+                !(
+                  JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1
+                )),
+          ),
         ),
         switchMap((openReports) => {
           const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
@@ -758,20 +806,20 @@ export class TasksComponent implements OnInit {
         switchMap((data: { report: Report }) => {
           if (data && data.report) {
             return readyToReportExpenses$.pipe(
-              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
+              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId)),
             );
           } else {
             return of(null);
           }
-        })
+        }),
       )
       .subscribe((report: Report) => {
         if (report) {
           let message = '';
           if (report.state.toLowerCase() === 'draft') {
-            message = 'Expenses added to an existing draft report';
+            message = this.translocoService.translate('tasks.expensesAddedToDraft');
           } else {
-            message = 'Expenses added to report successfully';
+            message = this.translocoService.translate('tasks.expensesAddedSuccessfully');
           }
           this.showAddToReportSuccessToast({ message, report });
         }
@@ -815,7 +863,7 @@ export class TasksComponent implements OnInit {
     // Show toast message and refresh the page once commute details are saved
     if (data.action === 'save') {
       this.trackingService.commuteDeductionDetailsAddedFromSpenderTask(data.commuteDetails);
-      this.showToastMessage('Commute details saved successfully', 'success');
+      this.showToastMessage(this.translocoService.translate('tasks.commuteDetailsSaved'), 'success');
       this.doRefresh();
     }
   }

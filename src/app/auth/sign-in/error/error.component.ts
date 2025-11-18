@@ -1,18 +1,36 @@
-import { Component, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { IonButton, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-error',
   templateUrl: './error.component.html',
   styleUrls: ['./error.component.scss'],
+  imports: [
+    IonButton,
+    IonIcon,
+    TranslocoPipe
+  ],
 })
-export class ErrorComponent {
-  @Input() header = 'Account does not exist';
+export class ErrorComponent implements OnInit {
+  private popoverController = inject(PopoverController);
 
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() header = '';
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() error;
 
-  constructor(private popoverController: PopoverController, private router: Router) {}
+  ngOnInit(): void {
+    this.header = this.header || this.translocoService.translate('error.accountDoesNotExist');
+  }
 
   async closePopover(): Promise<void> {
     await this.popoverController.dismiss();

@@ -1,25 +1,26 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
-@Pipe({
-  name: 'advanceState',
-})
+@Pipe({ name: 'advanceState' })
 export class AdvanceState implements PipeTransform {
+  private translocoService = inject(TranslocoService);
+
   transform(value: string): string {
     if (!value) {
       return value;
     }
 
     const states: Record<string, string> = {
-      DRAFT: 'draft',
-      SUBMITTED: 'pending',
-      APPROVED: 'approved',
-      INQUIRY: 'sent back',
-      PAID: 'issued',
-      APPROVAL_PENDING: 'pending',
-      APPROVAL_DONE: 'approved',
-      APPROVAL_DISABLED: 'disabled',
-      APPROVAL_REJECTED: 'rejected',
-      REJECTED: 'rejected',
+      DRAFT: this.translocoService.translate('pipes.advanceState.draft'),
+      SUBMITTED: this.translocoService.translate('pipes.advanceState.pending'),
+      APPROVED: this.translocoService.translate('pipes.advanceState.approved'),
+      INQUIRY: this.translocoService.translate('pipes.advanceState.sentBack'),
+      PAID: this.translocoService.translate('pipes.advanceState.issued'),
+      APPROVAL_PENDING: this.translocoService.translate('pipes.advanceState.pending'),
+      APPROVAL_DONE: this.translocoService.translate('pipes.advanceState.approved'),
+      APPROVAL_DISABLED: this.translocoService.translate('pipes.advanceState.disabled'),
+      APPROVAL_REJECTED: this.translocoService.translate('pipes.advanceState.rejected'),
+      REJECTED: this.translocoService.translate('pipes.advanceState.rejected'),
     };
 
     return states[value];

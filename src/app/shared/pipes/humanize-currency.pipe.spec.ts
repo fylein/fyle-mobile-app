@@ -1,9 +1,42 @@
+import { TestBed } from '@angular/core/testing';
 import { HumanizeCurrencyPipe } from './humanize-currency.pipe';
 import { FyCurrencyPipe } from './fy-currency.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('HumanizeCurrencyPipe', () => {
-  const fyCurrencyPipeSpy: jasmine.SpyObj<FyCurrencyPipe> = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
-  const humanizeCurrencyPipe = new HumanizeCurrencyPipe(fyCurrencyPipeSpy);
+  let fyCurrencyPipeSpy: jasmine.SpyObj<FyCurrencyPipe>;
+  let translocoServiceSpy: jasmine.SpyObj<TranslocoService>;
+  let humanizeCurrencyPipe: HumanizeCurrencyPipe;
+
+  beforeEach(() => {
+    fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+    translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
+    });
+
+    humanizeCurrencyPipe = TestBed.runInInjectionContext(() => new HumanizeCurrencyPipe());
+
+    translocoServiceSpy.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.humanizeCurrency.kiloSuffix': 'K',
+        'pipes.humanizeCurrency.megaSuffix': 'M',
+        'pipes.humanizeCurrency.gigaSuffix': 'B',
+        'pipes.humanizeCurrency.teraSuffix': 't',
+        'pipes.humanizeCurrency.quadrillionSuffix': 'q',
+        'pipes.humanizeCurrency.quintillionSuffix': 'Q',
+        'pipes.humanizeCurrency.sextillionSuffix': 's',
+        'pipes.humanizeCurrency.septillionSuffix': 'S',
+        'pipes.humanizeCurrency.octillionSuffix': 'o',
+        'pipes.humanizeCurrency.nonillionSuffix': 'n',
+      };
+      return translations[key] || key;
+    });
+  });
 
   it('should be created', () => {
     expect(humanizeCurrencyPipe).toBeTruthy();

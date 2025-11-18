@@ -1,6 +1,14 @@
-import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
-import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
-import { Platform } from '@ionic/angular';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit, inject, input } from '@angular/core';
+import {
+  ControlValueAccessor,
+  UntypedFormControl,
+  NG_VALUE_ACCESSOR,
+  NgControl,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { Platform } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
@@ -15,16 +23,25 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
       multi: true,
     },
   ],
+  imports: [FormsModule, ReactiveFormsModule],
 })
 export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
-  @Input() placeholder: string;
+  private platform = inject(Platform);
 
-  @Input() disabled: boolean;
+  private launchDarklyService = inject(LaunchDarklyService);
 
-  @Input() min: number;
+  private injector = inject(Injector);
 
-  @Input() isAmount: boolean;
+  readonly placeholder = input<string>(undefined);
 
+  readonly disabled = input<boolean>(undefined);
+
+  readonly min = input<number>(undefined);
+
+  readonly isAmount = input<boolean>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isDistance = false;
 
   isDisabled = false;
@@ -59,12 +76,6 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   private control: UntypedFormControl;
 
-  constructor(
-    private platform: Platform,
-    private launchDarklyService: LaunchDarklyService,
-    private injector: Injector
-  ) {}
-
   get value(): number {
     return this.innerValue;
   }
@@ -94,6 +105,14 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   setDisabledState?(isDisabled: boolean): void {
     this.isDisabled = isDisabled;
+    // Apply disabled state if fc is already initialized, otherwise it will be applied in ngOnInit
+    if (this.fc) {
+      if (isDisabled) {
+        this.fc.disable({ emitEvent: false });
+      } else {
+        this.fc.enable({ emitEvent: false });
+      }
+    }
   }
 
   onBlur(): void {
@@ -112,7 +131,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     this.launchDarklyService
       .checkIfNegativeExpensePluginIsEnabled()
       .subscribe(
-        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled)
+        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled),
       );
 
     this.launchDarklyService
@@ -127,6 +146,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     } else {
       // If the input is for distance, do not allow negative values
       this.fc = new UntypedFormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
+    }
+
+    // Apply disabled state from input or setDisabledState (which may have been called before ngOnInit)
+    if (this.disabled() || this.isDisabled) {
+      this.fc.disable({ emitEvent: false });
     }
 
     this.fc.valueChanges.subscribe((value) => {

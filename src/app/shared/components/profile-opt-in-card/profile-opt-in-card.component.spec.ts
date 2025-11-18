@@ -1,18 +1,26 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
+import { of } from 'rxjs';
 
 import { ProfileOptInCardComponent } from './profile-opt-in-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { eouRes2 } from 'src/app/core/mock-data/extended-org-user.data';
-import { cloneDeep } from 'lodash';
+import { platformEmployeeResponse } from 'src/app/core/mock-data/platform/v1/platform-employee.data';
+import { platformEmployeeData } from 'src/app/core/mock-data/platform/v1/platform-employee.data';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ProfileOptInCardComponent', () => {
   let component: ProfileOptInCardComponent;
   let fixture: ComponentFixture<ProfileOptInCardComponent>;
   let clipboardService: jasmine.SpyObj<ClipboardService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
 
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
@@ -22,13 +30,13 @@ describe('ProfileOptInCardComponent', () => {
       'clickedOnEditNumber',
       'clickedOnDeleteNumber',
     ]);
-
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getByParams']);
     TestBed.configureTestingModule({
-      declarations: [ProfileOptInCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ getTranslocoTestingModule(), ProfileOptInCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: EmployeesService, useValue: employeesServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -37,6 +45,7 @@ describe('ProfileOptInCardComponent', () => {
     component = fixture.componentInstance;
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
   }));
 
   it('should create', () => {
@@ -44,30 +53,68 @@ describe('ProfileOptInCardComponent', () => {
   });
 
   describe('ngOnInit(): ', () => {
+    let mockExtendedOrgUser: ExtendedOrgUser;
+    let mockEmployee: PlatformEmployee;
+    let mockResponse: PlatformApiResponse<PlatformEmployee[]>;
+
+    beforeEach(() => {
+      mockExtendedOrgUser = cloneDeep(eouRes2);
+      mockEmployee = cloneDeep(platformEmployeeData);
+      mockResponse = cloneDeep(platformEmployeeResponse);
+
+      component.extendedOrgUser = mockExtendedOrgUser;
+    });
+
     it('should set isUserOptedIn to true if mobile number is present and verified', () => {
-      const mockEou = cloneDeep(eouRes2);
-      mockEou.ou.mobile = '1234567890';
-      mockEou.ou.mobile_verified = true;
-      component.extendedOrgUser = mockEou;
+      mockEmployee.is_mobile_verified = true;
+      mockResponse.data = [mockEmployee];
+
+      employeesService.getByParams.and.returnValue(of(mockResponse));
+
       component.ngOnInit();
       expect(component.isUserOptedIn).toBeTrue();
     });
 
     it('should set isUserOptedIn to false if mobile number is present and not verified', () => {
-      const mockEou = cloneDeep(eouRes2);
-      mockEou.ou.mobile = '1234567890';
-      mockEou.ou.mobile_verified = false;
-      component.extendedOrgUser = mockEou;
+      mockEmployee.is_mobile_verified = false;
+      mockResponse.data = [mockEmployee];
+
+      employeesService.getByParams.and.returnValue(of(mockResponse));
+
       component.ngOnInit();
       expect(component.isUserOptedIn).toBeFalse();
     });
 
     it('should set mobile number', () => {
-      const mockEou = cloneDeep(eouRes2);
-      mockEou.ou.mobile = '1234567890';
-      component.extendedOrgUser = mockEou;
+      mockResponse.data = [mockEmployee];
+
+      employeesService.getByParams.and.returnValue(of(mockResponse));
+
       component.ngOnInit();
-      expect(component.mobileNumber).toEqual('1234567890');
+      expect(component.mobileNumber).toEqual(mockEmployee.mobile);
+    });
+
+    it('should set isOptedOutViaSms to true when sms_opt_out_source is SMS', () => {
+      mockEmployee.sms_opt_out_source = 'SMS';
+      mockResponse.data = [mockEmployee];
+
+      employeesService.getByParams.and.returnValue(of(mockResponse));
+
+      component.ngOnInit();
+      expect(component.isOptedOutViaSms).toBeTrue();
+    });
+
+    it('should set isInvalidUSNumber to true for non-US numbers when mobile is not verified', () => {
+      mockEmployee.mobile = '+91234567890'; // Non-US number
+      mockEmployee.is_mobile_verified = false;
+      mockResponse.data = [mockEmployee];
+
+      employeesService.getByParams.and.returnValue(of(mockResponse));
+
+      component.ngOnInit();
+
+      expect(component.isInvalidUSNumber).toBeTrue();
+      expect(component.isMobileAddedButNotVerified).toBeTrue();
     });
   });
 
@@ -79,7 +126,7 @@ describe('ProfileOptInCardComponent', () => {
       expect(component.optInClicked.emit).toHaveBeenCalledOnceWith(component.extendedOrgUser);
     });
 
-    it('should not emit optInClicked if user is already opted in', () => {
+    it('should not emit optInClicked if user is already opted-in', () => {
       spyOn(component.optInClicked, 'emit');
       component.isUserOptedIn = true;
       component.clickedOnOptIn();

@@ -1,5 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { finalize, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,16 +16,55 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { NgClass } from '@angular/common';
+import { MatSuffix } from '@angular/material/input';
+import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-new-password',
   templateUrl: './new-password.page.html',
   styleUrls: ['./new-password.page.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatSuffix,
+    NgClass,
+    PasswordCheckTooltipComponent,
+    ReactiveFormsModule
+  ],
 })
 export class NewPasswordPage implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private authService = inject(AuthService);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private loginInfoService = inject(LoginInfoService);
+
+  private router = inject(Router);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarPropertiesService = inject(SnackbarPropertiesService);
+
   fg: UntypedFormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
@@ -45,20 +91,6 @@ export class NewPasswordPage implements OnInit {
 
   focusOnConfirmPassword = false;
 
-  constructor(
-    private fb: UntypedFormBuilder,
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private routerAuthService: RouterAuthService,
-    private authService: AuthService,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService,
-    private router: Router,
-    private matSnackBar: MatSnackBar,
-    private snackbarPropertiesService: SnackbarPropertiesService
-  ) {}
-
   ngOnInit(): void {
     this.fg = this.fb.group({
       password: ['', [Validators.required, this.checkPasswordValidity]],
@@ -68,11 +100,11 @@ export class NewPasswordPage implements OnInit {
   }
 
   changePassword(): void {
-    const refreshToken = this.activatedRoute.snapshot.params.refreshToken as string;
+    const token = this.activatedRoute.snapshot.params.token as string;
     this.isLoading = true;
     from(this.loaderService.showLoader())
       .pipe(
-        switchMap(() => this.routerAuthService.resetPassword(refreshToken, this.fg.controls.password.value as string)),
+        switchMap(() => this.routerAuthService.resetPassword(token, this.fg.controls.password.value as string)),
         switchMap(() => this.authService.refreshEou()),
         tap(async (eou) => {
           this.trackingService.onSignin(eou.us.id);
@@ -82,7 +114,7 @@ export class NewPasswordPage implements OnInit {
         finalize(() => {
           this.isLoading = false;
           return from(this.loaderService.hideLoader());
-        })
+        }),
       )
       .subscribe(
         () => {
@@ -106,7 +138,7 @@ export class NewPasswordPage implements OnInit {
             panelClass: ['msb-failure'],
           });
           this.router.navigate(['/', 'auth', 'sign_in']);
-        }
+        },
       );
   }
 

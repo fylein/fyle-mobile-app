@@ -1,31 +1,45 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TasksCardComponent } from './tasks-card.component';
-import { IonicModule } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatRippleModule } from '@angular/material/core';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
 import { TaskIcon } from 'src/app/core/models/task-icon.enum';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('TasksCardComponent', () => {
   let component: TasksCardComponent;
   let fixture: ComponentFixture<TasksCardComponent>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     currencyService.getHomeCurrency.and.returnValue(of('INR'));
+    translocoService = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'tasksCard.incompleteExpense': 'Incomplete expense',
+      };
+      return translations[key] || key;
+    });
     TestBed.configureTestingModule({
-      declarations: [TasksCardComponent],
-      imports: [IonicModule.forRoot(), MatRippleModule, MatIconModule, MatIconTestingModule, HttpClientTestingModule],
+      imports: [ MatRippleModule, MatIconModule, MatIconTestingModule, TasksCardComponent],
+      providers: [
+        { provide: TranslocoService, useValue: translocoService },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TasksCardComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.currencySymbol$ = of('₹');
     component.task = {
       amount: '14200.26',
@@ -35,7 +49,7 @@ describe('TasksCardComponent', () => {
       icon: TaskIcon.REPORT,
       ctas: [
         {
-          content: 'Add to report',
+          content: 'Add to expense report',
           event: TASKEVENT.expensesAddToReport,
         },
       ],

@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="report-list--title text-center">Add to report</div>
+      <div class="report-list--title text-center">{{ 'fyAddToReportModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button data-testid="close_icon" (click)="onDoneClick()">
@@ -18,77 +18,84 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="options.length; else zeroState" class="report-list--container">
-    <div *ngIf="showNullOption" matRipple (click)="dismissModal($event)" class="report-list--list">
-      <div class="report-list--purpose report-list--none">None</div>
+  @if (options.length) {
+    <div class="report-list--container">
+      @if (showNullOption()) {
+        <div matRipple (click)="dismissModal($event)" class="report-list--list">
+          <div class="report-list--purpose report-list--none">{{ 'fyAddToReportModal.none' | transloco }}</div>
+        </div>
+      }
+      @if (autoSubmissionReportName) {
+        <div matRipple (click)="dismissModal($event)">
+          <ion-grid class="ion-no-padding report-list--default-container">
+            <ion-row>
+              <ion-col class="ion-no-padding report-list--purpose-count-container">
+                <div data-testid="auto_submit_report" class="report-list--purpose">{{ autoSubmissionReportName }}</div>
+              </ion-col>
+              <ion-col size="1" class="ion-no-padding report-list--selected">
+                @if (!currentSelection) {
+                  <ion-icon class="report-list--selected__icon" src="../../../../../assets/svg/check.svg"></ion-icon>
+                }
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </div>
+      }
+      @for (option of options; track option) {
+        <div class="report-list--list">
+          <div data-testid="reports" mat-ripple (click)="onElementSelect(option)">
+            <div class="report-list--divider"></div>
+            <ion-grid class="ion-no-padding">
+              <ion-row>
+                <ion-col class="ion-no-padding report-list--purpose-count-container">
+                  <div class="report-list--purpose">{{ option.value.purpose }}</div>
+                  <div class="report-list--count">
+                    {{ option.value.num_expenses }}
+                    {{
+                      (option.value.num_expenses > 1 ? 'fyAddToReportModal.expenses' : 'fyAddToReportModal.expense')
+                        | transloco
+                    }}
+                  </div>
+                </ion-col>
+                <ion-col size="3.5" class="ion-no-padding ion-text-right">
+                  <div class="report-list--currency-amount-container">
+                    <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
+                    <span class="report-list--amount">{{
+                      option.value.amount || 0 | humanizeCurrency: option.value.currency : true
+                    }}</span>
+                  </div>
+                  <div class="ion-text-right">
+                    <div class="text-center report-list--state state-pill state-{{ option.value.state | reportState }}">
+                      {{ option.value.state | reportState | snakeCaseToSpaceCase | titlecase }}
+                    </div>
+                  </div>
+                </ion-col>
+                @if (currentSelection || autoSubmissionReportName) {
+                  <ion-col size="1" class="ion-no-padding report-list--selected">
+                    @if (option.selected) {
+                      <ion-icon
+                        class="report-list--selected__icon"
+                        src="../../../../../assets/svg/check.svg"
+                      ></ion-icon>
+                    }
+                  </ion-col>
+                }
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
+      }
     </div>
-
-    <ng-container *ngIf="autoSubmissionReportName">
-      <div matRipple (click)="dismissModal($event)">
-        <ion-grid class="ion-no-padding report-list--default-container">
-          <ion-row>
-            <ion-col class="ion-no-padding report-list--purpose-count-container">
-              <div data-testid="auto_submit_report" class="report-list--purpose">{{ autoSubmissionReportName }}</div>
-            </ion-col>
-            <ion-col size="1" class="ion-no-padding report-list--selected">
-              <ion-icon
-                *ngIf="!currentSelection"
-                class="report-list--selected__icon"
-                src="../../../../../assets/svg/check.svg"
-              ></ion-icon>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-    </ng-container>
-
-    <div class="report-list--list" *ngFor="let option of options">
-      <div data-testid="reports" mat-ripple (click)="onElementSelect(option)">
-        <div class="report-list--divider"></div>
-        <ion-grid class="ion-no-padding">
-          <ion-row>
-            <ion-col class="ion-no-padding report-list--purpose-count-container">
-              <div class="report-list--purpose">{{ option.value.purpose }}</div>
-              <div class="report-list--count">
-                {{ option.value.num_expenses }} Expense{{ option.value.num_expenses > 1 ? 's' : '' }}
-              </div>
-            </ion-col>
-            <ion-col size="3.5" class="ion-no-padding ion-text-right">
-              <div class="report-list--currency-amount-container">
-                <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
-                <span class="report-list--amount">{{
-                  option.value.amount || 0 | humanizeCurrency : option.value.currency : true
-                }}</span>
-              </div>
-              <div class="ion-text-right">
-                <div class="text-center report-list--state state-pill state-{{ option.value.state | reportState }}">
-                  {{ option.value.state | reportState | snakeCaseToSpaceCase | titlecase }}
-                </div>
-              </div>
-            </ion-col>
-            <ion-col
-              *ngIf="currentSelection || autoSubmissionReportName"
-              size="1"
-              class="ion-no-padding report-list--selected"
-            >
-              <ion-icon
-                *ngIf="option.selected"
-                class="report-list--selected__icon"
-                src="../../../../../assets/svg/check.svg"
-              ></ion-icon>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-    </div>
-  </div>
-
-  <ng-template #zeroState>
+  } @else {
     <div class="report-list--zero-state">
-      <img class="report-list--zero-state__img" src="../../../../../assets/images/zero-states/reports.png" alt="zero" />
-      <div class="report-list--zero-state__subtitle">You have no reports right now</div>
+      <img
+        class="report-list--zero-state__img"
+        src="../../../../../assets/svg/zero-states/reports.svg"
+        [alt]="'fyAddToReportModal.zeroStateAlt' | transloco"
+      />
+      <div class="report-list--zero-state__subtitle">{{ 'fyAddToReportModal.noReports' | transloco }}</div>
       <div class="report-list--zero-state__subtitle">
-        To create a draft report please click on
+        {{ 'fyAddToReportModal.createNewReport' | transloco }}
         <ion-icon
           class="report-list--zero-state__icon"
           slot="icon-only"
@@ -96,5 +103,5 @@
         ></ion-icon>
       </div>
     </div>
-  </ng-template>
+  }
 </ion-content>

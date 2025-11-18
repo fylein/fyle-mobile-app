@@ -1,5 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { RouterModule } from '@angular/router';
 import { SidemenuContentItemComponent } from './sidemenu-content-item.component';
@@ -12,8 +11,7 @@ describe('SidemenuContentItemComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [SidemenuContentItemComponent],
-      imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule],
+      imports: [ RouterModule, RouterTestingModule, SidemenuContentItemComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SidemenuContentItemComponent);
@@ -47,12 +45,15 @@ describe('SidemenuContentItemComponent', () => {
     expect(sidemenuContentItemComponent.dropdownHeight).toBe(100);
   });
 
-  it('should have the correct title displayed', () => {
+  it('should have the correct title displayed', fakeAsync(() => {
     sidemenuContentItemComponent.sidemenuItem = sidemenuItemData1;
+    sidemenuContentItemComponent.ngOnInit();
+    fixture.detectChanges();
+    tick();
     fixture.detectChanges();
     const labelElement = getElementBySelector(fixture, '.sidemenu-item__label-container__label');
     expect(getTextContent(labelElement)).toEqual(sidemenuContentItemComponent.sidemenuItem.title);
-  });
+  }));
 
   it('goToRoute(): should emit redirect event', () => {
     const sidemenuItem = sidemenuItemData2;

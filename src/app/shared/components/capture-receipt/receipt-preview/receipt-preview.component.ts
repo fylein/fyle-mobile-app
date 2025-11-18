@@ -1,18 +1,25 @@
-import { Component, Input, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import { from, Subscription } from 'rxjs';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { from, Subscription, switchMap, tap } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { Router } from '@angular/router';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { UtilityService } from 'src/app/core/services/utility.service';
+import { CameraService } from 'src/app/core/services/camera.service';
+import { DEVICE_PLATFORM } from 'src/app/constants';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -21,13 +28,54 @@ SwiperCore.use([Pagination]);
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class ReceiptPreviewComponent implements OnInit, OnDestroy {
+  private platform = inject(Platform);
+
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
+  private utilityService = inject(UtilityService);
+
+  private cameraService = inject(CameraService);
+
+  private devicePlatform = inject(DEVICE_PLATFORM);
+
+  nativeSettings = NativeSettings;
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() base64ImagesWithSource: Image[];
 
-  @Input() mode: string;
+  readonly mode = input<string>(undefined);
 
   sliderOptions: { zoom: { maxRatio: number } };
 
@@ -42,16 +90,6 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   RotationDirection = RotationDirection;
 
   isSmallScreen: boolean;
-
-  constructor(
-    private platform: Platform,
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private matBottomSheet: MatBottomSheet,
-    private imagePicker: ImagePicker,
-    private trackingService: TrackingService,
-    private router: Router
-  ) {}
 
   async openCropReceiptModal(): Promise<void> {
     const cropReceiptModal = await this.modalController.create({
@@ -128,7 +166,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
-      }
+      },
     );
     this.swiper?.swiperRef.update();
   }
@@ -143,27 +181,40 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     });
   }
 
+  saveReceiptForLater(): void {
+    this.trackingService.saveReceiptForLater();
+    this.modalController.dismiss({
+      base64ImagesWithSource: this.base64ImagesWithSource,
+      isSaveReceiptForLater: true,
+    });
+  }
+
   async closeModal(): Promise<void> {
     let message: string;
     if (this.base64ImagesWithSource.length > 1) {
-      message = `Are you sure you want to discard the ${this.base64ImagesWithSource.length} receipts you just captured?`;
+      message = this.translocoService.translate('receiptPreview.discardMultipleReceiptsMessage', {
+        count: this.base64ImagesWithSource.length,
+      });
     } else {
-      message = 'Not a good picture? No worries. Discard and click again.';
+      message = this.translocoService.translate('receiptPreview.discardSingleReceiptMessage');
     }
+    const title = this.translocoService.translate('receiptPreview.discardReceiptTitle');
+    const primaryCta = {
+      text: this.translocoService.translate('receiptPreview.discard'),
+      action: 'discard',
+      type: 'alert',
+    };
+    const secondaryCta = {
+      text: this.translocoService.translate('receiptPreview.cancel'),
+      action: 'cancel',
+    };
     const closePopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Discard Receipt',
+        title,
         message,
-        primaryCta: {
-          text: 'Discard',
-          action: 'discard',
-          type: 'alert',
-        },
-        secondaryCta: {
-          text: 'Cancel',
-          action: 'cancel',
-        },
+        primaryCta,
+        secondaryCta,
       },
       cssClass: 'pop-up-in-center',
     });
@@ -171,6 +222,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     const { data }: { data?: { action?: string } } = await closePopOver.onWillDismiss();
     if (data && data.action) {
       if (data.action === 'discard') {
+        this.trackingService.discardReceipt();
         this.retake();
       }
     }
@@ -191,30 +243,77 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
     }
   }
 
-  galleryUpload(): void {
-    this.imagePicker.hasReadPermission().then((permission: boolean) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        from(this.imagePicker.getPictures(options)).subscribe((imageBase64Strings: string[]) => {
-          if (Array.isArray(imageBase64Strings) && imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String: string) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-          }
+  async galleryUpload(): Promise<void> {
+    const permissions = await this.cameraService.checkPermissions();
+    if (permissions?.photos === 'granted' || permissions?.photos === 'limited') {
+      const images = await this.cameraService.pickImages({
+        limit: 10,
+        quality: 70,
+      });
+      for (const file of images.photos) {
+        const base64 = await this.utilityService.webPathToBase64(file.webPath);
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_GALLERY',
+          base64Image: base64,
         });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
       }
+    } else if (permissions?.photos === 'prompt' || permissions?.photos === 'prompt-with-rationale') {
+      await this.cameraService.requestCameraPermissions(['photos']);
+      return this.galleryUpload();
+    } else {
+      this.showPermissionDeniedPopover('GALLERY');
+    }
+  }
+
+  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): Promise<HTMLIonPopoverElement> {
+    const isIos = this.devicePlatform === 'ios';
+
+    const galleryPermissionName = isIos ? 'Photos' : 'Storage';
+    let title = this.translocoService.translate('receiptPreview.cameraPermissionTitle');
+    if (permissionType === 'GALLERY') {
+      title = isIos
+        ? this.translocoService.translate('receiptPreview.photosPermissionTitle')
+        : this.translocoService.translate('receiptPreview.storagePermissionTitle');
+    }
+
+    const message =
+      permissionType === 'CAMERA'
+        ? this.translocoService.translate('receiptPreview.cameraPermissionMessage', { galleryPermissionName })
+        : this.translocoService.translate('receiptPreview.galleryPermissionMessage', { galleryPermissionName });
+
+    return this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title,
+        message,
+        primaryCta: {
+          text: this.translocoService.translate('receiptPreview.openSettings'),
+          action: 'OPEN_SETTINGS',
+        },
+        secondaryCta: {
+          text: this.translocoService.translate('receiptPreview.cancel'),
+          action: 'CANCEL',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+      backdropDismiss: false,
     });
+  }
+
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): void {
+    from(this.setupPermissionDeniedPopover(permissionType))
+      .pipe(
+        tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
+      )
+      .subscribe(({ data }) => {
+        if (data?.action === 'OPEN_SETTINGS') {
+          this.nativeSettings.open({
+            optionAndroid: AndroidSettings.ApplicationDetails,
+            optionIOS: IOSSettings.App,
+          });
+        }
+      });
   }
 
   captureReceipts(): void {
@@ -226,18 +325,20 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   async deleteReceipt(): Promise<void> {
     const activeIndex = await this.swiper?.swiperRef.activeIndex;
+    const title = this.translocoService.translate('receiptPreview.removeReceiptTitle');
+    const message = this.translocoService.translate('receiptPreview.removeReceiptMessage');
     const deletePopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Remove Receipt',
-        message: 'Are you sure you want to remove this receipt?',
+        title,
+        message,
         primaryCta: {
-          text: 'Remove',
+          text: this.translocoService.translate('receiptPreview.remove'),
           action: 'remove',
           type: 'alert',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('receiptPreview.cancel'),
           action: 'cancel',
         },
       },

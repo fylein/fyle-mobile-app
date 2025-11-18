@@ -1,37 +1,88 @@
-import { Component, OnInit, Input, ViewChild, EventEmitter, Output } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OverlayEventDetail } from '@ionic/core';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FileService } from 'src/app/core/services/file.service';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-fy-view-attachment',
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class FyViewAttachmentComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private sanitizer = inject(DomSanitizer);
+
+  private loaderService = inject(LoaderService);
+
+  private trackingService = inject(TrackingService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private fileService = inject(FileService);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
-  @Input() expenseId: string;
+  readonly expenseId = input<string>(undefined);
 
-  @Output() addMoreAttachments = new EventEmitter<Event>();
+  readonly addMoreAttachments = output<Event>();
 
+  readonly isTeamAdvance = input<boolean>(false);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,22 +104,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   saveComplete: { [key: number]: boolean } = {};
 
-  RotationDirection = RotationDirection; // Make enum available in template
-
-  // max params shouldnt effect constructors
-  constructor(
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private sanitizer: DomSanitizer,
-    private loaderService: LoaderService,
-    private trackingService: TrackingService,
-    private spenderFileService: SpenderFileService,
-    private expensesService: ExpensesService,
-    private activatedRoute: ActivatedRoute,
-    private fileService: FileService,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private router: Router
-  ) {}
+  RotationDirection = RotationDirection;
 
   ngOnInit(): void {
     this.attachment = this.attachments[this.activeIndex];
@@ -92,7 +128,7 @@ export class FyViewAttachmentComponent implements OnInit {
           tap((base64Url: string) => {
             attachment.url = base64Url;
             attachment.thumbnail = base64Url;
-          })
+          }),
         );
       } else {
         if (attachment.type === 'pdf') {
@@ -106,7 +142,7 @@ export class FyViewAttachmentComponent implements OnInit {
       .pipe(
         finalize(() => {
           this.loading = false;
-        })
+        }),
       )
       .subscribe();
   }
@@ -148,6 +184,8 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   async deleteAttachment(): Promise<void> {
+    const title = this.translocoService.translate('fyViewAttachment.removeReceiptTitle');
+    const message = this.translocoService.translate('fyViewAttachment.removeReceiptMessage');
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     try {
       this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
@@ -155,15 +193,15 @@ export class FyViewAttachmentComponent implements OnInit {
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Remove Receipt',
-        message: 'Are you sure you want to remove this receipt?',
+        title,
+        message,
         primaryCta: {
-          text: 'Remove',
+          text: this.translocoService.translate('fyViewAttachment.remove'),
           action: 'remove',
           type: 'alert',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyViewAttachment.cancel'),
           action: 'cancel',
         },
       },
@@ -179,12 +217,17 @@ export class FyViewAttachmentComponent implements OnInit {
         .pipe(
           switchMap(() => {
             if (this.attachments[activeIndex].id) {
-              return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              // Use appropriate file service based on team advance context
+              if (this.isTeamAdvance()) {
+                return this.approverFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              } else {
+                return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
+              }
             } else {
               return of(null);
             }
           }),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() => {
           try {
@@ -233,7 +276,9 @@ export class FyViewAttachmentComponent implements OnInit {
             throw new Error('Rotated image content is empty');
           }
 
-          return this.fileService.uploadUrl(attachment.id).pipe(
+          // Use appropriate file service based on team advance context
+          const uploadMethod = this.isTeamAdvance() ? 'uploadUrlForTeamAdvance' : 'uploadUrl';
+          return this.fileService[uploadMethod](attachment.id).pipe(
             switchMap((uploadUrl) => this.transactionsOutboxService.uploadData(uploadUrl, blob, 'image/jpeg')),
             tap(() => {
               this.attachments[this.activeIndex] = {
@@ -243,19 +288,19 @@ export class FyViewAttachmentComponent implements OnInit {
               };
               this.isImageDirty[this.activeIndex] = false;
               this.saveComplete[this.activeIndex] = true;
-              // auto-hide “Saved” chip
+              // auto-hide "Saved" chip
               setTimeout(() => (this.saveComplete[this.activeIndex] = false), 5000);
               this.trackingService.eventTrack('Saved rotated receipt', {
                 ReceiptId: attachment.id,
                 Direction: this.rotatingDirection,
                 Source: this.router.url,
               });
-            })
+            }),
           );
         }),
         finalize(() => {
           this.saving = false;
-        })
+        }),
       )
       .subscribe({
         error: () => {

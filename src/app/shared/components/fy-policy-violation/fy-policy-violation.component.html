@@ -1,88 +1,100 @@
-<div *ngIf="showHeader">
-  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
-  <div class="text-center policy-violation--toolbar fy-modal-toolbar">
-    <div>
-      <div class="policy-violation--toolbar__title">
-        <span class="policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
-          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
-        </span>
-        Policy violation<span *ngIf="policyViolationMessages?.length > 1">s</span> found
+@if (showHeader()) {
+  <div>
+    @if (showDragBar()) {
+      <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+    }
+    <div class="text-center policy-violation--toolbar fy-modal-toolbar">
+      <div>
+        <div class="policy-violation--toolbar__title">
+          @if (showCloseIcon()) {
+            <span class="policy-violation--toolbar__close-icon" slot="start">
+              <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
+            </span>
+          }
+          {{
+            (policyViolationMessages()?.length > 1
+              ? 'fyPolicyViolation.multipleViolationsFound'
+              : 'fyPolicyViolation.singleViolationFound'
+            ) | transloco
+          }}
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
 <div class="policy-violation--content-section">
   <div class="policy-violation--body">
     <div class="inner-content">
-      <ng-container *ngFor="let violation of policyViolationMessages">
+      @for (violation of policyViolationMessages(); track violation) {
         <app-policy-violation-rule [message]="violation" [violationType]="'normal'"></app-policy-violation-rule>
-      </ng-container>
+      }
     </div>
 
-    <ng-container *ngIf="policyAction?.run_summary?.length">
+    @if (policyAction?.run_summary?.length) {
       <div>
-        <p class="policy-violation--action-header">The policy violation will trigger the following action(s):</p>
+        <p class="policy-violation--action-header">{{ 'fyPolicyViolation.policyActionHeader' | transloco }}</p>
       </div>
-
-      <ng-container *ngIf="isExpenseFlagged">
+      @if (isExpenseFlagged) {
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/flag-outline.svg'"
-          [message]="'Expense will be flagged for verification and approval'"
+          [message]="'fyPolicyViolation.flaggedMessage' | transloco"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="isPrimaryApproverSkipped">
+      }
+      @if (isPrimaryApproverSkipped) {
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/user-one.svg'"
-          [message]="'Primary approver will be skipped'"
+          [message]="'fyPolicyViolation.skippedMessage' | transloco"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="isExpenseCapped && cappedAmountString">
+      }
+      @if (isExpenseCapped && cappedAmountString) {
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/plus-minus.svg'"
           [message]="cappedAmountString"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
-      </ng-container>
-
-      <ng-container *ngIf="needAdditionalApproval && approverEmailsRequiredMsg">
+      }
+      @if (needAdditionalApproval && approverEmailsRequiredMsg) {
         <app-policy-violation-action
           [icon]="'../../../../assets/svg/user-two.svg'"
           [message]="approverEmailsRequiredMsg"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
-      </ng-container>
-    </ng-container>
+      }
+    }
 
-    <ng-container *ngIf="showComment">
+    @if (showComment()) {
       <form [formGroup]="form">
         <div>
           <p class="policy-violation--additional-details-header">
-            Please provide additional details for approval
+            {{ 'fyPolicyViolation.additionalDetailsHeader' | transloco }}
             <span class="policy-violation--additional-details-comment-length">{{ form.value.comment.length }}/500</span>
           </p>
         </div>
-
         <textarea
           maxlength="500"
           class="policy-violation--textarea"
           formControlName="comment"
-          placeholder="Enter the details here"
+          [placeholder]="'fyPolicyViolation.detailsPlaceholder' | transloco"
         ></textarea>
       </form>
-    </ng-container>
+    }
   </div>
 </div>
 
-<ion-footer *ngIf="showCTA">
-  <ion-toolbar mode="md">
-    <div class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+@if (showCTA()) {
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <div class="fy-footer-cta-container">
+        <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()">
+          {{ 'fyPolicyViolation.cancel' | transloco }}
+        </ion-button>
+        <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
+          {{ 'fyPolicyViolation.continue' | transloco }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

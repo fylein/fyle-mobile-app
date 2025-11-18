@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, catchError, forkJoin, from, map, Observable, of, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -7,7 +7,7 @@ import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
 import { OnboardingStatus } from '../models/onboarding-status.model';
 import { UtilityService } from './utility.service';
 import { AuthService } from './auth.service';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 
@@ -16,14 +16,15 @@ const spenderOnboardingCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class SpenderOnboardingService {
-  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private utilityService: UtilityService,
-    private authService: AuthService,
-    private orgSettingsService: OrgSettingsService
-  ) {}
+  private utilityService = inject(UtilityService);
+
+  private authService = inject(AuthService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
 
   @Cacheable({
     cacheBusterObserver: spenderOnboardingCacheBuster$,
@@ -43,10 +44,10 @@ export class SpenderOnboardingService {
           eou.org.currency,
           restrictedOrgs,
           isCCCEnabled && isCardFeedEnabled,
-          onboardingStatus
+          onboardingStatus,
         );
       }),
-      catchError(() => of(false))
+      catchError(() => of(false)),
     );
   }
 
@@ -152,7 +153,7 @@ export class SpenderOnboardingService {
     currency: string,
     restrictedOrgs: boolean,
     areCardsEnabled: boolean,
-    onboardingStatus: OnboardingStatus
+    onboardingStatus: OnboardingStatus,
   ): boolean {
     return !restrictedOrgs && currency === 'USD' && areCardsEnabled && onboardingStatus.state !== 'COMPLETED';
   }

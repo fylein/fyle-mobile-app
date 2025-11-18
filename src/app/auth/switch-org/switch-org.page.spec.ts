@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -12,19 +11,14 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from 'src/app/core/services/app-version.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { SwitchOrgPage } from './switch-org.page';
-import { ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ChangeDetectorRef, Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { Platform, PopoverController } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { finalize, of, throwError } from 'rxjs';
 import { orgData1, orgData2 } from 'src/app/core/mock-data/org.data';
@@ -35,7 +29,6 @@ import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-devi
 import { By } from '@angular/platform-browser';
 import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
 import { OrgCardComponent } from './org-card/org-card.component';
-import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy-zero-state.component';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -44,13 +37,28 @@ import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
+
+// OrgCardComponent mock
+@Component({
+  selector: 'app-org-card',
+  template: '',
+})
+class OrgCardComponentStubComponent {}
+
+// ActiveOrgCardComponent mock
+@Component({
+  selector: 'app-active-org-card',
+  template: '',
+})
+class ActiveOrgCardComponentStubComponent {}
 
 describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
@@ -76,9 +84,8 @@ describe('SwitchOrgPage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -115,23 +122,12 @@ describe('SwitchOrgPage', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-
     TestBed.configureTestingModule({
-      declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
-      imports: [
-        IonicModule.forRoot(),
-        MatIconTestingModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-      ],
+      imports: [MatIconTestingModule, getTranslocoTestingModule(), SwitchOrgPage],
       providers: [
         UrlSerializer,
         ChangeDetectorRef,
@@ -160,7 +156,7 @@ describe('SwitchOrgPage', () => {
           useValue: loaderServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -245,7 +241,15 @@ describe('SwitchOrgPage', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(SwitchOrgPage, {
+        remove: { imports: [ActiveOrgCardComponent, OrgCardComponent] },
+        add: {
+          imports: [ActiveOrgCardComponentStubComponent, OrgCardComponentStubComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(SwitchOrgPage);
     component = fixture.componentInstance;
 
@@ -260,7 +264,7 @@ describe('SwitchOrgPage', () => {
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
@@ -274,8 +278,7 @@ describe('SwitchOrgPage', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
@@ -362,6 +365,18 @@ describe('SwitchOrgPage', () => {
       component.ionViewWillEnter();
 
       expect(component.redirectToExpensePage).toHaveBeenCalledOnceWith(orgId, txnId);
+    });
+
+    it('should redirect to dashboard if openSMSOptInDialog is true and orgId is present', () => {
+      spyOn(component, 'redirectToDashboard').and.returnValue();
+      const orgId = 'orNVthTo2Zyo';
+      activatedRoute.snapshot.params = {
+        openSMSOptInDialog: 'true',
+        orgId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToDashboard).toHaveBeenCalledOnceWith(orgId);
     });
   });
 
@@ -451,6 +466,7 @@ describe('SwitchOrgPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: msg,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -492,7 +508,7 @@ describe('SwitchOrgPage', () => {
       component.handleDismissPopup('resend', email, org_id, orgData1);
       expect(component.resendInvite).toHaveBeenCalledOnceWith(email, org_id);
       expect(component.showToastNotification).toHaveBeenCalledOnceWith(
-        'Verification link could not be sent. Please try again!'
+        'Verification link could not be sent. Please try again!',
       );
     });
   });
@@ -607,7 +623,7 @@ describe('SwitchOrgPage', () => {
             'my_dashboard',
             { openSMSOptInDialog: undefined },
           ]);
-        })
+        }),
       )
       .subscribe((res) => {
         expect(res).toEqual(apiEouRes);
@@ -666,7 +682,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: false,
           is_password_set: true,
-        })
+        }),
       );
     });
 
@@ -746,7 +762,7 @@ describe('SwitchOrgPage', () => {
         of({
           is_password_required: true,
           is_password_set: false,
-        })
+        }),
       );
       spyOn(component, 'handlePendingDetails').and.returnValue(of(apiEouRes));
       const config = {
@@ -763,7 +779,7 @@ describe('SwitchOrgPage', () => {
         expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
           config.roles,
           config.isFromInviteLink,
-          config.isPasswordSetRequired
+          config.isPasswordSetRequired,
         );
         done();
       });
@@ -790,7 +806,7 @@ describe('SwitchOrgPage', () => {
         },
         lastLoggedInVersion: '5.50.0',
         eou: apiEouRes,
-      })
+      }),
     );
 
     component.proceed();
@@ -974,7 +990,7 @@ describe('SwitchOrgPage', () => {
 
     const resetButton = getElementBySelector(
       fixture,
-      '.switch-org__searchbar-container__searchbar__clear-icon'
+      '.switch-org__searchbar-container__searchbar__clear-icon',
     ) as HTMLElement;
     click(resetButton);
 

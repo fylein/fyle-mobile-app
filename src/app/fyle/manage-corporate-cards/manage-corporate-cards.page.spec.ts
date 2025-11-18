@@ -3,21 +3,20 @@ import {
   ActionSheetButton,
   ActionSheetController,
   IonRefresher,
-  IonicModule,
   ModalController,
   PopoverController,
   RefresherCustomEvent,
   SegmentCustomEvent,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NavigationStart, Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
-import { NEVER, Observable, Subscription, of, throwError } from 'rxjs';
+import { NEVER, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import {
@@ -26,8 +25,7 @@ import {
   virtualCard,
   visaRTFCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
-import { Component, Input } from '@angular/core';
-import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
@@ -39,26 +37,33 @@ import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
-import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-opt-in-modal/promote-opt-in-modal.component';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { VirtualCardComponent } from 'src/app/shared/components/virtual-card/virtual-card.component';
+import { CorporateCardComponent } from 'src/app/shared/components/corporate-card/corporate-card.component';
+import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 
 @Component({
   selector: 'app-corporate-card',
   template: '<div></div>',
 })
 class MockCorporateCardComponent {
-  @Input() card: PlatformCorporateCard;
+  readonly card = input<PlatformCorporateCard>(undefined);
 
-  @Input() isVisaRTFEnabled: boolean;
+  readonly isVisaRTFEnabled = input<boolean>(undefined);
 
-  @Input() isMastercardRTFEnabled: boolean;
+  readonly isMastercardRTFEnabled = input<boolean>(undefined);
 }
+@Component({
+  selector: 'app-virtual-card',
+  template: '<div></div>',
+})
+class MockVirtualCardComponent {}
 
 describe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
@@ -68,7 +73,7 @@ describe('ManageCorporateCardsPage', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -87,7 +92,7 @@ describe('ManageCorporateCardsPage', () => {
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -108,8 +113,7 @@ describe('ManageCorporateCardsPage', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
 
     TestBed.configureTestingModule({
-      declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ManageCorporateCardsPage, MatIconTestingModule],
       providers: [
         {
           provide: Router,
@@ -128,7 +132,7 @@ describe('ManageCorporateCardsPage', () => {
           useValue: popoverControllerSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -168,20 +172,25 @@ describe('ManageCorporateCardsPage', () => {
           useValue: authServiceSpy,
         },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(ManageCorporateCardsPage, {
+        remove: { imports: [CorporateCardComponent, VirtualCardComponent] },
+        add: { imports: [MockCorporateCardComponent, MockVirtualCardComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(ManageCorporateCardsPage);
     component = fixture.componentInstance;
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -232,10 +241,10 @@ describe('ManageCorporateCardsPage', () => {
 
       cards.forEach((card, i) => {
         const cardComponent = card.componentInstance as MockCorporateCardComponent;
-        expect(cardComponent.card).toEqual(cardsResponse[i]);
+        expect(cardComponent.card()).toEqual(cardsResponse[i]);
 
-        expect(cardComponent.isVisaRTFEnabled).toBeTrue();
-        expect(cardComponent.isMastercardRTFEnabled).toBeTrue();
+        expect(cardComponent.isVisaRTFEnabled()).toBeTrue();
+        expect(cardComponent.isMastercardRTFEnabled()).toBeTrue();
       });
     });
 
@@ -369,7 +378,7 @@ describe('ManageCorporateCardsPage', () => {
 
       popoverController.create.and.returnValues(
         Promise.resolve(addCardPopoverSpy),
-        Promise.resolve(cardAddedPopoverSpy)
+        Promise.resolve(cardAddedPopoverSpy),
       );
       spyOn(component, 'onCardAdded');
 
@@ -696,7 +705,7 @@ describe('ManageCorporateCardsPage', () => {
       expect(trackingService.optInFromPostPostCardAdditionInSettings).not.toHaveBeenCalled();
     }));
 
-    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+    it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
       const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
       modalController.create.and.resolveTo(modal);

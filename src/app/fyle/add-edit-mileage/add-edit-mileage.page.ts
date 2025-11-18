@@ -1,12 +1,46 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  OnInit,
+  ViewChild,
+  inject,
+  viewChild,
+} from '@angular/core';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  PopoverController,
+} from '@ionic/angular/standalone';
+import dayjs from 'dayjs';
 import { cloneDeep, intersection, isEmpty, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -15,6 +49,7 @@ import {
   Subscription,
   combineLatest,
   concat,
+  EMPTY,
   forkJoin,
   from,
   iif,
@@ -42,7 +77,6 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { Location } from 'src/app/core/models/location.model';
@@ -76,7 +110,7 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -107,26 +141,178 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
 import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
-import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
-import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { MatIcon } from '@angular/material/icon';
+import { RouteVisualizerComponent } from '../../shared/components/route-visualizer/route-visualizer.component';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { VirtualSelectComponent } from '../../shared/components/virtual-select/virtual-select.component';
+import { FyNumberComponent } from '../../shared/components/fy-number/fy-number.component';
+import { FyLocationComponent } from '../../shared/components/fy-location/fy-location.component';
+import { FyMultiselectComponent } from '../../shared/components/fy-multiselect/fy-multiselect.component';
+import { FyAddToReportComponent } from '../../shared/components/fy-add-to-report/fy-add-to-report.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReviewFooterComponent } from '../../shared/components/review-footer/review-footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { SingularPipe } from '../../shared/pipes/singular.pipe';
+import { addIcons } from 'ionicons';
+import { chevronUp, chevronDown } from 'ionicons/icons';
 
 @Component({
   selector: 'app-add-edit-mileage',
   templateUrl: './add-edit-mileage.page.html',
   styleUrls: ['./add-edit-mileage.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DependentFieldsComponent,
+    EllipsisPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAddToReportComponent,
+    FyAlertInfoComponent,
+    FyCurrencyPipe,
+    FyLocationComponent,
+    FyMultiselectComponent,
+    FyNumberComponent,
+    FyPolicyViolationInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
+    ReviewFooterComponent,
+    RouteSelectorComponent,
+    RouteVisualizerComponent,
+    SingularPipe,
+    SlicePipe,
+    VirtualSelectComponent,
+  ],
 })
 export class AddEditMileagePage implements OnInit {
-  @ViewChild('formContainer') formContainer: ElementRef<HTMLFormElement>;
+  private router = inject(Router);
 
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private transactionService = inject(TransactionService);
+
+  private authService = inject(AuthService);
+
+  private accountsService = inject(AccountsService);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private customFieldsService = inject(CustomFieldsService);
+
+  private reportService = inject(ReportService);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private projectsService = inject(ProjectsService);
+
+  private mileageService = inject(MileageService);
+
+  private mileageRatesService = inject(MileageRatesService);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private policyService = inject(PolicyService);
+
+  private modalController = inject(ModalController);
+
+  private networkService = inject(NetworkService);
+
+  private navController = inject(NavController);
+
+  private dateService = inject(DateService);
+
+  private trackingService = inject(TrackingService);
+
+  private tokenService = inject(TokenService);
+
+  private recentlyUsedItemsService = inject(RecentlyUsedItemsService);
+
+  private locationService = inject(LocationService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private popoverController = inject(PopoverController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private paymentModesService = inject(PaymentModesService);
+
+  private currencyService = inject(CurrencyService);
+
+  private mileageRateService = inject(MileageRatesService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private storageService = inject(StorageService);
+
+  private employeesService = inject(EmployeesService);
+
+  private expensesService = inject(ExpensesService);
+
+  private changeDetectorRef = inject(ChangeDetectorRef);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
+  readonly formContainer = viewChild<ElementRef<HTMLFormElement>>('formContainer');
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(RouteSelectorComponent) routeSelector: RouteSelectorComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('projectDependentFieldsRef') projectDependentFieldsRef: DependentFieldsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   mode = 'add';
@@ -155,6 +341,8 @@ export class AddEditMileagePage implements OnInit {
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
 
+  platformExpense$: Observable<PlatformExpense>;
+
   isIndividualProjectsEnabled$: Observable<boolean>;
 
   individualProjectIds$: Observable<number[]>;
@@ -177,8 +365,6 @@ export class AddEditMileagePage implements OnInit {
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
-  isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
-
   amount$: Observable<number>;
 
   mileageConfig$: Observable<MileageDetails>;
@@ -200,8 +386,6 @@ export class AddEditMileagePage implements OnInit {
   isConnected$: Observable<boolean>;
 
   connectionStatus$: Observable<{ connected: boolean }>;
-
-  isAdvancesEnabled$: Observable<boolean>;
 
   comments$: Observable<ExtendedStatus[]>;
 
@@ -253,8 +437,6 @@ export class AddEditMileagePage implements OnInit {
 
   formInitializedFlag = false;
 
-  invalidPaymentMode = false;
-
   billableDefaultValue: boolean;
 
   isRedirectedFromReport = false;
@@ -266,6 +448,8 @@ export class AddEditMileagePage implements OnInit {
   hardwareBackButtonAction: Subscription;
 
   isNewReportsFlowEnabled = false;
+
+  isLoading = true;
 
   onPageExit$: Subject<void>;
 
@@ -292,52 +476,6 @@ export class AddEditMileagePage implements OnInit {
   existingCommuteDeduction: string;
 
   private _isExpandedView = false;
-
-  constructor(
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private transactionService: TransactionService,
-    private authService: AuthService,
-    private accountsService: AccountsService,
-    private customInputsService: CustomInputsService,
-    private customFieldsService: CustomFieldsService,
-    private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
-    private fb: UntypedFormBuilder,
-    private projectsService: ProjectsService,
-    private mileageService: MileageService,
-    private mileageRatesService: MileageRatesService,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private policyService: PolicyService,
-    private modalController: ModalController,
-    private networkService: NetworkService,
-    private navController: NavController,
-    private dateService: DateService,
-    private trackingService: TrackingService,
-    private tokenService: TokenService,
-    private recentlyUsedItemsService: RecentlyUsedItemsService,
-    private locationService: LocationService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private paymentModesService: PaymentModesService,
-    private currencyService: CurrencyService,
-    private mileageRateService: MileageRatesService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private costCentersService: CostCentersService,
-    private categoriesService: CategoriesService,
-    private orgSettingsService: OrgSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private storageService: StorageService,
-    private employeesService: EmployeesService,
-    private expensesService: ExpensesService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private advanceWalletsService: AdvanceWalletsService,
-    private expenseCommentService: ExpenseCommentService
-  ) {}
 
   get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -460,7 +598,7 @@ export class AddEditMileagePage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
@@ -481,14 +619,14 @@ export class AddEditMileagePage implements OnInit {
             this.projectsService.getAllowedOrgCategoryIds(
               project,
               allActiveSubCategories,
-              isProjectCategoryRestrictionsEnabled
-            )
-          )
-        )
+              isProjectCategoryRestrictionsEnabled,
+            ),
+          ),
+        ),
       ),
       map((categories) =>
-        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category }))
-      )
+        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category })),
+      ),
     );
 
     this.filteredCategories$.subscribe((categories) => {
@@ -510,7 +648,7 @@ export class AddEditMileagePage implements OnInit {
         const mileageCategories = categories.filter((category) => category.fyle_category === 'Mileage');
 
         return mileageCategories;
-      })
+      }),
     );
   }
 
@@ -524,7 +662,7 @@ export class AddEditMileagePage implements OnInit {
         const orgCategoryName = 'mileage';
 
         const defaultMileageCategory = categories.find(
-          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase()
+          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
         const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
@@ -533,7 +671,7 @@ export class AddEditMileagePage implements OnInit {
           defaultMileageCategory,
           mileageCategories,
         };
-      })
+      }),
     );
   }
 
@@ -560,10 +698,10 @@ export class AddEditMileagePage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
@@ -583,7 +721,7 @@ export class AddEditMileagePage implements OnInit {
 
         return expenseFieldsMap;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -602,12 +740,12 @@ export class AddEditMileagePage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
-      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc))
+      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc)),
     );
 
     tfcValues$.subscribe((defaultValues) => {
@@ -639,35 +777,23 @@ export class AddEditMileagePage implements OnInit {
 
   getPaymentModes(): Observable<AccountOption[]> {
     return forkJoin({
-      accounts: this.accountsService.getEMyAccounts(),
-      advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
+      accounts: this.accountsService.getMyAccounts(),
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(
-        ({ accounts, advanceWallets, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const config = {
-            etxn,
-            orgSettings,
-            expenseType: ExpenseType.MILEAGE,
-            isPaymentModeConfigurationsEnabled,
-          };
+      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
+        const config = {
+          etxn,
+          orgSettings,
+          expenseType: ExpenseType.MILEAGE,
+          isPaymentModeConfigurationsEnabled,
+        };
 
-          if (isAdvanceWalletEnabled) {
-            return this.accountsService.getPaymentModesWithAdvanceWallets(
-              accounts,
-              advanceWallets,
-              allowedPaymentModes,
-              config
-            );
-          }
-          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-        }
-      ),
-      shareReplay(1)
+        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+      }),
+      shareReplay(1),
     );
   }
 
@@ -678,16 +804,16 @@ export class AddEditMileagePage implements OnInit {
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
   setupDependentFields(customExpenseFields$: Observable<ExpenseField[]>): void {
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
     );
   }
 
@@ -716,9 +842,9 @@ export class AddEditMileagePage implements OnInit {
           map((customFields) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
-          )
+              this.customInputsService.filterByCategory(customFields, category && category.id),
+            ),
+          ),
         );
       }),
       map((customFields) =>
@@ -729,7 +855,7 @@ export class AddEditMileagePage implements OnInit {
             customField.options = newOptions;
           }
           return customField;
-        })
+        }),
       ),
       switchMap((customFields: TxnCustomProperties[]) =>
         this.isConnected$.pipe(
@@ -751,15 +877,15 @@ export class AddEditMileagePage implements OnInit {
                       customField.mandatory &&
                       Validators.required,
                   ],
-                })
+                }),
               );
             }
             customFieldsFormArray.updateValueAndValidity();
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -833,8 +959,8 @@ export class AddEditMileagePage implements OnInit {
           }
 
           return vehicleType;
-        }
-      )
+        },
+      ),
     );
 
     const defaultMileage$ = forkJoin({
@@ -874,7 +1000,7 @@ export class AddEditMileagePage implements OnInit {
           return this.locationService.getAutocompletePredictions(
             info.recentStartLocation,
             info.eou.us.id,
-            `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`
+            `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`,
           );
         } else {
           return of(null);
@@ -891,12 +1017,12 @@ export class AddEditMileagePage implements OnInit {
                 } else {
                   return of(null);
                 }
-              })
+              }),
             );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     return forkJoin({
@@ -928,8 +1054,8 @@ export class AddEditMileagePage implements OnInit {
               skip_reimbursement: false,
               source: 'MOBILE',
               state: 'COMPLETE',
-              txn_dt: new Date(),
-              org_category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
+              spent_at: new Date(),
+              category_id: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.id,
               org_category: mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.name,
               sub_category:
                 mileageContainer.defaultMileageCategory && mileageContainer.defaultMileageCategory.sub_category,
@@ -949,9 +1075,9 @@ export class AddEditMileagePage implements OnInit {
               custom_properties: [],
             },
           };
-        }
+        },
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -960,7 +1086,7 @@ export class AddEditMileagePage implements OnInit {
 
     return this.expensesService.getExpenseById(expenseId).pipe(
       map((expense) => this.transactionService.transformExpense(expense)),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -985,8 +1111,8 @@ export class AddEditMileagePage implements OnInit {
         map((subCategories) =>
           subCategories
             .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory.name?.toLowerCase())
-            .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
-        )
+            .find((subCategory) => subCategory.id === etxn.tx.category_id),
+        ),
       );
   }
 
@@ -1023,9 +1149,9 @@ export class AddEditMileagePage implements OnInit {
               costCenters,
               isIndividualProjectsEnabled,
               individualProjectIds,
-            }))
-          )
-        )
+            })),
+          ),
+        ),
       )
       .subscribe(
         ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
@@ -1055,17 +1181,17 @@ export class AddEditMileagePage implements OnInit {
             if (field.is_mandatory) {
               if (txnFieldKey === 'txn_dt') {
                 control.setValidators(
-                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null,
                 );
               } else if (txnFieldKey === 'cost_center_id') {
                 control.setValidators(
-                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null,
                 );
               } else if (txnFieldKey === 'project_id') {
                 control.setValidators(
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
-                    : Validators.required
+                    : Validators.required,
                 );
               } else if (txnFieldKey === 'commute_deduction') {
                 control.setValidators(orgSettings.commute_deduction_settings.enabled ? Validators.required : null);
@@ -1090,7 +1216,7 @@ export class AddEditMileagePage implements OnInit {
           this.fg.updateValueAndValidity({
             emitEvent: false,
           });
-        }
+        },
       );
   }
 
@@ -1112,16 +1238,6 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  checkAdvanceEnabled(orgSettings$: Observable<OrgSettings>): Observable<boolean> {
-    return orgSettings$.pipe(
-      map(
-        (orgSettings) =>
-          (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
-    );
-  }
-
   getRecentlyUsedValues(): Observable<RecentlyUsed | null> {
     return this.isConnected$.pipe(
       take(1),
@@ -1131,13 +1247,13 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
   checkIndividualMileageEnabled(orgSettings$: Observable<OrgSettings>): void {
     this.individualMileageRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates),
     );
   }
 
@@ -1148,40 +1264,7 @@ export class AddEditMileagePage implements OnInit {
         const distance = value.route?.distance || 0;
         return distance * mileageRate;
       }),
-      shareReplay(1)
-    );
-  }
-
-  checkAdvanceWalletsWithSufficientBalance(advanceWallets: AdvanceWallet[]): boolean {
-    return !!advanceWallets?.some((advanceWallet) => advanceWallet.balance_amount > 0);
-  }
-
-  checkAdvanceAccountAndBalance(account: ExtendedAccount): boolean {
-    return account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0;
-  }
-
-  setupBalanceFlag(): void {
-    const accounts$ = this.accountsService.getEMyAccounts();
-    const advanceWallets$ = this.advanceWalletsService.getAllAdvanceWallets();
-    const orgSettings$ = this.orgSettingsService.get();
-    this.isBalanceAvailableInAnyAdvanceAccount$ = this.fg.controls.paymentMode.valueChanges.pipe(
-      switchMap((paymentMode: ExtendedAccount) => {
-        // check both advance wallets and advance accounts
-        let isAdvanceWalletEnabled = false;
-        orgSettings$.pipe(map((orgSettings) => orgSettings?.advances?.advance_wallets_enabled)).subscribe((data) => {
-          isAdvanceWalletEnabled = data;
-        });
-        if (paymentMode?.acc?.type === AccountType.PERSONAL && !!isAdvanceWalletEnabled) {
-          return advanceWallets$.pipe(
-            map((advanceWallets) => this.checkAdvanceWalletsWithSufficientBalance(advanceWallets))
-          );
-        } else if (paymentMode?.acc?.type === AccountType.PERSONAL && !isAdvanceWalletEnabled) {
-          return accounts$.pipe(
-            map((accounts) => accounts.filter((account) => this.checkAdvanceAccountAndBalance(account)).length > 0)
-          );
-        }
-        return of(false);
-      })
+      shareReplay(1),
     );
   }
 
@@ -1199,19 +1282,19 @@ export class AddEditMileagePage implements OnInit {
               if (orgSettings.projects.enabled) {
                 return employeeSettings?.default_project_id;
               }
-            })
+            }),
           );
         }
       }),
       switchMap((projectId) => {
         if (projectId) {
           return this.projectCategories$.pipe(
-            switchMap((projectCategories) => this.projectsService.getbyId(projectId, projectCategories))
+            switchMap((projectCategories) => this.projectsService.getbyId(projectId, projectCategories)),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -1233,7 +1316,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return null;
         }
-      })
+      }),
     );
   }
 
@@ -1250,8 +1333,8 @@ export class AddEditMileagePage implements OnInit {
         costCenters.map((costCenter: CostCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        }))
-      )
+        })),
+      ),
     );
   }
 
@@ -1278,11 +1361,11 @@ export class AddEditMileagePage implements OnInit {
                   return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
                 }
               }
-            }
-          )
-        )
+            },
+          ),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1291,10 +1374,10 @@ export class AddEditMileagePage implements OnInit {
       map((formValue: MileageFormValue) => formValue.mileage_rate_name),
       switchMap((formValue) =>
         this.mileageRates$.pipe(
-          map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type))
-        )
+          map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type)),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1314,7 +1397,7 @@ export class AddEditMileagePage implements OnInit {
                   return costCenters[0].value.id;
                 }
               }
-            })
+            }),
           );
         }
       }),
@@ -1322,13 +1405,13 @@ export class AddEditMileagePage implements OnInit {
         if (costCenterId) {
           return this.costCenters$.pipe(
             map((costCenters) =>
-              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
-            )
+              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId),
+            ),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -1344,8 +1427,8 @@ export class AddEditMileagePage implements OnInit {
             label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
             value: rate,
           };
-        })
-      )
+        }),
+      ),
     );
   }
 
@@ -1362,7 +1445,7 @@ export class AddEditMileagePage implements OnInit {
       !isEqual(this.previousRouteValue?.roundTrip, currentRoundTrip)
     ) {
       const commuteDeductedDistance = this.commuteDeductionOptions.find(
-        (option) => option.value === commuteDeduction
+        (option) => option.value === commuteDeduction,
       ).distance;
 
       /*
@@ -1374,15 +1457,18 @@ export class AddEditMileagePage implements OnInit {
         // Case when distance is zero and mileage locations are present, on changing roundTrip, it should calculate distance as per location
         if (distance === 0 && mileageLocations?.length > 1) {
           this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
-            const distanceInKm = distance / 1000;
-            const finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+            const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+            const finalDistance =
+              this.distanceUnit?.toLowerCase() === 'miles'
+                ? parseFloat((distanceInKm * 0.6213).toFixed(2))
+                : distanceInKm;
             let modifiedDistance = parseFloat((finalDistance * 2 - commuteDeductedDistance).toFixed(2));
             if (modifiedDistance < 0) {
               modifiedDistance = 0;
             }
             this.fg.controls.route.patchValue(
               { distance: modifiedDistance, roundTrip: currentRoundTrip },
-              { emitEvent: false }
+              { emitEvent: false },
             );
 
             this.previousRouteValue = this.getFormValues().route;
@@ -1391,7 +1477,7 @@ export class AddEditMileagePage implements OnInit {
           const modifiedDistance = parseFloat((distance * 2 + commuteDeductedDistance).toFixed(2));
           this.fg.controls.route.patchValue(
             { distance: modifiedDistance, roundTrip: currentRoundTrip },
-            { emitEvent: false }
+            { emitEvent: false },
           );
 
           // Only change the previous roundTrip and not mileageLocations
@@ -1405,7 +1491,7 @@ export class AddEditMileagePage implements OnInit {
         }
         this.fg.controls.route.patchValue(
           { distance: modifiedDistance, roundTrip: currentRoundTrip },
-          { emitEvent: false }
+          { emitEvent: false },
         );
 
         // Only change the previous roundTrip and not mileageLocations
@@ -1417,7 +1503,7 @@ export class AddEditMileagePage implements OnInit {
 
   calculateNetDistanceForDeduction(
     commuteDeductionType: string,
-    selectedCommuteDeduction: CommuteDeductionOptions
+    selectedCommuteDeduction: CommuteDeductionOptions,
   ): void {
     const commuteDeductedDistance = parseFloat((this.initialDistance - selectedCommuteDeduction.distance).toFixed(2));
     const routeValue = this.getFormValues().route;
@@ -1431,7 +1517,7 @@ export class AddEditMileagePage implements OnInit {
       this.previousCommuteDeductionType = commuteDeductionType;
       this.fg.controls.route.patchValue(
         { distance: commuteDeductedDistance, roundTrip: routeValue.roundTrip },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
   }
@@ -1442,13 +1528,13 @@ export class AddEditMileagePage implements OnInit {
 
     if (distance !== null && distance >= 0 && commuteDeductionType) {
       const selectedCommuteDeduction = this.commuteDeductionOptions.find(
-        (option) => option.value === commuteDeductionType
+        (option) => option.value === commuteDeductionType,
       );
 
       if (this.previousCommuteDeductionType) {
         // If there is a previous commute deduction type, add previously deducted distance to the distance
         const commuteDeduction = this.commuteDeductionOptions.find(
-          (option) => option.value === this.previousCommuteDeductionType
+          (option) => option.value === this.previousCommuteDeductionType,
         );
 
         // If the distance is non-zero, correctly calculate what was the initial distance
@@ -1459,7 +1545,7 @@ export class AddEditMileagePage implements OnInit {
         // Prefill the initial distance with the distance from the transaction
         if (this.expenseId && this.existingCommuteDeduction) {
           const commuteDeduction = this.commuteDeductionOptions.find(
-            (option) => option.value === this.existingCommuteDeduction
+            (option) => option.value === this.existingCommuteDeduction,
           );
           this.initialDistance = parseFloat((distance + commuteDeduction.distance).toFixed(2));
         } else {
@@ -1476,8 +1562,11 @@ export class AddEditMileagePage implements OnInit {
       if (mileageLocations?.length > 1 && distance === 0) {
         this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
           this.previousCommuteDeductionType = commuteDeductionType;
-          const distanceInKm = distance / 1000;
-          let finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          let finalDistance =
+            this.distanceUnit?.toLowerCase() === 'miles'
+              ? parseFloat((distanceInKm * 0.6213).toFixed(2))
+              : distanceInKm;
           if (this.getFormValues().route?.roundTrip) {
             finalDistance = finalDistance * 2;
           }
@@ -1501,7 +1590,7 @@ export class AddEditMileagePage implements OnInit {
       !isEqual(this.previousRouteValue?.mileageLocations, this.getFormValues().route?.mileageLocations)
     ) {
       const selectedCommuteDeduction = this.commuteDeductionOptions.find(
-        (option) => option.value === commuteDeductionType
+        (option) => option.value === commuteDeductionType,
       );
 
       this.initialDistance = distance;
@@ -1521,7 +1610,7 @@ export class AddEditMileagePage implements OnInit {
         this.previousCommuteDeductionType = commuteDeductionType;
         this.fg.controls.route.patchValue(
           { distance: commuteDeductedDistance, roundTrip: routeValue.roundTrip },
-          { emitEvent: false }
+          { emitEvent: false },
         );
       }
     } else if (
@@ -1590,12 +1679,11 @@ export class AddEditMileagePage implements OnInit {
     const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
 
     this.mileageConfig$ = orgSettings$.pipe(map((orgSettings) => orgSettings.mileage));
-    this.isAdvancesEnabled$ = this.checkAdvanceEnabled(orgSettings$);
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction
-      )
+          orgSettings.advanced_projects?.allowed && orgSettings.advanced_projects.enable_category_restriction,
+      ),
     );
 
     this.checkNewReportsFlow(orgSettings$);
@@ -1609,7 +1697,7 @@ export class AddEditMileagePage implements OnInit {
         start_locations: recentlyUsedValues?.start_locations || [],
         end_locations: recentlyUsedValues?.end_locations || [],
         locations: recentlyUsedValues?.locations || [],
-      }))
+      })),
     );
 
     this.txnFields$ = this.getTransactionFields();
@@ -1621,12 +1709,12 @@ export class AddEditMileagePage implements OnInit {
 
     this.isProjectVisible$ = combineLatest([this.projectCategoryIds$, this.projectCategories$]).pipe(
       switchMap(([projectCategoryIds, projectCategories]) =>
-        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, projectCategories)
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, projectCategories),
       ),
-      map((projectCount) => projectCount > 0)
+      map((projectCount) => projectCount > 0),
     );
     this.comments$ = this.expenseCommentService.getTransformedComments(
-      this.activatedRoute.snapshot.params.id as string
+      this.activatedRoute.snapshot.params.id as string,
     );
 
     this.filteredCategories$.subscribe((subCategories) => {
@@ -1654,21 +1742,25 @@ export class AddEditMileagePage implements OnInit {
           enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
         return enabledMileageRates;
-      })
+      }),
     );
 
     this.getMileageRatesOptions();
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
+    this.platformExpense$ = this.etxn$.pipe(
+      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : EMPTY)),
+    );
+
     this.setupTfcDefaultValues();
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects)
+      map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects),
     );
 
     this.individualProjectIds$ = employeeSettings$.pipe(
-      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])
+      map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || []),
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
@@ -1686,8 +1778,8 @@ export class AddEditMileagePage implements OnInit {
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue),
+      ),
     );
 
     this.reports$ = this.platformReportService
@@ -1695,32 +1787,30 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         // Filter out partially approved reports
         map((reports) =>
-          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE')),
         ),
         map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report }))),
-        shareReplay(1)
+        shareReplay(1),
       );
 
     this.setupTxnFields();
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)),
     );
 
     this.isAmountDisabled$ = this.etxn$.pipe(
       map((etxn) => !!etxn.tx.admin_amount),
       tap(() => {
         this.changeDetectorRef.detectChanges();
-      })
+      }),
     );
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails();
-
-    this.setupBalanceFlag();
 
     this.rate$ = iif(() => this.mode === 'edit', this.getEditRates(), this.getAddRates());
 
@@ -1740,8 +1830,8 @@ export class AddEditMileagePage implements OnInit {
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;
-          })
-      )
+          }),
+      ),
     );
 
     const eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
@@ -1760,14 +1850,14 @@ export class AddEditMileagePage implements OnInit {
           categoryIds: mileageCategoryIds,
           isProjectCategoryRestrictionsEnabled,
           activeCategoryList: projectCategories,
-        })
-      )
+        }),
+      ),
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn: Partial<UnflattenedTransaction>) =>
-        iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null))
-      )
+        iif(() => !!etxn.tx.category_id, this.getCategories(etxn), of(null)),
+      ),
     );
 
     const selectedReport$ = this.getReports();
@@ -1787,7 +1877,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType: string) => {
@@ -1804,30 +1894,31 @@ export class AddEditMileagePage implements OnInit {
       this.updateDistanceOnRoundTripChange();
     });
 
-    from(this.loaderService.showLoader('Please wait...', 10000))
+    this.isLoading = true;
+
+    forkJoin({
+      etxn: this.etxn$,
+      paymentMode: selectedPaymentMode$,
+      project: selectedProject$,
+      subCategory: selectedSubCategory$,
+      txnFields: this.txnFields$.pipe(take(1)),
+      report: selectedReport$,
+      costCenter: selectedCostCenter$,
+      customExpenseFields: customExpenseFields$,
+      allMileageRates: this.allMileageRates$,
+      defaultPaymentMode: defaultPaymentMode$,
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+      recentValue: this.recentlyUsedValues$,
+      recentProjects: this.recentlyUsedProjects$,
+      recentCostCenters: this.recentlyUsedCostCenters$,
+      commuteDeductionDetails: commuteDeductionDetails$,
+    })
       .pipe(
-        switchMap(() =>
-          forkJoin({
-            etxn: this.etxn$,
-            paymentMode: selectedPaymentMode$,
-            project: selectedProject$,
-            subCategory: selectedSubCategory$,
-            txnFields: this.txnFields$.pipe(take(1)),
-            report: selectedReport$,
-            costCenter: selectedCostCenter$,
-            customExpenseFields: customExpenseFields$,
-            allMileageRates: this.allMileageRates$,
-            defaultPaymentMode: defaultPaymentMode$,
-            employeeSettings: employeeSettings$,
-            orgSettings: orgSettings$,
-            recentValue: this.recentlyUsedValues$,
-            recentProjects: this.recentlyUsedProjects$,
-            recentCostCenters: this.recentlyUsedCostCenters$,
-            commuteDeductionDetails: commuteDeductionDetails$,
-          })
-        ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => {
+          this.isLoading = false;
+        }),
       )
       .subscribe(
         ({
@@ -1857,7 +1948,7 @@ export class AddEditMileagePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.category_id),
           );
 
           const customInputValues = customInputs
@@ -1887,7 +1978,7 @@ export class AddEditMileagePage implements OnInit {
             this.commuteDetails = commuteDeductionDetails?.commute_details || null;
 
             this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(
-              this.commuteDetails?.distance
+              this.commuteDetails?.distance,
             );
 
             if (this.expenseId) {
@@ -1908,7 +1999,7 @@ export class AddEditMileagePage implements OnInit {
                   {
                     commuteDeduction: this.existingCommuteDeduction,
                   },
-                  { emitEvent: false }
+                  { emitEvent: false },
                 );
               }
             }
@@ -1994,12 +2085,12 @@ export class AddEditMileagePage implements OnInit {
             mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
               etxn.tx.mileage_rate,
               etxn.tx.currency,
-              etxn.tx.distance_unit
+              etxn.tx.distance_unit,
             );
           }
           this.fg.patchValue({
             mileage_rate_name,
-            dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
+            dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
             purpose: etxn.tx.purpose,
             route: {
@@ -2025,7 +2116,7 @@ export class AddEditMileagePage implements OnInit {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
             this.formInitializedFlag = true;
           }, 1000);
-        }
+        },
       );
   }
 
@@ -2086,54 +2177,6 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  checkIfInvalidPaymentMode(): Observable<boolean> {
-    return forkJoin({
-      amount: this.amount$.pipe(take(1)),
-      etxn: this.etxn$,
-      orgSettings: this.orgSettingsService.get(),
-    }).pipe(
-      map(
-        ({
-          etxn,
-          amount,
-          orgSettings,
-        }: {
-          etxn: Partial<UnflattenedTransaction>;
-          amount: number;
-          orgSettings: OrgSettings;
-        }) => {
-          const formValues = this.getFormValues();
-          const paymentMode: ExtendedAccount | AdvanceWallet = formValues.paymentMode;
-          const isAdvanceWalletEnabled = orgSettings?.advances?.advance_wallets_enabled;
-          const originalSourceAccountId = etxn.tx.source_account_id;
-          const originalAdvanceWalletId = etxn.tx.advance_wallet_id;
-
-          let isPaymentModeInvalid = false;
-          if (!isAdvanceWalletEnabled && paymentMode?.acc?.type === AccountType.ADVANCE) {
-            if (paymentMode.acc.id !== originalSourceAccountId) {
-              isPaymentModeInvalid = paymentMode.acc.tentative_balance_amount < amount;
-            } else {
-              isPaymentModeInvalid = paymentMode.acc.tentative_balance_amount + etxn.tx.amount < amount;
-            }
-          }
-
-          if (isAdvanceWalletEnabled && paymentMode?.id) {
-            if (etxn.tx.id && paymentMode.id === originalAdvanceWalletId) {
-              isPaymentModeInvalid = paymentMode.balance_amount + etxn.tx.amount < amount;
-            } else {
-              isPaymentModeInvalid = paymentMode.balance_amount < amount;
-            }
-          }
-
-          if (isPaymentModeInvalid) {
-            this.paymentModesService.showInvalidPaymentModeToast();
-          }
-          return isPaymentModeInvalid;
-        }
-      )
-    );
-  }
-
   showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
@@ -2152,7 +2195,7 @@ export class AddEditMileagePage implements OnInit {
 
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement;
+    const formContainer = this.formContainer().nativeElement;
     if (formContainer) {
       const invalidElement = formContainer.querySelector('.ng-invalid');
       if (invalidElement) {
@@ -2164,26 +2207,16 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveExpense(): void {
-    this.checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (this.fg.valid && !invalidPaymentMode) {
-          if (this.mode === 'add') {
-            this.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
-          } else {
-            // to do edit
-            this.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
-          }
-        } else {
-          this.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            this.invalidPaymentMode = true;
-            setTimeout(() => {
-              this.invalidPaymentMode = false;
-            }, 3000);
-          }
-        }
-      });
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
+      } else {
+        // to do edit
+        this.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
+      }
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   async reloadCurrentRoute(): Promise<void> {
@@ -2192,31 +2225,21 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveAndNewExpense(): void {
-    this.checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (this.fg.valid && !invalidPaymentMode) {
-          if (this.mode === 'add') {
-            this.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              this.trackingService.clickSaveAddNew();
-              this.reloadCurrentRoute();
-            });
-          } else {
-            // to do edit
-            this.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              this.close();
-            });
-          }
-        } else {
-          this.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            this.invalidPaymentMode = true;
-            setTimeout(() => {
-              this.invalidPaymentMode = false;
-            }, 3000);
-          }
-        }
-      });
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+          this.trackingService.clickSaveAddNew();
+          this.reloadCurrentRoute();
+        });
+      } else {
+        // to do edit
+        this.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+          this.close();
+        });
+      }
+    } else {
+      this.showFormValidationErrors();
+    }
   }
 
   saveExpenseAndGotoPrev(): void {
@@ -2291,11 +2314,12 @@ export class AddEditMileagePage implements OnInit {
           ...this.getCostCenterDependentFields(),
         ] as TxnCustomProperties[];
         const mappedDependentFields = allDependentFields.map((dependentField) => ({
+          ...(dependentField.id && { id: dependentField.id }),
           name: dependentField.label,
           value: dependentField.value,
         }));
         return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
-      })
+      }),
     );
 
     return forkJoin({
@@ -2321,13 +2345,13 @@ export class AddEditMileagePage implements OnInit {
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
           return [...customInpustWithValue, ...dependentFieldsWithValue];
-        }
-      )
+        },
+      ),
     );
   }
 
   checkPolicyViolation(
-    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] } | Partial<UnflattenedTransaction>
+    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] } | Partial<UnflattenedTransaction>,
   ): Observable<ExpensePolicy> {
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
@@ -2342,7 +2366,7 @@ export class AddEditMileagePage implements OnInit {
          */
         const policyExpense = this.policyService.transformTo(transactionCopy);
         return this.transactionService.checkPolicy(policyExpense);
-      })
+      }),
     );
   }
 
@@ -2367,7 +2391,7 @@ export class AddEditMileagePage implements OnInit {
 
   async continueWithPolicyViolations(
     policyViolations: string[],
-    policyAction: FinalExpensePolicyState
+    policyAction: FinalExpensePolicyState,
   ): Promise<{ comment: string }> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
@@ -2387,19 +2411,10 @@ export class AddEditMileagePage implements OnInit {
     return data;
   }
 
-  getAdvanceWalletId(isAdvanceWalletEnabled: boolean): string {
-    const formValue = this.getFormValues();
-    if (!formValue?.paymentMode?.acc?.id) {
-      return isAdvanceWalletEnabled && formValue?.paymentMode?.id;
-    }
-    // setting advance_wallet_id as null when the source account id is set.
-    return null;
-  }
-
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
-    calculatedDistance$: Observable<number | string>
+    calculatedDistance$: Observable<number | string>,
   ): Observable<Partial<UnflattenedTransaction>> {
     return forkJoin({
       etxn: etxn$.pipe(take(1)),
@@ -2413,7 +2428,6 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
-        const isAdvanceWalletEnabled = res.orgSettings?.advances?.advance_wallets_enabled;
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
         customProperties = customProperties?.map((customProperty) => {
@@ -2429,10 +2443,25 @@ export class AddEditMileagePage implements OnInit {
         const calculatedDistance = +res.calculatedDistance;
 
         const amount = parseFloat(res.amount.toFixed(2));
-        const skipReimbursement =
-          (formValue?.paymentMode?.acc?.type === AccountType.PERSONAL &&
-            !formValue?.paymentMode?.acc?.isReimbursable) ||
+        let skipReimbursement =
+          (formValue?.paymentMode?.type === AccountType.PERSONAL && !formValue?.paymentMode?.isReimbursable) ||
           !!formValue?.paymentMode?.id;
+
+        // Handle payment mode type and source account
+        const paymentMode = formValue.paymentMode;
+        let sourceAccountId: string | null = null;
+
+        if (paymentMode) {
+          if (paymentMode.type === 'PERSONAL_CASH_ACCOUNT') {
+            sourceAccountId = paymentMode.id;
+            if (!paymentMode.isReimbursable) {
+              skipReimbursement = true;
+            } else {
+              skipReimbursement = false;
+            }
+          }
+        }
+
         const rate = res.rate;
         return {
           tx: {
@@ -2440,13 +2469,12 @@ export class AddEditMileagePage implements OnInit {
             mileage_rate_id: formValue.mileage_rate_name?.id,
             mileage_is_round_trip: formValue.route.roundTrip,
             mileage_rate: rate || etxn.tx.mileage_rate,
-            source_account_id: formValue?.paymentMode?.acc?.id,
-            advance_wallet_id: this.getAdvanceWalletId(isAdvanceWalletEnabled),
+            source_account_id: sourceAccountId,
+            skip_reimbursement: skipReimbursement,
             billable: formValue.billable,
             distance: +formValue.route.distance,
-            org_category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.org_category_id,
-            txn_dt: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
-            skip_reimbursement: skipReimbursement,
+            category_id: (formValue.sub_category && formValue.sub_category.id) || etxn.tx.category_id,
+            spent_at: this.dateService.getUTCDate(new Date(formValue.dateOfSpend)),
             source: 'MOBILE',
             currency: res.homeCurrency,
             locations: formValue.route?.mileageLocations,
@@ -2460,7 +2488,7 @@ export class AddEditMileagePage implements OnInit {
                   etxn.tx.mileage_rate ||
                   this.getRateByVehicleType(res.mileageRates, formValue.mileage_rate_name?.vehicle_type)) *
                 calculatedDistance
-              ).toFixed(2)
+              ).toFixed(2),
             ),
             project_id: formValue.project && formValue.project.project_id,
             purpose: formValue.purpose,
@@ -2477,7 +2505,7 @@ export class AddEditMileagePage implements OnInit {
           dataUrls: [],
           ou: etxn.ou,
         };
-      })
+      }),
     );
   }
 
@@ -2497,7 +2525,7 @@ export class AddEditMileagePage implements OnInit {
     this.comments$
       .pipe(
         map((estatuses) => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')),
-        map((policyViolationComments) => policyViolationComments.length > 0)
+        map((policyViolationComments) => policyViolationComments.length > 0),
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
@@ -2542,11 +2570,12 @@ export class AddEditMileagePage implements OnInit {
       switchMap((distance) =>
         this.etxn$.pipe(
           map((etxn) => {
-            const distanceInKm = distance / 1000;
-            const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+            const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+            const finalDistance =
+              etxn.tx.distance_unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
             return finalDistance;
-          })
-        )
+          }),
+        ),
       ),
       map((finalDistance) => {
         if (this.getFormValues()?.route?.roundTrip) {
@@ -2555,7 +2584,7 @@ export class AddEditMileagePage implements OnInit {
           return parseFloat(finalDistance.toFixed(2));
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -2607,13 +2636,13 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn, comment: null });
             }
-          })
-        )
+          }),
+        ),
       ),
       catchError(
         (err: {
@@ -2625,7 +2654,7 @@ export class AddEditMileagePage implements OnInit {
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
-              map((etxn) => ({ etxn }))
+              map((etxn) => ({ etxn })),
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2635,7 +2664,7 @@ export class AddEditMileagePage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         forkJoin({
@@ -2667,7 +2696,7 @@ export class AddEditMileagePage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
@@ -2675,20 +2704,20 @@ export class AddEditMileagePage implements OnInit {
                     return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
                 }
 
                 return of(null).pipe(map(() => tx));
-              })
+              }),
             );
           }),
           switchMap((txn) => {
@@ -2707,7 +2736,7 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of(txn);
                   }
-                })
+                }),
               );
             } else {
               return of(txn);
@@ -2723,15 +2752,15 @@ export class AddEditMileagePage implements OnInit {
             } else {
               return of(txn);
             }
-          })
-        )
+          }),
+        ),
       ),
       finalize(() => {
         this.saveMileageLoader = false;
         this.saveAndNewMileageLoader = false;
         this.saveAndNextMileageLoader = false;
         this.saveAndPrevMileageLoader = false;
-      })
+      }),
     );
   }
 
@@ -2746,10 +2775,11 @@ export class AddEditMileagePage implements OnInit {
               if (distance) {
                 return this.etxn$.pipe(
                   map((etxn) => {
-                    const distanceInKm = distance / 1000;
-                    const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+                    const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+                    const finalDistance =
+                      etxn.tx.distance_unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
                     return finalDistance;
-                  })
+                  }),
                 );
               } else {
                 return of(null);
@@ -2765,13 +2795,13 @@ export class AddEditMileagePage implements OnInit {
               } else {
                 return null;
               }
-            })
+            }),
           );
         } else {
           return of(null);
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -2812,7 +2842,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -2829,12 +2859,12 @@ export class AddEditMileagePage implements OnInit {
             continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
-            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
           );
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -2883,13 +2913,13 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn });
             }
-          })
-        )
+          }),
+        ),
       ),
       catchError(
         (err: {
@@ -2901,7 +2931,7 @@ export class AddEditMileagePage implements OnInit {
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
-              map((etxn) => ({ etxn }))
+              map((etxn) => ({ etxn })),
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2911,7 +2941,7 @@ export class AddEditMileagePage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
@@ -2936,14 +2966,14 @@ export class AddEditMileagePage implements OnInit {
               this.transactionsOutboxService.addEntryAndSync(
                 etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
-                comments
-              )
+                comments,
+              ),
             ).pipe(
               switchMap((txnData: Promise<unknown>) => from(txnData)),
-              map(() => etxn)
+              map(() => etxn),
             );
-          })
-        )
+          }),
+        ),
       ),
 
       finalize(() => {
@@ -2951,7 +2981,7 @@ export class AddEditMileagePage implements OnInit {
         this.saveAndNewMileageLoader = false;
         this.saveAndNextMileageLoader = false;
         this.saveAndPrevMileageLoader = false;
-      })
+      }),
     );
   }
 
@@ -3154,8 +3184,8 @@ export class AddEditMileagePage implements OnInit {
       return from(this.authService.getEou())
         .pipe(
           concatMap((eou) =>
-            this.employeesService.getCommuteDetails(eou).pipe(map((response) => response?.data?.[0] || null))
-          )
+            this.employeesService.getCommuteDetails(eou).pipe(map((response) => response?.data?.[0] || null)),
+          ),
         )
         .subscribe((commuteDetailsResponse) => {
           this.commuteDetails = commuteDetailsResponse?.commute_details || null;
@@ -3168,5 +3198,9 @@ export class AddEditMileagePage implements OnInit {
       // If user closes the modal without saving the commute details, reset the commute deduction field to null
       this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
+  }
+
+  constructor() {
+    addIcons({ chevronUp, chevronDown });
   }
 }

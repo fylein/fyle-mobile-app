@@ -1,29 +1,46 @@
-import { Component, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, Input, inject, input } from '@angular/core';
+import { IonFooter, IonHeader, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { PopoverCardsList } from 'src/app/core/models/popover-cards-list.model';
+import { NgClass } from '@angular/common';
+import { FyAlertInfoComponent } from '../fy-alert-info/fy-alert-info.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 @Component({
   selector: 'app-popup-alert',
   templateUrl: './popup-alert.component.html',
   styleUrls: ['./popup-alert.component.scss'],
+  imports: [NgClass, FyAlertInfoComponent, IonFooter, IonHeader, IonIcon, TranslocoPipe],
 })
 export class PopupAlertComponent {
-  @Input() title: string;
+  private popoverController = inject(PopoverController);
 
-  @Input() message: string;
+  readonly title = input<string>(undefined);
 
+  readonly message = input<string>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() secondaryMsg: string;
 
-  @Input() leftAlign = false;
+  readonly leftAlign = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() primaryCta: { text: string; action: string; type?: string };
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() flaggedExpensesCount = 0;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() cardsList: PopoverCardsList;
-
-  constructor(private popoverController: PopoverController) {}
 
   ctaClickedEvent(action: string): void {
     this.popoverController.dismiss({

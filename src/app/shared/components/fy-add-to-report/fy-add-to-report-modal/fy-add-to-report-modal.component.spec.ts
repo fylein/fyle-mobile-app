@@ -1,6 +1,5 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
+import { ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
@@ -14,6 +13,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('FyAddToReportModalComponent', () => {
   let component: FyAddToReportModalComponent;
@@ -25,9 +25,18 @@ describe('FyAddToReportModalComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        FyAddToReportModalComponent,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -98,14 +107,15 @@ describe('FyAddToReportModalComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '[data-testid="auto_submit_report"]'))).toEqual('Report 1');
   });
 
-  it('display zero state if no report found', () => {
+  it('display zero state if no report found', fakeAsync(() => {
     component.options = [];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     const subtitles = getAllElementsBySelector(fixture, '.report-list--zero-state__subtitle');
     expect(getTextContent(subtitles[0])).toEqual('You have no reports right now');
     expect(getTextContent(subtitles[1])).toEqual('To create a draft report please click on');
-  });
+  }));
 
   it('should go to create draft report if add icon is clicked', () => {
     spyOn(component, 'createDraftReport');
@@ -144,18 +154,19 @@ describe('FyAddToReportModalComponent', () => {
     expect(component.dismissModal).toHaveBeenCalledTimes(1);
   });
 
-  it('should report information correctly', () => {
+  it('should report information correctly', fakeAsync(() => {
     const reportCards = getAllElementsBySelector(fixture, '[data-testid="reports"]');
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--purpose')[0])).toEqual(
-      optionData1[0].value.purpose
+      optionData1[0].value.purpose,
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--count')[0])).toEqual(
-      `${optionData1[0].value.num_expenses} Expense${optionData1[0].value.num_expenses > 1 ? 's' : ''}`
+      `${optionData1[0].value.num_expenses} Expense${optionData1[0].value.num_expenses > 1 ? 's' : ''}`,
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--currency')[0])).toEqual('$');
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--amount')[0])).toEqual('1.35K');
-  });
+  }));
 });

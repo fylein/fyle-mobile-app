@@ -1,13 +1,14 @@
 import {
   Component,
   DoCheck,
-  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
-  Output,
   SimpleChanges,
+  inject,
+  input,
+  output,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -19,13 +20,21 @@ import {
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { intersection, isEqual } from 'lodash';
 import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageLocation } from '../route-visualizer/mileage-locations.interface';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { FyLocationComponent } from '../fy-location/fy-location.component';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-route-selector',
@@ -43,33 +52,61 @@ import { MileageLocation } from '../route-visualizer/mileage-locations.interface
       multi: true,
     },
   ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NgClass,
+    FyLocationComponent,
+    MatIcon,
+    MatCheckbox,
+    FyNumberComponent,
+    TitleCasePipe,
+    TranslocoPipe,
+  ],
 })
 export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges, DoCheck {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() unit: 'KM' | 'MILES';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageConfig: MileageDetails;
 
-  @Input() isDistanceMandatory: boolean;
+  readonly isDistanceMandatory = input<boolean>(undefined);
 
-  @Input() isAmountDisabled: boolean;
+  readonly isAmountDisabled = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnFields;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() formInitialized;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isConnected;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent = false;
 
-  @Input() validInParent = true;
+  readonly validInParent = input(true);
 
-  @Input() recentlyUsedMileageLocations: {
+  readonly recentlyUsedMileageLocations = input<{
     start_locations?: string[];
     end_locations?: string[];
     locations?: string[];
-  };
+  }>(undefined);
 
-  @Output() distanceChange = new EventEmitter<number>();
+  readonly distanceChange = output<number>();
 
   onChangeSub: Subscription;
 
@@ -79,14 +116,12 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     roundTrip: [],
   });
 
-  constructor(private fb: UntypedFormBuilder, private modalController: ModalController) {}
-
   get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
   get isRoundTripDisabled(): boolean {
-    return this.isAmountDisabled;
+    return this.isAmountDisabled();
   }
 
   // eslint-disable-next-line
@@ -141,7 +176,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       if (this.txnFields[txnFieldKey].is_mandatory) {
         if (txnFieldKey === 'distance') {
           control.setValidators(
-            this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null
+            this.isConnected ? Validators.compose([Validators.required, this.customDistanceValidator]) : null,
           );
         }
       }
@@ -166,12 +201,12 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       if (value.mileageLocations) {
         value.mileageLocations.forEach((location) => {
           this.mileageLocations.push(
-            new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+            new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required),
           );
         });
         if (value.mileageLocations.length === 1) {
           this.mileageLocations.push(
-            new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+            new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
           );
         }
       }
@@ -222,8 +257,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
       componentProps: {
         unit: this.unit,
         mileageConfig: this.mileageConfig,
-        isDistanceMandatory: this.isDistanceMandatory,
-        isAmountDisabled: this.isAmountDisabled,
+        isDistanceMandatory: this.isDistanceMandatory(),
+        isAmountDisabled: this.isAmountDisabled(),
         // eslint-disable-next-line
         txnFields: this.txnFields,
         value: this.form.value as {
@@ -231,7 +266,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
           mileageLocations: [];
           roundTrip: boolean;
         },
-        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations,
+        recentlyUsedMileageLocations: this.recentlyUsedMileageLocations(),
       },
     });
 
@@ -248,7 +283,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
       data.mileageLocations?.forEach((mileageLocation: MileageLocation) => {
         this.mileageLocations.push(
-          new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(mileageLocation || {}, this.mileageConfig.location_mandatory && Validators.required),
         );
       });
 

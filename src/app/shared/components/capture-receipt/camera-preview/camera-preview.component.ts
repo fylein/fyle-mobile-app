@@ -1,45 +1,62 @@
-import { Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges, inject, input, output } from '@angular/core';
 import { CameraPreviewOptions } from '@capacitor-community/camera-preview';
 import { from } from 'rxjs';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { IonContent, IonIcon, IonImg } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-camera-preview',
   templateUrl: './camera-preview.component.html',
   styleUrls: ['./camera-preview.component.scss'],
+  imports: [
+    IonContent,
+    IonIcon,
+    IonImg,
+    MatIcon,
+    NgClass
+  ],
 })
 export class CameraPreviewComponent implements OnInit, OnChanges {
-  @Input() isBulkMode = false;
+  private devicePlatform = inject(DEVICE_PLATFORM);
 
-  @Input() isOffline = false;
+  private cameraService = inject(CameraService);
 
-  @Input() allowGalleryUploads = true;
+  private cameraPreviewService = inject(CameraPreviewService);
 
-  @Input() allowBulkFyle = true;
+  readonly isBulkMode = input(false);
 
-  @Input() lastCapturedReceipt: string;
+  readonly isOffline = input(false);
 
-  @Input() noOfReceipts = 0;
+  readonly allowGalleryUploads = input(true);
 
-  @Input() isBulkModePromptShown = false;
+  readonly allowBulkFyle = input(true);
 
-  @Output() galleryUpload = new EventEmitter();
+  readonly lastCapturedReceipt = input<string>(undefined);
 
-  @Output() switchMode = new EventEmitter();
+  readonly noOfReceipts = input(0);
 
-  @Output() captureReceipt = new EventEmitter();
+  readonly isBulkModePromptShown = input(false);
 
-  @Output() receiptPreview = new EventEmitter();
+  readonly galleryUpload = output();
 
-  @Output() toggleFlashMode = new EventEmitter();
+  readonly switchMode = output();
 
-  @Output() dismissCameraPreview = new EventEmitter();
+  readonly captureReceipt = output();
 
-  @Output() permissionDenied = new EventEmitter<'CAMERA' | 'GALLERY'>();
+  readonly receiptPreview = output();
+
+  readonly toggleFlashMode = output<string>();
+
+  readonly dismissCameraPreview = output();
+
+  readonly permissionDenied = output<'CAMERA' | 'GALLERY'>();
 
   cameraState: CameraState = CameraState.STOPPED;
 
@@ -48,12 +65,6 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   showModeChangedMessage = false;
 
   isIos = true;
-
-  constructor(
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
-    private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService
-  ) {}
 
   get CameraState(): typeof CameraState {
     return CameraState;
@@ -64,7 +75,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
     if (this.devicePlatform === 'web') {
       this.startCameraPreview();
     } else {
-      from(this.cameraService.requestCameraPermissions()).subscribe((permissions) => {
+      from(this.cameraService.requestCameraPermissions(['camera'])).subscribe((permissions) => {
         if (permissions?.camera === 'denied') {
           this.permissionDenied.emit('CAMERA');
         } else if (permissions?.camera === 'prompt-with-rationale') {

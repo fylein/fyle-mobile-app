@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, inject, input } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import {
@@ -7,8 +7,12 @@ import {
   NG_VALUE_ACCESSOR,
   UntypedFormBuilder,
   UntypedFormArray,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { CustomInputsField } from 'src/app/core/models/custom-inputs-field.model';
+import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 type Option = Partial<{
   label: string;
@@ -31,13 +35,23 @@ interface CombinedOptions {
   templateUrl: './custom-inputs-fields-form.component.html',
   styleUrls: ['./custom-inputs-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: CustomInputsFieldsFormComponent, multi: true }],
+  imports: [FormsModule, ReactiveFormsModule, FySelectComponent, TranslocoPipe],
 })
 export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy, OnChanges {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private injector = inject(Injector);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() customInputs: CustomInputsField[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() combinedCustomProperties: CombinedOptions;
 
-  @Input() disableFormElements: boolean;
+  readonly disableFormElements = input<boolean>(undefined);
 
   onChangeSub: Subscription;
 
@@ -46,8 +60,6 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
   customFields: CustomInputsField[];
 
   onTouched: () => void = noop;
-
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
 
   ngOnInit(): void {
     this.customFieldsForm = this.formBuilder.group({
@@ -61,9 +73,10 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
     for (const customField of this.customInputs) {
       customFieldsFormArray.push(
         this.formBuilder.group({
+          ...(customField.id && { id: [customField.id] }),
           name: [customField.name],
           value: [customField.value],
-        })
+        }),
       );
     }
     customFieldsFormArray.updateValueAndValidity();

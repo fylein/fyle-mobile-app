@@ -1,33 +1,58 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
-import { PopoverController } from '@ionic/angular';
+import { IonCol, IonContent, IonGrid, IonRow, PopoverController } from '@ionic/angular/standalone';
 import { catchError, finalize, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { LoaderPosition } from '../../directive/loader-position.enum';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-delete-dialog',
   templateUrl: './fy-delete-dialog.component.html',
   styleUrls: ['./fy-delete-dialog.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonRow,
+    MatIcon,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyDeleteDialogComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() deleteMethod: () => Observable<any>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() header: string;
 
-  @Input() body: string;
+  readonly body = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() infoMessage: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() ctaText: string;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() ctaLoadingText: string;
 
-  @Input() disableDelete = false;
+  readonly disableDelete = input(false);
 
   deleteCallInProgress = false;
-
-  constructor(private popoverController: PopoverController) {}
 
   get LoaderPosition() {
     return LoaderPosition;
@@ -42,7 +67,7 @@ export class FyDeleteDialogComponent implements OnInit {
   }
 
   delete() {
-    if (!this.disableDelete) {
+    if (!this.disableDelete()) {
       this.deleteCallInProgress = true;
       this.deleteMethod()
         .pipe(
@@ -50,9 +75,9 @@ export class FyDeleteDialogComponent implements OnInit {
           catchError(() =>
             of({
               status: 'error',
-            })
+            }),
           ),
-          finalize(() => (this.deleteCallInProgress = false))
+          finalize(() => (this.deleteCallInProgress = false)),
         )
         .subscribe((res) => {
           this.popoverController.dismiss(res);

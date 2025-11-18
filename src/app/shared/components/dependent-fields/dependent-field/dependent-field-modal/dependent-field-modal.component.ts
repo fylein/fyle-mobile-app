@@ -1,29 +1,85 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  Input,
+  ChangeDetectorRef,
+  inject,
+  input,
+} from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, finalize } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldOption } from 'src/app/core/models/dependent-field-option.model';
 import { cloneDeep } from 'lodash';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { FyZeroStateComponent } from '../../../fy-zero-state/fy-zero-state.component';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../../fy-highlight-text/fy-highlight-text.component';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-dependent-field-modal',
   templateUrl: './dependent-field-modal.component.html',
   styleUrls: ['./dependent-field-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
+  ],
 })
 export class DependentFieldModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: string;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() label: string;
+  readonly label = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() fieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
   filteredOptions$: Observable<DependentFieldOption[]>;
@@ -31,12 +87,6 @@ export class DependentFieldModalComponent implements AfterViewInit {
   value: string;
 
   isLoading = false;
-
-  constructor(
-    private modalController: ModalController,
-    private dependentFieldsService: DependentFieldsService,
-    private cdr: ChangeDetectorRef
-  ) {}
 
   getDependentFieldOptions(searchQuery: string): Observable<DependentFieldOption[]> {
     this.isLoading = true;
@@ -54,13 +104,13 @@ export class DependentFieldModalComponent implements AfterViewInit {
             label: dependentFieldOption.expense_field_value,
             value: dependentFieldOption.expense_field_value,
             selected: false,
-          }))
+          })),
         ),
         map((dependentFieldOptions) => this.getFinalDependentFieldValues(dependentFieldOptions, this.currentSelection)),
         finalize(() => {
           this.isLoading = false;
           this.cdr.detectChanges();
-        })
+        }),
       );
   }
 
@@ -79,7 +129,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
       switchMap((searchString: string) => {
         this.cdr.detectChanges();
         return this.getDependentFieldOptions(searchString);
-      })
+      }),
     );
     this.cdr.detectChanges();
   }
@@ -94,9 +144,13 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
   getFinalDependentFieldValues(
     dependentFieldOptions: DependentFieldOption[],
-    currentSelection: string
+    currentSelection: string,
   ): DependentFieldOption[] {
-    const nullOption = { label: 'None', value: null, selected: currentSelection === null };
+    const nullOption = {
+      label: this.translocoService.translate('dependentFieldModal.none'),
+      value: null,
+      selected: currentSelection === null,
+    };
 
     if (!currentSelection) {
       return [nullOption, ...dependentFieldOptions];
@@ -104,7 +158,7 @@ export class DependentFieldModalComponent implements AfterViewInit {
 
     const dependentFieldOptionsCopy = cloneDeep(dependentFieldOptions);
     let selectedOption = dependentFieldOptionsCopy.find(
-      (dependentFieldOption) => dependentFieldOption.value === currentSelection
+      (dependentFieldOption) => dependentFieldOption.value === currentSelection,
     );
 
     if (selectedOption) {

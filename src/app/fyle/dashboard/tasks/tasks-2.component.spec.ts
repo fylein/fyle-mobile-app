@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -10,7 +10,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -26,10 +26,9 @@ import {
   taskFiltersParams6,
   taskFiltersParams7,
 } from 'src/app/core/mock-data/task-filters.data';
-import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data';
-import { expenseList } from 'src/app/core/mock-data/expense.data';
+import { taskCtaData3 } from 'src/app/core/mock-data/task-cta.data';
 import { cloneDeep } from 'lodash';
-import { publicAdvanceRequestRes, singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
+import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   expensesList,
   mileageCategoryPlatformExpenseData,
@@ -48,12 +47,10 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { Component, Input } from '@angular/core';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
-import { By } from '@angular/platform-browser';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
@@ -83,8 +80,7 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -109,14 +105,14 @@ export function TestCases2(getTestBed) {
       orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       let addCardPopoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService.isOnline.and.returnValue(of(true));
       networkService.connectivityWatcher.and.returnValue(null);
     }));
@@ -266,7 +262,7 @@ export function TestCases2(getTestBed) {
       expect(mockPopover.present).toHaveBeenCalled();
     }));
 
-    it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
+    it('onMobileNumberVerificationTaskClick(): should open opt-in modal', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
       const optInModalSpy = jasmine.createSpyObj('optInModal', ['present', 'onWillDismiss']);
       optInModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
@@ -316,7 +312,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: mileageCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
 
@@ -338,7 +339,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_per_diem',
-          { id: perDiemCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: perDiemCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
 
@@ -360,7 +366,12 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
+          {
+            id: mileageCategoryTransformedExpenseData.tx.id,
+            txnIds: '["txvslh8aQMbu"]',
+            activeIndex: 0,
+            navigate_back: true,
+          },
         ]);
       }));
     });

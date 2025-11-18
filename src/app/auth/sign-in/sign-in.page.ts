@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop, Subscription } from 'rxjs';
-import { PopoverController } from '@ionic/angular';
+import { IonButton, IonContent, IonIcon, PopoverController } from '@ionic/angular/standalone';
 import { ErrorComponent } from './error/error.component';
 import { shareReplay, filter, finalize, switchMap, map, tap, take } from 'rxjs/operators';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -20,13 +20,55 @@ import { SignInPageState } from './sign-in-page-state.enum';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { MatInput, MatSuffix } from '@angular/material/input';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.page.html',
   styleUrls: ['./sign-in.page.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatInput,
+    MatSuffix,
+    NgClass,
+    ReactiveFormsModule
+  ],
 })
 export class SignInPage implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private popoverController = inject(PopoverController);
+
+  private loaderService = inject(LoaderService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  googleAuthService = inject(GoogleAuthService);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private loginInfoService = inject(LoginInfoService);
+
+  private inAppBrowserService = inject(InAppBrowserService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private backButtonService = inject(BackButtonService);
+
   fg: UntypedFormGroup;
 
   emailLoading = false;
@@ -46,23 +88,6 @@ export class SignInPage implements OnInit {
   hardwareBackButtonAction: Subscription;
 
   focusOnPassword = false;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private routerAuthService: RouterAuthService,
-    private popoverController: PopoverController,
-    private loaderService: LoaderService,
-    private authService: AuthService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    public googleAuthService: GoogleAuthService,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private loginInfoService: LoginInfoService,
-    private inAppBrowserService: InAppBrowserService,
-    private platformHandlerService: PlatformHandlerService,
-    private backButtonService: BackButtonService
-  ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
     if (data && data.error) {
@@ -84,7 +109,7 @@ export class SignInPage implements OnInit {
           tap(async (eou) => {
             await this.trackLoginInfo();
             this.trackingService.onSignin(eou.us.id);
-          })
+          }),
         )
         .subscribe(() => {
           this.fg.reset();
@@ -131,7 +156,7 @@ export class SignInPage implements OnInit {
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
-        })
+        }),
       );
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
@@ -223,7 +248,7 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(eou.us.id);
             await this.trackLoginInfo();
           }),
-          finalize(() => (this.passwordLoading = false))
+          finalize(() => (this.passwordLoading = false)),
         )
         .subscribe({
           next: () => {
@@ -262,13 +287,13 @@ export class SignInPage implements OnInit {
             tap(async (eou) => {
               this.trackingService.onSignin(eou.us.id);
               await this.trackLoginInfo();
-            })
-          )
+            }),
+          ),
         ),
         finalize(() => {
           this.loaderService.hideLoader();
           this.googleSignInLoading = false;
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -328,7 +353,7 @@ export class SignInPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => from(this.routerAuthService.isLoggedIn())),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {

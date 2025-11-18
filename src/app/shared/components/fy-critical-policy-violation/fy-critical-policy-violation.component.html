@@ -1,71 +1,89 @@
-<div *ngIf="showHeader">
-  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
-  <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
-    <div>
-      <div class="critical-policy-violation--toolbar__title">
-        <span class="critical-policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
-          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
-        </span>
-        Expense blocked
+@if (showHeader()) {
+  <div>
+    @if (showDragBar()) {
+      <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+    }
+    <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
+      <div>
+        <div class="critical-policy-violation--toolbar__title">
+          @if (showCloseIcon()) {
+            <span class="critical-policy-violation--toolbar__close-icon" slot="start">
+              <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
+            </span>
+          }
+          {{ 'fyCriticalPolicyViolation.expenseBlocked' | transloco }}
+        </div>
       </div>
     </div>
   </div>
-</div>
+}
 
-<div *ngIf="!isSplitBlocked" class="critical-policy-violation--content-section">
-  <div class="critical-policy-violation--content">
-    <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
-    <div class="inner-content">
-      <ng-container *ngIf="criticalViolationMessages">
-        <ng-container *ngFor="let violation of criticalViolationMessages">
-          <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
-        </ng-container>
-        <app-fy-alert-info
-          *ngIf="isReceiptMissing"
-          type="information"
-          message="Splitting this expense will create incomplete expenses since receipt is missing."
-        ></app-fy-alert-info>
-      </ng-container>
+@if (!isSplitBlocked()) {
+  <div class="critical-policy-violation--content-section">
+    <div class="critical-policy-violation--content">
+      <div class="critical-policy-violation--info">
+        {{ 'fyCriticalPolicyViolation.cannotReportWarning' | transloco }}
+      </div>
+      <div class="inner-content">
+        @if (criticalViolationMessages) {
+          @for (violation of criticalViolationMessages; track violation) {
+            <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
+          }
+          @if (isReceiptMissing()) {
+            <app-fy-alert-info
+              type="information"
+              [message]="'fyCriticalPolicyViolation.splitIncompleteMissingReceipt' | transloco"
+            ></app-fy-alert-info>
+          }
+        }
+      </div>
     </div>
   </div>
-</div>
+}
 
-<div *ngIf="isSplitBlocked" class="critical-policy-violation--content-section">
-  <ng-container *ngIf="isSplitMissingFields; else missingFieldsError">
-    <div class="critical-policy-violation--content-split-info">
-      <app-fy-alert-info
-        type="danger"
-        message="Splitting this expense will create incomplete expenses."
-      ></app-fy-alert-info>
-    </div>
-    <div class="critical-policy-violation--content-split-info">
-      <app-fy-alert-info
-        type="information"
-        message="Please remove this expense from the report and split it from the Expenses section."
-      ></app-fy-alert-info>
-    </div>
-  </ng-container>
-  <ng-template #missingFieldsError>
-    <div class="critical-policy-violation--content-split-info">
-      <app-fy-alert-info
-        type="danger"
-        message="Splitting this expense will create blocked expenses."
-      ></app-fy-alert-info>
-    </div>
-    <div class="critical-policy-violation--content-split-info">
-      <app-fy-alert-info
-        type="information"
-        message="Please remove this expense from the report and split it from the Expenses section."
-      ></app-fy-alert-info>
-    </div>
-  </ng-template>
-</div>
+@if (isSplitBlocked()) {
+  <div class="critical-policy-violation--content-section">
+    @if (isSplitMissingFields()) {
+      <div class="critical-policy-violation--content-split-info">
+        <app-fy-alert-info
+          type="danger"
+          [message]="'fyCriticalPolicyViolation.splitIncomplete' | transloco"
+        ></app-fy-alert-info>
+      </div>
+      <div class="critical-policy-violation--content-split-info">
+        <app-fy-alert-info
+          type="information"
+          [message]="'fyCriticalPolicyViolation.removeAndSplit' | transloco"
+        ></app-fy-alert-info>
+      </div>
+    } @else {
+      <div class="critical-policy-violation--content-split-info">
+        <app-fy-alert-info
+          type="danger"
+          [message]="'fyCriticalPolicyViolation.splitBlocked' | transloco"
+        ></app-fy-alert-info>
+      </div>
+      <div class="critical-policy-violation--content-split-info">
+        <app-fy-alert-info
+          type="information"
+          [message]="'fyCriticalPolicyViolation.removeAndSplit' | transloco"
+        ></app-fy-alert-info>
+      </div>
+    }
+  </div>
+}
 
-<ion-footer *ngIf="showCTA">
-  <ion-toolbar mode="md">
-    <div class="fy-footer-cta-container">
-      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
-    </div>
-  </ion-toolbar>
-</ion-footer>
+@if (showCTA) {
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <div class="fy-footer-cta-container">
+        <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()">
+          {{ 'fyCriticalPolicyViolation.cancel' | transloco }}
+        </ion-button>
+        <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()">
+          {{ 'fyCriticalPolicyViolation.continue' | transloco }}
+        </ion-button>
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

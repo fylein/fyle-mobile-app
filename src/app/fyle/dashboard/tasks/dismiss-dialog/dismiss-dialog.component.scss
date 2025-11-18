@@ -1,17 +1,17 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .dismiss-dialog {
   &--header {
     font-size: 16px;
     line-height: 20px;
-    color: $black;
+    color: colors.$black;
     font-weight: 500;
   }
 
   &--body {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 400;
     margin-top: 16px;
   }
@@ -22,20 +22,17 @@
 
   &--dismiss {
     display: flex;
-    padding: 12px 16px;
     justify-content: center;
-    color: $pure-white;
+    color: colors.$pure-white;
     align-items: center;
     border-radius: 4px;
-    background: $pink-gradient;
+    background: colors.$brand-primary;
   }
 
   &--cancel {
     display: flex;
-    padding: 12px 16px;
     justify-content: center;
     align-items: center;
-    color: $blue-black;
     &__disabled {
       opacity: 0.2;
     }

@@ -1,25 +1,73 @@
-import { Component, Input, OnInit } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonItem, IonLabel, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { forkJoin, Observable, of } from 'rxjs';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatLabel, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatDatepickerInput, MatDatepickerToggle, MatDatepicker } from '@angular/material/datepicker';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-filters',
   templateUrl: './fy-filters.component.html',
   styleUrls: ['./fy-filters.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatDatepicker,
+    MatDatepickerInput,
+    MatDatepickerToggle,
+    MatFormField,
+    MatInput,
+    MatLabel,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyFiltersComponent implements OnInit {
+  private modalController = inject(ModalController);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() simplifyReportsSettings$: Observable<any> = of({ enabled: false });
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() nonReimbursableOrg$: Observable<boolean> = of(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedFilterValues: SelectedFilters<any>[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeFilterInitialName;
 
-  filterOptions: FilterOptions<any>[];
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() filterOptions: FilterOptions<any>[];
 
   currentFilterValueMap: { [key: string]: any | any[] } = {};
 
@@ -35,8 +83,6 @@ export class FyFiltersComponent implements OnInit {
   startDate: Date;
 
   endDate: Date;
-
-  constructor(private modalController: ModalController) {}
 
   get FilterOptionType() {
     return FilterOptionType;
@@ -136,7 +182,7 @@ export class FyFiltersComponent implements OnInit {
           value: this.currentFilterValueMap[key],
           associatedData: this.customDateMap[key],
         } as SelectedFilters<any>),
-      []
+      [],
     );
     this.modalController.dismiss(filters);
   }
@@ -147,7 +193,7 @@ export class FyFiltersComponent implements OnInit {
     option: {
       label: string;
       value: any;
-    }
+    },
   ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
@@ -167,13 +213,13 @@ export class FyFiltersComponent implements OnInit {
       label: string;
       value: any;
     },
-    currentFilter: FilterOptions<any>
+    currentFilter: FilterOptions<any>,
   ) {
     if (filter) {
       const doesValueExistInFilter = filter.some((value) => value === option.value);
       if (doesValueExistInFilter) {
         this.currentFilterValueMap[currentFilter.name] = this.currentFilterValueMap[currentFilter.name].filter(
-          (value) => value !== option.value
+          (value) => value !== option.value,
         );
       } else {
         this.currentFilterValueMap[currentFilter.name].push(option.value);
@@ -189,12 +235,20 @@ export class FyFiltersComponent implements OnInit {
     option: {
       label: string;
       value: any;
-    }
+    },
   ) {
     if (filter && this.currentFilterValueMap[currentFilter.name] === option.value) {
       this.currentFilterValueMap[currentFilter.name] = null;
     } else {
       this.currentFilterValueMap[currentFilter.name] = option.value;
     }
+  }
+
+  getOptionElementId(filterName: string, optionValue: string): string {
+    // Create consistent IDs for walkthrough targeting
+    if (filterName === 'Type' && optionValue === 'BLOCKED') {
+      return 'blocked-filter-checkbox';
+    }
+    return `${filterName.toLowerCase().replace(/\s+/g, '-')}-${optionValue.toLowerCase().replace(/\s+/g, '-')}-option`;
   }
 }

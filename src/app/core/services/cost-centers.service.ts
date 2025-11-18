@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -14,10 +14,9 @@ const costCentersCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CostCentersService {
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$,
@@ -29,7 +28,7 @@ export class CostCentersService {
         return range(0, count);
       }),
       concatMap((page) => this.getCostCenters({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as CostCenter[])
+      reduce((acc, curr) => acc.concat(curr), [] as CostCenter[]),
     );
   }
 

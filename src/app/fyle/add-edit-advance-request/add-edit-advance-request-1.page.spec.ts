@@ -1,6 +1,6 @@
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -8,7 +8,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -33,7 +33,7 @@ export function TestCases1(getTestBed) {
     let component: AddEditAdvanceRequestPage;
     let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
     let authService: jasmine.SpyObj<AuthService>;
-    let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
@@ -42,7 +42,7 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let fileService: jasmine.SpyObj<FileService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -58,19 +58,17 @@ export function TestCases1(getTestBed) {
       component = fixture.componentInstance;
 
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      advanceRequestsCustomFieldsService = TestBed.inject(
-        AdvanceRequestsCustomFieldsService
-      ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -78,7 +76,7 @@ export function TestCases1(getTestBed) {
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -180,7 +178,7 @@ export function TestCases1(getTestBed) {
 
     it('submitAdvanceRequest(): should get file attachments and call advanceRequestService.createAdvReqWithFilesAndSubmit once', () => {
       advanceRequestService.createAdvReqWithFilesAndSubmit.and.returnValue(of(advRequestFile));
-      const mockFileData = of(fileData1);
+      const mockFileData = of(['file1', 'file2']);
       spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
 
       const result = component.submitAdvanceRequest(advanceRequests);
@@ -188,7 +186,8 @@ export function TestCases1(getTestBed) {
       expect(component.fileAttachments).toHaveBeenCalledTimes(1);
       expect(advanceRequestService.createAdvReqWithFilesAndSubmit).toHaveBeenCalledOnceWith(
         advanceRequests,
-        mockFileData
+        mockFileData,
+        false,
       );
       result.subscribe((res) => {
         expect(res).toEqual(advRequestFile);
@@ -197,7 +196,7 @@ export function TestCases1(getTestBed) {
 
     it('saveDraftAdvanceRequest(): should get file attachments and call advanceRequestService.saveDraftAdvReqWithFiles once', () => {
       advanceRequestService.saveDraftAdvReqWithFiles.and.returnValue(of(advRequestFile));
-      const mockFileData = of(fileData1);
+      const mockFileData = of(['file1', 'file2']);
       spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
 
       const result = component.saveDraftAdvanceRequest(advanceRequests);
@@ -228,9 +227,12 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('showFormValidationErrors(): should show form validation errors', () => {
+    it('showFormValidationErrors(): should show form validation errors', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+      component.ngOnInit();
       fixture.detectChanges();
+      tick();
+
       Object.defineProperty(component.fg, 'valid', {
         get: () => false,
       });
@@ -238,7 +240,7 @@ export function TestCases1(getTestBed) {
 
       component.showFormValidationErrors();
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-    });
+    }));
 
     describe('showAdvanceSummaryPopover():', () => {
       beforeEach(() => {
@@ -323,6 +325,30 @@ export function TestCases1(getTestBed) {
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+    });
+
+    it('should test scrollInputIntoView method with smooth behavior', () => {
+      const mockElement = document.createElement('input');
+      spyOn(mockElement, 'scrollIntoView');
+      spyOn(component, 'getActiveElement').and.returnValue(mockElement);
+
+      component.scrollInputIntoView();
+
+      expect(mockElement.scrollIntoView).toHaveBeenCalledWith({
+        block: 'center',
+      });
+    });
+
+    it('should test getActiveElement method returns correct element', () => {
+      const mockElement = document.createElement('input');
+      Object.defineProperty(document, 'activeElement', {
+        value: mockElement,
+        writable: true,
+      });
+
+      const result = component.getActiveElement();
+
+      expect(result).toBe(mockElement);
     });
   });
 }

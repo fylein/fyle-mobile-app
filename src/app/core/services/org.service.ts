@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Org } from '../models/org.model';
@@ -17,11 +17,11 @@ const orgsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgService {
-  constructor(
-    private apiService: ApiService,
-    private authService: AuthService,
-    private spenderService: SpenderService
-  ) {}
+  private apiService = inject(ApiService);
+
+  private authService = inject(AuthService);
+
+  private spenderService = inject(SpenderService);
 
   @Cacheable({
     cacheBusterObserver: orgsCacheBuster$,
@@ -47,7 +47,7 @@ export class OrgService {
         data.currency = data.currency || 'USD';
         return data.currency;
       }),
-      catchError(() => 'USD')
+      catchError(() => 'USD'),
     );
   }
 
@@ -65,7 +65,7 @@ export class OrgService {
         const [currency, org] = aggregatedResults;
         org.currency = currency;
         return this.updateOrg(org);
-      })
+      }),
     );
   }
 

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -7,16 +6,16 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { ExpensesCardComponent } from './expenses-card.component';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
+import { ExpensesCardV1Component } from './expenses-card.component';
+import { PopoverController, ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
@@ -31,7 +30,7 @@ import { fileObjectAdv, fileObjectData } from 'src/app/core/mock-data/file-objec
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { cloneDeep } from 'lodash';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
@@ -42,10 +41,11 @@ import {
   transformedExpenseWithExtractedData,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('ExpensesCardComponent', () => {
-  let component: ExpensesCardComponent;
-  let fixture: ComponentFixture<ExpensesCardComponent>;
+  let component: ExpensesCardV1Component;
+  let fixture: ComponentFixture<ExpensesCardV1Component>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
@@ -60,7 +60,8 @@ describe('ExpensesCardComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   let componentElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
@@ -96,13 +97,29 @@ describe('ExpensesCardComponent', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'showToastMessage']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
 
     TestBed.configureTestingModule({
-      declarations: [ExpensesCardComponent, DateFormatPipe, HumanizeCurrencyPipe, ExpenseState],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
+      imports: [
+        MatIconModule,
+        MatIconTestingModule,
+        MatCheckboxModule,
+        FormsModule,
+        TranslocoModule,
+        ExpensesCardV1Component,
+        DateFormatPipe,
+        HumanizeCurrencyPipe,
+        ExpenseState,
+      ],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
@@ -118,15 +135,16 @@ describe('ExpensesCardComponent', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DateFormatPipe, useValue: dateFormatPipeSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -139,10 +157,10 @@ describe('ExpensesCardComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
@@ -155,9 +173,57 @@ describe('ExpensesCardComponent', () => {
     transactionService.transformExpense.and.returnValue(transformedExpenseData);
     networkService.isOnline.and.returnValue(of(true));
     transactionService.getIsDraft.and.returnValue(true);
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'expensesCard.receiptAdded': 'Receipt added to expense successfully',
+        'expensesCard.sizeLimitExceeded': 'Size limit exceeded',
+        'expensesCard.fileTooLarge':
+          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
+        'expensesCard.ok': 'OK',
+        'expensesCard.offlineExpenses': 'Offline expenses',
+        'expensesCard.syncingMileage': 'Syncing mileage',
+        'expensesCard.syncingPerDiem': 'Syncing per diem',
+        'expensesCard.syncingReceipt': 'Syncing receipt...',
+        'expensesCard.uploadingReceipt': 'Uploading receipt...',
+        'expensesCard.yourPrefix': 'Your',
+        'expensesCard.receipt': 'receipt',
+        'expensesCard.addedShortlySuffix': 'will be added shortly.',
+        'expensesCard.scanningReceipt': 'Scanning receipt...',
+        'expensesCard.scanTakesTime': 'This takes a short while',
+        'expensesCard.scanFailed': 'Scan failed',
+        'expensesCard.unspecifiedCategory': 'Unspecified category',
+        'expensesCard.expenseInfoMissing': 'Expense information missing',
+        'expensesCard.exchangeRateAt': 'at',
+        'expensesCard.criticalPolicyViolations': 'Critical policy violations',
+        'expensesCard.receiptAddedSuccess': 'Receipt added to expense successfully',
+        'expensesCard.fileSizeError':
+          'The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.',
+        'expensesCard.your': 'Your',
+        'expensesCard.mileage': 'mileage',
+        'expensesCard.perDiem': 'per diem',
+        'expensesCard.addedShortly': 'will be added shortly.',
+        'expensesCard.takesShortWhile': 'This takes a short while',
+        'expensesCard.unspecifiedProject': 'Unspecified',
+        'expensesCard.expenseInfo': 'Expense information',
+        'expensesCard.missing': 'missing',
+        'expensesCard.at': 'at',
+        'expensesCard.countSelected': '{{count}} selected',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
-    fixture = TestBed.createComponent(ExpensesCardComponent);
+    fixture = TestBed.createComponent(ExpensesCardV1Component);
     component = fixture.componentInstance;
 
     component.receiptIcon = 'assets/svg/file-pdf.svg';
@@ -375,6 +441,7 @@ describe('ExpensesCardComponent', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
       component.expense = {
         ...expenseData1,
+        source_account_type: 'PERSONAL_CASH_ACCOUNT',
         tx_skip_reimbursement: false,
       };
       component.canShowPaymentModeIcon();
@@ -742,7 +809,7 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalledOnceWith(receiptDetails);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(dataRes.data.dataUrl);
 
-      const message = 'Receipt added to Expense successfully';
+      const message = 'Receipt added to expense successfully';
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarProperties.setSnackbarProperties('success', { message }),
         panelClass: ['msb-success-with-camera-icon'],

@@ -1,8 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({
-  name: 'singular',
-})
+@Pipe({ name: 'singular' })
 export class SingularPipe implements PipeTransform {
   transform(name: string): string {
     if (!!name) {

@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { InfoCardComponent } from './info-card.component';
 import { By } from '@angular/platform-browser';
@@ -13,8 +12,7 @@ describe('InfoCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     TestBed.configureTestingModule({
-      declarations: [InfoCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ InfoCardComponent],
       providers: [{ provide: ClipboardService, useValue: clipboardServiceSpy }],
     }).compileComponents();
 
@@ -23,7 +21,7 @@ describe('InfoCardComponent', () => {
     clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
 
     component.title = 'Email Receipts';
-    component.content = 'Forward your receipts to Fyle at receipts@fylehq.com.';
+    component.content = 'Forward your receipts to Sage Expense Management at receipts@fylehq.com.';
     component.contentToCopy = 'receipts@fylehq.com';
     component.toastMessageContent = 'Email Copied Successfully';
     fixture.detectChanges();

@@ -1,5 +1,4 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { callbackify } from 'util';
 import { SecureStorageService } from './secure-storage.service';
 
 import { TokenService } from './token.service';

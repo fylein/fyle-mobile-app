@@ -1,7 +1,30 @@
+import { TestBed } from '@angular/core/testing';
 import { ArrayToCommaListPipe } from './array-to-comma-list.pipe';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('ArrayToCommaListPipe', () => {
-  const arrayToCommaListPipe = new ArrayToCommaListPipe();
+  let arrayToCommaListPipe: ArrayToCommaListPipe;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+
+  beforeEach(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    TestBed.configureTestingModule({
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
+    });
+
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    arrayToCommaListPipe = TestBed.runInInjectionContext(() => new ArrayToCommaListPipe());
+
+    // Mock translate method to return expected strings
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'pipes.arrayToCommaList.and': 'and',
+      };
+      return translations[key] || key;
+    });
+  });
+
   it('create an instance', () => {
     expect(arrayToCommaListPipe).toBeTruthy();
   });

@@ -1,7 +1,14 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { UntypedFormBuilder, UntypedFormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { switchMap, finalize, tap, map } from 'rxjs/operators';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -10,17 +17,54 @@ import { Router } from '@angular/router';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatSuffix } from '@angular/material/input';
+import { PasswordCheckTooltipComponent } from '../../shared/components/password-check-tooltip/password-check-tooltip.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-invited-user',
   templateUrl: './invited-user.page.html',
   styleUrls: ['./invited-user.page.scss'],
+  imports: [
+    AsyncPipe,
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonContent,
+    IonIcon,
+    MatSuffix,
+    NgClass,
+    PasswordCheckTooltipComponent,
+    ReactiveFormsModule
+  ],
 })
 export class InvitedUserPage implements OnInit {
+  private networkService = inject(NetworkService);
+
+  private fb = inject(UntypedFormBuilder);
+
+  private orgUserService = inject(OrgUserService);
+
+  private loaderService = inject(LoaderService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
   isConnected$: Observable<boolean>;
 
   fg: UntypedFormGroup;
@@ -54,20 +98,6 @@ export class InvitedUserPage implements OnInit {
   focusOnPassword = false;
 
   focusOnConfirmPassword = false;
-
-  constructor(
-    private networkService: NetworkService,
-    private fb: UntypedFormBuilder,
-    private orgUserService: OrgUserService,
-    private loaderService: LoaderService,
-    private authService: AuthService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService
-  ) {}
 
   ngOnInit(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
@@ -111,7 +141,7 @@ export class InvitedUserPage implements OnInit {
           } else {
             this.router.navigate(['/', 'enterprise', 'my_dashboard']);
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -136,7 +166,7 @@ export class InvitedUserPage implements OnInit {
           finalize(async () => {
             this.isLoading = false;
             return await this.loaderService.hideLoader();
-          })
+          }),
         )
         .subscribe(() => {
           this.navigateToDashboard();

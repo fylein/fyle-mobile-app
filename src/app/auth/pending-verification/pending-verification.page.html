@@ -1,96 +1,101 @@
 <ion-content scroll-y="false" class="no-keyboard-adjust">
-  <div class="pending-verification" *ngIf="fg">
-    <div class="pending-verification__send-invite" *ngIf="!isInvitationLinkSent">
-      <div class="pending-verification__form-container">
-        <div class="pending-verification__error-icon-container">
-          <ion-icon
-            class="pending-verification__error-icon"
-            [src]="'/assets/svg/error-outlined.svg'"
-            slot="icon-only"
-          ></ion-icon>
-        </div>
-        <div>
-          <div class="pending-verification__page-header">The invitation has expired</div>
-          <div class="pending-verification__sub-header">
-            Enter your registered email address to receive a new invitation and set up your account on Fyle.
+  @if (fg) {
+    <div class="pending-verification">
+      @if (!isInvitationLinkSent) {
+        <div class="pending-verification__send-invite">
+          <div class="pending-verification__form-container">
+            <div class="pending-verification__error-icon-container">
+              <ion-icon
+                class="pending-verification__error-icon"
+                [src]="'/assets/svg/error-outlined.svg'"
+                slot="icon-only"
+              ></ion-icon>
+            </div>
+            <div>
+              <div class="pending-verification__page-header">The invitation has expired</div>
+              <div class="pending-verification__sub-header">
+                Enter your registered email address to receive a new invitation and set up your account on Sage Expense Management.
+              </div>
+            </div>
+            <form [formGroup]="fg" class="pending-verification__input-container">
+              <div class="pending-verification__input-container__label">Registered email</div>
+              <input
+                #simpleEmailInput
+                matInput
+                type="email"
+                placeholder="Enter registered email"
+                formControlName="email"
+                pattern="\S+@\S+\.\S{2,}"
+                class="pending-verification__input-container__input"
+              />
+              @if (fg.controls.email.touched && !fg.controls.email.valid) {
+                <div class="pending-verification__error-message">Please enter a valid email.</div>
+              }
+            </form>
+          </div>
+          <div>
+            <ion-button
+              (click)="resendVerificationLink(fg.controls.email.value)"
+              class="btn-primary"
+              fill="clear"
+              [disabled]="!fg.valid"
+              appFormButtonValidation
+              [loading]="isLoading"
+              [loadingText]="'Sending invite'"
+            >
+              Send invite
+            </ion-button>
+            <div class="pending-verification__cta-secondary btn-secondary" (click)="onGotoSignInClick()">
+              <ion-icon
+                class="pending-verification__arrow-icon"
+                [src]="'/assets/svg/arrow-left.svg'"
+                slot="icon-only"
+              ></ion-icon>
+              <span class="pending-verification__cta-text">Back to sign in</span>
+            </div>
           </div>
         </div>
-        <form [formGroup]="fg" class="pending-verification__input-container">
-          <div class="pending-verification__input-container__label">Registered email</div>
-          <input
-            #simpleEmailInput
-            matInput
-            type="email"
-            placeholder="Enter registered email"
-            formControlName="email"
-            pattern="\S+@\S+\.\S{2,}"
-            class="pending-verification__input-container__input"
-          />
-          <div
-            class="pending-verification__error-message"
-            *ngIf="fg.controls.email.touched && !fg.controls.email.valid"
-          >
-            Please enter a valid email.
+      }
+      @if (isInvitationLinkSent) {
+        <div class="pending-verification__send-invite">
+          @if (isInvitationLinkSent) {
+            <div class="pending-verification__content-container">
+              <div class="pending-verification__success-icon-container">
+                <ion-icon
+                  class="pending-verification__success-icon"
+                  [src]="'/assets/svg/check-circle-outline.svg'"
+                  slot="icon-only"
+                ></ion-icon>
+              </div>
+              <section class="pending-verification__text">
+                <h1 class="pending-verification__header">Invitation link sent</h1>
+                <p class="pending-verification__content">
+                  A new invitation link has been sent to your registered email address. Check your inbox to continue
+                  setting up your account.
+                </p>
+              </section>
+            </div>
+          }
+          <div class="pending-verification__cta">
+            <ion-button
+              (click)="onGotoSignInClick()"
+              class="btn-primary"
+              fill="clear"
+              aria-label="Navigate back to sign in page"
+              role="button"
+            >
+              <div class="pending-verification__cta-content">
+                <ion-icon
+                  class="pending-verification__arrow-icon"
+                  [src]="'/assets/svg/arrow-left.svg'"
+                  slot="icon-only"
+                ></ion-icon>
+                <span class="pending-verification__cta-text">Back to sign in</span>
+              </div>
+            </ion-button>
           </div>
-        </form>
-      </div>
-      <div>
-        <ion-button
-          (click)="resendVerificationLink(fg.controls.email.value)"
-          class="btn-primary"
-          fill="clear"
-          [disabled]="!fg.valid"
-          appFormButtonValidation
-          [loading]="isLoading"
-          [loadingText]="'Sending invite'"
-        >
-          Send invite
-        </ion-button>
-        <div class="pending-verification__cta-secondary" (click)="onGotoSignInClick()">
-          <ion-icon
-            class="pending-verification__arrow-icon"
-            [src]="'/assets/svg/arrow-left.svg'"
-            slot="icon-only"
-          ></ion-icon>
-          <span class="pending-verification__cta-text">Back to sign in</span>
         </div>
-      </div>
+      }
     </div>
-    <div class="pending-verification__send-invite" *ngIf="isInvitationLinkSent">
-      <div class="pending-verification__content-container" *ngIf="isInvitationLinkSent">
-        <div class="pending-verification__success-icon-container">
-          <ion-icon
-            class="pending-verification__success-icon"
-            [src]="'/assets/svg/check-circle-outline.svg'"
-            slot="icon-only"
-          ></ion-icon>
-        </div>
-        <section class="pending-verification__text">
-          <h1 class="pending-verification__header">Invitation link sent</h1>
-          <p class="pending-verification__content">
-            A new invitation link has been sent to your registered email address. Check your inbox to continue setting
-            up your account.
-          </p>
-        </section>
-      </div>
-      <div class="pending-verification__cta">
-        <ion-button
-          (click)="onGotoSignInClick()"
-          class="btn-primary"
-          fill="clear"
-          aria-label="Navigate back to sign in page"
-          role="button"
-        >
-          <div class="pending-verification__cta-content">
-            <ion-icon
-              class="pending-verification__arrow-icon"
-              [src]="'/assets/svg/arrow-left.svg'"
-              slot="icon-only"
-            ></ion-icon>
-            <span class="pending-verification__cta-text">Back to sign in</span>
-          </div>
-        </ion-button>
-      </div>
-    </div>
-  </div>
+  }
 </ion-content>

@@ -1,4 +1,4 @@
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { SpenderOnboardingService } from './spender-onboarding.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { OnboardingStepStatus } from '../models/onboarding-step-status.model';
@@ -6,26 +6,28 @@ import { of } from 'rxjs';
 import { onboardingStatusData } from '../mock-data/onboarding-status.data';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
 import { UtilityService } from './utility.service';
-import { OrgSettings } from '../models/org-settings.model';
 import { OrgSettingsService } from './org-settings.service';
+import { OrgSettings } from '../models/org-settings.model';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { AuthService } from './auth.service';
 import { orgSettingsCardsDisabled, orgSettingsData } from '../test-data/org-settings.service.spec.data';
 import { OnboardingState } from '../models/onboarding-state.enum';
 import { orgSettingsCCCDisabled3 } from '../mock-data/org-settings.data';
-import { extendedOrgUserResponse } from '../test-data/tasks.service.spec.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('SpenderOnboardingService', () => {
   let spenderOnboardingService: SpenderOnboardingService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
     TestBed.configureTestingModule({
       providers: [
@@ -36,7 +38,7 @@ describe('SpenderOnboardingService', () => {
             useValue: spenderPlatformV1ApiServiceSpy,
           },
           {
-            provide: OrgSettingsService,
+            provide: PlatformOrgSettingsService,
             useValue: orgSettingsServiceSpy,
           },
           {
@@ -48,13 +50,15 @@ describe('SpenderOnboardingService', () => {
             useValue: utilityServiceSpy,
           },
         ],
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService);
   });
@@ -86,7 +90,7 @@ describe('SpenderOnboardingService', () => {
     });
   });
 
-  it('processSmsOptInStep(): should process opt in step', (done) => {
+  it('processSmsOptInStep(): should process opt-in step', (done) => {
     const onboardingRequestResponse: OnboardingStepStatus = {
       is_configured: true,
       is_skipped: false,
@@ -175,7 +179,13 @@ describe('SpenderOnboardingService', () => {
   it('checkForRedirectionToOnboarding(): should return true when conditions are met', async () => {
     spyOn(spenderOnboardingService, 'getOnboardingStatus').and.returnValue(of(onboardingStatusData));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
+    const mockEou = {
+      ...apiEouRes,
+      org: {
+        currency: 'USD',
+      },
+    };
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(mockEou)));
     utilityService.isUserFromINCluster.and.resolveTo(false);
     const result = await spenderOnboardingService.checkForRedirectionToOnboarding().toPromise();
     expect(result).toBeTrue();
@@ -237,35 +247,37 @@ describe('SpenderOnboardingService', () => {
     it('should return true when all conditions are met', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: OnboardingState.YET_TO_START }),
       ).toBeTrue();
     });
 
     it('should return false when currency is not USD', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('EUR', false, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('EUR', false, true, { state: OnboardingState.YET_TO_START }),
       ).toBeFalse();
     });
 
     it('should return false when org is restricted', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', true, true, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', true, true, { state: OnboardingState.YET_TO_START }),
       ).toBeFalse();
     });
 
     it('should return false when cards are not enabled', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, false, { state: OnboardingState.YET_TO_START })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, false, {
+          state: OnboardingState.YET_TO_START,
+        }),
       ).toBeFalse();
     });
 
     it('should return false when onboarding is completed', () => {
       expect(
         //@ts-ignore
-        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: 'COMPLETED' })
+        spenderOnboardingService.shouldProceedToOnboarding('USD', false, true, { state: 'COMPLETED' }),
       ).toBeFalse();
     });
   });

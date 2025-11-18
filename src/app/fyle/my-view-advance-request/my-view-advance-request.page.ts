@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController, ModalController } from '@ionic/angular';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterLinkActive, RouterLink } from '@angular/router';
+import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { forkJoin, from, Observable } from 'rxjs';
 import { finalize, map, reduce, shareReplay, switchMap, concatMap } from 'rxjs/operators';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -8,29 +8,79 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 import { AdvanceRequestPopoverData } from 'src/app/core/models/popover-data.model';
+import { FySummaryTileComponent } from '../../shared/components/summary-tile/summary-tile.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { FyStatisticComponent } from '../../shared/components/fy-statistic/fy-statistic.component';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 
 @Component({
   selector: 'app-my-view-advance-request',
   templateUrl: './my-view-advance-request.page.html',
   styleUrls: ['./my-view-advance-request.page.scss'],
+  imports: [
+    AsyncPipe,
+    DatePipe,
+    EllipsisPipe,
+    FyStatisticComponent,
+    FySummaryTileComponent,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    RouterLink,
+    RouterLinkActive,
+    TitleCasePipe
+  ],
 })
 export class MyViewAdvanceRequestPage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private loaderService = inject(LoaderService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private fileService = inject(FileService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  minScreenWidth = inject(MIN_SCREEN_WIDTH);
+
   advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
 
   actions$: Observable<AdvanceRequestActions>;
@@ -50,21 +100,6 @@ export class MyViewAdvanceRequestPage {
   internalState: { name: string; state: string };
 
   currencySymbol: string;
-
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private loaderService: LoaderService,
-    private advanceRequestService: AdvanceRequestService,
-    private fileService: FileService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private modalController: ModalController,
-    private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
-  ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
@@ -116,16 +151,15 @@ export class MyViewAdvanceRequestPage {
 
   ionViewWillEnter(): void {
     const id: string = this.activatedRoute.snapshot.params.id as string;
-    this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1)
-    );
 
-    this.advanceRequest$.subscribe((advanceRequest) => {
-      this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
-      this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
-    });
+    this.advanceRequest$ = this.advanceRequestService.getAdvanceRequestPlatform(id).pipe(
+      map((advanceRequest) => {
+        this.internalState = this.advanceRequestService.getInternalStateAndDisplayName(advanceRequest);
+        this.currencySymbol = getCurrencySymbol(advanceRequest?.areq_currency, 'wide');
+        return advanceRequest;
+      }),
+      shareReplay(1),
+    );
 
     this.actions$ = this.advanceRequestService.getSpenderPermissions(id).pipe(shareReplay(1));
     this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(id);
@@ -140,13 +174,13 @@ export class MyViewAdvanceRequestPage {
             updatedFileObj.type = details.type;
             updatedFileObj.thumbnail = details.thumbnail;
             return updatedFileObj;
-          })
-        )
+          }),
+        ),
       ),
-      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[])
+      reduce((acc: FileObject[], curr: FileObject) => acc.concat(curr), [] as FileObject[]),
     );
 
-    this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
+    this.customFields$ = this.advanceRequestService.getCustomFieldsForSpender();
 
     this.advanceRequestCustomFields$ = forkJoin({
       advanceRequest: this.advanceRequest$,
@@ -159,20 +193,20 @@ export class MyViewAdvanceRequestPage {
           res.advanceRequest.areq_custom_field_values.length > 0
         ) {
           customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            res.advanceRequest.areq_custom_field_values
+            res.advanceRequest.areq_custom_field_values,
           );
         }
 
         return res.customFields.map((customField) => {
           const matchingCustomFieldValue = customFieldValues.find(
-            (customFieldValue) => customField.name === customFieldValue.name
+            (customFieldValue) => customField.name === customFieldValue.name,
           );
           return {
             ...customField,
             value: matchingCustomFieldValue ? matchingCustomFieldValue.value : null,
           } as CustomField;
         });
-      })
+      }),
     );
 
     this.getAndUpdateProjectName();
@@ -204,7 +238,7 @@ export class MyViewAdvanceRequestPage {
       from(this.loaderService.showLoader())
         .pipe(
           switchMap(() => this.advanceRequestService.pullBackAdvanceRequest(id, statusPayload)),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'my_advances']);

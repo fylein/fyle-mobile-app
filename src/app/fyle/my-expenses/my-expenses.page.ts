@@ -1,9 +1,9 @@
-import { getCurrencySymbol } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { getCurrencySymbol, NgClass, AsyncPipe } from '@angular/common';
+import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSkeletonText, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -32,8 +32,9 @@ import {
   take,
   takeUntil,
   takeWhile,
-  timeout,
+  catchError,
 } from 'rxjs/operators';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -49,11 +50,10 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -81,19 +81,72 @@ import { PromoteOptInModalComponent } from 'src/app/shared/components/promote-op
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
-import * as dayjs from 'dayjs';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import dayjs from 'dayjs';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ExpensesCardV1Component } from '../../shared/components/expenses-card/expenses-card.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
+  imports: [
+    AsyncPipe,
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    ExpensesCardV1Component,
+    FooterComponent,
+    FormsModule,
+    FyAlertInfoComponent,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+    IonSkeletonText,
+    MatCheckbox,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class MyExpensesPage implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
@@ -206,42 +259,79 @@ export class MyExpensesPage implements OnInit {
 
   navigationSubscription: Subscription;
 
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private modalController: ModalController,
-    private transactionService: TransactionService,
-    private popoverController: PopoverController,
-    private router: Router,
-    private transactionOutboxService: TransactionsOutboxService,
-    private activatedRoute: ActivatedRoute,
-    private popupService: PopupService,
-    private trackingService: TrackingService,
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private modalProperties: ModalPropertiesService,
-    private matBottomSheet: MatBottomSheet,
-    private matSnackBar: MatSnackBar,
-    private actionSheetController: ActionSheetController,
-    private snackbarProperties: SnackbarPropertiesService,
-    private tasksService: TasksService,
-    private corporateCreditCardService: CorporateCreditCardExpenseService,
-    private myExpensesService: MyExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private currencyService: CurrencyService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private categoriesService: CategoriesService,
-    private navController: NavController,
-    private expenseService: ExpensesService,
-    private sharedExpenseService: SharedExpenseService,
-    private spenderReportsService: SpenderReportsService,
-    private authService: AuthService,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private footerService: FooterService
-  ) {}
+  private networkService = inject(NetworkService);
+
+  private loaderService = inject(LoaderService);
+
+  private modalController = inject(ModalController);
+
+  private transactionService = inject(TransactionService);
+
+  private popoverController = inject(PopoverController);
+
+  private router = inject(Router);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private storageService = inject(StorageService);
+
+  private tokenService = inject(TokenService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private matBottomSheet = inject(MatBottomSheet);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private tasksService = inject(TasksService);
+
+  private corporateCreditCardService = inject(CorporateCreditCardExpenseService);
+
+  private myExpensesService = inject(MyExpensesService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private currencyService = inject(CurrencyService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private navController = inject(NavController);
+
+  private expenseService = inject(ExpensesService);
+
+  private sharedExpenseService = inject(SharedExpenseService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private authService = inject(AuthService);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private footerService = inject(FooterService);
+
+  private translocoService = inject(TranslocoService);
+
+  private walkthroughService = inject(WalkthroughService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
 
   get HeaderState(): typeof HeaderState {
     return HeaderState;
@@ -356,7 +446,7 @@ export class MyExpensesPage implements OnInit {
         const queryParams = cloneDeep(params.queryParams) || {};
 
         queryParams.report_id = (queryParams.report_id || 'is.null') as string;
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         if (queryParams.or) {
           const hasExpenseState =
@@ -370,9 +460,9 @@ export class MyExpensesPage implements OnInit {
           map((stats) => ({
             count: stats.data.count,
             amount: stats.data.total_amount,
-          }))
+          })),
         );
-      })
+      }),
     );
   }
 
@@ -398,13 +488,13 @@ export class MyExpensesPage implements OnInit {
     const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
-        text: 'Capture receipt',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.captureReceipt'),
         icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
-        text: 'Add manually',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addManually'),
         icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
@@ -413,7 +503,7 @@ export class MyExpensesPage implements OnInit {
 
     if (mileageEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add mileage',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addMileage'),
         icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add mileage', 'add_edit_mileage'),
@@ -422,7 +512,7 @@ export class MyExpensesPage implements OnInit {
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
-        text: 'Add per diem',
+        text: this.translocoService.translate('myExpensesPage.actionSheet.addPerDiem'),
         icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add per diem', 'add_edit_per_diem'),
@@ -439,7 +529,7 @@ export class MyExpensesPage implements OnInit {
           cardNickname: card.nickname,
         }));
         return simplifiedCards;
-      })
+      }),
     );
   }
 
@@ -484,8 +574,8 @@ export class MyExpensesPage implements OnInit {
     this.isInstaFyleEnabled$ = getEmployeeSettings$.pipe(
       map(
         (employeeSettings) =>
-          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings?.insta_fyle_settings?.enabled
-      )
+          employeeSettings?.insta_fyle_settings?.allowed && employeeSettings?.insta_fyle_settings?.enabled,
+      ),
     );
 
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -518,7 +608,7 @@ export class MyExpensesPage implements OnInit {
     })
       .pipe(
         filter(({ isConnected }) => isConnected),
-        switchMap(() => this.getCardDetail())
+        switchMap(() => this.getCardDetail()),
       )
       .subscribe((cards) => {
         const cardNumbers: Array<{ label: string; value: string }> = [];
@@ -565,11 +655,11 @@ export class MyExpensesPage implements OnInit {
         this.syncOutboxExpenses();
       }
     });
-
+    
     const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
-
+    
     this.homeCurrency$ = getHomeCurrency$;
-
+    
     getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
@@ -579,7 +669,7 @@ export class MyExpensesPage implements OnInit {
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadExpenses$.getValue();
@@ -590,18 +680,26 @@ export class MyExpensesPage implements OnInit {
         this.loadExpenses$.next(currentParams);
       });
 
+    // helper function to generate load expenses query params
+    const loadExpensesQueryParams = (
+      params: Partial<GetExpenseQueryParam>,
+    ): Record<string, string | boolean | string[]> => {
+      let queryParams = params.queryParams || {};
+
+      queryParams.report_id = queryParams.report_id || 'is.null';
+      queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
+
+      if (params.searchString) {
+        queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
+      } else if (params.searchString === '') {
+        delete queryParams.q;
+      }
+      return queryParams;
+    };
+
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
-
-        queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
-
-        if (params.searchString) {
-          queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        } else if (params.searchString === '') {
-          delete queryParams.q;
-        }
+        const queryParams = loadExpensesQueryParams(params);
         const orderByParams =
           params.sortParam && params.sortDir
             ? `${params.sortParam}.${params.sortDir}`
@@ -628,9 +726,9 @@ export class MyExpensesPage implements OnInit {
             }
             this.acc = this.acc.concat(res as PlatformExpense[]);
             return this.acc;
-          })
+          }),
         );
-      })
+      }),
     );
 
     /**
@@ -643,30 +741,25 @@ export class MyExpensesPage implements OnInit {
         if (dEincompleteExpenseIds.length === 0) {
           return of(expenses); // All scans are completed
         } else {
-          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(
-            startWith(expenses),
-            timeout(30000)
-          );
+          return this.pollDEIncompleteExpenses(dEincompleteExpenseIds, expenses).pipe(startWith(expenses));
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
+      takeUntil(this.onPageExit$),
     );
 
     this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
-
-        queryParams.report_id = queryParams.report_id || 'is.null';
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        const queryParams = loadExpensesQueryParams(params);
         return this.expenseService.getExpensesCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isNewUser$ = this.expenseService.getExpensesCount({ offset: 0, limit: 200 }).pipe(map((res) => res === 0));
 
     const paginatedScroll$ = this.myExpenses$.pipe(
-      switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
+      switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length))),
     );
 
     this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
@@ -676,11 +769,11 @@ export class MyExpensesPage implements OnInit {
     this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.expenseService.getExpenseStats({
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
           report_id: 'is.null',
-        })
+        }),
       ),
-      map((stats) => stats.data.count)
+      map((stats) => stats.data.count),
     );
 
     this.draftExpensesCount$ = this.loadExpenses$.pipe(
@@ -688,9 +781,9 @@ export class MyExpensesPage implements OnInit {
         this.expenseService.getExpenseStats({
           state: 'in.(DRAFT)',
           report_id: 'is.null',
-        })
+        }),
       ),
-      map((stats) => stats.data.count)
+      map((stats) => stats.data.count),
     );
 
     this.loadExpenses$.subscribe(() => {
@@ -702,14 +795,16 @@ export class MyExpensesPage implements OnInit {
       });
     });
 
-    this.myExpenses$.subscribe(noop);
+    this.myExpenses$.subscribe(() => {
+      this.checkAndStartStatusPillWalkthroughs();
+    });
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>,
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -745,17 +840,20 @@ export class MyExpensesPage implements OnInit {
 
     const queryParams = { state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
-    this.openReports$ = this.spenderReportsService.getAllReportsByParams(queryParams).pipe(
-      map((openReports) =>
-        openReports.filter(
-          (openReport) =>
-            // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-            !openReport.approvals ||
-            (openReport.approvals &&
-              !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
-        )
-      )
-    );
+    this.openReports$ = this.spenderReportsService
+      .getAllReportsByParams(queryParams)
+      .pipe(
+        map((openReports) =>
+          openReports.filter(
+            (openReport) =>
+              !openReport.approvals ||
+              (openReport.approvals &&
+                !(
+                  JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1
+                )),
+          ),
+        ),
+      );
     this.doRefresh();
 
     const optInModalPostExpenseCreationFeatureConfig = {
@@ -879,7 +977,7 @@ export class MyExpensesPage implements OnInit {
               this.doRefresh();
               this.pendingTransactions = [];
             }
-          })
+          }),
         )
         .subscribe(noop);
     }
@@ -984,10 +1082,11 @@ export class MyExpensesPage implements OnInit {
   }
 
   async openFilters(activeFilterInitialName?: string): Promise<void> {
-    const filterMain = this.myExpensesService.getFilters();
+    const orgSettings = await this.orgSettings$.pipe(take(1)).toPromise();
+    const filterMain = await this.myExpensesService.getFilters(orgSettings);
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
-        name: 'Cards ending in...',
+        name: this.translocoService.translate('myExpensesPage.filters.cardsEndingIn'),
         optionType: FilterOptionType.multiselect,
         options: this.cardNumbers,
       } as FilterOptions<string>);
@@ -1006,6 +1105,26 @@ export class MyExpensesPage implements OnInit {
     });
 
     await filterPopover.present();
+
+    // Check if we should show blocked filter walkthrough
+    const shouldShowWalkthrough = await this.shouldShowBlockedFilterWalkthrough();
+    const hasBlockedFilter = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+
+    if (shouldShowWalkthrough && hasBlockedFilter) {
+      // Wait for modal to be fully rendered
+      setTimeout(() => {
+        // Ensure the Type filter is active to show blocked option
+        const typeFilterElement = document.querySelector('ion-item[class*="fy-filters--filter-item"]:first-child');
+        if (typeFilterElement) {
+          (typeFilterElement as HTMLElement).click();
+
+          // Wait for options to load, then start walkthrough
+          setTimeout(() => {
+            this.startBlockedFilterWalkthrough();
+          }, 300);
+        }
+      }, 500);
+    }
 
     const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
 
@@ -1147,11 +1266,11 @@ export class MyExpensesPage implements OnInit {
         title: config.title,
         message: config.message,
         primaryCta: {
-          text: 'Exclude and Continue',
+          text: this.translocoService.translate('myExpensesPage.criticalPolicyViolation.excludeAndContinue'),
           action: 'continue',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('myExpensesPage.criticalPolicyViolation.cancel'),
           action: 'cancel',
         },
       },
@@ -1184,7 +1303,7 @@ export class MyExpensesPage implements OnInit {
   isSelectionContainsException(
     policyViolationsCount: number,
     draftCount: number,
-    pendingTransactionsCount: number
+    pendingTransactionsCount: number,
   ): boolean {
     return (
       policyViolationsCount > 0 ||
@@ -1196,18 +1315,18 @@ export class MyExpensesPage implements OnInit {
   unreportableExpenseExceptionHandler(
     draftCount: number,
     policyViolationsCount: number,
-    pendingTransactionsCount: number
+    pendingTransactionsCount: number,
   ): void {
     // This Map contains different messages based on different conditions , the first character in map key is draft, second is policy violation, third is pending transactions
     // draft, policy, pending
     const toastMessage = new Map([
-      ['111', "You can't add draft expenses and expenses with critical policy violation & pending transactions."],
-      ['110', "You can't add draft expenses & expenses with critical policy violations to a report."],
-      ['101', "You can't add draft expenses & expenses with pending transactions to a report."],
-      ['011', "You can't add expenses with critical policy violation & pending transactions to a report."],
-      ['100', "You can't add draft expenses to a report."],
-      ['010', "You can't add expenses with critical policy violations to a report."],
-      ['001', "You can't add expenses with pending transactions to a report."],
+      ['111', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message111')],
+      ['110', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message110')],
+      ['101', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message101')],
+      ['011', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message011')],
+      ['100', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message100')],
+      ['010', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message010')],
+      ['001', this.translocoService.translate('myExpensesPage.unreportableExpenseExceptionHandler.message001')],
     ]);
     const messageConfig = `${draftCount > 0 ? 1 : 0}${policyViolationsCount > 0 ? 1 : 0}${
       pendingTransactionsCount > 0 ? 1 : 0
@@ -1225,23 +1344,57 @@ export class MyExpensesPage implements OnInit {
     draftCount: number,
     policyViolationsCount: number,
     pendingTransactionsCount: number,
-    reportType: 'oldReport' | 'newReport'
+    reportType: 'oldReport' | 'newReport',
   ): void {
-    const title = "Can't add these expenses...";
+    const title = this.translocoService.translate(
+      'myExpensesPage.reportableExpenseDialogHandler.cantAddTheseExpensesTitle',
+    );
     let message = '';
 
     if (draftCount > 0) {
-      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'} in draft state.`;
+      message += `${draftCount} ${
+        draftCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expensesAre')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenseIs')
+      } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.inDraftState')}.`;
     }
     if (pendingTransactionsCount > 0) {
       message += `${message.length ? '<br><br>' : ''}${pendingTransactionsCount} ${
-        pendingTransactionsCount > 1 ? 'expenses' : 'expense'
-      } with pending transactions.`;
+        pendingTransactionsCount > 1
+          ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+          : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+      } ${this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.withPendingTransactions')}.`;
     }
     if (policyViolationsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
-        policyViolationsCount > 1 ? 'expenses' : 'expense'
-      } with Critical Policy Violations.`;
+      // Get org settings and handle the policy violation text based on the setting
+      this.orgSettings$.pipe(take(1)).subscribe((orgSettings) => {
+        const isNewFlowEnabled = orgSettings?.is_new_critical_policy_violation_flow_enabled;
+
+        let policyViolationText: string;
+        if (isNewFlowEnabled) {
+          // Use new blocked state translation keys
+          policyViolationText =
+            policyViolationsCount > 1
+              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.areBlockedState')
+              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.isBlockedState');
+        } else {
+          // Use existing critical policy violations translation key
+          policyViolationText = this.translocoService.translate(
+            'myExpensesPage.reportableExpenseDialogHandler.withCriticalPolicyViolations',
+          );
+        }
+
+        const finalMessage =
+          message +
+          `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+            policyViolationsCount > 1
+              ? this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expenses')
+              : this.translocoService.translate('myExpensesPage.reportableExpenseDialogHandler.expense')
+          } ${policyViolationText}.`;
+
+        this.openCriticalPolicyViolationPopOver({ title, message: finalMessage, reportType });
+      });
+      return;
     }
 
     this.openCriticalPolicyViolationPopOver({ title, message, reportType });
@@ -1252,20 +1405,26 @@ export class MyExpensesPage implements OnInit {
     // Removing offline expenses from the list
     selectedElements = selectedElements.filter((expense) => expense.id);
     if (!selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
+      this.showNonReportableExpenseSelectedToast(
+        this.translocoService.translate(
+          'myExpensesPage.openCreateReportWithSelectedIds.pleaseSelectExpensesToBeReported',
+        ),
+      );
       return;
     }
-    const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
+    const expensesWithCriticalPolicyViolations = selectedElements.filter(
+      (expense) =>
+        this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense) ||
+        this.sharedExpenseService.isExpenseUnreportable(expense),
     );
     const expensesInDraftState = selectedElements.filter((expense) =>
-      this.sharedExpenseService.isExpenseInDraft(expense)
+      this.sharedExpenseService.isExpenseInDraft(expense),
     );
     let expensesWithPendingTransactions = [];
     //only handle pending txns if it is enabled from settings
     if (this.restrictPendingTransactionsEnabled) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
-        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense)
+        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense),
       );
     }
 
@@ -1277,7 +1436,7 @@ export class MyExpensesPage implements OnInit {
       this.unreportableExpenseExceptionHandler(
         noOfExpensesInDraftState,
         noOfExpensesWithCriticalPolicyViolations,
-        noOfExpensesWithPendingTransactions
+        noOfExpensesWithPendingTransactions,
       );
     } else {
       this.trackingService.addToReport();
@@ -1289,13 +1448,22 @@ export class MyExpensesPage implements OnInit {
           noOfExpensesInDraftState,
           noOfExpensesWithCriticalPolicyViolations,
           noOfExpensesWithPendingTransactions,
-          reportType
+          reportType,
         );
       } else {
-        if (reportType === 'oldReport') {
-          this.showOldReportsMatBottomSheet();
+        // Check if any selected expenses are reimbursable before proceeding
+        const hasReimbursableExpenses = selectedElements.some(expense => expense.is_reimbursable);
+        
+        if (hasReimbursableExpenses) {
+          // Check ACH suspension before creating report with reimbursable expenses
+          this.checkAchSuspensionBeforeCreateReport(reportType);
         } else {
-          this.showNewReportModal();
+          // No reimbursable expenses, proceed directly
+          if (reportType === 'oldReport') {
+            this.showOldReportsMatBottomSheet();
+          } else {
+            this.showNewReportModal();
+          }
         }
       }
     }
@@ -1304,7 +1472,7 @@ export class MyExpensesPage implements OnInit {
   async showNewReportModal(): Promise<void> {
     const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
       this.selectedElements,
-      this.restrictPendingTransactionsEnabled
+      this.restrictPendingTransactionsEnabled,
     );
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
@@ -1338,7 +1506,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
 
         const orderByParams =
           params.sortParam && params.sortDir
@@ -1358,11 +1526,11 @@ export class MyExpensesPage implements OnInit {
                 } else {
                   return true;
                 }
-              })
-            )
+              }),
+            ),
           );
       }),
-      map((etxns) => etxns.map((etxn) => etxn.id))
+      map((etxns) => etxns.map((etxn) => etxn.id)),
     );
     from(this.loaderService.showLoader())
       .pipe(
@@ -1378,10 +1546,10 @@ export class MyExpensesPage implements OnInit {
             map((expense) => ({
               inital: expense,
               allIds,
-            }))
+            })),
           );
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(({ inital, allIds }) => {
         let category: string;
@@ -1454,7 +1622,7 @@ export class MyExpensesPage implements OnInit {
   showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
-      redirectionText: 'View Report',
+      redirectionText: this.translocoService.translate('myExpensesPage.showAddToReportSuccessToast.viewReport'),
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
@@ -1476,16 +1644,18 @@ export class MyExpensesPage implements OnInit {
   }
 
   addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
-    return from(this.loaderService.showLoader('Adding expense to report')).pipe(
+    return from(
+      this.loaderService.showLoader(this.translocoService.translate('myExpensesPage.loader.addingExpenseToReport')),
+    ).pipe(
       switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
-      finalize(() => this.loaderService.hideLoader())
+      finalize(() => this.loaderService.hideLoader()),
     );
   }
 
   showOldReportsMatBottomSheet(): void {
     const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
       this.selectedElements,
-      this.restrictPendingTransactionsEnabled
+      this.restrictPendingTransactionsEnabled,
     );
     const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.id);
 
@@ -1504,25 +1674,34 @@ export class MyExpensesPage implements OnInit {
           } else {
             return of(null);
           }
-        })
+        }),
       )
       .subscribe((report: Report) => {
         if (report) {
           let message = '';
           if (report.state.toLowerCase() === 'draft') {
-            message = 'Expenses added to an existing draft report';
+            message = this.translocoService.translate(
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToExistingDraftReport',
+            );
           } else {
-            message = 'Expenses added to report successfully';
+            message = this.translocoService.translate(
+              'myExpensesPage.showOldReportsMatBottomSheet.expensesAddedToReportSuccess',
+            );
           }
           this.showAddToReportSuccessToast({ message, report });
         }
       });
   }
 
-  async openActionSheet(): Promise<void> {
+  async openActionSheet(zeroState?: boolean): Promise<void> {
     const that = this;
+    if (zeroState) {
+      this.trackingService.clickedOnZeroStateAddExpense();
+    } else {
+      this.trackingService.myExpenseActionSheetAddButtonClicked({ Action: 'Add Expense' });
+    }
     const actionSheet = await this.actionSheetController.create({
-      header: 'ADD EXPENSE',
+      header: this.translocoService.translate('myExpensesPage.actionSheet.header'),
       mode: 'md',
       cssClass: 'fy-action-sheet',
       buttons: that.actionSheetButtons,
@@ -1561,19 +1740,25 @@ export class MyExpensesPage implements OnInit {
       totalDeleteLength = this.expensesToBeDeleted?.length;
     }
 
+    const header = this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.deleteExpense');
+    const ctaText =
+      totalDeleteLength > 0 && this.cccExpenses > 0
+        ? this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.excludeAndDelete')
+        : this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.delete');
+
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Delete Expense',
+        header,
         body: this.sharedExpenseService.getDeleteDialogBody(
           totalDeleteLength,
           this.cccExpenses,
           expenseDeletionMessage,
-          cccExpensesMessage
+          cccExpensesMessage,
         ),
-        ctaText: totalDeleteLength > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        ctaText,
         disableDelete: totalDeleteLength === 0 ? true : false,
         deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
       },
@@ -1598,15 +1783,19 @@ export class MyExpensesPage implements OnInit {
 
         const message =
           totalNoOfSelectedExpenses === 1
-            ? '1 expense has been deleted'
-            : `${totalNoOfSelectedExpenses} expenses have been deleted`;
+            ? this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.oneExpenseDeleted')
+            : this.translocoService.translate('myExpensesPage.openDeleteExpensesPopover.expensesDeleted', {
+                count: totalNoOfSelectedExpenses,
+              });
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success-with-camera-icon'],
         });
         this.trackingService.showToastMessage({ ToastContent: message });
       } else {
-        const message = 'We could not delete the expenses. Please try again';
+        const message = this.translocoService.translate(
+          'myExpensesPage.openDeleteExpensesPopover.couldNotDeleteExpenses',
+        );
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
           panelClass: ['msb-failure-with-camera-icon'],
@@ -1642,13 +1831,13 @@ export class MyExpensesPage implements OnInit {
               const queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
-              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              queryParams.state = 'in.(COMPLETE,DRAFT,UNREPORTABLE)';
               if (params.searchString) {
                 queryParams.q = params?.searchString + ':*';
               }
               return queryParams;
             }),
-            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
+            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams })),
           )
           .subscribe((allExpenses) => {
             this.selectedElements = this.selectedElements.concat(allExpenses);
@@ -1661,7 +1850,7 @@ export class MyExpensesPage implements OnInit {
             this.isReportableExpensesSelected =
               this.sharedExpenseService.getReportableExpenses(
                 this.selectedElements,
-                this.restrictPendingTransactionsEnabled
+                this.restrictPendingTransactionsEnabled,
               ).length > 0;
             this.setExpenseStatsOnSelect();
             this.checkDeleteDisabled().pipe(take(1)).subscribe();
@@ -1691,15 +1880,15 @@ export class MyExpensesPage implements OnInit {
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
-      await this.openFilters('Receipts Attached');
+      await this.openFilters('Receipts attached');
     } else if (filterType === 'type') {
-      await this.openFilters('Expense Type');
+      await this.openFilters('Expense type');
     } else if (filterType === 'date') {
       await this.openFilters('Date');
     } else if (filterType === 'sort') {
       await this.openFilters('Sort by');
     } else if (filterType === 'splitExpense') {
-      await this.openFilters('Split Expense');
+      await this.openFilters('Split expense');
     } else if (filterType === 'potentialDuplicates') {
       await this.openFilters('Potential duplicates');
     } else if (filterType === 'cardNumbers') {
@@ -1727,7 +1916,7 @@ export class MyExpensesPage implements OnInit {
     });
 
     this.trackingService.footerHomeTabClicked({
-      page: 'Expenses',
+      page: this.translocoService.translate('myExpensesPage.onHomeClicked.page'),
     });
   }
 
@@ -1738,7 +1927,7 @@ export class MyExpensesPage implements OnInit {
     });
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
-      from: 'My Expenses',
+      from: this.translocoService.translate('myExpensesPage.onTaskClicked.from'),
     });
   }
 
@@ -1789,7 +1978,7 @@ export class MyExpensesPage implements OnInit {
         } else if (!isConnected) {
           this.isDeleteDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
-      })
+      }),
     );
   }
 
@@ -1837,7 +2026,7 @@ export class MyExpensesPage implements OnInit {
   private updateExpensesList(
     initialExpenses: PlatformExpense[],
     updatedExpenses: PlatformExpense[],
-    dEincompleteExpenseIds: string[]
+    dEincompleteExpenseIds: string[],
   ): PlatformExpense[] {
     const updatedExpensesMap = new Map(updatedExpenses.map((expense) => [expense.id, expense]));
 
@@ -1862,7 +2051,7 @@ export class MyExpensesPage implements OnInit {
    */
   private pollDEIncompleteExpenses(
     dEincompleteExpenseIds: string[],
-    expenses: PlatformExpense[]
+    expenses: PlatformExpense[],
   ): Observable<PlatformExpense[]> {
     let updatedExpensesList = expenses;
     // Create a stop signal that emits after 30 seconds
@@ -1875,12 +2064,459 @@ export class MyExpensesPage implements OnInit {
             updatedExpensesList = this.updateExpensesList(updatedExpensesList, updatedExpenses, dEincompleteExpenseIds);
             dEincompleteExpenseIds = this.filterDEIncompleteExpenses(updatedExpenses);
             return updatedExpensesList;
-          })
+          }),
         );
       }),
       takeWhile(() => dEincompleteExpenseIds.length > 0, true),
       takeUntil(stopPolling$),
-      takeUntil(this.onPageExit$)
+      takeUntil(this.onPageExit$),
     );
+  }
+
+  private async checkForStatusPills(): Promise<void> {
+    const hasBlockedPills = document.querySelectorAll('.expenses-card--state-container.state-blocked').length > 0;
+    const hasIncompletePills = document.querySelectorAll('.expenses-card--state-container.state-incomplete').length > 0;
+
+    if (hasBlockedPills && hasIncompletePills) {
+      // Both present - show sequence walkthrough
+      const shouldShowSequenceWalkthrough = await this.shouldShowStatusPillSequenceWalkthrough();
+      if (shouldShowSequenceWalkthrough) {
+        this.startStatusPillSequenceWalkthrough();
+      }
+    } else if (hasBlockedPills) {
+      // Only blocked present
+      const shouldShowBlockedWalkthrough = await this.shouldShowBlockedStatusPillWalkthrough();
+      if (shouldShowBlockedWalkthrough) {
+        this.startBlockedStatusPillWalkthrough();
+      }
+    } else if (hasIncompletePills) {
+      // Only incomplete present
+      const shouldShowIncompleteWalkthrough = await this.shouldShowIncompleteStatusPillWalkthrough();
+      if (shouldShowIncompleteWalkthrough) {
+        this.startIncompleteStatusPillWalkthrough();
+      }
+    }
+  }
+
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
+  private checkAchSuspensionBeforeCreateReport(reportType: 'oldReport' | 'newReport'): void {
+    from(this.authService.getEou())
+      .pipe(
+        take(1),
+        switchMap((eou) =>
+          this.orgSettings$.pipe(
+            take(1),
+            switchMap((orgSettings) => {
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(false);
+              }
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                catchError(() => of(false)),
+              );
+            }),
+          ),
+        ),
+      )
+      .subscribe((isSuspended) => {
+        if (isSuspended) {
+          this.showAchSuspensionPopup();
+        } else {
+          if (reportType === 'oldReport') {
+            this.showOldReportsMatBottomSheet();
+          } else {
+            this.showNewReportModal();
+          }
+        }
+      });
+  }
+
+  startBlockedFilterWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedFilterWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedFilterWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onDestroyStarted: () => {
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setBlockedFilterWalkthroughFeatureFlag(true);
+          driverInstance.destroy();
+        } else {
+          this.setBlockedFilterWalkthroughFeatureFlag(false);
+          driverInstance.destroy();
+        }
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setBlockedFilterWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+      key: 'BLOCKED_FILTER_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked
+      ? 'My Expenses Blocked Filter Walkthrough Skipped'
+      : 'My Expenses Blocked Filter Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      filter_type: 'blocked',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  shouldShowBlockedFilterWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+        key: 'BLOCKED_FILTER_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          },
+        });
+    });
+  }
+
+  startBlockedStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setBlockedStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  startIncompleteStatusPillWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'],
+
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setBlockedStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked
+      ? 'My Expenses Blocked Status Pill Walkthrough Skipped'
+      : 'My Expenses Blocked Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  setIncompleteStatusPillWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked
+      ? 'My Expenses Incomplete Status Pill Walkthrough Skipped'
+      : 'My Expenses Incomplete Status Pill Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  shouldShowBlockedStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          },
+        });
+    });
+  }
+
+  shouldShowIncompleteStatusPillWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          },
+        });
+    });
+  }
+
+  checkAndStartStatusPillWalkthroughs(): void {
+    setTimeout(() => {
+      this.checkForStatusPills();
+    }, 1000);
+  }
+
+  shouldShowStatusPillSequenceWalkthrough(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const walkthroughConfig = {
+        feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+        key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+      };
+
+      this.featureConfigService
+        .getConfiguration<{
+          isShown: boolean;
+          isFinished: boolean;
+        }>(walkthroughConfig)
+        .subscribe({
+          next: (config) => {
+            // Show walkthrough if not finished or config doesn't exist
+            resolve(!config?.value?.isFinished);
+          },
+          error: () => {
+            // Default to showing walkthrough on error
+            resolve(true);
+          },
+        });
+    });
+  }
+
+  startStatusPillSequenceWalkthrough(): void {
+    const walkthroughSteps = this.walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.6,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 8,
+      stagePadding: 6,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Got it',
+      showButtons: ['close', 'next'] as const,
+
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+
+      onNextClick: () => {
+        driverInstance.moveNext();
+      },
+
+      onDestroyStarted: () => {
+        // Always mark as finished when walkthrough ends (either completed or skipped)
+        this.setStatusPillSequenceWalkthroughFeatureFlag(false);
+        driverInstance.destroy();
+      },
+    });
+
+    driverInstance.setSteps(walkthroughSteps);
+    driverInstance.drive();
+  }
+
+  setStatusPillSequenceWalkthroughFeatureFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+      key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+    };
+
+    const eventTrackName = overlayClicked
+      ? 'My Expenses Status Pill Sequence Walkthrough Skipped'
+      : 'My Expenses Status Pill Sequence Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: !overlayClicked,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'MyExpenses',
+      status_type: 'blocked_and_incomplete',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
   }
 }

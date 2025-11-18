@@ -1,61 +1,53 @@
 <!-- Report Date -->
-<div *ngIf="showDate" class="reports-card--date">
-  {{ report.created_at | date : 'MMM dd, YYYY' }}
-</div>
+@if (showDate) {
+  <div class="reports-card--date">
+    {{ report.created_at | date: 'MMM dd, yyyy' }}
+  </div>
+}
 
 <!-- Report cards -->
-<div
-  class="reports-card"
-  [ngClass]="{ 'reports-card__with-border': !showDate }"
-  (click)="onGoToReport()"
-  *ngIf="!actionOpened"
-  matRipple
->
-  <div class="reports-card--container">
-    <div class="reports-card--main-info">
-      <!-- Icon -->
-      <mat-icon class="reports-card--list-icon" svgIcon="list-new"></mat-icon>
-
-      <div class="reports-card--purpose-num-amount-block">
-        <!-- Report name  -->
-        <div class="reports-card--purpose">
-          <span>{{ report.purpose | ellipsis : 205 }}</span>
-        </div>
-
-        <!-- Number of expenses -->
-        <div class="reports-card--no-transactions">
-          <span>{{ report.num_expenses }} </span>
-          <span>{{ report.num_expenses === 1 ? 'Expense' : 'Expenses' }}</span>
-        </div>
-
-        <!-- Total amount -->
-        <div class="reports-card--amount-block ion-text-nowrap">
-          <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
-          <span class="reports-card--amount">
-            {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-          </span>
+@if (!actionOpened) {
+  <div class="reports-card" [ngClass]="{ 'reports-card__with-border': !showDate }" (click)="onGoToReport()" matRipple>
+    <div class="reports-card--container">
+      <div class="reports-card--main-info">
+        <!-- Icon -->
+        <mat-icon class="reports-card--list-icon" svgIcon="list-new"></mat-icon>
+        <div class="reports-card--purpose-num-amount-block">
+          <!-- Report name  -->
+          <div class="reports-card--purpose">
+            <span>{{ report.purpose | ellipsis: 205 }}</span>
+          </div>
+          <!-- Number of expenses -->
+          <div class="reports-card--no-transactions">
+            <span>{{ report.num_expenses }} </span>
+            <span>{{ (report.num_expenses === 1 ? 'reportsCard.expense' : 'reportsCard.expenses') | transloco }}</span>
+          </div>
+          <!-- Total amount -->
+          <div class="reports-card--amount-block ion-text-nowrap">
+            <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
+            <span class="reports-card--amount">
+              {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Report status -->
-    <div class="reports-card--secondary-info">
-      <div class="reports-card--secondary-info-block">
-        <div class="state-pill state-{{ report.state | reportState }}">
-          {{ report.state | reportState | snakeCaseToSpaceCase }}
+      <!-- Report status -->
+      <div class="reports-card--secondary-info">
+        <div class="reports-card--secondary-info-block">
+          <div class="state-pill state-{{ report.state | reportState }}">
+            {{ report.state | reportState | snakeCaseToSpaceCase }}
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<div
-  class="reports-card-menu"
-  *ngIf="actionOpened"
-  [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_policy_flagged }"
->
-  <div class="reports-card-menu--close">
-    <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">
-      <mat-icon> close </mat-icon>
+}
+@if (actionOpened) {
+  <div class="reports-card-menu" [ngClass]="{ 'reports-card-menu__no-top-margin': report.is_policy_flagged }">
+    <div class="reports-card-menu--close">
+      <div matRipple (click)="actionOpened = false" class="reports-card-menu--cancel">
+        <mat-icon> close </mat-icon>
+      </div>
     </div>
   </div>
-</div>
+}

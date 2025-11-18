@@ -1,26 +1,44 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { AfterViewInit, Component, ElementRef, Input, inject, input, viewChild } from '@angular/core';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
+import { MatIcon } from '@angular/material/icon';
+import { NgStyle } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-popover',
   templateUrl: './fy-popover.component.html',
   styleUrls: ['./fy-popover.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgStyle,
+    TranslocoPipe
+  ],
 })
 export class FyPopoverComponent implements AfterViewInit {
-  @ViewChild('simpleFormInput') simpleFormInput: ElementRef;
+  private popoverController = inject(PopoverController);
 
-  @Input() title = '';
+  readonly simpleFormInput = viewChild<ElementRef>('simpleFormInput');
 
-  @Input() formLabel = '';
+  readonly title = input('');
 
+  readonly formLabel = input('');
+
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() message: string;
 
   formValue = '';
 
-  constructor(private popoverController: PopoverController) {}
-
   ngAfterViewInit(): void {
-    const formInput = this.simpleFormInput.nativeElement as HTMLInputElement;
+    const formInput = this.simpleFormInput().nativeElement as HTMLInputElement;
     setTimeout(() => {
       formInput.focus();
     }, 400);

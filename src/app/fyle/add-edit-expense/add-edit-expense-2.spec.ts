@@ -1,15 +1,20 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1, duplicateSetData6 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2, transformedPlatformedExpense } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { orgCategoryData } from 'src/app/core/mock-data/org-category.data';
@@ -47,12 +52,11 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -91,10 +95,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import {
-  expenseDuplicateSet2,
-  expenseDuplicateSet3,
-} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { expenseDuplicateSet3 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { cloneDeep } from 'lodash';
 import {
   platformExpenseData,
@@ -108,7 +109,7 @@ import {
   transformedExpenseWithExtractedData,
   transformedExpenseWithExtractedData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
-import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses1, apiExpenses2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
@@ -148,7 +149,6 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -158,7 +158,7 @@ export function TestCases2(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -176,7 +176,6 @@ export function TestCases2(getTestBed) {
 
     beforeEach(() => {
       const TestBed = getTestBed();
-      const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
       TestBed.compileComponents();
 
       fixture = TestBed.createComponent(AddEditExpensePage);
@@ -203,21 +202,20 @@ export function TestCases2(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -227,7 +225,7 @@ export function TestCases2(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -277,22 +275,20 @@ export function TestCases2(getTestBed) {
     describe('getPaymentModes():', () => {
       it('should get payment modes', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         fixture.detectChanges();
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -303,22 +299,20 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes in case org settings are not present', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(null));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         spyOn(component, 'getCCCSettings').and.returnValue(false);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -330,22 +324,20 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes if CCC expense is enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
         );
-        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-        );
+        paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(false));
         spyOn(component, 'getCCCSettings').and.returnValue(true);
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
 
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesData);
           expect(component.showCardTransaction).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -357,14 +349,14 @@ export function TestCases2(getTestBed) {
 
       it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        accountsService.getMyAccounts.and.returnValue(of(accountsData));
         advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
         platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
+          of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY]),
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
         );
         spyOn(component, 'getCCCSettings').and.returnValue(false);
         accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
@@ -372,7 +364,7 @@ export function TestCases2(getTestBed) {
         component.getPaymentModes().subscribe((res) => {
           expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
           expect(component.showCardTransaction).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
           expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
@@ -398,7 +390,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
           done();
         });
@@ -482,15 +474,11 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('setCategoryFromVendor(): should set category in the form', () => {
-      categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
-
-      component.setCategoryFromVendor(orgCategoryData.displayName);
-      expect(trackingService.setCategoryFromVendor).toHaveBeenCalledOnceWith(orgCategoryData);
-      expect(component.fg.controls.category.value).toEqual(orgCategoryData);
-    });
-
     describe('getEditExpenseObservable(): ', () => {
+      beforeEach(() => {
+        launchDarklyService.getVariation.and.returnValue(of(false));
+      });
+
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData);
@@ -503,7 +491,7 @@ export function TestCases2(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            mockTransformedExpense.tx.extracted_data.category
+            mockTransformedExpense.tx.extracted_data.category,
           );
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
@@ -543,7 +531,7 @@ export function TestCases2(getTestBed) {
         const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
         const extractedDate = new Date('2023-01-24');
 
-        mockedTxn.tx.txn_dt = null;
+        mockedTxn.tx.spent_at = null;
         mockedTxn.tx.extracted_data.invoice_dt = null;
         mockedTxn.tx.extracted_data.date = extractedDate;
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
@@ -553,7 +541,7 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(mockedTxn);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
-          expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
+          expect(mockedTxn.tx.spent_at).toEqual(extractedDate);
           done();
         });
       });
@@ -562,7 +550,7 @@ export function TestCases2(getTestBed) {
         const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
         const extractedDate = new Date('2023-01-24');
 
-        mockedTxn.tx.txn_dt = new Date('2023-01-23');
+        mockedTxn.tx.spent_at = new Date('2023-01-23');
         mockedTxn.tx.extracted_data.invoice_dt = new Date('2023-01-23');
         mockedTxn.tx.extracted_data.date = extractedDate;
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
@@ -571,7 +559,7 @@ export function TestCases2(getTestBed) {
 
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(mockedTxn);
-          expect(mockedTxn.tx.txn_dt).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
+          expect(mockedTxn.tx.spent_at).toEqual(mockedTxn.tx.extracted_data.invoice_dt);
           done();
         });
       });
@@ -587,7 +575,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledOnceWith(
               'This expense no longer exists. Redirecting to expenses list',
-              1000
+              1000,
             );
             expect(component.goBack).toHaveBeenCalledTimes(1);
             done();
@@ -622,7 +610,7 @@ export function TestCases2(getTestBed) {
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
         transformedExpenseDataWithSubCategory,
         component.reviewList,
-        1
+        1,
       );
     });
 
@@ -640,6 +628,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -656,6 +645,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -672,6 +662,7 @@ export function TestCases2(getTestBed) {
             id: expense.tx.id,
             txnIds: JSON.stringify(txn_ids),
             activeIndex: 0,
+            navigate_back: true,
           },
         ]);
       });
@@ -876,7 +867,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -893,7 +884,7 @@ export function TestCases2(getTestBed) {
             finalize(() => {
               expect(component.hideSaveExpenseLoader).toHaveBeenCalledTimes(1);
               done();
-            })
+            }),
           )
           .subscribe();
       });
@@ -913,7 +904,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -955,7 +946,7 @@ export function TestCases2(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
             unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
+            component.selectedCCCTransaction,
           );
           expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
 
@@ -1167,7 +1158,7 @@ export function TestCases2(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -1220,7 +1211,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z')
+            new Date('2023-02-15T06:30:00.000Z'),
           );
         });
       }));
@@ -1280,7 +1271,7 @@ export function TestCases2(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
-            'rpId'
+            'rpId',
           )
           .componentProps.deleteMethod();
         expect(reportsService.ejectExpenses).toHaveBeenCalledTimes(1);
@@ -1291,7 +1282,7 @@ export function TestCases2(getTestBed) {
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
-            false
+            false,
           )
           .componentProps.deleteMethod();
         expect(expensesService.deleteExpenses).toHaveBeenCalledTimes(1);
@@ -1313,7 +1304,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
-        const header = 'Remove Expense';
+        const header = 'Remove expense';
         const body = 'Are you sure you want to remove this expense from this report?';
         const ctaText = 'Remove';
         const ctaLoadingText = 'Removing';
@@ -1325,10 +1316,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           true,
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P')
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P'),
         );
       }));
 
@@ -1346,7 +1337,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = false;
         fixture.detectChanges();
 
-        const header = 'Delete Expense';
+        const header = 'Delete expense';
         const body = 'Are you sure you want to delete this expense?';
         const ctaText = 'Delete';
         const ctaLoadingText = 'Deleting';
@@ -1358,10 +1349,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
       }));
 
@@ -1385,7 +1376,7 @@ export function TestCases2(getTestBed) {
         component.isRedirectedFromReport = true;
         fixture.detectChanges();
 
-        const header = 'Delete Expense';
+        const header = 'Delete expense';
         const body = 'Are you sure you want to delete this expense?';
         const ctaText = 'Delete';
         const ctaLoadingText = 'Deleting';
@@ -1396,17 +1387,17 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
     });
@@ -1486,7 +1477,7 @@ export function TestCases2(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 
@@ -1547,8 +1538,7 @@ export function TestCases2(getTestBed) {
 
         expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet3]));
         expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
-        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([apiExpenses2[0]]);
 
         component.getDuplicateExpenses();
 
@@ -1560,10 +1550,7 @@ export function TestCases2(getTestBed) {
             id: 'in.(txal5xGjbZ1R)',
           },
         });
-        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, [
-          transformedPlatformedExpense,
-        ]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, apiExpenses2);
       });
 
       it('should return empty array if no duplicate is found in platform', () => {
@@ -1579,8 +1566,8 @@ export function TestCases2(getTestBed) {
     });
 
     it('addExpenseDetailsToDuplicateSets(): should add expense to duplicate sets if there exists a duplicate expense', () => {
-      const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [expenseData1, expenseData2]);
-      expect(result).toEqual([expenseData1]);
+      const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [apiExpenses1[0], apiExpenses2[0]]);
+      expect(result).toEqual([apiExpenses1[0]]);
     });
 
     describe('showSuggestedDuplicates():', () => {
@@ -1594,14 +1581,14 @@ export function TestCases2(getTestBed) {
 
         modalController.create.and.resolveTo(currencyModalSpy);
 
-        component.showSuggestedDuplicates([expenseData1]);
+        component.showSuggestedDuplicates([apiExpenses1[0]]);
         tick(500);
 
         expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
+            duplicateExpenseIDs: [apiExpenses1[0].id],
           },
           mode: 'ios',
           ...properties,
@@ -1620,14 +1607,14 @@ export function TestCases2(getTestBed) {
 
         modalController.create.and.resolveTo(currencyModalSpy);
 
-        component.showSuggestedDuplicates([expenseData1]);
+        component.showSuggestedDuplicates([apiExpenses1[0]]);
         tick(500);
 
         expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
+            duplicateExpenseIDs: [apiExpenses1[0].id],
           },
           mode: 'ios',
           ...properties,
@@ -1643,6 +1630,7 @@ export function TestCases2(getTestBed) {
           icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Message',
+          messageType: 'success' as const,
         },
         duration: 3000,
       };

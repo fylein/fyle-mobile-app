@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 
 import { DateService } from './date.service';
 
-import * as dayjs from 'dayjs';
-import * as timezone from 'dayjs/plugin/timezone';
-import * as utc from 'dayjs/plugin/utc';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -99,7 +99,7 @@ describe('DateService', () => {
       describe('GET:', () => {
         it('date is viewed in new zealand', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11
@@ -112,7 +112,7 @@ describe('DateService', () => {
 
         it('date is viewed in america', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11

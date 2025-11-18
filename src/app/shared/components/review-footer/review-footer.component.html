@@ -1,24 +1,30 @@
 <ion-footer mode="md" class="review-footer--footer-container">
   <ion-toolbar mode="md" class="review-footer--footer-toolbar__shadow review-footer--footer-toolbar__spacing">
     <div class="fy-footer-cta-container">
-      <ion-button
-        *ngIf="activeIndex !== 0 && reviewList?.length > 0"
-        (click)="onSaveAndGoToPrev()"
-        [loadingText]="'Saving'"
-        [loading]="saveAndPrevLoader"
-        appFormButtonValidation
-        class="fy-footer-cta fy-footer-cta--tertiary-secondary"
-      >
-        Save and previous
-      </ion-button>
+      @if (activeIndex !== 0 && reviewList?.length > 0) {
+        <ion-button
+          (click)="onSaveAndGoToPrev()"
+          [loadingText]="'reviewFooter.saving' | transloco"
+          [loading]="saveAndPrevLoader"
+          appFormButtonValidation
+          class="fy-footer-cta fy-footer-cta--tertiary-secondary"
+        >
+          {{ 'reviewFooter.saveAndPrevious' | transloco }}
+        </ion-button>
+      }
       <ion-button
         (click)="onSaveAndGoToNext()"
-        [loadingText]="'Saving'"
+        [loadingText]="'reviewFooter.saving' | transloco"
         [loading]="saveAndNextLoader"
         appFormButtonValidation
         class="fy-footer-cta fy-footer-cta--primary"
       >
-        {{ reviewList.length > 0 && !(activeIndex === reviewList.length - 1) ? 'Save and Next' : 'Save' }}
+        {{
+          (reviewList.length > 0 && !(activeIndex === reviewList.length - 1)
+            ? 'reviewFooter.saveAndNext'
+            : 'reviewFooter.save'
+          ) | transloco
+        }}
       </ion-button>
     </div>
   </ion-toolbar>

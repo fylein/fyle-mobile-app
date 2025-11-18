@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { ViewPerDiemPage } from './view-per-diem.page';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -13,7 +12,7 @@ import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { finalize, of } from 'rxjs';
@@ -25,7 +24,6 @@ import {
   individualExpPolicyStateData2,
   individualExpPolicyStateData3,
 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -35,8 +33,6 @@ import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-fi
 import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
-import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
@@ -45,12 +41,10 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
   let fixture: ComponentFixture<ViewPerDiemPage>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let perDiemService: jasmine.SpyObj<PerDiemService>;
@@ -64,15 +58,13 @@ describe('ViewPerDiemPage', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let activatedRoute: ActivatedRoute;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'fillCustomProperties',
@@ -100,7 +92,7 @@ describe('ViewPerDiemPage', () => {
       'expenseFlagUnflagClicked',
     ]);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
@@ -110,15 +102,10 @@ describe('ViewPerDiemPage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
-      'checkIfManualFlaggingFeatureIsEnabled',
-    ]);
 
     TestBed.configureTestingModule({
-      declarations: [ViewPerDiemPage],
-      imports: [IonicModule.forRoot()],
+      imports: [ViewPerDiemPage],
       providers: [
-        { provide: TransactionService, useValue: transactionServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },
@@ -129,7 +116,7 @@ describe('ViewPerDiemPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
         { provide: SpenderExpensesService, useValue: spenderExpensesServiceSpy },
         { provide: ApproverExpensesService, useValue: approverExpensesServiceSpy },
@@ -147,7 +134,6 @@ describe('ViewPerDiemPage', () => {
             },
           },
         },
-        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: SpenderExpenseCommentService, useValue: spenderExpenseCommentServiceSpy },
         { provide: ApproverExpenseCommentService, useValue: approverExpenseCommentServiceSpy },
       ],
@@ -155,7 +141,6 @@ describe('ViewPerDiemPage', () => {
 
     fixture = TestBed.createComponent(ViewPerDiemPage);
     component = fixture.componentInstance;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -164,21 +149,20 @@ describe('ViewPerDiemPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     spenderExpenseCommentService = TestBed.inject(
-      SpenderExpenseCommentService
+      SpenderExpenseCommentService,
     ) as jasmine.SpyObj<SpenderExpenseCommentService>;
     approverExpenseCommentService = TestBed.inject(
-      ApproverExpenseCommentService
+      ApproverExpenseCommentService,
     ) as jasmine.SpyObj<ApproverExpenseCommentService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     activatedRoute = TestBed.inject(ActivatedRoute);
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -232,7 +216,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for team expenses', () => {
       component.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
@@ -242,7 +226,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for individual expenses', () => {
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states)
+        of(expensePolicyStatesData.data[0].individual_desired_states),
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
@@ -332,7 +316,7 @@ describe('ViewPerDiemPage', () => {
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
+          }),
         )
         .subscribe((extendedPerDiem) => {
           expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qwe4ty');
@@ -366,7 +350,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should call dependentFieldsService.getDependentFieldValuesForBaseField with undefined if "txnFields.project_id" and "txnFields.cost_center_id" is array containing undefined', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(
-        of({ ...expenseFieldsMapResponse4, project_id: [undefined], cost_center_id: [undefined] })
+        of({ ...expenseFieldsMapResponse4, project_id: [undefined], cost_center_id: [undefined] }),
       );
       component.ionViewWillEnter();
       tick(100);
@@ -374,7 +358,7 @@ describe('ViewPerDiemPage', () => {
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          undefined
+          undefined,
         );
         expect(projectDependentCustomProperties).toEqual(customInputData1);
       });
@@ -382,7 +366,7 @@ describe('ViewPerDiemPage', () => {
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalledOnceWith(
           perDiemExpense.custom_fields as Partial<CustomInput>[],
-          undefined
+          undefined,
         );
         expect(costCenterDependentCustomProperties).toEqual(customInputData1);
       });
@@ -390,7 +374,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ to undefined if "txnFields.project_id" and "txnFields.cost_center_id" is undefined', fakeAsync(() => {
       expenseFieldsService.getAllMap.and.returnValue(
-        of({ ...expenseFieldsMapResponse4, project_id: undefined, cost_center_id: undefined })
+        of({ ...expenseFieldsMapResponse4, project_id: undefined, cost_center_id: undefined }),
       );
       component.ionViewWillEnter();
       tick(100);
@@ -479,8 +463,8 @@ describe('ViewPerDiemPage', () => {
 
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          perDiemExpense.category_id,
-          perDiemExpense.custom_fields as Partial<CustomInput>[]
+          perDiemExpense.category_id.toString(),
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);

@@ -6,22 +6,24 @@
           <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
         </ion-button>
       </ion-buttons>
-      <ion-title>Review split expenses</ion-title>
+      <ion-title>{{ 'reviewSplitExpense.title' | transloco }}</ion-title>
     </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <ng-container>
-    <div *ngFor="let expense of splitExpenses; let i = index" class="review-split-expense-modal--expense-container">
-      <app-expense-card-v2
-        [expense]="expense"
-        [expenseIndex]="i"
-        [showDt]="false"
-        (goToTransaction)="goToExpense($event)"
-      >
-      </app-expense-card-v2>
-      <div class="review-split-expense-modal--divider"></div>
-    </div>
+    @for (expense of splitExpenses(); track expense; let i = $index) {
+      <div class="review-split-expense-modal--expense-container">
+        <app-expense-card-v2
+          [expense]="expense"
+          [expenseIndex]="i"
+          [showDt]="false"
+          (goToTransaction)="goToExpense($event)"
+        >
+        </app-expense-card-v2>
+        <div class="review-split-expense-modal--divider"></div>
+      </div>
+    }
   </ng-container>
 </ion-content>

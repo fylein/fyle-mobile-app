@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FySelectModalComponent } from './fy-select-modal.component';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -7,6 +8,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
 import { By } from '@angular/platform-browser';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectModalComponent', () => {
   let component: FySelectModalComponent;
@@ -15,15 +17,21 @@ describe('FySelectModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let inputElement: HTMLInputElement;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FySelectModalComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, FySelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
@@ -37,6 +45,10 @@ describe('FySelectModalComponent', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -45,11 +57,29 @@ describe('FySelectModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     component.enableSearch = true;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectModal.search': 'Search',
+        'fySelectModal.clear': 'Clear',
+        'fySelectModal.noResultsHeader': 'No such {{label}} found',
+        'fySelectModal.noResultsSubmessage': 'Search for another {{label}} or select one from the list.',
+        'fySelectModal.save': 'Save',
+        'fySelectModal.none': 'None',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
     inputElement = component.searchBarRef.nativeElement;
   }));
@@ -136,7 +166,7 @@ describe('FySelectModalComponent', () => {
       of([
         { label: 'business', value: 'BUSINESS' },
         { label: 'economy', value: 'ECONOMY' },
-      ])
+      ]),
     );
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'business', value: 'BUSINESS' }]));
     component.ngAfterViewInit();

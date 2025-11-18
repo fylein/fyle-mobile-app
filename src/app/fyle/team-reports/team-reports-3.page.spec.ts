@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -7,10 +7,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -42,14 +41,13 @@ export function TestCases3(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let inputElement: HTMLInputElement;
-
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -58,11 +56,10 @@ export function TestCases3(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       component.eou$ = of(apiEouRes);
     }));
 
@@ -76,12 +73,8 @@ export function TestCases3(getTestBed) {
     });
 
     it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
-      component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
       component.isSearchBarFocused = false;
-
-      inputElement.dispatchEvent(new Event('focus'));
-
+      component.onSearchBarFocus();
       expect(component.isSearchBarFocused).toBeTrue();
     });
 
@@ -174,16 +167,17 @@ export function TestCases3(getTestBed) {
     });
 
     it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
-      component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
-      const mockFocus = spyOn(inputElement, 'focus');
-
+      component.simpleSearchInput = {
+        nativeElement: {
+          focus: jasmine.createSpy('focus'),
+        },
+      } as any;
       component.searchClick();
 
       expect(component.headerState).toEqual(HeaderState.simpleSearch);
       tick(300);
 
-      expect(mockFocus).toHaveBeenCalledTimes(1);
+      expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
     }));
 
     describe('convertRptDtSortToSelectedFilters(): ', () => {
@@ -367,7 +361,7 @@ export function TestCases3(getTestBed) {
         const generatedFilters = component.convertFilters(selectedFiltersParams2);
         expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
           undefined,
-          teamReportsFiltersData3
+          teamReportsFiltersData3,
         );
         expect(generatedFilters).toEqual(teamReportsFiltersData3);
       });
@@ -380,7 +374,7 @@ export function TestCases3(getTestBed) {
 
         expect(component.convertSelectedSortFiltersToFilters).toHaveBeenCalledOnceWith(
           undefined,
-          teamReportsFiltersData4
+          teamReportsFiltersData4,
         );
         expect(generatedFilters).toEqual(teamReportsFiltersData4);
       });

@@ -1,38 +1,57 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { FooterState } from './footer-state.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { Observable } from 'rxjs/internal/Observable';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonRippleEffect, IonTabButton } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-footer',
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss'],
+  imports: [
+    AsyncPipe,
+    IonRippleEffect,
+    IonTabButton,
+    MatIcon,
+    MatRipple,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FooterComponent implements OnInit {
-  @Output() homeClicked = new EventEmitter();
+  private networkService = inject(NetworkService);
 
-  @Output() cameraClicked = new EventEmitter();
+  private trackingService = inject(TrackingService);
 
-  @Output() taskClicked = new EventEmitter();
+  private router = inject(Router);
 
-  @Output() expensesClicked = new EventEmitter();
+  readonly homeClicked = output();
 
-  @Output() reportsClicked = new EventEmitter();
+  readonly cameraClicked = output();
 
+  readonly taskClicked = output();
+
+  readonly expensesClicked = output();
+
+  readonly reportsClicked = output();
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() taskCount = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeState: FooterState;
 
   connectionState$: Observable<ConnectionMessageStatus>;
-
-  constructor(
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private router: Router
-  ) {}
 
   get ConnectionMessageStatus(): typeof ConnectionMessageStatus {
     return ConnectionMessageStatus;

@@ -1,14 +1,13 @@
 import { CurrencyPipe } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
+import { ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, Subscription, of } from 'rxjs';
+import { BehaviorSubject, Subscription, of, throwError } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -16,9 +15,10 @@ import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -30,12 +30,7 @@ import {
   userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import {
@@ -61,8 +56,16 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
-import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+
+// mock for expenses card component
+@Component({
+  selector: 'app-expense-card-v2',
+  imports: [],
+})
+class MockExpensesCardComponent {}
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -81,9 +84,10 @@ describe('MyViewReportPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
@@ -95,6 +99,7 @@ describe('MyViewReportPage', () => {
       'getAllExpenses',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -109,11 +114,12 @@ describe('MyViewReportPage', () => {
       'clickViewReportInfo',
       'addToExistingReport',
       'reportNameChange',
+      'eventTrack',
     ]);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'addExpenses',
       'getReportById',
@@ -126,16 +132,7 @@ describe('MyViewReportPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [
-        MyViewReportPage,
-        EllipsisPipe,
-        HumanizeCurrencyPipe,
-        ExactCurrencyPipe,
-        ReportState,
-        SnakeCaseToSpaceCase,
-        DateWithTimezonePipe,
-      ],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
+      imports: [MatIconTestingModule, MyViewReportPage, getTranslocoTestingModule()],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -162,6 +159,10 @@ describe('MyViewReportPage', () => {
         {
           provide: AuthService,
           useValue: authServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
         },
         {
           provide: LoaderService,
@@ -204,7 +205,7 @@ describe('MyViewReportPage', () => {
           useValue: statusServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -219,7 +220,17 @@ describe('MyViewReportPage', () => {
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(MyViewReportPage, {
+        remove: {
+          imports: [ExpensesCardComponent],
+        },
+        add: {
+          imports: [MockExpensesCardComponent],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(MyViewReportPage);
     component = fixture.componentInstance;
 
@@ -236,9 +247,10 @@ describe('MyViewReportPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
@@ -313,7 +325,6 @@ describe('MyViewReportPage', () => {
     it('should load report and report status', fakeAsync(() => {
       const report = cloneDeep(sentBackReportData);
       spyOn(component, 'setupNetworkWatcher');
-      loaderService.showLoader.and.resolveTo();
       spenderReportsService.getReportById.and.returnValue(of(sentBackReportData));
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
@@ -328,9 +339,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
 
       component.report$.subscribe((res) => {
@@ -341,7 +350,7 @@ describe('MyViewReportPage', () => {
 
       expect(statusService.createStatusMap).toHaveBeenCalledWith(
         component.convertToEstatus(component.systemComments),
-        'report'
+        'report',
       );
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
@@ -394,7 +403,6 @@ describe('MyViewReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
-      loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
@@ -409,9 +417,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
-      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
 
       component.report$.subscribe((res) => {
@@ -467,7 +473,6 @@ describe('MyViewReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
-      loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
@@ -520,7 +525,8 @@ describe('MyViewReportPage', () => {
     it('should edit report name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
-      fixture.detectChanges();
+      component.isLoading = false;
+      tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
 
@@ -529,8 +535,7 @@ describe('MyViewReportPage', () => {
 
       popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
-      click(editReportButton);
+      component.editReportName();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -546,7 +551,8 @@ describe('MyViewReportPage', () => {
     it('should not edit report name if data does not contain name', fakeAsync(() => {
       component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
       component.canEdit$ = of(true);
-      fixture.detectChanges();
+      component.isLoading = false;
+      tick(100);
 
       spyOn(component, 'updateReportName').and.returnValue(null);
 
@@ -555,8 +561,7 @@ describe('MyViewReportPage', () => {
 
       popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
-      click(editReportButton);
+      component.editReportName();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -615,7 +620,7 @@ describe('MyViewReportPage', () => {
     it('should return null info message if number of txns is 0', (done) => {
       spenderReportsService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
-        cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
+        cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' }),
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
@@ -652,6 +657,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report resubmitted successfully.',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -686,6 +692,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report submitted successfully.',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -756,6 +763,7 @@ describe('MyViewReportPage', () => {
           id: expenseData.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
@@ -801,6 +809,7 @@ describe('MyViewReportPage', () => {
           id: mileageExpense.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
@@ -846,6 +855,7 @@ describe('MyViewReportPage', () => {
           id: perDiemExpense.id,
           navigate_back: true,
           remove_from_report: platformReportData.num_expenses > 1,
+          rp_id: component.reportId,
         },
       ]);
     });
@@ -857,6 +867,7 @@ describe('MyViewReportPage', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'PDF download link has been emailed to aj@fyle.com',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -942,7 +953,7 @@ describe('MyViewReportPage', () => {
     fixture.detectChanges();
 
     spenderReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.content(), 'scrollToBottom');
     component.newComment = 'comment';
     component.segmentValue = ReportPageSegment.COMMENTS;
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));
@@ -960,10 +971,12 @@ describe('MyViewReportPage', () => {
     expect(component.isCommentAdded).toBeTrue();
   });
 
-  it('addExpense(): should navigate to expense page', () => {
+  it('addExpense(): should navigate to expense page', async () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
     component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
+    component.isLoading = false;
     fixture.detectChanges();
+    await fixture.whenStable();
 
     const addExpenseButton = getElementBySelector(fixture, '#add-expense') as HTMLElement;
     click(addExpenseButton);
@@ -1065,5 +1078,60 @@ describe('MyViewReportPage', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
     expect(component.unreportedExpenses).toEqual([expenseData]);
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+    });
+
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses before adding to report', () => {
+      // Setup required observables
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      const reimbursableExpense = { ...expenseData, id: 'tx1', is_reimbursable: true };
+      const nonReimbursableExpense = { ...expenseData, id: 'tx2', is_reimbursable: false };
+      component.unreportedExpenses = [reimbursableExpense, nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+
+      component.addExpensesToReport(['tx1', 'tx2']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).toHaveBeenCalledWith(['tx1', 'tx2']);
+    });
+
+    it('should proceed directly when no reimbursable expenses are selected', () => {
+      const nonReimbursableExpense = { ...expenseData, id: 'tx1', is_reimbursable: false };
+      component.unreportedExpenses = [nonReimbursableExpense];
+      spenderReportsService.addExpenses.and.returnValue(of(null));
+      spyOn(component as any, 'checkAchSuspensionBeforeAdd');
+      spyOn(component as any, 'performAddExpenses');
+
+      component.addExpensesToReport(['tx1']);
+
+      expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    });
+
   });
 });

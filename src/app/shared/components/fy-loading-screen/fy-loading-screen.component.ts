@@ -1,11 +1,21 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { IonCol, IonGrid, IonRow, IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-loading-screen',
   templateUrl: './fy-loading-screen.component.html',
   styleUrls: ['./fy-loading-screen.component.scss'],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonRow,
+    IonSkeletonText
+  ],
 })
 export class FyLoadingScreenComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
   rows = [1, 2, 3, 4, 5];

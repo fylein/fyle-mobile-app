@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
@@ -17,6 +17,8 @@ import { AccessTokenData } from '../models/access-token-data.model';
 import { Delegator } from '../models/platform/delegator.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
+import { DwollaCustomer } from '../models/dwolla-customer.model';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -24,19 +26,29 @@ const orgUsersCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgUserService {
-  constructor(
-    private jwtHelperService: JwtHelperService,
-    private tokenService: TokenService,
-    private apiService: ApiService,
-    private authService: AuthService,
-    private dataTransformService: DataTransformService,
-    private trackingService: TrackingService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  private jwtHelperService = inject(JwtHelperService);
+
+  private tokenService = inject(TokenService);
+
+  private apiService = inject(ApiService);
+
+  private authService = inject(AuthService);
+
+  private dataTransformService = inject(DataTransformService);
+
+  private trackingService = inject(TrackingService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
-    return this.apiService.get('/eous/current').pipe(map((eou) => this.dataTransformService.unflatten(eou)));
+    return this.spenderPlatformV1ApiService
+      .get('/employees/current')
+      .pipe(
+        map((response: PlatformApiResponse<EmployeeResponse>) =>
+          this.dataTransformService.transformEmployeeResponse(response.data),
+        ),
+      );
   }
 
   @CacheBuster({
@@ -68,13 +80,19 @@ export class OrgUserService {
   postOrgUser(orgUser: Partial<OrgUser>): Observable<Partial<OrgUser>> {
     globalCacheBusterNotifier.next();
     delete orgUser.mobile_verification_attempts_left;
-    return this.apiService.post('/orgusers', orgUser);
+    const payload = {
+      id: orgUser.id,
+      mobile: orgUser.mobile,
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<Partial<OrgUser>>>('/employees', { data: payload })
+      .pipe(map((res) => res.data));
   }
 
   markActive(): Observable<ExtendedOrgUser> {
-    return this.apiService.post('/orgusers/current/mark_active').pipe(
+    return this.spenderPlatformV1ApiService.post('/employees/mark_active', { data: {} }).pipe(
       switchMap(() => this.authService.refreshEou()),
-      tap(() => this.trackingService.activated())
+      tap(() => this.trackingService.activated()),
     );
   }
 
@@ -100,5 +118,9 @@ export class OrgUserService {
     const accessTokenPromise = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
     const accessToken: AccessTokenData = await accessTokenPromise;
     return accessToken && !!accessToken.proxy_org_user_id;
+  }
+
+  getDwollaCustomer(orgUserId: string): Observable<DwollaCustomer | null> {
+    return this.apiService.get(`/orgusers/${orgUserId}/dwolla_customers`);
   }
 }

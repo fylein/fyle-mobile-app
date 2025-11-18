@@ -3,26 +3,32 @@
     <ion-grid class="dismiss-dialog--grid">
       <ion-row>
         <ion-col>
-          <div class="dismiss-dialog--header">Dismiss duplicate expenses</div>
+          <div class="dismiss-dialog--header">{{ 'dismissDialog.title' | transloco }}</div>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col>
-          <div class="dismiss-dialog--body">Are you sure you want to take this action?</div>
+          <div class="dismiss-dialog--body">{{ 'dismissDialog.confirmation' | transloco }}</div>
         </ion-col>
       </ion-row>
       <ion-row class="dismiss-dialog--cta-container">
         <ion-col size="6">
           <div
             [ngClass]="{ 'dismiss-dialog--cancel__disabled': dismissCallInProgress }"
-            class="dismiss-dialog--cancel"
+            class="dismiss-dialog--cancel btn-secondary btn-auto-dimension"
             (click)="cancel()"
           >
-            No, go back
+            {{ 'dismissDialog.cancel' | transloco }}
           </div>
         </ion-col>
         <ion-col size="6">
-          <div class="dismiss-dialog--dismiss" (click)="dismiss()" appFormButtonValidation>Yes, dismiss</div>
+          <div
+            class="dismiss-dialog--dismiss btn-primary btn-auto-dimension"
+            (click)="dismiss()"
+            appFormButtonValidation
+          >
+            {{ 'dismissDialog.confirm' | transloco }}
+          </div>
         </ion-col>
       </ion-row>
     </ion-grid>

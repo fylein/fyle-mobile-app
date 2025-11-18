@@ -2,10 +2,16 @@ import { TitleCasePipe } from '@angular/common';
 import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
@@ -54,12 +60,11 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -117,7 +122,6 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -127,7 +131,7 @@ export function TestCases2(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -171,21 +175,20 @@ export function TestCases2(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -195,7 +198,7 @@ export function TestCases2(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -294,8 +297,7 @@ export function TestCases2(getTestBed) {
     });
 
     describe('saveAndNewExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
@@ -304,14 +306,12 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -320,43 +320,36 @@ export function TestCases2(getTestBed) {
 
         component.saveAndNewExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
+      it('should show an error if form is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         fixture.detectChanges();
 
         component.saveAndNewExpense();
         tick(4000);
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
     });
 
     describe('saveExpense():', () => {
-      it('should add an expense in add mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should add an expense in add mode', () => {
         setFormValid(component);
         component.mode = 'add';
         spyOn(component, 'addExpense').and.returnValue(of(true));
-
         spyOn(component, 'close');
         fixture.detectChanges();
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.addExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should edit an expense in edit mode if the payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+      it('should edit an expense in edit mode', () => {
         setFormValid(component);
         component.mode = 'edit';
         spyOn(component, 'editExpense').and.returnValue(of(null));
@@ -365,20 +358,17 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.editExpense).toHaveBeenCalledTimes(1);
         expect(component.close).toHaveBeenCalledTimes(1);
       });
 
-      it('should show an error if payment mode is invalid', fakeAsync(() => {
+      it('should show an error if form is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         fixture.detectChanges();
 
         component.saveExpense();
         tick(4000);
 
-        expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
     });
@@ -404,7 +394,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
@@ -441,7 +431,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
@@ -459,11 +449,11 @@ export function TestCases2(getTestBed) {
           expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
             'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
             'usvKA4X8Ugcr',
-            '10.12,89.67'
+            '10.12,89.67',
           );
           expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
             'ChIJbU60yXAWrjsR4E9-UejD3_g',
-            'Bengaluru, Karnataka, India'
+            'Bengaluru, Karnataka, India',
           );
           done();
         });
@@ -485,7 +475,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
@@ -508,110 +498,6 @@ export function TestCases2(getTestBed) {
 
       afterEach(function () {
         jasmine.clock().uninstall();
-      });
-    });
-
-    describe('checkIfInvalidPaymentMode():', () => {
-      it('should return false if source ID is same and if txn amount and tentative amount is less than the current amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return true if source ID is different and if tentative amount less than expense amount', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: accountsData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if org setting is null', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: multiplePaymentModesData[2] });
-        component.etxn$ = of(unflattenedTxnWithSourceID);
-        orgSettingsService.get.and.returnValue(of(null));
-        component.amount$ = of(101);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should return false if payment account is null and advance wallets is enabled', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: null });
-        component.etxn$ = of(unflattenedTxnWithSourceID2);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.amount$ = of(600);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment in case of Advance wallets', (done) => {
-        spyOn(component, 'getFormValues').and.returnValue({ paymentMode: paymentModeDataAdvanceWallet });
-        component.etxn$ = of(unflattenedTxnWithAdvanceWallet);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment while adding expense with advance wallets', (done) => {
-        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.amount$ = of(2500);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
       });
     });
 
@@ -780,7 +666,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             done();
           });
@@ -806,7 +692,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             done();
           });
@@ -825,7 +711,7 @@ export function TestCases2(getTestBed) {
             next: () => {
               expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
                 criticalPolicyViolation1,
-                policyViolation1.data.final_desired_state
+                policyViolation1.data.final_desired_state,
               );
             },
             error: (err) => {
@@ -846,7 +732,7 @@ export function TestCases2(getTestBed) {
         expect(res).toEqual(expensePolicyData);
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(
           mileageRateApiRes1,
-          unflattenedTxnData.tx.mileage_vehicle_type
+          unflattenedTxnData.tx.mileage_vehicle_type,
         );
         expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
         expect(policyService.transformTo).toHaveBeenCalledTimes(1);

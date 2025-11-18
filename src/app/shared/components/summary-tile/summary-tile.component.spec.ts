@@ -1,6 +1,6 @@
 import { SimpleChange } from '@angular/core';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { AdvanceRequestApprover } from 'src/app/core/mock-data/advance-request-approver.data';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
@@ -8,15 +8,25 @@ import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { FySummaryTileComponent } from './summary-tile.component';
+import { of } from 'rxjs';
 
 describe('FySummaryTileComponent', () => {
   let component: FySummaryTileComponent;
   let fixture: ComponentFixture<FySummaryTileComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(async () => {
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     await TestBed.configureTestingModule({
-      declarations: [
+      imports: [
+        
+        TranslocoModule,
         FySummaryTileComponent,
         HumanizeCurrencyPipe,
         ExactCurrencyPipe,
@@ -24,11 +34,14 @@ describe('FySummaryTileComponent', () => {
         SnakeCaseToSpaceCase,
         EllipsisPipe,
       ],
-      imports: [IonicModule.forRoot()],
       providers: [
         {
           provide: FyCurrencyPipe,
           useValue: fyCurrencyPipeSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -37,6 +50,22 @@ describe('FySummaryTileComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(FySummaryTileComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'summaryTile.pending': 'Pending',
+        'summaryTile.approvers': 'Approvers',
+        'summaryTile.projectLabel': 'Project',
+        'summaryTile.approved': 'Approved',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   });
 

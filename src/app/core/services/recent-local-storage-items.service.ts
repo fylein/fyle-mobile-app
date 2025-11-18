@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RecentLocalStorageItemsService {
-  constructor(private storageService: StorageService) {}
+  private storageService = inject(StorageService);
 
   async get<T>(cacheName: string): Promise<T[]> {
     let recentItems: T[] = [];

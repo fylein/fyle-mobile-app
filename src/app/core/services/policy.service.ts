@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, Observable, of } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
@@ -15,29 +15,32 @@ import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PolicyService {
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService,
-    private categoriesService: CategoriesService
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private translocoService = inject(TranslocoService);
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
     const txnLocations = transaction.locations as string[];
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       merchant: transaction.vendor,
       foreign_currency: transaction.orig_currency,
       foreign_amount: transaction.orig_amount,
       claim_amount: transaction.amount,
       purpose: transaction.purpose,
       cost_center_id: transaction.cost_center_id,
-      category_id: transaction.org_category_id,
+      category_id: transaction.category_id,
       project_id: transaction.project_id,
       source_account_id: transaction.source_account_id,
       tax_amount: transaction.tax_amount,
@@ -85,6 +88,16 @@ export class PolicyService {
   getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
     const criticalPopupRules: string[] = [];
 
+    // Check if expense is unreportable (blocked)
+    if (expensePolicy.data.final_desired_state.unreportable && expensePolicy.data.individual_desired_states) {
+      for (const desiredState of expensePolicy.data.individual_desired_states) {
+        // Check if this rule causes blocking (unreportable)
+        if (desiredState.run_status === 'VIOLATED_ACTION_SUCCESS') {
+          criticalPopupRules.push(desiredState.expense_policy_rule.description);
+        }
+      }
+    }
+
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {
         if (
@@ -96,7 +109,6 @@ export class PolicyService {
         }
       });
     }
-
     return criticalPopupRules;
   }
 
@@ -144,31 +156,39 @@ export class PolicyService {
   }
 
   getApprovalString(emails: string[]): string {
-    let approverEmailsRequiredMsg = 'Expense will need additional approval from ';
+    let approverEmailsRequiredMsg = this.translocoService.translate('services.policy.expenseNeedsAdditionalApproval');
     approverEmailsRequiredMsg += emails.map((email) => '<b>' + email + '</b>').join(', ');
 
     return approverEmailsRequiredMsg;
   }
 
   isExpenseFlagged(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will be flagged');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseWillBeFlagged').toLowerCase());
   }
 
   isPrimaryApproverSkipped(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('primary approver will be skipped');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.primaryApproverSkipped').toLowerCase());
   }
 
   needAdditionalApproval(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will need approval from');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseNeedsApprovalFrom').toLowerCase());
   }
 
   isExpenseCapped(policyActionDescription: string): boolean {
-    return policyActionDescription.toLowerCase().includes('expense will be capped to');
+    return policyActionDescription
+      .toLowerCase()
+      .includes(this.translocoService.translate('services.policy.expenseCappedTo').toLowerCase());
   }
 
   prepareEtxnForPolicyCheck(
     etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>,
   ): Observable<PublicPolicyExpense> {
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
@@ -185,14 +205,14 @@ export class PolicyService {
 
     transactionCopy.is_matching_ccc_expense = !!selectedCCCTransaction;
     let transaction$ = of(transactionCopy);
-    if (!transactionCopy.org_category_id) {
+    if (!transactionCopy.category_id) {
       // Set unspecified org category if expense doesn't have a category
-      const categoryName = 'Unspecified';
+      const categoryName = this.translocoService.translate('services.policy.unspecified');
       transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
           ...transactionCopy,
-          org_category_id: category.id,
-        }))
+          category_id: category.id,
+        })),
       );
     }
 
@@ -204,10 +224,10 @@ export class PolicyService {
       tx: PublicPolicyExpense;
       dataUrls: Partial<FileObject>[];
     },
-    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>,
   ): Observable<PlatformPolicyExpense> {
     return this.prepareEtxnForPolicyCheck(etxn, selectedCCCTransaction).pipe(
-      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense))
+      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense)),
     );
   }
 }

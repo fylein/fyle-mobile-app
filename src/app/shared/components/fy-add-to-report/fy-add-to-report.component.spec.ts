@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
@@ -17,6 +18,7 @@ import {
 import { reportOptionsData, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
@@ -26,6 +28,7 @@ describe('FyAddToReportComponent', () => {
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
@@ -45,10 +48,16 @@ describe('FyAddToReportComponent', () => {
       'openCreateDraftReportPopover',
       'openAddToReportModal',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, FyAddToReportComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: Injector,
@@ -80,6 +89,10 @@ describe('FyAddToReportComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -92,6 +105,28 @@ describe('FyAddToReportComponent', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyAddToReport.expenseReport': 'Expense Report',
+        'fyAddToReport.all': 'All',
+        'fyAddToReport.newDraftReport': 'New Draft Report',
+        'fyAddToReport.save': 'Save',
+        'fyAddToReport.reportName': 'Report Name',
+        'fyAddToReport.selectExpenseReport': 'Select a expense report',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 

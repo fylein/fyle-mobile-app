@@ -1,6 +1,6 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter, inject } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, NgClass, AsyncPipe } from '@angular/common';
 
 import { concat, range, combineLatest, iif, of, BehaviorSubject, forkJoin, noop, Observable, Subject } from 'rxjs';
 import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -20,17 +20,72 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { MyAdvancesCardComponent } from './my-advances-card/my-advances-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonBackButton, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-my-advances',
   templateUrl: './my-advances.page.html',
   styleUrls: ['./my-advances.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyMenuIconComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
+    MyAdvancesCardComponent,
+    NgClass
+  ],
 })
 export class MyAdvancesPage implements AfterViewChecked {
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private advanceService = inject(AdvanceService);
+
+  private networkService = inject(NetworkService);
+
+  private filtersHelperService = inject(FiltersHelperService);
+
+  private utilityService = inject(UtilityService);
+
+  private titleCasePipe = inject(TitleCasePipe);
+
+  private trackingService = inject(TrackingService);
+
+  private tasksService = inject(TasksService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private cdr = inject(ChangeDetectorRef);
+
   myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
@@ -59,22 +114,6 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   projectFieldName = 'Project';
 
-  constructor(
-    private advanceRequestService: AdvanceRequestService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private advanceService: AdvanceService,
-    private networkService: NetworkService,
-    private filtersHelperService: FiltersHelperService,
-    private utilityService: UtilityService,
-    private titleCasePipe: TitleCasePipe,
-    private trackingService: TrackingService,
-    private tasksService: TasksService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
@@ -92,7 +131,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.redirectToDashboardPage();
@@ -140,10 +179,10 @@ export class MyAdvancesPage implements AfterViewChecked {
               advance_id: 'eq.null',
               order: 'created_at.desc,id.desc',
             },
-          })
+          }),
         ),
         map((res) => res.data),
-        reduce((acc, curr) => acc.concat(curr))
+        reduce((acc, curr) => acc.concat(curr)),
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
@@ -156,14 +195,14 @@ export class MyAdvancesPage implements AfterViewChecked {
           offset: 200 * count,
           limit: 200,
           queryParams: { order: 'created_at.desc,id.desc' },
-        })
+        }),
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr))
+      reduce((acc, curr) => acc.concat(curr)),
     );
 
     const sortResults = map((res: (ExtendedAdvanceRequestPublic | ExtendedAdvance)[]) =>
-      res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+      res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)),
     );
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
@@ -181,8 +220,8 @@ export class MyAdvancesPage implements AfterViewChecked {
             myAdvances = this.updateMyAdvances(myAdvances);
             return [...myAdvances, ...myAdvanceRequests];
           }),
-          sortResults
-        )
+          sortResults,
+        ),
       ),
       switchMap((advArray: ExtendedAdvanceRequestPublic[]) =>
         //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
@@ -207,14 +246,14 @@ export class MyAdvancesPage implements AfterViewChecked {
             }
             newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
             return newArr;
-          })
-        )
+          }),
+        ),
       ),
       tap((res) => {
         if (res && res.length >= 0) {
           this.isLoading = false;
         }
-      })
+      }),
     );
 
     this.getAndUpdateProjectName();
@@ -262,7 +301,7 @@ export class MyAdvancesPage implements AfterViewChecked {
           if (event) {
             event.target?.complete?.();
           }
-        })
+        }),
       )
       .subscribe(noop);
   }
@@ -391,7 +430,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     const filters = await this.filtersHelperService.openFilterModal(
       this.filterParams$.value,
       filterOptions,
-      activeFilterInitialName
+      activeFilterInitialName,
     );
     if (filters) {
       this.filterParams$.next(filters);

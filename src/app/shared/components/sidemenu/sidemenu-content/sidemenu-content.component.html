@@ -1,11 +1,11 @@
 <div class="sidemenu-content">
   <ion-list>
-    <ng-container *ngFor="let sidemenuItem of sideMenuList; index as i">
+    @for (sidemenuItem of sideMenuList(); track sidemenuItem; let i = $index) {
       <app-sidemenu-content-item
         [sidemenuItem]="sidemenuItem"
-        [showDivider]="i === primaryOptionsCount"
+        [showDivider]="i === primaryOptionsCount()"
         (redirect)="goToRoute($event)"
       ></app-sidemenu-content-item>
-    </ng-container>
+    }
   </ion-list>
 </div>

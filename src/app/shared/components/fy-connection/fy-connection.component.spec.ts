@@ -1,32 +1,59 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { ConnectionMessageStatus } from './connection-status.enum';
 import { NetworkService } from '../../../core/services/network.service';
 import { FyConnectionComponent } from './fy-connection.component';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { of } from 'rxjs';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('FyConnectionComponent', () => {
   let fyConnectionComponent: FyConnectionComponent;
   let fixture: ComponentFixture<FyConnectionComponent>;
   let networkServiceSpy: jasmine.SpyObj<NetworkService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     networkServiceSpy = jasmine.createSpyObj('NetworkService', [
       'isOnline',
       'connectivityWatcher',
       'getConnectionStatus',
     ]);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyConnectionComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [{ provide: NetworkService, useValue: networkServiceSpy }],
+      imports: [ TranslocoModule, FyConnectionComponent],
+      providers: [
+        { provide: NetworkService, useValue: networkServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyConnectionComponent);
     fyConnectionComponent = fixture.componentInstance;
     networkServiceSpy.isOnline.and.returnValue(of(true));
     networkServiceSpy.getConnectionStatus.and.returnValue(of(ConnectionMessageStatus.onlineMessageShown));
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyConnection.disconnectedMessage': 'No internet connection',
+        'fyConnection.reconnectedMessage': 'Back online',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -58,13 +85,15 @@ describe('FyConnectionComponent', () => {
   });
 
   describe('getConnectionStatus():', () => {
-    it('should display offline message when not connected', () => {
+    it('should display offline message when not connected', fakeAsync(() => {
       networkServiceSpy.getConnectionStatus.and.returnValue(of(ConnectionMessageStatus.disconnected));
       fyConnectionComponent.ngOnInit();
       fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
       const connMsg = getElementBySelector(fixture, '.connection--offline');
       expect(getTextContent(connMsg)).toEqual('No internet connection');
-    });
+    }));
 
     it('should return correct ConnectionMessageStatus', () => {
       expect(fyConnectionComponent.ConnectionMessageStatus).toEqual(ConnectionMessageStatus);

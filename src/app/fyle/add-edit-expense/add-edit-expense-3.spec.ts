@@ -1,10 +1,16 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
 import { Subscription, of } from 'rxjs';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
@@ -85,12 +91,11 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -140,7 +145,6 @@ export function TestCases3(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -150,7 +154,7 @@ export function TestCases3(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -194,21 +198,20 @@ export function TestCases3(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -218,7 +221,7 @@ export function TestCases3(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -431,11 +434,11 @@ export function TestCases3(getTestBed) {
         component.getExpenseAttachments('edit').subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(
-            platformExpenseWithExtractedData.file_ids
+            platformExpenseWithExtractedData.file_ids,
           );
           expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
             'invoice.pdf',
-            'https://sampledownloadurl.com'
+            'https://sampledownloadurl.com',
           );
           done();
         });
@@ -474,7 +477,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -519,7 +522,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -551,7 +554,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -596,7 +599,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -628,7 +631,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -673,7 +676,7 @@ export function TestCases3(getTestBed) {
             expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
             expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+            expect(component.getSpendDate).toHaveBeenCalledTimes(1);
             expect(component.getCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
             expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -705,7 +708,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -745,7 +748,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -777,7 +780,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -817,7 +820,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -848,7 +851,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getAdvanceWalletId').and.returnValue(null);
         spyOn(component, 'getBillable').and.returnValue(true);
         spyOn(component, 'getSkipRemibursement').and.returnValue(false);
-        spyOn(component, 'getTxnDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
+        spyOn(component, 'getSpendDate').and.returnValue(new Date('2019-06-19T06:30:00Z'));
         spyOn(component, 'getCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalCurrency').and.returnValue('USD');
         spyOn(component, 'getOriginalAmount').and.returnValue(100);
@@ -885,7 +888,7 @@ export function TestCases3(getTestBed) {
           expect(component.getAdvanceWalletId).toHaveBeenCalledTimes(1);
           expect(component.getBillable).toHaveBeenCalledTimes(1);
           expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getSpendDate).toHaveBeenCalledTimes(1);
           expect(component.getCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
           expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
@@ -1011,7 +1014,7 @@ export function TestCases3(getTestBed) {
 
     describe('trackCreateExpense(): ', () => {
       it('should track create expense event', () => {
-        component.presetCategoryId = trackCreateExpData.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpData.tx.category_id;
         component.presetCostCenterId = trackCreateExpData.tx.cost_center_id;
         component.presetCurrency = trackCreateExpData.tx.orig_currency;
         component.presetProjectId = trackCreateExpData.tx.project_id;
@@ -1034,7 +1037,7 @@ export function TestCases3(getTestBed) {
       });
 
       it('should track create expense event for an expense with only original currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
@@ -1070,7 +1073,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -1092,7 +1095,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -1118,14 +1121,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             done();
@@ -1144,7 +1147,7 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -1168,14 +1171,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe((result) => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             expect(result.comment).toBe('No policy violation explanation provided');
@@ -1637,7 +1640,7 @@ export function TestCases3(getTestBed) {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
           mockFileData[0].transaction_id,
-          mockFileData[0].id
+          mockFileData[0].id,
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txbO4Xaj4N53');
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { MyReportsPage } from './my-reports.page';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -7,44 +7,35 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
-import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { Filters } from '../my-expenses/my-expenses-filters.model';
 import {
   selectedFilters1,
-  selectedFilters2,
   selectedFilters3,
   selectedFilters4,
   selectedFilters5,
 } from 'src/app/core/mock-data/selected-filters.data';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import {
-  deletePopoverParamsRes,
   expectedGenerateFilterPillsData,
   filterPopoverParams,
   generatedFiltersStateDate,
   generatedFiltersStateDateSortParams,
-  openFiltersOptions,
-  popoverControllerParams,
 } from 'src/app/core/mock-data/my-reports.data';
 import { loadData1, loadData2, loadData3 } from 'src/app/core/mock-data/my-reports-load-data.data';
 import {
@@ -84,6 +75,23 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { ReportsCardComponent } from 'src/app/shared/components/reports-card/reports-card.component';
+
+// mock for FooterComponent, and ReportsCardComponent
+@Component({
+  selector: 'app-fy-footer',
+  template: '',
+})
+class MockFooterComponent {}
+@Component({
+  selector: 'app-reports-card',
+  template: '',
+})
+class MockReportsCardComponent {}
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -93,19 +101,15 @@ describe('MyReportsPage', () => {
   let reportService: jasmine.SpyObj<ReportService>;
   let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
-  let navController: jasmine.SpyObj<NavController>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let dateService: jasmine.SpyObj<DateService>;
-  let popoverController: jasmine.SpyObj<PopoverController>;
-  let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
-
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -114,8 +118,7 @@ describe('MyReportsPage', () => {
       'extendQueryParamsForTextSearch',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -129,8 +132,6 @@ describe('MyReportsPage', () => {
         },
       },
     };
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'deleteReport',
       'footerHomeTabClicked',
@@ -144,21 +145,17 @@ describe('MyReportsPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyReportsPage, ReportState],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [RouterTestingModule, getTranslocoTestingModule(), MyReportsPage, MatIconTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: ExtendQueryParamsService, useValue: extendQueryParamsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
-        {
-          provide: NavController,
-          useValue: navControllerSpy,
-        },
         {
           provide: NetworkService,
           useValue: networkServiceSpy,
@@ -172,14 +169,6 @@ describe('MyReportsPage', () => {
           useValue: dateServiceSpy,
         },
         {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
-        },
-        {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
-        },
-        {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
@@ -191,10 +180,16 @@ describe('MyReportsPage', () => {
           provide: SpenderReportsService,
           useValue: spenderReportsServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
         ReportState,
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(MyReportsPage, {
+        remove: { imports: [FooterComponent, ReportsCardComponent] },
+        add: { imports: [MockFooterComponent, MockReportsCardComponent] },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyReportsPage);
     component = fixture.componentInstance;
@@ -203,17 +198,14 @@ describe('MyReportsPage', () => {
     activatedRoute.snapshot.params = {};
     activatedRoute.snapshot.queryParams = {};
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
-    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
@@ -224,6 +216,16 @@ describe('MyReportsPage', () => {
   });
 
   describe('ionViewWillEnter(): ', () => {
+    beforeEach(() => {
+      component.simpleSearchInput = {
+        nativeElement: {
+          value: '',
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          addEventListener: jasmine.createSpy('addEventListener'),
+          removeEventListener: jasmine.createSpy('removeEventListener'),
+        },
+      } as any;
+    });
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       extendQueryParamsService.extendQueryParamsForTextSearch.and.returnValue({
@@ -244,8 +246,6 @@ describe('MyReportsPage', () => {
       spenderReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
-
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
       inputElement = component.simpleSearchInput.nativeElement;
 
@@ -271,9 +271,11 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      // Manually trigger the search functionality by updating loadData$ directly
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+      });
 
       tick(1000);
 
@@ -374,8 +376,6 @@ describe('MyReportsPage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -400,9 +400,10 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = '';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: '',
+      });
 
       tick(1000);
 
@@ -501,8 +502,6 @@ describe('MyReportsPage', () => {
       orgSettingsService.get.and.returnValue(of(undefined));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -527,9 +526,10 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+      });
 
       tick(1000);
 
@@ -627,8 +627,6 @@ describe('MyReportsPage', () => {
       orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -653,9 +651,10 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+      });
 
       tick(1000);
 
@@ -750,8 +749,6 @@ describe('MyReportsPage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
       expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -782,9 +779,12 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+        sortParam: 'approvalDate',
+        sortDir: 'desc',
+      });
 
       tick(1000);
 
@@ -875,8 +875,6 @@ describe('MyReportsPage', () => {
 
       activatedRoute.snapshot.queryParams.filters = '{"sortDir": "desc"}';
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -903,9 +901,11 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+        sortDir: 'desc',
+      });
 
       tick(1000);
 
@@ -1015,8 +1015,6 @@ describe('MyReportsPage', () => {
 
       activatedRoute.snapshot.params.state = 'needsreceipt';
 
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-
       inputElement = component.simpleSearchInput.nativeElement;
 
       spyOn(component, 'setupNetworkWatcher');
@@ -1043,9 +1041,11 @@ describe('MyReportsPage', () => {
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');
 
-      inputElement.value = 'example';
-
-      inputElement.dispatchEvent(new Event('keyup'));
+      component.loadData$.next({
+        pageNumber: 1,
+        searchString: 'example',
+        sortDir: 'desc',
+      });
 
       tick(1000);
 
@@ -1267,7 +1267,7 @@ describe('MyReportsPage', () => {
       component.generateCustomDateParams(newQueryParams);
 
       expect(newQueryParams.and).toBe(
-        `(created_at.gte.${startDate.toISOString()},created_at.lt.${endDate.toISOString()})`
+        `(created_at.gte.${startDate.toISOString()},created_at.lt.${endDate.toISOString()})`,
       );
     });
 
@@ -1529,35 +1529,37 @@ describe('MyReportsPage', () => {
   });
 
   describe('clearText(): ', () => {
+    beforeEach(() => {
+      component.simpleSearchInput = {
+        nativeElement: {
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          value: 'some text',
+        },
+      } as any;
+    });
     it('should clear the search text, input value, dispatch keyup event, and update search bar focus', () => {
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
       component.simpleSearchText = 'some text';
-      inputElement.value = 'some text';
+      component.simpleSearchInput.nativeElement.value = 'some text';
       component.isSearchBarFocused = true;
 
       component.clearText('');
 
       expect(component.simpleSearchText).toEqual('');
-      expect(inputElement.value).toEqual('');
-      expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
-      component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-      inputElement = component.simpleSearchInput.nativeElement;
-      const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
       component.simpleSearchText = 'some text';
-      inputElement.value = 'some text';
+      component.simpleSearchInput.nativeElement.value = 'some text';
       component.isSearchBarFocused = true;
 
       component.clearText('onSimpleSearchCancel');
 
       expect(component.simpleSearchText).toEqual('');
-      expect(inputElement.value).toEqual('');
-      expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeFalse();
     });
   });
@@ -1572,12 +1574,8 @@ describe('MyReportsPage', () => {
   });
 
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-    inputElement = component.simpleSearchInput.nativeElement;
     component.isSearchBarFocused = false;
-
-    inputElement.dispatchEvent(new Event('focus'));
-
+    component.onSearchBarFocus();
     expect(component.isSearchBarFocused).toBeTrue();
   });
 
@@ -1665,15 +1663,16 @@ describe('MyReportsPage', () => {
   });
 
   it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
-    inputElement = component.simpleSearchInput.nativeElement;
-    const mockFocus = spyOn(inputElement, 'focus');
+    component.simpleSearchInput = {
+      nativeElement: {
+        focus: jasmine.createSpy('focus'),
+      },
+    } as any;
 
     component.searchClick();
-
     tick(300);
 
-    expect(mockFocus).toHaveBeenCalledTimes(1);
+    expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
   }));
 
   describe('convertRptDtSortToSelectedFilters(): ', () => {

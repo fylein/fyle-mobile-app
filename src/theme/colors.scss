@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $black: #161528 !default;
 $black-2: #161528 !default;
 $black-3: #0000004d !default;
@@ -5,6 +7,8 @@ $black-4: rgba(0, 0, 0, 0.3) !default;
 $black-light: #5a5d72 !default;
 $translucent-black: rgba(0, 0, 0, 0.2) !default;
 $pure-black: #000 !default;
+$gray-15: #262626;
+$gray-25: #404040;
 
 $grey: #dfdfe2 !default;
 $grey-2: rgba(223, 223, 226, 0.7) !default;
@@ -24,6 +28,7 @@ $lighter-grey: #ececec !default;
 $dark-grey: #414562 !default;
 $outline-grey: #eaeaeb !default;
 $border-grey: #dfdfe2d7 !default;
+$border-grey-secondary: #ccd6db !default;
 $border-translucent-grey: #dfdfe24d !default;
 $border-tertiary: #ececee !default;
 $border-info-lighter: #5c98e51a !default;
@@ -47,14 +52,23 @@ $black-shadow: rgba(0, 0, 0, 0.1) !default;
 $shadow-lg: rgba(44, 48, 78, 0.1);
 $shadow-xs: rgba(44, 48, 78, 0.06);
 
-$brand-primary: #ff3366 !default;
-$brand-primary-light: #fe5196 !default;
+// sage colors
+$jade-80: #cce6da;
 
-$pink: #fe4c8e !default;
+$navy-500: #335b70;
+$navy-300: #668394;
+$navy-150: #d9e0e4;
+$navy-50: #e6ebed;
 
-$primary-shadow: #fe4c8e94 !default;
+$negative-400: #cb374a;
+$negative-500: #cd384b;
+
+$brand-primary: #007e45 !default;
+$brand-primary-rgb: 0, 126, 69;
+$background: #f2f5f6 !default;
 
 $green: #24a148 !default;
+$green-500: #00821f;
 
 $blue: #0077ee !default;
 $blue-1: #2896f3 !default;
@@ -64,6 +78,11 @@ $blue-4: #0062ff !default;
 $blue-black: #2c304e !default;
 $light-blue: #f7f7fb !default;
 $dark-blue: #1c1f36 !default;
+$stat-badge-blue: #007fd9;
+
+$info-500: #0060a7;
+$caution-500: #ef6700;
+$grayscale-90: #1a1a1a;
 
 $alice-blue: #eff5fc !default;
 $pale-orange: #ffefb7 !default;
@@ -76,22 +95,11 @@ $pale-pink: #fbe8e9 !default;
 
 $red: #da1e28 !default;
 $red-1: #da1e2817 !default;
-$red-2: #b8141d;
 
 $dark-yellow: #e1af05 !default;
 $warning-lighter: #fcf7e6 !default;
 
 $light-purple: #fbf7f9 !default;
-
-$purple-gradient: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
-
-$pink-gradient: linear-gradient(162.38deg, $brand-primary 3.01%, $brand-primary-light 111.5%);
-$pink-gradient-2: linear-gradient(97.33deg, #e1eeff 26.8%, #ffe4fb 97.18%);
-$pink-gradient-3: linear-gradient(97.33deg, #ffe4fb 26.8%, #e1eeff 97.18%);
-$pink-gradient-light: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
-$pink-gradient-light-2: linear-gradient(97deg, rgba(225, 238, 255, 0.5) 26.8%, rgba(255, 228, 251, 0.5) 97.18%);
-
-$light-pink: #fff2f3 !default;
 
 $text-button-grey: #8c8fa6;
 
@@ -106,97 +114,103 @@ $rejected-color: #d50000;
 $bright-yellow: #fbd84f;
 
 //walkthrough colours
-$walkthrough-bg: #2c304e;
-$walkthrough-text-color: #a9acbc;
+$walkthrough-bg: $navy-500;
+$walkthrough-text-color: $pure-white;
 
-// State Specific Map
+// custom colors for pending gas charge info modal
+$border-light-info: #d9def8;
+$background-lightest-info: #f3f6fa;
+$bg-info-lightest: #d8e7f8;
+
+// Sage brand colors
+$sage-text-tertiary: #595959;
+
+// State names list (used for generating CSS classes)
 $states: (
-  'draft': $highlight-black,
-  'incomplete': #da1e28,
-  'complete': $fyled-color,
-  'submitted': #2196f3,
-  'inquiry': #da1e28,
-  'sent_back': #da1e28,
-  'auto_flagged': darken(#4a90e2, 20%),
-  'rejected': $rejected-color,
-  'approved': $highlight-green,
-  'payment_pending': $highlight-green,
-  'processing': darken(#5cb85c, 8%),
-  'paid': darken(#5cb85c, 15%),
-  'disabled': $grey-8,
-  //state pill in advance requests
-  'pending': #2196f3,
-  'issued': #3d8b3d,
-  //adding new states for advance colors
-  'pendingApproval': #1ab6bb,
-  'cancelled': #d0021b,
-  'closed': #3375ad,
-  'pulledBack': #34495e,
-  'pulled': #34495e,
+  'draft',
+  'incomplete',
+  'complete',
+  'submitted',
+  'inquiry',
+  'sent_back',
+  'rejected',
+  'approved',
+  'processing',
+  'paid',
+  'disabled',
+  'pendingApproval',
+  'closed',
+  'pulledBack',
+  'blocked'
 );
 
 $fdl-state-bg-map: (
-  'draft': #ececee,
-  'incomplete': #fce9ea,
-  'complete': #f4edff,
-  'submitted': #eef1fe,
-  'sent_back': #fce9ea,
-  'approved': #e7f3f4,
-  'payment_pending': #e7f3f4,
-  'processing': #e7f3f4,
-  'pending': #e7f3f4,
-  'paid': #eef8f2,
-  'pendingApproval': #e7f3f4,
-  'pendingClosure': #e7f3f4,
-  'inquiry': #fce9ea,
-  'closed': #e9f6ed,
-  'rejected': #fce9ea,
-  'booked': #eef8f2,
-  'pulledBack': #ebedef,
-  'pulled': #ebedef,
-  'disabled': #ebedef,
+  'draft': #f8f8f8,
+  'incomplete': #f9f8f4,
+  'complete': #faf8fc,
+  'submitted': #ebf0f9,
+  'sent_back': #fff9f8,
+  'approved': #f4fafa,
+  'processing': #f2f7f9,
+
+  // advances
+  'pendingApproval': #fff9f8,
+  'inquiry': #fff9f8,
+  'pulledBack': #f8f8f8,
+  'paid': #f6fbf9,
+  'rejected': #fff9f8,
+
+  'closed': #f6fbf9,
+  'disabled': #f8f8f8,
+  'blocked': #fff9f8,
 );
 
 $fdl-state-color-map: (
-  'draft': #34495e,
-  'incomplete': #da1e28,
-  'complete': #8e46ff,
-  'submitted': #556ef2,
-  'sent_back': #da1e28,
-  'approved': #077e8c,
-  'payment_pending': #077e8c,
-  'processing': #077e8c,
-  'pending': #077e8c,
-  'paid': #55b07d,
-  'pendingApproval': #077e8c,
-  'pendingClosure': #077e8c,
-  'inquiry': #da1e28,
-  'closed': #24a148,
-  'rejected': #da1e28,
-  'booked': #55b07d,
-  'pulledBack': #34495e,
-  'pulled': #34495e,
-  'disabled': #34495e,
+  'draft': #666666,
+  'incomplete': #796720,
+  'complete': #8f4cd7,
+  'submitted': #0071c3,
+  'sent_back': #c92214,
+  'approved': #007573,
+  'processing': #006388,
+  'pendingApproval': #c92214,
+  'inquiry': #c92214,
+  'paid': #008146,
+  'closed': #008146,
+  'rejected': #c92214,
+  'pulledBack': #666666,
+  'disabled': #666666,
+  'blocked': #c92214,
 );
 
 $fdl-state-border-color-map: (
-  'draft': #c6ccd2,
-  'incomplete': #f5c0c3,
-  'complete': #dbc5ff,
-  'submitted': #d9def8,
-  'sent_back': #f5c0c3,
-  'approved': #c9e1e4,
-  'payment_pending': #c9e1e4,
-  'processing': #c9e1e4,
-  'pending': #c9e1e4,
-  'paid': #d9ebe1,
-  'pendingApproval': #c9e1e4,
-  'pendingClosure': #c9e1e4,
-  'inquiry': #f5c0c3,
-  'closed': #d9ebe1,
-  'rejected': #f5c0c3,
-  'booked': #d9ebe1,
-  'pulledBack': #c6ccd2,
-  'pulled': #c6ccd2,
-  'disabled': #c6ccd2,
+  //common
+  'draft': #666666,
+  'incomplete': #796720,
+  'complete': #8f4cd7,
+  'submitted': #0071c3,
+  'sent_back': #c92214,
+  'approved': #007573,
+  'processing': #006388,
+
+  //advances
+  'paid': #008146,
+  'pendingApproval': #c92214,
+  'inquiry': #c92214,
+  'rejected': #c92214,
+
+  'closed': #008146,
+  'pulledBack': #666666,
+  'disabled': #666666,
+  'blocked': #c92214
+);
+
+$fdl-stat-bg-map: (
+  'incomplete': #f7f2de,
+  'complete': #f5edfc,
+  'draft-report': #34495e1a,
+  'submitted': #556ef21a,
+  'approved': #e9f2f1,
+  'processing': #e2efef,
+  'unapproved_team_reports': #ebf0f9,
 );

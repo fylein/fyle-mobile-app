@@ -1,11 +1,12 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .audit-history {
   padding: 0 22px 12px 30px;
 
   &--block {
-    padding-bottom: 24px;
-    border-left: 2px solid $lighter-grey;
+    padding-bottom: 20px;
+    border-left: 2px dashed colors.$border-grey-secondary;
+    color: colors.$gray-25;
 
     &:last-child {
       border-left: 0;
@@ -18,48 +19,30 @@
   }
 
   &--icon {
-    height: 20px;
-    width: 20px;
-    margin: 0 16px 0 -12px;
-    background-color: $pure-white;
-    color: $black;
-  }
-
-  &--circle {
-    height: 14px;
-    width: 10px;
-    margin: 0 20px 0 -6px;
-    background-color: transparent;
-  }
-
-  &--delete {
-    height: 18px;
-    width: 18px;
-    margin: 0 20px 0 -10px;
-    color: $red;
-  }
-
-  &--merge {
-    color: $brand-primary;
-  }
-
-  &--success {
-    color: $green !important;
+    height: 38px;
+    width: 36px;
+    margin: 0 16px 0 -18px;
+    padding: 10px;
+    background-color: colors.$pure-white;
+    color: colors.$black;
+    border: 1px solid colors.$border-grey-secondary;
+    border-radius: 50%;
   }
 
   &--timestamp {
-    margin: 0 0 8px 20px;
-    color: rgba(44, 48, 78, 0.7);
+    margin: -20px 0 16px 30px;
+    color: colors.$sage-text-tertiary;
+    font-size: 12px;
   }
 
   &--comment-block {
-    margin-left: 20px;
+    margin-left: 30px;
     line-height: 18px;
   }
 
   &--category {
     font-weight: 500;
-    margin-left: -4px;
+    margin-left: -6px;
     vertical-align: top;
   }
 
@@ -76,15 +59,11 @@
     margin-left: 12px;
   }
 
-  &--card-filled {
-    color: $green;
+  &--error {
+    color: colors.$negative-400;
   }
 
-  &--flagged {
-    color: $red;
-  }
-
-  &--unflagged {
-    color: $grey-light;
+  &--neutral {
+    color: colors.$gray-25;
   }
 }

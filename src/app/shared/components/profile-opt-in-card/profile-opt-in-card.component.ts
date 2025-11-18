@@ -1,25 +1,48 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit, inject, output } from '@angular/core';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { PlatformEmployee } from 'src/app/core/models/platform/platform-employee.model';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-profile-opt-in-card',
   templateUrl: './profile-opt-in-card.component.html',
   styleUrls: ['./profile-opt-in-card.component.scss'],
+  imports: [
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class ProfileOptInCardComponent implements OnInit {
+  private clipboardService = inject(ClipboardService);
+
+  private trackingService = inject(TrackingService);
+
+  private employeesService = inject(EmployeesService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Output() copiedText = new EventEmitter<string>();
+  readonly copiedText = output<string>();
 
-  @Output() optInClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly optInClicked = output<ExtendedOrgUser>();
 
-  @Output() optOutClicked = new EventEmitter<void>();
+  readonly optOutClicked = output<void>();
 
-  @Output() editMobileNumberClicked = new EventEmitter<ExtendedOrgUser>();
+  readonly editMobileNumberClicked = output<ExtendedOrgUser>();
 
-  @Output() deleteMobileNumberClicked = new EventEmitter<void>();
+  readonly deleteMobileNumberClicked = output<void>();
+
+  employee: PlatformEmployee;
+
+  isOptedOutViaSms = false;
 
   isUserOptedIn = false;
 
@@ -29,13 +52,15 @@ export class ProfileOptInCardComponent implements OnInit {
 
   mobileNumber: string;
 
-  constructor(private clipboardService: ClipboardService, private trackingService: TrackingService) {}
-
   ngOnInit(): void {
-    this.isUserOptedIn = this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified;
-    this.mobileNumber = this.extendedOrgUser.ou.mobile;
-    this.isMobileAddedButNotVerified = this.extendedOrgUser.ou.mobile && !this.extendedOrgUser.ou.mobile_verified;
-    this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.extendedOrgUser.ou.mobile.startsWith('+1');
+    this.employeesService.getByParams({ user_id: `eq.${this.extendedOrgUser.ou.user_id}` }).subscribe((res) => {
+      this.employee = res.data[0];
+      this.mobileNumber = this.employee.mobile;
+      this.isMobileAddedButNotVerified = this.mobileNumber && !this.employee.is_mobile_verified;
+      this.isInvalidUSNumber = this.isMobileAddedButNotVerified && !this.mobileNumber.startsWith('+1');
+      this.isUserOptedIn = this.mobileNumber && this.employee.is_mobile_verified;
+      this.isOptedOutViaSms = this.employee.sms_opt_out_source === 'SMS';
+    });
   }
 
   clickedOnOptIn(): void {
@@ -47,6 +72,7 @@ export class ProfileOptInCardComponent implements OnInit {
 
   clickedOnOptOut(): void {
     this.trackingService.clickedOnOptOut();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.optOutClicked.emit();
   }
 
@@ -57,11 +83,12 @@ export class ProfileOptInCardComponent implements OnInit {
 
   deleteMobileNumber(): void {
     this.trackingService.clickedOnDeleteNumber();
+    // TODO: The 'emit' function requires a mandatory void argument
     this.deleteMobileNumberClicked.emit();
   }
 
   async copyToClipboard(): Promise<void> {
     await this.clipboardService.writeString('(302) 440-2921');
-    this.copiedText.emit('Phone Number Copied Successfully');
+    this.copiedText.emit(this.translocoService.translate('profileOptInCard.copySuccess'));
   }
 }

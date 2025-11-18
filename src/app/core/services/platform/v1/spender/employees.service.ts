@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SpenderService } from './spender.service';
 import { map, Observable } from 'rxjs';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
@@ -13,7 +13,7 @@ import { Employee } from 'src/app/core/models/spender/employee.model';
   providedIn: 'root',
 })
 export class EmployeesService {
-  constructor(private spenderService: SpenderService) {}
+  private spenderService = inject(SpenderService);
 
   getCommuteDetails(eou: ExtendedOrgUser): Observable<PlatformApiResponse<CommuteDetailsResponse[]>> {
     return this.spenderService.get('/employees', {

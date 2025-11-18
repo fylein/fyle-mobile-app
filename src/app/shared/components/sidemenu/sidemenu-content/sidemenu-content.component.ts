@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { Component, OnInit, inject, input } from '@angular/core';
+import { IonList, MenuController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -7,25 +7,33 @@ import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { SidemenuItem } from 'src/app/core/models/sidemenu-item.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { SidemenuContentItemComponent } from './sidemenu-content-item/sidemenu-content-item.component';
 
 @Component({
   selector: 'app-sidemenu-content',
   templateUrl: './sidemenu-content.component.html',
   styleUrls: ['./sidemenu-content.component.scss'],
+  imports: [
+    IonList,
+    SidemenuContentItemComponent
+  ],
 })
 export class SidemenuContentComponent implements OnInit {
-  @Input() sideMenuList: Partial<SidemenuItem>[];
+  private router = inject(Router);
 
-  @Input() primaryOptionsCount: number;
+  private userEventService = inject(UserEventService);
 
-  constructor(
-    private router: Router,
-    private userEventService: UserEventService,
-    private menuController: MenuController,
-    private freshChatService: FreshChatService,
-    private loaderService: LoaderService,
-    private trackingService: TrackingService
-  ) {}
+  private menuController = inject(MenuController);
+
+  private freshChatService = inject(FreshChatService);
+
+  private loaderService = inject(LoaderService);
+
+  private trackingService = inject(TrackingService);
+
+  readonly sideMenuList = input<Partial<SidemenuItem>[]>(undefined);
+
+  readonly primaryOptionsCount = input<number>(undefined);
 
   ngOnInit(): void {}
 

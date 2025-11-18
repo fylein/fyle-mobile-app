@@ -20,63 +20,113 @@
 </ion-header>
 
 <ion-content class="no-keyboard-adjust">
-  <div class="my-create-report--container full-height">
-    <div class="my-create-report--report-card">
-      <div class="my-create-report--report-title">Expense report name</div>
-      <span class="my-create-report--mandatory"> * </span>
-      <input
-        data-testid="report-name"
-        class="my-create-report--report-name smartlook-show"
-        name="reportName"
-        type="text"
-        placeholder="Enter report name"
-        [(ngModel)]="reportTitle"
-        required
-        (ngModelChange)="detectTitleChange()"
-        #reportTitleInput="ngModel"
-      />
-    </div>
-    <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter expense report name.</div>
+  <!-- Skeleton Loading State -->
+  @if (isLoading) {
+    <div class="my-create-report--container full-height">
+      <!-- Report Card Skeleton -->
+      <div class="my-create-report--report-card">
+        <ion-skeleton-text animated class="my-create-report--skeleton-title"></ion-skeleton-text>
+        <ion-skeleton-text animated class="my-create-report--skeleton-input"></ion-skeleton-text>
+      </div>
 
-    <div *ngIf="readyToReportExpenses?.length === 0" class="my-create-report--zero-state">
-      <div>
-        <img
-          alt="Create First Expenses"
-          class="my-create-report--zero-state-img"
-          src="../../../assets/images/zero-states/new-expenses.png"
+      <!-- Expenses Section Skeleton -->
+      <ion-skeleton-text animated class="my-create-report--skeleton-heading"></ion-skeleton-text>
+      <ion-skeleton-text animated class="my-create-report--skeleton-select-all"></ion-skeleton-text>
+
+      <!-- Expenses List Skeleton -->
+      <div class="my-create-report--skeleton-expenses">
+        @for (item of [1, 2, 3, 4, 5]; track item) {
+          <div class="my-create-report--skeleton-expense-item">
+            <ion-grid>
+              <ion-row>
+                <ion-col size="1">
+                  <ion-skeleton-text animated class="my-create-report--skeleton-checkbox"></ion-skeleton-text>
+                </ion-col>
+                <ion-col size="2">
+                  <ion-skeleton-text animated class="my-create-report--skeleton-expense-icon"></ion-skeleton-text>
+                </ion-col>
+                <ion-col size="6">
+                  <ion-skeleton-text animated class="my-create-report--skeleton-expense-title"></ion-skeleton-text>
+                  <ion-skeleton-text animated class="my-create-report--skeleton-expense-subtitle"></ion-skeleton-text>
+                </ion-col>
+                <ion-col size="3">
+                  <ion-skeleton-text animated class="my-create-report--skeleton-expense-amount"></ion-skeleton-text>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Actual Content -->
+    <div class="my-create-report--container full-height">
+      <div class="my-create-report--report-card">
+        <div class="my-create-report--report-title">Expense report name</div>
+        <span class="my-create-report--mandatory"> * </span>
+        <input
+          data-testid="report-name"
+          class="my-create-report--report-name smartlook-show"
+          name="reportName"
+          type="text"
+          placeholder="Enter report name"
+          [(ngModel)]="reportTitle"
+          required
+          (ngModelChange)="detectTitleChange()"
+          #reportTitleInput="ngModel"
         />
-        <div class="my-create-report--zero-state-text">You have no reportable</div>
-        <div class="my-create-report--zero-state-text">expenses right now</div>
       </div>
+      @if (showReportNameError) {
+        <div class="my-create-report--error-message">Please enter expense report name.</div>
+      }
+      @if (readyToReportExpenses?.length === 0) {
+        <div class="my-create-report--zero-state">
+          <div>
+            <img
+              alt="Create First Expenses"
+              class="my-create-report--zero-state-img"
+              src="../../../assets/svg/zero-states/expenses.svg"
+            />
+            <div class="my-create-report--zero-state-text">You have no reportable</div>
+            <div class="my-create-report--zero-state-text">expenses right now</div>
+          </div>
+        </div>
+      }
+      @if (readyToReportExpenses?.length > 0) {
+        <div class="my-create-report--heading">Expenses</div>
+      }
+      @if (readyToReportExpenses?.length > 0) {
+        <div class="my-create-report--select-all-checkbox">
+          <mat-checkbox
+            class="custom-mat-checkbox create-new-report--checkbox"
+            [(ngModel)]="isSelectedAll"
+            (ngModelChange)="toggleSelectAll($event)"
+          >
+            Select all</mat-checkbox
+          >
+        </div>
+      }
+      @if (readyToReportExpenses) {
+        <div>
+          @for (etxn of readyToReportExpenses; track etxn.id; let i = $index) {
+            <div>
+              <app-expense-card-v2
+                [expense]="etxn"
+                [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
+                [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
+                [showDt]="checkShowDt(etxn, i)"
+                [isSelectionModeEnabled]="true"
+                [selectedElements]="selectedElements"
+                (cardClickedForSelection)="selectExpense($event)"
+                [isFromReports]="true"
+              >
+              </app-expense-card-v2>
+            </div>
+          }
+        </div>
+      }
     </div>
-
-    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--heading">Expenses</div>
-    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--select-all-checkbox">
-      <mat-checkbox
-        class="custom-mat-checkbox create-new-report--checkbox"
-        [(ngModel)]="isSelectedAll"
-        (ngModelChange)="toggleSelectAll($event)"
-      >
-        Select all</mat-checkbox
-      >
-    </div>
-
-    <div *ngIf="readyToReportExpenses">
-      <div *ngFor="let etxn of readyToReportExpenses as list; let i = index">
-        <app-expense-card-v2
-          [expense]="etxn"
-          [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
-          [showDt]="checkShowDt(etxn,i)"
-          [isSelectionModeEnabled]="true"
-          [selectedElements]="selectedElements"
-          (cardClickedForSelection)="selectExpense($event)"
-          [isFromReports]="true"
-        >
-        </app-expense-card-v2>
-      </div>
-    </div>
-  </div>
+  }
 </ion-content>
 
 <ion-footer>
@@ -87,7 +137,7 @@
         (click)="ctaClickedEvent('create_draft_report')"
         appFormButtonValidation
         [loading]="saveDraftReportLoading"
-        [loadingText]="'Saving Report'"
+        [loadingText]="'Saving report'"
         [disabled]="emptyInput"
       >
         Save as draft
@@ -98,7 +148,7 @@
         appFormButtonValidation
         [loading]="saveReportLoading"
         [loadingText]="'Submitting Report'"
-        [disabled]="(this.selectedElements?.length === 0) || saveDraftReportLoading  || saveReportLoading"
+        [disabled]="selectedElements?.length === 0 || saveDraftReportLoading || saveReportLoading"
       >
         Submit report
       </ion-button>

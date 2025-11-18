@@ -1,33 +1,60 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-
+import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 describe('ReceiptPreviewThumbnailComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked', 'fileDownloadComplete']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [ReceiptPreviewThumbnailComponent],
       providers: [
         {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, ReceiptPreviewThumbnailComponent,
+        MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'receiptPreviewThumbnail.mapLabel': 'Map',
+        'receiptPreviewThumbnail.receiptLabel': 'Receipt',
+        'receiptPreviewThumbnail.addMore': 'Add more',
+        'receiptPreviewThumbnail.uploading': 'Uploading',
+        'receiptPreviewThumbnail.loading': 'Loading',
+        'receiptPreviewThumbnail.mapSuffix': ' map',
+        'receiptPreviewThumbnail.receiptSuffix': ' receipt',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
 
     component.attachments = fileObjectData1;
     fixture.detectChanges();

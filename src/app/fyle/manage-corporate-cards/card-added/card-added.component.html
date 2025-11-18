@@ -1,24 +1,21 @@
 <div class="card-added">
   <div class="card-added__header">
     <ion-icon class="card-added__tick-icon" src="../../../../assets/svg/check-circle-outline.svg"></ion-icon>
-    <span class="card-added__heading">Card added</span>
+    <span class="card-added__heading">{{ 'cardAdded.cardAdded' | transloco }}</span>
   </div>
 
   <div class="card-added__expenses-info-container">
     <div class="card-added__expenses-info-icon-container">
       <ion-icon class="card-added__expenses-info-icon" src="../../../../assets/svg/list.svg"></ion-icon>
     </div>
-    <span class="card-added__expenses-info-content">View your corporate card expenses on the expenses page.</span>
+    <span class="card-added__expenses-info-content">{{ 'cardAdded.viewExpensesInfo' | transloco }}</span>
   </div>
 
-  <div class="card-added__debit-card-info">
-    <b>Note on debit cards:</b> If you have enrolled a debit card please note that not all transactions with your
-    enrolled debit card may be eligible for expense tracking including PIN-based purchases. Do not use a Personal
-    Identification Number (PIN) when paying for your purchase if you want the transaction to be available under this
-    service.
-  </div>
+  <div class="card-added__debit-card-info" [innerHTML]="'cardAdded.debitCardNote' | transloco"></div>
 
   <div class="card-added__footer">
-    <button class="card-added__got-it-cta" (click)="closeModal()" data-testid="got-it-button">Got it</button>
+    <button class="card-added__got-it-cta" (click)="closeModal()" data-testid="got-it-button">
+      {{ 'cardAdded.gotIt' | transloco }}
+    </button>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, inject, input } from '@angular/core';
 import {
   AbstractControl,
   UntypedFormArray,
@@ -6,44 +6,86 @@ import {
   UntypedFormControl,
   UntypedFormGroup,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { switchMap } from 'rxjs/operators';
 import { MileageDetails } from 'src/app/core/models/mileage.model';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageLocation } from '../../route-visualizer/mileage-locations.interface';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { FyLocationComponent } from '../../fy-location/fy-location.component';
+import { MatIcon } from '@angular/material/icon';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { addIcons } from 'ionicons';
+import { chevronBackOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-route-selector-modal',
   templateUrl: './route-selector-modal.component.html',
   styleUrls: ['./route-selector-modal.component.scss'],
+  imports: [
+    FormsModule,
+    FyAlertInfoComponent,
+    FyLocationComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class RouteSelectorModalComponent implements OnInit {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private mileageService = inject(MileageService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() unit: 'KM' | 'MILES';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageConfig: MileageDetails;
 
-  @Input() isDistanceMandatory;
+  readonly isDistanceMandatory = input(undefined);
 
-  @Input() isAmountDisabled;
+  readonly isAmountDisabled = input(undefined);
 
-  @Input() txnFields;
+  readonly txnFields = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() formInitialized;
 
-  @Input() isConnected;
+  readonly isConnected = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() value: {
     distance: number;
     mileageLocations?: MileageLocation[];
     roundTrip: number;
   };
 
-  @Input() recentlyUsedMileageLocations: {
+  readonly recentlyUsedMileageLocations = input<{
     start_locations?: string[];
     end_locations?: string[];
     locations?: string[];
-  };
+  }>(undefined);
 
   distance: string;
 
@@ -54,19 +96,13 @@ export class RouteSelectorModalComponent implements OnInit {
 
   calculatedLocationDistance: number;
 
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private mileageService: MileageService
-  ) {}
-
   get mileageLocations(): UntypedFormArray {
     return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
   addMileageLocation(): void {
     this.mileageLocations.push(
-      new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+      new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required),
     );
   }
 
@@ -93,8 +129,8 @@ export class RouteSelectorModalComponent implements OnInit {
         if (distance === null) {
           this.calculatedLocationDistance = null;
         } else {
-          const distanceInKm = distance / 1000;
-          const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          const finalDistance = this.unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
           //value comes as an Input in this component, if roundTrip is already set double the value during initialization
           if (this.value?.roundTrip) {
             this.calculatedLocationDistance = parseFloat((finalDistance * 2).toFixed(2));
@@ -108,15 +144,15 @@ export class RouteSelectorModalComponent implements OnInit {
     if (this.value?.mileageLocations?.length > 0) {
       this.value.mileageLocations.forEach((location) => {
         this.mileageLocations.push(
-          new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required),
         );
       });
     } else {
       this.mileageLocations.push(
-        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
       );
       this.mileageLocations.push(
-        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required)
+        new UntypedFormControl({}, this.mileageConfig.location_mandatory && Validators.required),
       );
     }
 
@@ -147,8 +183,8 @@ export class RouteSelectorModalComponent implements OnInit {
           this.distance = null;
           this.calculatedLocationDistance = null;
         } else {
-          const distanceInKm = distance / 1000;
-          const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+          const distanceInKm = parseFloat((distance / 1000).toFixed(2));
+          const finalDistance = this.unit === 'MILES' ? parseFloat((distanceInKm * 0.6213).toFixed(2)) : distanceInKm;
           if (finalDistance === 0) {
             this.distance = '0';
             this.calculatedLocationDistance = 0;
@@ -177,5 +213,9 @@ export class RouteSelectorModalComponent implements OnInit {
 
   close(): void {
     this.modalController.dismiss();
+  }
+
+  constructor() {
+    addIcons({ chevronBackOutline });
   }
 }

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import {
   Component,
   OnInit,
@@ -7,7 +6,8 @@ import {
   AfterViewInit,
   ElementRef,
   Input,
-  Inject,
+  inject,
+  input,
 } from '@angular/core';
 import {
   map,
@@ -19,7 +19,7 @@ import {
   finalize,
   catchError,
 } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSpinner, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { Observable, fromEvent, of, from, forkJoin, noop, throwError } from 'rxjs';
 import { LocationService } from 'src/app/core/services/location.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -31,24 +31,74 @@ import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DEVICE_PLATFORM } from 'src/app/constants';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatFormField, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
+import { MatIconButton } from '@angular/material/button';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
+import { MatRipple } from '@angular/material/core';
+import { AsyncPipe, LowerCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-location-modal',
   templateUrl: './fy-location-modal.component.html',
   styleUrls: ['./fy-location-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSpinner,
+    IonToolbar,
+    LowerCasePipe,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatRipple,
+    MatSuffix,
+    TranslocoPipe
+  ],
 })
 export class FyLocationModalComponent implements OnInit, AfterViewInit {
+  private gmapsService = inject(GmapsService);
+  private modalController = inject(ModalController);
+  private cdr = inject(ChangeDetectorRef);
+  private locationService = inject(LocationService);
+  private authService = inject(AuthService);
+  private loaderService = inject(LoaderService);
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+  private popoverController = inject(PopoverController);
+  private devicePlatform = inject(DEVICE_PLATFORM);
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @Input() currentSelection: any;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() header = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentLocations: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cacheName: any;
 
-  @Input() disableEnteringManualLocation = false;
+  readonly disableEnteringManualLocation = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;
@@ -61,27 +111,13 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   geoLocation = Geolocation;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filteredList$: Observable<any[]>;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   recentItemsFilteredList$: Observable<any[]>;
 
   currentGeolocationPermissionGranted = false;
 
   isDeviceLocationEnabled: boolean = false;
-
-  constructor(
-    private gmapsService: GmapsService,
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private locationService: LocationService,
-    private authService: AuthService,
-    private loaderService: LoaderService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private popoverController: PopoverController,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
-  ) {}
 
   ngOnInit(): void {
     this.checkPermissionStatus();
@@ -96,8 +132,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         map((options: string[]) =>
           options.map((option) => ({
             display: option,
-          }))
-        )
+          })),
+        ),
       );
     } else {
       return of([]);
@@ -121,7 +157,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
     from(this.setupEnableLocationPopover())
       .pipe(
         tap((enableLocationPopover) => enableLocationPopover.present()),
-        switchMap((enableLocationPopover) => enableLocationPopover.onWillDismiss<{ action: string }>())
+        switchMap((enableLocationPopover) => enableLocationPopover.onWillDismiss<{ action: string }>()),
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -165,13 +201,13 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
             if (searchText && searchText.length > 0) {
               const searchTextLowerCase = searchText.toLowerCase();
               return recentrecentlyUsedItems.filter((item) =>
-                item.display?.toLocaleLowerCase().includes(searchTextLowerCase)
+                item.display?.toLocaleLowerCase().includes(searchTextLowerCase),
               );
             }
             return recentrecentlyUsedItems;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
@@ -191,7 +227,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                 return that.locationService.getAutocompletePredictions(
                   searchText,
                   eou.us.id,
-                  `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
+                  `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`,
                 );
               } else {
                 return that.locationService.getAutocompletePredictions(searchText, eou.us.id);
@@ -205,12 +241,12 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
               that.loader = false;
               that.lookupFailed = true;
               return of([]);
-            })
+            }),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     that.filteredList$.subscribe(noop);
@@ -242,20 +278,20 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   onRecentItemSelect(location: string) {
-    from(this.loaderService.showLoader('Loading location...', 5000))
+    from(this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingLocation'), 5000))
       .pipe(
         switchMap(() =>
           forkJoin({
             eou: this.authService.getEou(),
             currentLocation: this.locationService.getCurrentLocation({ enableHighAccuracy: false }),
-          })
+          }),
         ),
         switchMap(({ eou, currentLocation }) => {
           if (currentLocation) {
             return this.locationService.getAutocompletePredictions(
               location,
               eou.us.id,
-              `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`
+              `${currentLocation?.coords.latitude},${currentLocation?.coords.longitude}`,
             );
           } else {
             return this.locationService.getAutocompletePredictions(location, eou.us.id);
@@ -272,14 +308,14 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
                   } else {
                     return of({ display: location });
                   }
-                })
+                }),
               );
           } else {
             return of({ display: location });
           }
         }),
         catchError(() => of({ display: location })),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((location) => {
         this.modalController.dismiss({
@@ -339,11 +375,15 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   setupEnableLocationPopover(): Promise<HTMLIonPopoverElement> {
     const isIos = this.devicePlatform === 'ios';
-    const locationServiceName = isIos ? 'Location Services' : 'Location';
-    let title = `Enable ${locationServiceName}`;
-    const message = `To fetch your current location, please enable ${locationServiceName}. Click 'Open Settings'${
-      isIos ? ',then go to Privacy & Security' : ''
-    } and turn on ${locationServiceName}`;
+    let title = '';
+    let message = '';
+    if (isIos) {
+      title = this.translocoService.translate('fyLocationModal.enableLocationServicesTitle');
+      message = this.translocoService.translate('fyLocationModal.enableLocationServicesMessage');
+    } else {
+      title = this.translocoService.translate('fyLocationModal.enableLocationTitle');
+      message = this.translocoService.translate('fyLocationModal.enableLocationMessage');
+    }
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -351,11 +391,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('fyLocationModal.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyLocationModal.cancel'),
           action: 'CANCEL',
         },
       },
@@ -365,8 +405,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
   }
 
   setupPermissionDeniedPopover(): Promise<HTMLIonPopoverElement> {
-    let title = 'Location permission';
-    const message = `To fetch current location, please allow Fyle to access your Location. Click on 'Open Settings', then enable both 'Location' and 'Precise Location' to continue.`;
+    const title = this.translocoService.translate('fyLocationModal.locationPermissionTitle');
+    const message = this.translocoService.translate('fyLocationModal.locationPermissionMessage');
 
     return this.popoverController.create({
       component: PopupAlertComponent,
@@ -374,11 +414,11 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         title,
         message,
         primaryCta: {
-          text: 'Open settings',
+          text: this.translocoService.translate('fyLocationModal.openSettings'),
           action: 'OPEN_SETTINGS',
         },
         secondaryCta: {
-          text: 'Cancel',
+          text: this.translocoService.translate('fyLocationModal.cancel'),
           action: 'CANCEL',
         },
       },
@@ -389,18 +429,20 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   async getCurrentLocation() {
     if (this.currentGeolocationPermissionGranted) {
-      from(this.loaderService.showLoader('Loading current location...', 10000))
+      from(
+        this.loaderService.showLoader(this.translocoService.translate('fyLocationModal.loadingCurrentLocation'), 10000),
+      )
         .pipe(
           switchMap(() => this.locationService.getCurrentLocation({ enableHighAccuracy: true })),
           switchMap((coordinates) =>
-            this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude)
+            this.gmapsService.getGeocode(coordinates?.coords.latitude, coordinates?.coords.longitude),
           ),
           map(this.formatGeocodeResponse),
           catchError((err) => {
             this.lookupFailed = true;
             return throwError(err);
           }),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe((selection) => {
           this.modalController.dismiss({
@@ -415,7 +457,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
         from(this.setupPermissionDeniedPopover())
           .pipe(
             tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-            switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
+            switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>()),
           )
           .subscribe(({ data }) => {
             if (data?.action === 'OPEN_SETTINGS') {

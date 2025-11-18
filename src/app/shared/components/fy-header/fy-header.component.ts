@@ -1,37 +1,60 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, inject, input, output } from '@angular/core';
 import { HeaderState } from './header-state.enum';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { FyMenuIconComponent } from '../fy-menu-icon/fy-menu-icon.component';
+import { IonBackButton, IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-header',
   templateUrl: './fy-header.component.html',
   styleUrls: ['./fy-header.component.scss'],
+  imports: [
+    FyMenuIconComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyHeaderComponent implements OnInit {
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentState: HeaderState;
 
-  @Input() navigateBack = false;
+  readonly navigateBack = input(false);
 
-  @Input() title = 'Fyle';
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() title: string;
 
-  @Input() isHiddenBorder = false;
+  readonly isHiddenBorder = input(false);
 
-  @Output() simpleSearchCancel = new EventEmitter();
+  readonly simpleSearchCancel = output();
 
-  @Output() multiselectBack = new EventEmitter();
+  readonly multiselectBack = output();
 
-  constructor() {}
-
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.title = this.title || this.translocoService.translate('fyHeader.fyle');
+  }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.simpleSearchCancel.emit();
   }
 
-  onMultiselectBack() {
+  onMultiselectBack(): void {
     this.multiselectBack.emit();
   }
 }

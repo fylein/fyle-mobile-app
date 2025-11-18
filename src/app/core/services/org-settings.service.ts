@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
 import { Observable, Subject } from 'rxjs';
@@ -12,6 +12,7 @@ import {
   QuickBooksSettings,
   TallySettings,
 } from '../models/org-settings.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const orgSettingsCacheBuster$ = new Subject<void>();
 
@@ -19,7 +20,9 @@ const orgSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class OrgSettingsService {
-  constructor(private apiService: ApiService) {}
+  private apiService = inject(ApiService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: orgSettingsCacheBuster$,
@@ -295,7 +298,7 @@ export class OrgSettingsService {
         allowed: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.allowed,
         enabled: incoming.currencylayer_provider_settings && incoming.currencylayer_provider_settings.enabled,
         id: 'CURRENCYLAYER',
-        name: 'Currency Layer',
+        name: this.translocoService.translate('services.orgSettings.currencyLayer'),
       },
       transaction_field_configurations: incoming.transaction_field_configurations,
       gmail_addon_settings: incoming.gmail_addon_settings,
@@ -431,6 +434,7 @@ export class OrgSettingsService {
         allowed: incoming.simplified_multi_stage_approvals?.allowed,
         enabled: incoming.simplified_multi_stage_approvals?.enabled,
       },
+      is_new_critical_policy_violation_flow_enabled: incoming?.is_new_critical_policy_violation_flow_enabled,
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

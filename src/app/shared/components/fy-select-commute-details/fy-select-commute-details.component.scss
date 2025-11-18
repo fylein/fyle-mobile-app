@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .commute-details {
   &--toolbar {
@@ -7,8 +7,8 @@
 
   &--header {
     &-save {
-      --color: $brand-primary;
-      color: $brand-primary;
+      --color: colors.$brand-primary;
+      color: colors.$brand-primary;
       width: 66px;
       font-size: 16px;
       line-height: 20px;
@@ -27,7 +27,7 @@
     .work-icon {
       width: 16px;
       height: 16px;
-      fill: $black-light;
+      fill: colors.$black-light;
     }
   }
 
@@ -42,7 +42,7 @@
   }
 
   &--error {
-    color: $red;
+    color: colors.$negative-500;
     line-height: 16px;
     font-size: 12px;
     margin-top: 2px;

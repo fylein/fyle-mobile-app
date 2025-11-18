@@ -26,8 +26,10 @@ import {
   mileageExpenseWithoutDistance,
   perDiemExpenseWithMultipleNumDays,
   perDiemExpenseWithSingleNumDays,
+  platformExpenseDataWithPendingGasCharge,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
@@ -35,29 +37,70 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { ExpensesService } from './expenses.service';
 import { cloneDeep } from 'lodash';
 import { DateService } from '../../../date.service';
-import { OrgSettingsService } from '../../../org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { of } from 'rxjs';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let dateService: DateService;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.expenses.day': 'Day',
+        'services.expenses.days': 'Days',
+        'services.expenses.reimbursable': 'Reimbursable',
+        'services.expenses.nonReimbursable': 'Non-Reimbursable',
+        'services.expenses.advance': 'Advance',
+        'services.expenses.ccc': 'CCC',
+        'services.expenses.aboutToDelete': 'You are about to permanently delete',
+        'services.expenses.oneSelectedExpense': '1 selected expense.',
+        'services.expenses.multipleSelectedExpenses': '{count} selected expenses.',
+        'services.expenses.cccMessageSingular':
+          "There is {count} corporate card expense from the selection which can't be deleted.",
+        'services.expenses.cccMessagePlural':
+          "There are {count} corporate card expenses from the selection which can't be deleted.",
+        'services.expenses.deleteOthersMessage': 'However you can delete the other expenses from the selection.',
+        'services.expenses.actionCannotBeReversed': "Once deleted, the action can't be reversed.",
+        'services.expenses.permanentDeleteConfirmation':
+          'Are you sure to <b>permanently</b> delete the selected expenses?',
+      };
+
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && params.count !== undefined) {
+        translation = translation.replace('{count}', params.count.toString());
+      }
+
+      return translation;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         DateService,
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     });
     service = TestBed.inject(ExpensesService);
     dateService = TestBed.inject(DateService);
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -120,7 +163,7 @@ describe('ExpensesService', () => {
 
     it('should return vendor details per diem expense for 0 days', () => {
       expect(service.getVendorDetails({ ...perDiemExpenseWithMultipleNumDays, per_diem_num_days: null })).toContain(
-        '0'
+        '0',
       );
     });
   });
@@ -220,7 +263,7 @@ describe('ExpensesService', () => {
     expect(service.isExpenseInPaymentMode).toHaveBeenCalledOnceWith(
       expenseData.is_reimbursable,
       expenseData.source_account.type,
-      expensePaymentMode.key
+      expensePaymentMode.key,
     );
   });
 
@@ -336,7 +379,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'reimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -345,7 +388,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'nonReimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -354,7 +397,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'advance';
       const expenseSourceAccountType = AccountType.PERSONAL_ADVANCE_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
 
@@ -363,7 +406,7 @@ describe('ExpensesService', () => {
       const expensePaymentMode = 'ccc';
       const expenseSourceAccountType = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode),
       ).toBeTrue();
     });
   });
@@ -450,7 +493,7 @@ describe('ExpensesService', () => {
       const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 1);
 
       expect(result).toEqual(
-        `There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.`
+        `There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.`,
       );
     });
 
@@ -458,14 +501,14 @@ describe('ExpensesService', () => {
       const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 2);
 
       expect(result).toEqual(
-        `There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.`
+        `There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.`,
       );
     });
 
     it('should get ccc message for 0 expenses', () => {
       const result = service.getCCCExpenseMessage([], 0);
 
-      expect(result).toEqual(`There is 0 corporate card expense from the selection which can't be deleted. `);
+      expect(result).toEqual(`There is 0 corporate card expense from the selection which can't be deleted.`);
     });
   });
 
@@ -614,6 +657,7 @@ describe('ExpensesService', () => {
       expect(result).toEqual([
         'and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))',
         'and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))',
+        'state.in.(UNREPORTABLE)',
         'policy_amount.lt.0.0001',
         'state.in.(DRAFT)',
       ]);
@@ -677,6 +721,279 @@ describe('ExpensesService', () => {
 
       expect(result).toEqual({
         or: ['(is_split.eq.false)'],
+      });
+    });
+
+    describe('isPendingGasCharge():', () => {
+      it('should return true for valid pending gas charge expense', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeTrue();
+      });
+
+      it('should return true for valid pending gas charge expense with CAD currency', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Gasoline',
+          code: 'GAS',
+          display_name: 'Gasoline',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1.0;
+        expense.currency = 'CAD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeTrue();
+      });
+
+      it('should return false when expense is not fuel category', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Food',
+          code: 'FOOD',
+          display_name: 'Food',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when amount is not 1 dollar', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 2;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when currency is not USD or CAD', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'EUR';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when transaction status is not pending', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.POSTED },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when expense has receipts', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = ['file1'];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when expense is not matched with corporate card', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = [];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should return false when expense has no matched corporate card transactions', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should handle missing category gracefully', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = null;
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should handle missing category name gracefully', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: null,
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = [
+          { ...expenseData.matched_corporate_card_transactions[0], status: ExpenseTransactionStatus.PENDING },
+        ];
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should handle missing matched corporate card transactions gracefully', () => {
+        const expense = cloneDeep(expenseData);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.matched_corporate_card_transactions = null;
+        expense.matched_corporate_card_transaction_ids = ['transaction1'];
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeFalse();
+      });
+
+      it('should handle missing file_ids gracefully', () => {
+        const expense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+        expense.category = {
+          id: 1,
+          name: 'Fuel',
+          code: 'FUEL',
+          display_name: 'Fuel',
+          sub_category: null,
+          system_category: null,
+        };
+        expense.amount = 1;
+        expense.currency = 'USD';
+        expense.file_ids = [];
+
+        const result = service.isPendingGasCharge(expense);
+        expect(result).toBeTrue();
       });
     });
   });

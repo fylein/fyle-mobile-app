@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { orgSettingsRes, orgSettingsParams2 } from '../mock-data/org-settings.data';
 import { sidemenuAllowedActions } from '../mock-data/sidemenu-allowed-actions.data';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PermissionsService } from './permissions.service';
 import { ReportService } from './report.service';
 
@@ -12,25 +12,25 @@ describe('SidemenuService', () => {
   let sideMenuService: SidemenuService;
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
 
   beforeEach(() => {
     const permissionsServiceSpy = jasmine.createSpyObj('PermissionsService', ['allowedActions']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportPermissions']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
         SidemenuService,
         { provide: PermissionsService, useValue: permissionsServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
       ],
     });
     sideMenuService = TestBed.inject(SidemenuService);
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
   });
 
   it('should be created', () => {
@@ -49,7 +49,7 @@ describe('SidemenuService', () => {
       expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
         'advances',
         ['approve', 'create', 'delete'],
-        orgSettingsRes
+        orgSettingsRes,
       );
       done();
     });
@@ -67,7 +67,7 @@ describe('SidemenuService', () => {
       expect(permissionsService.allowedActions).toHaveBeenCalledOnceWith(
         'advances',
         ['approve', 'create', 'delete'],
-        orgSettingsParams2
+        orgSettingsParams2,
       );
       done();
     });

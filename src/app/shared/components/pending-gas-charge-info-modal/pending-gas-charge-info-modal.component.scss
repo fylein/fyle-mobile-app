@@ -1,0 +1,146 @@
+@use '../../../../theme/colors.scss';
+
+.header {
+  border-radius: 16px;
+}
+
+.pending-gas-charge-info-modal {
+  position: relative;
+  height: auto;
+
+  &__toolbar-title {
+    color: colors.$black;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &__toolbar-close-btn {
+    position: absolute;
+
+    .fy-icon-close {
+      color: colors.$black;
+    }
+  }
+
+  &__body {
+    color: colors.$black;
+    padding: 12px 20px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__description {
+    line-height: 1.5;
+  }
+
+  &__timeline-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+
+    .timeline-flow-step {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      width: 115px;
+      height: 115px;
+      border-radius: 50%;
+      background-color: colors.$background-lightest-info;
+      border: 1px solid colors.$border-light-info;
+      font-size: 10px;
+      line-height: 1.4;
+      flex-shrink: 0;
+
+      &.last-step {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        background-color: colors.$bg-info-lightest;
+      }
+
+      .icon-container {
+        color: colors.$black;
+        width: 18px;
+        height: 18px;
+        fill: colors.$black;
+      }
+    }
+
+    .navigation-arrow {
+      fill: colors.$border-light-info;
+      margin: 0 8px;
+      width: 16px;
+      flex-shrink: 0;
+    }
+  }
+
+  &__step-description {
+    &--step1 {
+      max-width: 64px;
+    }
+
+    &--step2 {
+      max-width: 96px;
+    }
+
+    &--step3 {
+      max-width: 72px;
+    }
+
+    &--step4 {
+      max-width: 98px;
+    }
+
+    &--step5 {
+      max-width: 112px;
+      font-weight: 600;
+    }
+  }
+
+  &__info-box {
+    background-color: colors.$off-white;
+    border-radius: 4px;
+    padding: 16px;
+    border: 1px solid colors.$border-tertiary;
+  }
+
+  &__info-title {
+    color: colors.$black;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  &__info-description {
+    color: colors.$dark-grey;
+    line-height: 1.25;
+    margin-top: 4px;
+    margin-bottom: 0;
+  }
+
+  &__read-more-text {
+    color: colors.$blue-black;
+    font-size: 12px;
+    line-height: 1.25;
+    margin-right: -8px;
+  }
+
+  &__read-more-link {
+    color: colors.$blue-4;
+    text-decoration: none;
+  }
+
+  &__read-more-link-icon {
+    width: 16px;
+    height: 16px;
+    margin-bottom: -2px;
+  }
+}

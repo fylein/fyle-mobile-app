@@ -1,7 +1,22 @@
-import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { map, shareReplay, switchMap, takeUntil } from 'rxjs/operators';
-import { ActionSheetButton, ActionSheetController, ModalController, NavController, Platform } from '@ionic/angular';
+import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
+import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
+import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { StatsComponent } from './stats/stats.component';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
@@ -9,9 +24,9 @@ import { FooterState } from '../../shared/components/footer/footer-state.enum';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksComponent } from './tasks/tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
+import { RebrandingPopupComponent } from 'src/app/shared/components/rebranding-popup/rebranding-popup.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { SmartlookService } from 'src/app/core/services/smartlook.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -27,27 +42,129 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { DashboardState } from 'src/app/core/enums/dashboard-state.enum';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { driver } from 'driver.js';
+import { Driver, driver, DriveStep } from 'driver.js';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import SwiperCore, { Pagination, Autoplay } from 'swiper';
+import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatTabGroup, MatTab } from '@angular/material/tabs';
+import { DashboardOptInComponent } from '../../shared/components/dashboard-opt-in/dashboard-opt-in.component';
+import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OverlayEventDetail } from '@ionic/core';
+
+// install Swiper modules
+SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
+  imports: [
+    AsyncPipe,
+    CardStatsComponent,
+    DashboardEmailOptInComponent,
+    DashboardOptInComponent,
+    FyMenuIconComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatTab,
+    MatTabGroup,
+    NgClass,
+    StatsComponent,
+    SwiperModule,
+    TasksComponent,
+    TranslocoPipe,
+  ],
 })
 export class DashboardPage {
+  private currencyService = inject(CurrencyService);
+
+  private networkService = inject(NetworkService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private actionSheetController = inject(ActionSheetController);
+
+  private tasksService = inject(TasksService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private platform = inject(Platform);
+
+  private backButtonService = inject(BackButtonService);
+
+  private navController = inject(NavController);
+
+  private modalController = inject(ModalController);
+
+  private utilityService = inject(UtilityService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private authService = inject(AuthService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private walkthroughService = inject(WalkthroughService);
+
+  private footerService = inject(FooterService);
+
+  private timezoneService = inject(TimezoneService);
+
+  private translocoService = inject(TranslocoService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private popoverController = inject(PopoverController);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
+
+  readonly swiperComponent = viewChild<SwiperComponent>('optInSwiper');
 
   employeeSettings$: Observable<EmployeeSettings>;
 
@@ -71,9 +188,13 @@ export class DashboardPage {
 
   optInShowTimer;
 
+  dashboardAddExpenseWalkthroughTimer;
+
   navigationSubscription: Subscription;
 
   canShowOptInBanner$: Observable<boolean>;
+
+  canShowEmailOptInBanner$: Observable<boolean>;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -82,6 +203,8 @@ export class DashboardPage {
   isWalkthroughComplete = false;
 
   isWalkthroughPaused = false;
+
+  isWalkThroughOver = false; // used to check if the walkthrough is over for that momemnt by the user so we can show the add expense walkthrough
 
   // variable to check for the overlay bg click for the walkthrough
   // This needs to be true at the start as driver.js does not have a default overlay click event
@@ -94,32 +217,18 @@ export class DashboardPage {
 
   userName = '';
 
-  constructor(
-    private currencyService: CurrencyService,
-    private networkService: NetworkService,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private trackingService: TrackingService,
-    private actionSheetController: ActionSheetController,
-    private tasksService: TasksService,
-    private smartlookService: SmartlookService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private platform: Platform,
-    private backButtonService: BackButtonService,
-    private navController: NavController,
-    private modalController: ModalController,
-    private utilityService: UtilityService,
-    private featureConfigService: FeatureConfigService,
-    private modalProperties: ModalPropertiesService,
-    private authService: AuthService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private walkthroughService: WalkthroughService,
-    private footerService: FooterService,
-    private timezoneService: TimezoneService
-  ) {}
+  swiperConfig: SwiperOptions;
+
+  readonly rebrandingPopupShown = signal<boolean>(false);
+
+  optInBannerPagination: PaginationOptions = {
+    dynamicBullets: true,
+    renderBullet(index, className): string {
+      return '<span class="opt-in-banners ' + className + '"> </span>';
+    },
+  };
+
+  dashboardAddExpenseWalkthroughDriverInstance: Driver;
 
   get displayedTaskCount(): number {
     if (this.activatedRoute.snapshot.queryParams.state === 'tasks') {
@@ -137,7 +246,96 @@ export class DashboardPage {
     return this.tasksComponent.filterPills;
   }
 
+  private get swiperInstance(): Swiper | undefined {
+    return this.swiperComponent()?.swiperRef;
+  }
+
+  private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
+    if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
+      this.showNavbarWalkthrough(true);
+    } else {
+      this.showNavbarWalkthrough(false);
+    }
+  }
+
+  startDashboardAddExpenseWalkthrough(): void {
+    const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+      this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+    this.dashboardAddExpenseWalkthroughDriverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      overlayColor: '#161528',
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      showButtons: ['close', 'next'],
+      onDestroyed: () => {
+        this.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+      },
+    });
+
+    this.dashboardAddExpenseWalkthroughDriverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+    this.dashboardAddExpenseWalkthroughDriverInstance.drive();
+  }
+
+  setDashboardAddExpenseWalkthroughFeatureConfigFlag(): void {
+    const featureConfigParams = {
+      feature: 'WALKTHROUGH',
+      key: 'DASHBOARD_ADD_EXPENSE',
+    };
+
+    const eventTrackName = 'Dashboard Add Expense Walkthrough Completed';
+
+    const featureConfigValue = {
+      isShown: true,
+      isFinished: true,
+    };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  showDashboardAddExpenseWalkthrough(): void {
+    // Clear any existing timer to prevent multiple timers running simultaneously
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
+
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+      }>({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_ADD_EXPENSE',
+      })
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+
+        // Only show add expense walkthrough if navbar walkthrough is finished or over for that moment by the user
+        if (!isFinished && (this.isWalkthroughComplete || this.isWalkThroughOver)) {
+          this.dashboardAddExpenseWalkthroughTimer = setTimeout(() => {
+            this.startDashboardAddExpenseWalkthrough();
+          }, 1000);
+        }
+      });
+  }
+
   setNavbarWalkthroughFeatureConfigFlag(overlayClicked: boolean): void {
+    this.isWalkThroughOver = true;
+    // now call the dashboard add expense walkthrough
+    this.showDashboardAddExpenseWalkthrough();
     const featureConfigParams = {
       feature: 'WALKTHROUGH',
       key: 'DASHBOARD_SHOW_NAVBAR',
@@ -250,6 +448,10 @@ export class DashboardPage {
         this.walkthroughOverlayStartIndex = featureConfigValue?.currentStepIndex || 0;
         this.isWalkthroughComplete = isFinished;
 
+        if (isFinished) {
+          this.showDashboardAddExpenseWalkthrough();
+        }
+
         if (!isFinished) {
           this.startTour(isApprover);
         }
@@ -264,6 +466,7 @@ export class DashboardPage {
       driver().destroy();
     }
     clearTimeout(this.optInShowTimer as number);
+    clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
     this.navigationSubscription?.unsubscribe();
     this.utilityService.toggleShowOptInAfterAddingCard(false);
     this.onPageExit$.next(null);
@@ -275,21 +478,22 @@ export class DashboardPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
-  setShowOptInBanner(): void {
+  setShowOptInBanner(): Observable<boolean> {
     const optInBannerConfig = {
       feature: 'DASHBOARD_OPT_IN_BANNER',
       key: 'OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService
-      .getConfiguration(optInBannerConfig)
-      .pipe(map((config) => config?.value));
+    const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      shareReplay(1),
+    );
 
-    this.canShowOptInBanner$ = forkJoin({
+    return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
     }).pipe(
@@ -302,8 +506,83 @@ export class DashboardPage {
         }
 
         return true;
-      })
+      }),
+      shareReplay(1),
     );
+  }
+
+  setShowEmailOptInBanner(): Observable<boolean> {
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+    };
+
+    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+      map((config) => config?.value),
+      map((isBannerShown) => !isBannerShown),
+      shareReplay(1),
+    );
+  }
+
+  canShowRebrandingPopup(): Observable<boolean> {
+    if (this.rebrandingPopupShown()) {
+      return of(false);
+    }
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+    };
+
+    return this.featureConfigService.getConfiguration(rebrandingPopupConfig).pipe(
+      map((config) => config?.value),
+      map((isPopupShown) => !isPopupShown),
+      shareReplay(1),
+    );
+  }
+
+  setSwiperConfig(): void {
+    // Set default config when observables are not ready
+    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
+      this.swiperConfig = {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: false,
+      };
+      return;
+    }
+
+    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
+      .pipe(take(1))
+      .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
+        const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
+        const swiper = this.swiperInstance;
+
+        if (!swiper) {
+          return;
+        }
+
+        swiper.loopDestroy?.();
+        swiper.pagination.destroy();
+        swiper.update();
+
+        if (showBothBanners) {
+          swiper.loopCreate?.();
+          swiper.params.autoplay = {
+            delay: 4000,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+          };
+          swiper.autoplay?.start();
+        } else {
+          swiper.autoplay?.stop();
+          swiper.params.autoplay = false;
+          swiper.pagination.destroy();
+        }
+        swiper.update();
+      });
   }
 
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
@@ -326,11 +605,30 @@ export class DashboardPage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
+  onPendingTasksStatClick(): void {
+    const queryParams: Params = { state: 'tasks' };
+    this.currentStateIndex = 1;
+    this.router.navigate([], {
+      relativeTo: this.activatedRoute,
+      queryParams,
+    });
+
+    this.trackingService.dashboardPendingTasksNotificationClicked({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+  }
+
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
-    this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
     });
@@ -355,23 +653,40 @@ export class DashboardPage {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    if (openSMSOptInDialog !== 'true') {
-      this.eou$
-        .pipe(
-          map((eou) => {
-            if (eou.ou.roles.includes('APPROVER') && eou.ou.is_primary) {
-              this.showNavbarWalkthrough(true);
-            } else {
-              this.showNavbarWalkthrough(false);
-            }
+    const optInBanner$ = this.setShowOptInBanner();
+    const emailOptInBanner$ = this.setShowEmailOptInBanner();
 
-            this.userName = eou.us.full_name;
-          })
-        )
-        .subscribe(noop);
-    }
+    this.canShowOptInBanner$ = optInBanner$;
+    this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
-    this.setShowOptInBanner();
+    this.eou$.subscribe((eou) => {
+      this.userName = eou.us.full_name;
+    });
+
+    forkJoin({
+      optInBanner: optInBanner$,
+      emailOptInBanner: emailOptInBanner$,
+      showRebrandingPopup: this.canShowRebrandingPopup(),
+      eou: this.eou$,
+    })
+      .pipe(take(1))
+      .subscribe({
+        next: ({ showRebrandingPopup, eou }) => {
+          this.setSwiperConfig();
+          if (showRebrandingPopup) {
+            this.showRebrandingPopup().then(() => {
+              this.startNavbarWalkthrough(eou);
+            });
+          } else {
+            this.rebrandingPopupShown.set(true);
+            this.startNavbarWalkthrough(eou);
+          }
+        },
+        error: () => {
+          // If there's an error, still set up default swiper config
+          this.setSwiperConfig();
+        },
+      });
 
     if (openSMSOptInDialog === 'true') {
       this.eou$
@@ -382,7 +697,7 @@ export class DashboardPage {
             } else {
               this.openSMSOptInDialog(eou);
             }
-          })
+          }),
         )
         .subscribe();
     }
@@ -421,6 +736,9 @@ export class DashboardPage {
         this.router.navigate(['/', 'enterprise', 'my_dashboard', { queryParams }]);
       }
     });
+
+    // Check ACH suspension status
+    this.checkAchSuspension();
   }
 
   backButtonActionHandler(): void {
@@ -444,7 +762,7 @@ export class DashboardPage {
   registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.LOW,
-      this.backButtonActionHandler
+      this.backButtonActionHandler,
     );
   }
 
@@ -545,6 +863,9 @@ export class DashboardPage {
 
   async openAddExpenseActionSheet(): Promise<void> {
     const that = this;
+    if (this.dashboardAddExpenseWalkthroughDriverInstance) {
+      this.dashboardAddExpenseWalkthroughDriverInstance.destroy();
+    }
     that.trackingService.dashboardActionSheetOpened();
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
@@ -590,6 +911,44 @@ export class DashboardPage {
         this.canShowOptInBanner$ = of(false);
       }
     });
+  }
+
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{value: string}>> {
+    const rebrandingPopover = await this.popoverController.create({
+      component: RebrandingPopupComponent,
+      cssClass: 'pop-up-in-center',
+    });
+
+    await rebrandingPopover.present();
+    this.rebrandingPopupShown.set(true);
+
+    // Mark the popup as shown in feature configs
+    const rebrandingPopupConfig = {
+      feature: 'DASHBOARD_REBRANDING_POPUP',
+      key: 'REBRANDING_POPUP_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(rebrandingPopupConfig).subscribe(noop);
+    return rebrandingPopover.onDidDismiss();
   }
 
   setModalDelay(): void {
@@ -643,6 +1002,9 @@ export class DashboardPage {
 
     this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
 
+    // Update swiper config when banner is dismissed
+    this.setSwiperConfig();
+
     if (data.isOptedIn) {
       this.trackingService.optedInFromDashboardBanner();
       this.eou$ = this.authService.refreshEou();
@@ -652,7 +1014,61 @@ export class DashboardPage {
     }
   }
 
+  toggleEmailOptInBanner(data: { optedIn: boolean }): void {
+    this.canShowEmailOptInBanner$ = of(false);
+
+    const optInBannerConfig = {
+      feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+      key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+      value: true,
+    };
+
+    this.featureConfigService.saveConfiguration(optInBannerConfig).subscribe(noop);
+
+    // Update swiper config when banner is dismissed
+    this.setSwiperConfig();
+
+    if (data.optedIn) {
+      this.trackingService.optedInFromDashboardEmailOptInBanner();
+    } else {
+      this.trackingService.skipOptInFromDashboardEmailOptInBanner();
+    }
+  }
+
   hideOptInDashboardBanner(): void {
     this.canShowOptInBanner$ = of(false);
+
+    // Update swiper config when banner is hidden
+    this.setSwiperConfig();
+  }
+
+  checkAchSuspension(): void {
+    combineLatest([this.eou$, this.orgSettings$])
+      .pipe(
+        take(1),
+        switchMap(([eou, orgSettings]) => {
+          // Check if ACH is enabled and user hasn't seen the dialog
+          if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+            return of(null);
+          }
+
+          const dialogShownKey = `ach_suspension_dialog_shown_${eou.ou.id}`;
+          if (sessionStorage.getItem(dialogShownKey)) {
+            return of(null);
+          }
+
+          return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+            map((dwollaCustomer) => {
+              if (dwollaCustomer?.customer_suspended) {
+                sessionStorage.setItem(dialogShownKey, 'true');
+                this.showAchSuspensionPopup();
+              }
+              return null;
+            }),
+            catchError(() => of(null)),
+          );
+        }),
+      )
+      .subscribe();
   }
 }

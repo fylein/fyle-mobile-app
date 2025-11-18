@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -10,29 +10,36 @@ import { JwtHelperService } from './jwt-helper.service';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { AccessTokenData } from '../models/access-token-data.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { EmployeeResponse } from '../models/employee-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    private storageService: StorageService,
-    private tokenService: TokenService,
-    private apiService: ApiService,
-    private dataTransformService: DataTransformService,
-    private jwtHelperService: JwtHelperService
-  ) {}
+  private storageService = inject(StorageService);
+
+  private tokenService = inject(TokenService);
+
+  private apiService = inject(ApiService);
+
+  private dataTransformService = inject(DataTransformService);
+
+  private jwtHelperService = inject(JwtHelperService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   getEou(): Promise<ExtendedOrgUser> {
     return this.storageService.get<ExtendedOrgUser>('user');
   }
 
   refreshEou(): Observable<ExtendedOrgUser> {
-    return this.apiService.get('/eous/current').pipe(
-      switchMap((data) => {
-        const extendedOrgUser = this.dataTransformService.unflatten<ExtendedOrgUser, unknown>(data);
+    return this.spenderPlatformV1ApiService.get('/employees/current').pipe(
+      switchMap((response: PlatformApiResponse<EmployeeResponse>) => {
+        const extendedOrgUser = this.dataTransformService.transformEmployeeResponse(response.data);
         return from(this.storageService.set('user', extendedOrgUser)).pipe(map(() => extendedOrgUser));
-      })
+      }),
     );
   }
 
@@ -55,9 +62,9 @@ export class AuthService {
           })
           .pipe(
             switchMap((res) => from(that.tokenService.setAccessToken(res.access_token))),
-            switchMap(() => that.refreshEou())
-          )
-      )
+            switchMap(() => that.refreshEou()),
+          ),
+      ),
     );
   }
 
@@ -74,13 +81,13 @@ export class AuthService {
             const roles = JSON.parse(tokenPayload.roles) as string[];
             return roles;
           } catch (e) {
-            // @ts-ignore
+            // @ts-expect-error - roles is a string in the token payload
             return tokenPayload.roles as string[];
           }
         } else {
           return [];
         }
-      })
+      }),
     );
   }
 
@@ -89,7 +96,7 @@ export class AuthService {
     return iif(
       () => logoutPayload as boolean,
       this.apiService.post('/auth/logout', logoutPayload),
-      this.apiService.post('/auth/logout')
+      this.apiService.post('/auth/logout'),
     ).pipe(
       finalize(async () => {
         await this.storageService.delete('recentlyUsedProjects');
@@ -103,7 +110,7 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
-      })
+      }),
     );
   }
 }

@@ -1,28 +1,33 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AccountsService } from './accounts.service';
 import { map } from 'rxjs/operators';
 import { forkJoin, Observable } from 'rxjs';
 import { AccountType } from '../enums/account-type.enum';
-import { ExtendedAccount } from '../models/extended-account.model';
+import { PlatformAccount } from '../models/platform-account.model';
 import { EmployeeSettings } from '../models/employee-settings.model';
 import { TrackingService } from '../../core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { OrgSettings, PaymentmodeSettings } from '../models/org-settings.model';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
+import { TranslocoService } from '@jsverse/transloco';
 @Injectable({
   providedIn: 'root',
 })
 export class PaymentModesService {
-  constructor(
-    private accountsService: AccountsService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
-  ) {}
+  private accountsService = inject(AccountsService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
 
   checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
     return this.platformEmployeeSettingsService
@@ -30,16 +35,16 @@ export class PaymentModesService {
       .pipe(
         map(
           (employeeSettings) =>
-            employeeSettings.payment_mode_settings.allowed && employeeSettings.payment_mode_settings.enabled
-        )
+            employeeSettings.payment_mode_settings.allowed && employeeSettings.payment_mode_settings.enabled,
+        ),
       );
   }
 
   getDefaultAccount(
     orgSettings: OrgSettings,
-    accounts: ExtendedAccount[],
-    employeeSettings: EmployeeSettings
-  ): Observable<ExtendedAccount> {
+    accounts: PlatformAccount[],
+    employeeSettings: EmployeeSettings,
+  ): Observable<PlatformAccount> {
     return forkJoin({
       allowedPaymentModes: this.platformEmployeeSettingsService.getAllowedPaymentModes(),
       isPaymentModeConfigurationsEnabled: this.checkIfPaymentModeConfigurationsIsEnabled(),
@@ -63,15 +68,15 @@ export class PaymentModesService {
         const defaultAccount = accounts.find((account) => {
           /*
            * Accounts array does not have anything called COMPANY_ACCOUNT
-           * We map PERSONAL_ACCOUNT to 'Peronsal Card/Cash' and 'Paid by Company' in the frontend
+           * We use PERSONAL_CASH_ACCOUNT directly in the frontend
            * which happens in the setAccountProperties() method below
            */
           const mappedAccountType =
             defaultAccountType === AccountType.COMPANY ? AccountType.PERSONAL : defaultAccountType;
-          return account.acc.type === mappedAccountType;
+          return account.type === mappedAccountType;
         });
         return this.accountsService.setAccountProperties(defaultAccount, defaultAccountType, false);
-      })
+      }),
     );
   }
 
@@ -91,7 +96,7 @@ export class PaymentModesService {
   }
 
   showInvalidPaymentModeToast(): void {
-    const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
+    const message = this.translocoService.translate('services.paymentModes.insufficientBalance');
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
@@ -102,11 +107,11 @@ export class PaymentModesService {
   getPaymentModeDisplayName(paymentMode: AllowedPaymentModes): string {
     switch (paymentMode) {
       case AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT:
-        return 'Personal Advances';
+        return this.translocoService.translate('services.paymentModes.personalAdvances');
       case AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT:
-        return 'Corporate Credit Card';
+        return this.translocoService.translate('services.paymentModes.corporateCreditCard');
       default:
-        return 'Personal Cash/Card';
+        return this.translocoService.translate('services.paymentModes.personalCashCard');
     }
   }
 }

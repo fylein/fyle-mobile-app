@@ -1,61 +1,102 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Input,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { fromEvent, Observable } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { distinctUntilChanged, map, startWith } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-multiselect-modal',
   templateUrl: './fy-multiselect-modal.component.html',
   styleUrls: ['./fy-multiselect-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class FyMultiselectModalComponent implements AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  private modalController = inject(ModalController);
 
-  @Input() options: { label: string; value: any; selected?: boolean }[] = [];
+  private cdr = inject(ChangeDetectorRef);
 
-  @Input() currentSelections: any[] = [];
+  readonly searchBarRef = viewChild<ElementRef<HTMLInputElement>>('searchBar');
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() options: { label: string; value: unknown; selected?: boolean }[] = [];
 
-  @Input() selectModalHeader = 'Select Items';
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() currentSelections: unknown[] = [];
 
-  @Input() subheader = 'All Items';
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() filteredOptions$: Observable<{ label: string; value: unknown; selected?: boolean }[]>;
 
-  value;
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() selectModalHeader: string;
 
-  selectable = true;
+  readonly subheader = input<string>(undefined);
 
-  removable = true;
+  value = '';
 
   addOnBlur = true;
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
 
-  constructor(private modalController: ModalController, private cdr: ChangeDetectorRef) {}
-
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getSeparatorKeysCodes() {
+  getSeparatorKeysCodes(): number[] {
     return [ENTER, COMMA];
   }
 
-  addChip(event: MatChipInputEvent) {
+  addChip(event: MatChipInputEvent): void {
     if (event && event.chipInput) {
       event.chipInput.clear();
     }
   }
 
-  removeChip(item) {
-    const updatedItem = {
-      label: item,
+  removeChip(item: unknown): void {
+    const updatedItem: { label: string; value: unknown; selected: boolean } = {
+      label: String(item),
       selected: false,
       value: item,
     };
@@ -63,20 +104,20 @@ export class FyMultiselectModalComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.filteredOptions$ = fromEvent<Event>(this.searchBarRef().nativeElement, 'keyup').pipe(
+      map((event: Event) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      map((searchText) =>
+      map((searchText: string) =>
         this.options
           .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
           .map((option) => {
             if (this.currentSelections) {
-              option.selected = this.currentSelections.includes(option.value);
+              option.selected = this.currentSelections.some((selection) => isEqual(option.value, selection));
             }
             return option;
-          })
-      )
+          }),
+      ),
     );
     this.cdr.detectChanges();
   }
@@ -85,7 +126,7 @@ export class FyMultiselectModalComponent implements AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelected(selectedOption) {
+  onElementSelected(selectedOption: { label: string; value: unknown; selected?: boolean }): void {
     this.options = this.options.map((option) => {
       if (isEqual(option.value, selectedOption.value)) {
         option.selected = selectedOption.selected;

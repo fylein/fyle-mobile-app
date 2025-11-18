@@ -8,21 +8,20 @@
 
 /* Begin PBXBuildFile section */
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
-		40A6EB5F2955D5270081B714 /* fyle_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 40A6EB5E2955D5270081B714 /* fyle_logo.png */; };
+		40A6EB5F2955D5270081B714 /* sage_splash_screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 40A6EB5E2955D5270081B714 /* sage_splash_screen.png */; };
 		40C926692817C83D00BD5938 /* public in Resources */ = {isa = PBXBuildFile; fileRef = 40C926682817C83D00BD5938 /* public */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
 		504EC30D1FED79650016851F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30B1FED79650016851F /* Main.storyboard */; };
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
-		51235D8C26BBDDF200CA7747 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 51235D8B26BBDDF200CA7747 /* GoogleService-Info.plist */; };
 		A084ECDBA7D38E1E42DFC39D /* Pods_App.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */; };
 		DFAA4D7D2BC4FF4E002E2D1F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DFAA4D7C2BC4FF4E002E2D1F /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
-		40A6EB5E2955D5270081B714 /* fyle_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fyle_logo.png; sourceTree = "<group>"; };
+		40A6EB5E2955D5270081B714 /* sage_splash_screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sage_splash_screen.png; sourceTree = "<group>"; };
 		40C926682817C83D00BD5938 /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -31,7 +30,6 @@
 		504EC30E1FED79650016851F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		51235D8B26BBDDF200CA7747 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5150334C26CC29370016E2BB /* AppRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AppRelease.entitlements; sourceTree = "<group>"; };
 		51C16F8A26BA531C00FC1499 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		AF277DCFFFF123FFC6DF26C7 /* Pods_App.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_App.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -64,7 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				DFAA4D7C2BC4FF4E002E2D1F /* PrivacyInfo.xcprivacy */,
-				40A6EB5E2955D5270081B714 /* fyle_logo.png */,
+				40A6EB5E2955D5270081B714 /* sage_splash_screen.png */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
@@ -85,7 +83,6 @@
 			children = (
 				40C926682817C83D00BD5938 /* public */,
 				5150334C26CC29370016E2BB /* AppRelease.entitlements */,
-				51235D8B26BBDDF200CA7747 /* GoogleService-Info.plist */,
 				51C16F8A26BA531C00FC1499 /* App.entitlements */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
@@ -169,14 +166,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				40A6EB5F2955D5270081B714 /* fyle_logo.png in Resources */,
+				40A6EB5F2955D5270081B714 /* sage_splash_screen.png in Resources */,
 				504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
 				DFAA4D7D2BC4FF4E002E2D1F /* PrivacyInfo.xcprivacy in Resources */,
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
-				51235D8C26BBDDF200CA7747 /* GoogleService-Info.plist in Resources */,
 				40C926692817C83D00BD5938 /* public in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

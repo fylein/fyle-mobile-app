@@ -1,6 +1,7 @@
 import { AccountType } from '../enums/account-type.enum';
 import { CommonEmployeeSettings } from './common-employee-settings.model';
 import { MileageSettings } from './mileage-settings.model';
+import { Locale } from './locale.model';
 
 export interface EmployeeSettings {
   id: string;
@@ -9,9 +10,12 @@ export interface EmployeeSettings {
   created_at: Date;
   updated_at: Date;
 
-  cost_center_ids: number[];
-  project_ids: number[];
-  per_diem_rate_ids: number[];
+  category_ids: number[];
+  mileage_rate_ids: number[];
+
+  cost_center_ids: string[];
+  project_ids: string[];
+  per_diem_rate_ids: string[];
 
   insta_fyle_settings: {
     allowed: boolean;
@@ -41,13 +45,9 @@ export interface EmployeeSettings {
 
   payment_mode_settings: CommonEmployeeSettings & { allowed_payment_modes: AccountType[] };
 
-  locale: {
-    timezone: string;
-    abbreviation: string;
-    offset: string;
-  };
+  locale: Locale;
 
-  is_personal_card_enabled: boolean;
+  is_personal_cards_enabled: boolean;
   default_project_id: number | null;
   default_payment_mode: string | null;
   default_vehicle_type: string | null;

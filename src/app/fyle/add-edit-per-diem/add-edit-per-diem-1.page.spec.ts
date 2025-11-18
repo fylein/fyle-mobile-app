@@ -12,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -30,31 +30,15 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { popoverControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import { of } from 'rxjs';
-import { expectedUnflattendedTxnData3, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import {
-  unflattenExp1,
-  unflattenedTxn,
-  unflattenedExpDataWithAdvanceWallet,
-  unflattenedExpDataWithAdvanceWalletWithoutId,
-} from 'src/app/core/mock-data/unflattened-expense.data';
+import { expectedUnflattendedTxnData3 } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { EventEmitter } from '@angular/core';
-import {
-  accountsData,
-  paymentModesConfig,
-  paymentModesData,
-  unflattenedAccount1Data,
-  paymentModeDataAdvanceWallet,
-  advanceWallet1Data,
-  paymentModesWithAdvanceWalletsResData,
-  orgSettingsData,
-} from 'src/app/core/test-data/accounts.service.spec.data';
+import { accountsData, paymentModesConfig, paymentModesData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -66,12 +50,7 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
-import {
-  orgSettingsCCCDisabled,
-  orgSettingsRes,
-  orgSettingsParamsWithAdvanceWallet,
-} from 'src/app/core/mock-data/org-settings.data';
-import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import {
   platformExpenseData,
@@ -113,7 +92,7 @@ export function TestCases1(getTestBed) {
     let tokenService: jasmine.SpyObj<TokenService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
@@ -155,13 +134,13 @@ export function TestCases1(getTestBed) {
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -400,7 +379,7 @@ export function TestCases1(getTestBed) {
       expect(component.goToTransaction).toHaveBeenCalledOnceWith(
         transformedExpenseDataWithSubCategory,
         component.reviewList,
-        1
+        1,
       );
     });
 
@@ -474,161 +453,6 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    describe('checkIfInvalidPaymentMode():', () => {
-      it('should check for invalid payment mode if payment account type is not advance account', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should check for invalid payment mode if org settings is null', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(null));
-        component.fg.controls.paymentMode.setValue(unflattenedAccount1Data);
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should check for invalid payment in case of Advance accounts if source account ID does not match with account type', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.fg.controls.paymentMode.setValue({
-          ...unflattenedAccount1Data,
-          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE },
-        });
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment mode if the source account ID matches with the account type', (done) => {
-        const mockUnflattedData = cloneDeep(expectedUnflattendedTxnData3);
-        mockUnflattedData.tx.source_account_id = 'acc5APeygFjRd';
-        component.etxn$ = of(mockUnflattedData);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.fg.controls.paymentMode.setValue({
-          ...unflattenedAccount1Data,
-          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
-        });
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount.acc is undefined', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        const mockPaymentAccount = cloneDeep(unflattenedAccount1Data);
-        mockPaymentAccount.acc = undefined;
-        component.fg.controls.paymentMode.setValue(mockPaymentAccount);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        component.fg.controls.paymentMode.setValue(undefined);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should not call paymentModesService.showInvalidPaymentModeToast method if paymentAccount is undefined and advance wallets is enabled', (done) => {
-        component.etxn$ = of(expectedUnflattendedTxnData3);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.fg.controls.paymentMode.setValue(undefined);
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(paymentModesService.showInvalidPaymentModeToast).not.toHaveBeenCalled();
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should check for invalid payment in case of Advance wallets', (done) => {
-        component.etxn$ = of(unflattenedExpDataWithAdvanceWallet);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 2500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-
-      it('should check for invalid payment while adding expense', (done) => {
-        component.etxn$ = of(unflattenedExpDataWithAdvanceWalletWithoutId);
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-
-        component.fg.controls.paymentMode.setValue(paymentModeDataAdvanceWallet);
-        component.fg.controls.currencyObj.setValue({
-          currency: 'USD',
-          amount: 2500,
-        });
-        fixture.detectChanges();
-
-        component.checkIfInvalidPaymentMode().subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(paymentModesService.showInvalidPaymentModeToast).toHaveBeenCalledTimes(1);
-          done();
-        });
-      });
-    });
-
     it('getTransactionFields(): should return all the transaction fields', (done) => {
       const fields = ['purpose', 'cost_center_id', 'project_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
@@ -636,7 +460,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
@@ -646,7 +470,7 @@ export function TestCases1(getTestBed) {
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
           expenseFieldsMapResponse,
           fields,
-          perDiemCategory
+          perDiemCategory,
         );
         expect(res).toEqual(mockTxnFieldData);
         done();
@@ -662,7 +486,7 @@ export function TestCases1(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
       expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
@@ -681,7 +505,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
         expenseFieldsMapResponse,
         fields,
-        perDiemCategory
+        perDiemCategory,
       );
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
@@ -691,11 +515,11 @@ export function TestCases1(getTestBed) {
 
     it('getPaymentModes(): should get payment modes', (done) => {
       component.etxn$ = of(unflattenedTxn);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+      accountsService.getMyAccounts.and.returnValue(of(accountsData));
       advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
       orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -703,53 +527,25 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
-
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           accountsData,
           [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
-          paymentModesConfig
+          paymentModesConfig,
         );
-        done();
-      });
-    });
-
-    it('should get payment modes with advance wallets if advance wallets are enabled', (done) => {
-      component.etxn$ = of(unflattenedTxnData);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.ADVANCE, AccountType.PERSONAL, AccountType.COMPANY])
-      );
-      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-      );
-      accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
-      fixture.detectChanges();
-
-      component.getPaymentModes().subscribe((res) => {
-        expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
-        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         done();
       });
     });
 
     it('getPaymentModes(): should get payment modes when orgSettings is null', (done) => {
       component.etxn$ = of(unflattenedTxn);
-      accountsService.getEMyAccounts.and.returnValue(of(accountsData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+      accountsService.getMyAccounts.and.returnValue(of(accountsData));
       orgSettingsService.get.and.returnValue(of(null));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
+        of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -757,8 +553,7 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(paymentModesData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);

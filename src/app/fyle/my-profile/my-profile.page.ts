@@ -1,8 +1,8 @@
-import { Component, EventEmitter } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, concat, forkJoin, from, noop, take, finalize } from 'rxjs';
+import { Component, EventEmitter, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
 import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
@@ -11,7 +11,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -46,14 +46,97 @@ import { SpenderOnboardingService } from 'src/app/core/services/spender-onboardi
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { CommonEmployeeSettings } from 'src/app/core/models/common-employee-settings.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { driver } from 'driver.js';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+import { ProfileOptInCardComponent } from '../../shared/components/profile-opt-in-card/profile-opt-in-card.component';
+import { MobileNumberCardComponent } from '../../shared/components/mobile-number-card/mobile-number-card.component';
+import { MatRipple } from '@angular/material/core';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { InfoCardComponent } from './info-card/info-card.component';
+import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
 
 @Component({
   selector: 'app-my-profile',
   templateUrl: './my-profile.page.html',
   styleUrls: ['./my-profile.page.scss'],
+  imports: [
+    AsyncPipe,
+    EmployeeDetailsCardComponent,
+    FyMenuIconComponent,
+    InfoCardComponent,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatRipple,
+    MobileNumberCardComponent,
+    NgClass,
+    PreferenceSettingComponent,
+    ProfileOptInCardComponent,
+    RouterLink
+  ],
 })
 export class MyProfilePage {
+  private authService = inject(AuthService);
+
+  private userEventService = inject(UserEventService);
+
+  private secureStorageService = inject(SecureStorageService);
+
+  private storageService = inject(StorageService);
+
+  private deviceService = inject(DeviceService);
+
+  private loaderService = inject(LoaderService);
+
+  private tokenService = inject(TokenService);
+
+  private trackingService = inject(TrackingService);
+
+  private orgService = inject(OrgService);
+
+  private networkService = inject(NetworkService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private popoverController = inject(PopoverController);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private spenderService = inject(SpenderService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private employeesService = inject(EmployeesService);
+
+  private paymentModeService = inject(PaymentModesService);
+
+  private utilityService = inject(UtilityService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private router = inject(Router);
+
+  private walkthroughService = inject(WalkthroughService);
+
+  private featureConfigService = inject(FeatureConfigService);
+
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
@@ -105,50 +188,109 @@ export class MyProfilePage {
 
   onboardingPending$: Observable<{ hideOtherOptions: boolean }>;
 
-  constructor(
-    private authService: AuthService,
-    private userEventService: UserEventService,
-    private secureStorageService: SecureStorageService,
-    private storageService: StorageService,
-    private deviceService: DeviceService,
-    private loaderService: LoaderService,
-    private tokenService: TokenService,
-    private trackingService: TrackingService,
-    private orgService: OrgService,
-    private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
-    private popoverController: PopoverController,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private spenderService: SpenderService,
-    private activatedRoute: ActivatedRoute,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private employeesService: EmployeesService,
-    private paymentModeService: PaymentModesService,
-    private utilityService: UtilityService,
-    private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private router: Router,
-    private launchDarklyService: LaunchDarklyService
-  ) {}
+  isLoading: boolean;
 
-  goToNotificationsPage(): void {
-    this.launchDarklyService
-      .getVariation('update_admin_notifs_design', false)
-      .pipe(take(1))
-      .subscribe({
-        next: (goToNotificationsPageBeta) => {
-          if (goToNotificationsPageBeta) {
-            this.router.navigate(['/enterprise', 'notifications', 'beta']);
-          } else {
-            this.router.navigate(['/enterprise', 'notifications']);
+  overlayClickCount = 0;
+
+  emailOptInWalkthrough(): void {
+    const emailOptInWalkthroughSteps = this.walkthroughService.getProfileEmailOptInWalkthroughConfig();
+    const driverInstance = driver({
+      overlayOpacity: 0.5,
+      allowClose: true,
+      overlayClickBehavior: 'close',
+      showProgress: false,
+      stageRadius: 6,
+      stagePadding: 4,
+      popoverClass: 'custom-popover',
+      doneBtnText: 'Ok',
+      showButtons: ['close', 'next'],
+      onCloseClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setEmailHighlightFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      onNextClick: () => {
+        this.walkthroughService.setIsOverlayClicked(false);
+        this.setEmailHighlightFeatureConfigFlag(false);
+        driverInstance.destroy();
+      },
+      onDestroyStarted: () => {
+        if (this.walkthroughService.getIsOverlayClicked()) {
+          this.setEmailHighlightFeatureConfigFlag(true);
+          driverInstance.destroy();
+        } else {
+          driverInstance.destroy();
+        }
+      },
+    });
+
+    try {
+      driverInstance.setSteps(emailOptInWalkthroughSteps);
+      driverInstance.drive();
+    } catch (error) {
+      this.showToastMessage('Something went wrong. Please try again later.', 'failure');
+    }
+  }
+
+  setEmailHighlightFeatureConfigFlag(overlayClicked: boolean): void {
+    const featureConfigParams = {
+      feature: 'PROFILE_WALKTHROUGH',
+      key: 'PROFILE_EMAIL_OPT_IN',
+    };
+
+    const eventTrackName =
+      overlayClicked && this.overlayClickCount < 1
+        ? 'Profile Email Opt In Walkthrough Skipped'
+        : 'Profile Email Opt In Walkthrough Completed';
+
+    const featureConfigValue =
+      overlayClicked && this.overlayClickCount < 1
+        ? {
+            isShown: true,
+            isFinished: false,
+            overlayClickCount: this.overlayClickCount + 1,
           }
-        },
-        error: () => {
-          this.router.navigate(['/enterprise', 'notifications']);
-        },
+        : {
+            isShown: true,
+            isFinished: true,
+          };
+
+    this.trackingService.eventTrack(eventTrackName, {
+      Asset: 'Mobile',
+      from: 'Profile',
+    });
+
+    this.featureConfigService
+      .saveConfiguration({
+        ...featureConfigParams,
+        value: featureConfigValue,
+      })
+      .subscribe(noop);
+  }
+
+  showEmailOptInWalkthrough(): void {
+    const showEmailOptInWalkthroughConfig = {
+      feature: 'PROFILE_WALKTHROUGH',
+      key: 'PROFILE_EMAIL_OPT_IN',
+    };
+
+    this.featureConfigService
+      .getConfiguration<{
+        isShown?: boolean;
+        isFinished?: boolean;
+        overlayClickCount?: number;
+      }>(showEmailOptInWalkthroughConfig)
+      .subscribe((config) => {
+        const featureConfigValue = config?.value || {};
+        const isFinished = featureConfigValue?.isFinished || false;
+        this.overlayClickCount = featureConfigValue?.overlayClickCount || 0;
+
+        if (!isFinished) {
+          // Call walkthrough after DOM is rendered
+          setTimeout(() => {
+            this.emailOptInWalkthrough();
+          }, 100);
+        }
       });
   }
 
@@ -156,7 +298,7 @@ export class MyProfilePage {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -171,14 +313,14 @@ export class MyProfilePage {
             this.authService.logout({
               device_id: device.identifier,
               user_id: eou.us.id,
-            })
+            }),
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          })
+          }),
         )
         .subscribe(noop);
     } catch (e) {
@@ -208,7 +350,7 @@ export class MyProfilePage {
     this.onboardingPending$ = this.spenderOnboardingService.checkForRedirectionToOnboarding().pipe(
       map((redirectionAllowed) => ({
         hideOtherOptions: redirectionAllowed,
-      }))
+      })),
     );
     this.reset();
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -223,22 +365,23 @@ export class MyProfilePage {
   }
 
   reset(): void {
+    // Check if we should show email opt-in walkthrough from route parameter
+    this.isLoading = true;
+    const routeParams = this.activatedRoute.snapshot.params;
+    if (routeParams.show_email_walkthrough === 'true') {
+      this.showEmailOptInWalkthrough();
+    }
     const employeeSettings$ = this.platformEmployeeSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
     this.setInfoCardsData();
 
-    from(this.loaderService.showLoader())
-      .pipe(
-        switchMap(() =>
-          forkJoin({
-            employeeSettings: employeeSettings$,
-            orgSettings: orgSettings$,
-          })
-        ),
-        finalize(() => from(this.loaderService.hideLoader()))
-      )
+    forkJoin({
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+    })
+      .pipe(finalize(() => (this.isLoading = false)))
       .subscribe(async (res) => {
         this.employeeSettings = res.employeeSettings;
         this.orgSettings = res.orgSettings;
@@ -319,7 +462,7 @@ export class MyProfilePage {
     const allInfoCardsData: InfoCardData[] = [
       {
         title: 'Email receipts',
-        content: `Forward your receipts to Fyle at ${fyleEmail}.`,
+        content: `Forward your receipts to Sage Expense Management at ${fyleEmail}.`,
         contentToCopy: fyleEmail,
         toastMessageContent: 'Email copied successfully',
         isShown: true,
@@ -331,12 +474,8 @@ export class MyProfilePage {
 
   showToastMessage(message: string, type: 'success' | 'failure'): void {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
-    let snackbarIcon: string;
-    if (message.toLowerCase().includes('copied')) {
-      snackbarIcon = 'check-circle-outline';
-    }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
       panelClass,
     });
     this.trackingService.showToastMessage({ ToastContent: message });
@@ -347,7 +486,7 @@ export class MyProfilePage {
     const listItems = [
       {
         icon: 'envelope',
-        text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
+        text: `Message your receipts to Sage Expense Management at ${fyleMobileNumber} and we will create an expense for you.`,
         textToCopy: fyleMobileNumber,
       },
       {
@@ -392,7 +531,7 @@ export class MyProfilePage {
     if (data) {
       if (data.action === 'SUCCESS') {
         this.eou$ = from(this.authService.refreshEou());
-        this.showToastMessage('Opted in successfully', 'success');
+        this.showToastMessage('Opted-in successfully', 'success');
         this.trackingService.optedInFromProfile();
       } else if (data.action === 'ERROR') {
         this.showToastMessage('Something went wrong. Please try again later.', 'failure');
@@ -440,7 +579,7 @@ export class MyProfilePage {
 
   getOptOutMessageBody(): string {
     return `<div>
-              <p>Once you opt out, you can't send receipts and expense details via text message. Your mobile number will be deleted</p>
+              <p>Once you opt-out, you can't send receipts and complete expenses via text message. Your mobile number will be deleted</p>
               <p>Would you like to continue?<p>  
             </div>`;
   }
@@ -459,17 +598,17 @@ export class MyProfilePage {
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
-            mobile: '',
+            mobile: null,
           };
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.trackingService.optedOut();
         this.eou$ = from(this.authService.refreshEou());
-        this.showToastMessage('Opted out of text messages successfully', 'success');
+        this.showToastMessage('Opted-out of text messages successfully', 'success');
       });
   }
 
@@ -477,10 +616,10 @@ export class MyProfilePage {
     const optOutPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Opt out of text messages',
+        title: 'Opt-out of text messages',
         message: this.getOptOutMessageBody(),
         primaryCta: {
-          text: 'Yes, opt out',
+          text: 'Yes, opt-out',
           action: 'continue',
         },
         secondaryCta: {
@@ -509,12 +648,12 @@ export class MyProfilePage {
         switchMap((eou) => {
           const updatedOrgUserDetails: OrgUser = {
             ...eou.ou,
-            mobile: '',
+            mobile: null,
           };
 
           return this.orgUserService.postOrgUser(updatedOrgUserDetails);
         }),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.trackingService.deleteMobileNumber();

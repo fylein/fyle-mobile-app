@@ -1,33 +1,35 @@
-import { CurrencyPipe } from '@angular/common';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { MyAdvancesCardComponent } from './my-advances-card.component';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 describe('MyAdvancesCardComponent', () => {
   let component: MyAdvancesCardComponent;
   let fixture: ComponentFixture<MyAdvancesCardComponent>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
+  let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
+    const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot()],
+      imports: [getTranslocoTestingModule(),
+        MyAdvancesCardComponent,
+        MatIconTestingModule],
       providers: [
-        FyCurrencyPipe,
-        CurrencyPipe,
         {
           provide: AdvanceRequestService,
           useValue: advanceRequestServiceSpy,
+        },
+        {
+          provide: FyCurrencyPipe,
+          useValue: fyCurrencyPipeSpy,
         },
       ],
     }).compileComponents();
@@ -35,6 +37,7 @@ describe('MyAdvancesCardComponent', () => {
     fixture = TestBed.createComponent(MyAdvancesCardComponent);
     component = fixture.componentInstance;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
+    fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
     component.advanceRequest = extendedAdvReqDraft;
     fixture.detectChanges();
   }));
@@ -54,6 +57,7 @@ describe('MyAdvancesCardComponent', () => {
   });
 
   it('should check if advance request information is displayed', () => {
+    fyCurrencyPipe.transform.and.returnValue('150.00');
     component.advanceRequest = advanceRequests;
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.advance-card--date'))).toEqual('Feb 23, 2023');

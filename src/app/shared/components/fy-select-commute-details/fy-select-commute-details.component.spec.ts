@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.component';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { LocationService } from 'src/app/core/services/location.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { commuteDetailsData } from 'src/app/core/mock-data/commute-details.data';
@@ -21,6 +22,7 @@ import { locationData1, locationData2 } from 'src/app/core/mock-data/location.da
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { Location } from 'src/app/core/models/location.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FySelectCommuteDetailsComponent', () => {
   let component: FySelectCommuteDetailsComponent;
@@ -29,36 +31,42 @@ describe('FySelectCommuteDetailsComponent', () => {
   let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
   let locationService: jasmine.SpyObj<LocationService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['postCommuteDetails']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'showToastMessage',
       'commuteDeductionDetailsError',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FySelectCommuteDetailsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, FySelectCommuteDetailsComponent, MatIconTestingModule],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: LocationService, useValue: locationServiceSpy },
         { provide: EmployeesService, useValue: employeesServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -69,10 +77,32 @@ describe('FySelectCommuteDetailsComponent', () => {
     formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fySelectCommuteDetails.saving': 'Saving',
+        'fySelectCommuteDetails.save': 'Save',
+        'fySelectCommuteDetails.title': 'Commute details',
+        'fySelectCommuteDetails.homeLabel': 'Home',
+        'fySelectCommuteDetails.enterLocation': 'Enter location',
+        'fySelectCommuteDetails.errorSelectHome': 'Please select home location',
+        'fySelectCommuteDetails.workLabel': 'Work',
+        'fySelectCommuteDetails.errorSelectWork': 'Please select work location',
+        'fySelectCommuteDetails.saveError':
+          'We were unable to save your commute details. Please enter correct home and work location.',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
   }));
 
   it('should create', () => {
@@ -127,7 +157,7 @@ describe('FySelectCommuteDetailsComponent', () => {
 
       const distance = component.getCalculatedDistance(distanceInMeters, distanceUnit);
 
-      expect(distance).toBe(13.0473);
+      expect(distance).toBe(13.05);
     });
   });
 
@@ -246,7 +276,7 @@ describe('FySelectCommuteDetailsComponent', () => {
         expect(component.showToastMessage).toHaveBeenCalledOnceWith(
           'We were unable to save your commute details. Please enter correct home and work location.',
           ToastType.FAILURE,
-          'msb-failure'
+          'msb-failure',
         );
       }
     }));

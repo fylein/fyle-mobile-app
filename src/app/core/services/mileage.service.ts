@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { LocationService } from './location.service';
 import { from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce } from 'rxjs/operators';
@@ -10,14 +10,16 @@ import { OrgSettings } from '../models/org-settings.model';
 import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { EmployeeSettings } from '../models/employee-settings.model';
+import { TranslocoService } from '@jsverse/transloco';
 @Injectable({
   providedIn: 'root',
 })
 export class MileageService {
-  constructor(
-    private locationService: LocationService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService
-  ) {}
+  private locationService = inject(LocationService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable()
   getEmployeeMileageSettings(): Observable<MileageSettings> {
@@ -38,7 +40,7 @@ export class MileageService {
     } else {
       return from(chunks).pipe(
         concatMap((chunk) => this.getDistanceInternal(chunk[0], chunk[1])),
-        reduce((dist1, dist2) => dist1 + dist2)
+        reduce((dist1, dist2) => dist1 + dist2),
       );
     }
   }
@@ -55,16 +57,20 @@ export class MileageService {
   getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
     return [
       {
-        label: 'One Way Distance',
+        label: this.translocoService.translate('services.mileage.oneWayDistance'),
         value: CommuteDeduction.ONE_WAY,
         distance: distance === null || distance === undefined ? null : distance,
       },
       {
-        label: 'Round Trip Distance',
+        label: this.translocoService.translate('services.mileage.roundTripDistance'),
         value: CommuteDeduction.ROUND_TRIP,
         distance: distance === null || distance === undefined ? null : distance * 2,
       },
-      { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
+      {
+        label: this.translocoService.translate('services.mileage.noDeduction'),
+        value: CommuteDeduction.NO_DEDUCTION,
+        distance: 0,
+      },
     ];
   }
 

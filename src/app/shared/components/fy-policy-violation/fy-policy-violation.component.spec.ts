@@ -1,11 +1,14 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyPolicyViolationComponent } from './fy-policy-violation.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyPolicyViolationComponent', () => {
   let component: FyPolicyViolationComponent;
@@ -13,6 +16,7 @@ describe('FyPolicyViolationComponent', () => {
   let policyService: jasmine.SpyObj<PolicyService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['getApprovalString']);
@@ -21,9 +25,14 @@ describe('FyPolicyViolationComponent', () => {
       'getAmountWithCurrencyFromString',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyPolicyViolationComponent],
       providers: [
         {
           provide: PolicyService,
@@ -37,8 +46,13 @@ describe('FyPolicyViolationComponent', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [FormsModule, ReactiveFormsModule, TranslocoModule, FyPolicyViolationComponent,
+        MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -47,6 +61,32 @@ describe('FyPolicyViolationComponent', () => {
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyPolicyViolation.cappedTo': 'Expense will be capped to {{amount}}',
+        'fyPolicyViolation.singleViolationFound': 'Policy violation found',
+        'fyPolicyViolation.multipleViolationsFound': 'Policy violations found',
+        'fyPolicyViolation.policyActionHeader': 'The policy violation will trigger the following action(s):',
+        'fyPolicyViolation.flaggedMessage': 'Expense will be flagged for verification and approval',
+        'fyPolicyViolation.skippedMessage': 'Primary approver will be skipped',
+        'fyPolicyViolation.additionalDetailsHeader': 'Please provide additional details for approval',
+        'fyPolicyViolation.detailsPlaceholder': 'Enter the details here',
+        'fyPolicyViolation.cancel': 'Cancel',
+        'fyPolicyViolation.continue': 'Continue',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -97,15 +137,15 @@ describe('FyPolicyViolationComponent', () => {
     };
     utilityService.getEmailsFromString.and.returnValue(['ajain@fyle.in', 'aiyush.dhar@fyle.in']);
     policyService.getApprovalString.and.returnValue(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     component.constructAdditionalApproverAction();
     fixture.detectChanges();
     expect(utilityService.getEmailsFromString).toHaveBeenCalledOnceWith(
-      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'expense will need approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
     expect(component.approverEmailsRequiredMsg).toEqual(
-      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in'
+      'Expense will need additional approval from ajain@fyle.in, aiyush.dhar@fyle.in',
     );
   });
 

@@ -1,10 +1,16 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { costCenterOptions2, costCentersData, costCentersOptions } from 'src/app/core/mock-data/cost-centers.data';
 import { customPropertiesData } from 'src/app/core/mock-data/custom-property.data';
@@ -71,12 +77,11 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -122,7 +127,6 @@ export function TestCases4(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -132,7 +136,7 @@ export function TestCases4(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -177,21 +181,20 @@ export function TestCases4(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -202,7 +205,7 @@ export function TestCases4(getTestBed) {
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       costCentersService = TestBed.inject(CostCentersService) as jasmine.SpyObj<CostCentersService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -253,7 +256,7 @@ export function TestCases4(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
 
         component.checkMileageCategories(null).subscribe((res) => {
@@ -294,7 +297,7 @@ export function TestCases4(getTestBed) {
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
           customPropertiesData,
-          expenseFieldWithBillable
+          expenseFieldWithBillable,
         );
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
         done();
@@ -424,22 +427,6 @@ export function TestCases4(getTestBed) {
       });
     });
 
-    describe('checkAdvanceEnabled():', () => {
-      it('should check if advance is enabled', (done) => {
-        component.checkAdvanceEnabled(of(orgSettingsRes)).subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should check for advance request', (done) => {
-        component.checkAdvanceEnabled(of(orgSettingsWoAdvance)).subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-    });
-
     describe('getRecentlyUsedValues():', () => {
       it('should recently used values', (done) => {
         component.isConnected$ = of(true);
@@ -529,7 +516,7 @@ export function TestCases4(getTestBed) {
           expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
             employeeSettingsData.default_project_id,
-            sortedCategory
+            sortedCategory,
           );
           done();
         });
@@ -694,43 +681,6 @@ export function TestCases4(getTestBed) {
       expect(result).toEqual([]);
     });
 
-    describe('getAdvanceWalletId():', () => {
-      it('should get advance wallet id', () => {
-        const paymentModeFormValue = {
-          id: 'areq1234',
-        };
-        component.fg.controls.paymentMode.setValue(paymentModeFormValue);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toEqual('areq1234');
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
-      });
-
-      it('should return null when advance wallet setting is disabled', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue({
-          acc: {
-            id: 'id',
-          },
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeNull();
-      });
-    });
-
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         component.amount$ = of(100);
@@ -754,7 +704,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -775,7 +725,7 @@ export function TestCases4(getTestBed) {
           .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
-            expect(component.getFormValues).toHaveBeenCalledTimes(2);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
             done();
           });
@@ -786,7 +736,6 @@ export function TestCases4(getTestBed) {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
         spyOn(component, 'getFormValues').and.returnValue(formValueForAdvanceWalletExpense);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
-        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
         component.showCommuteDeductionField = true;
         component.commuteDetails = commuteDetailsData;
         component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
@@ -809,7 +758,7 @@ export function TestCases4(getTestBed) {
 
         component.generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(null), of(10)).subscribe((res) => {
           expect(res).toEqual(newMileageExpFromForm2);
-          expect(component.getFormValues).toHaveBeenCalledTimes(2);
+          expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(1);
           done();
         });

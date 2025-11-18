@@ -1,6 +1,6 @@
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
@@ -8,16 +8,16 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
-import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { clone, cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { advanceRequests, advanceRequests2, advanceRequests3 } from 'src/app/core/mock-data/advance-requests.data';
 import {
   addEditAdvanceRequestFormValueData,
@@ -55,7 +55,6 @@ import {
   advanceRequestCustomFieldData,
   advanceRequestCustomFieldData2,
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
-import { EventEmitter } from '@angular/core';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
@@ -64,7 +63,7 @@ export function TestCases2(getTestBed) {
     let component: AddEditAdvanceRequestPage;
     let fixture: ComponentFixture<AddEditAdvanceRequestPage>;
     let authService: jasmine.SpyObj<AuthService>;
-    let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let loaderService: jasmine.SpyObj<LoaderService>;
@@ -72,7 +71,7 @@ export function TestCases2(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let fileService: jasmine.SpyObj<FileService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -88,33 +87,28 @@ export function TestCases2(getTestBed) {
       component = fixture.componentInstance;
 
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      advanceRequestsCustomFieldsService = TestBed.inject(
-        AdvanceRequestsCustomFieldsService
-      ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       transactionsOutboxService = TestBed.inject(
-        TransactionsOutboxService
+        TransactionsOutboxService,
       ) as jasmine.SpyObj<TransactionsOutboxService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     });
-
-    const policyViolationActionDescription =
-      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
 
     it('generateAdvanceRequestFromFg(): should generate advance request from form', () => {
       const mockAdvanceRequest = cloneDeep(advanceRequests);
@@ -132,15 +126,97 @@ export function TestCases2(getTestBed) {
     });
 
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
-      transactionsOutboxService.fileUpload.and.resolveTo(cloneDeep(fileObject9[0]));
-      const mockFileObjects = cloneDeep(advanceRequestFileUrlData);
+      const mockFileObjects = cloneDeep(advanceRequestFileUrlData2);
       component.dataUrls = mockFileObjects;
+
+      // Mock the fileUpload service to return different results for each call
+      const mockFile1 = { ...cloneDeep(fileObject9[0]), id: 'file1' };
+      const mockFile2 = { ...cloneDeep(fileObject9[0]), id: 'file2' };
+
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        if (callCount === 1) {
+          return Promise.resolve(mockFile1);
+        } else {
+          return Promise.resolve(mockFile2);
+        }
+      });
+
       component.fileAttachments().subscribe((res) => {
-        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(undefined, 'image');
-        expect(res).toEqual(fileData3);
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledTimes(2);
+        expect(res).toEqual(['file1', 'file2']);
         done();
       });
     });
+
+    describe('uploadFileCallback():', () => {
+      it('should upload provided files', fakeAsync(() => {
+        fileService.readFile.and.resolveTo('data:image/png;base64,test');
+        component.dataUrls = [];
+
+        const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'image/png' });
+        const file = new File([myBlob], 'test.png', { type: 'image/png' });
+
+        component.uploadFileCallback(file);
+        tick(500);
+
+        expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
+        expect(component.dataUrls).toEqual([
+          {
+            type: 'image/png',
+            url: 'data:image/png;base64,test',
+            thumbnail: 'data:image/png;base64,test',
+          },
+        ]);
+      }));
+
+      it('should not process file if file is null', fakeAsync(() => {
+        component.dataUrls = [];
+
+        component.uploadFileCallback(null);
+        tick(500);
+
+        expect(fileService.readFile).not.toHaveBeenCalled();
+        expect(component.dataUrls).toEqual([]);
+      }));
+
+      it('should handle file upload with loader service', fakeAsync(() => {
+        fileService.readFile.and.resolveTo('data:image/jpeg;base64,test');
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        component.dataUrls = [];
+
+        const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'image/jpeg' });
+        const file = new File([myBlob], 'test.jpg', { type: 'image/jpeg' });
+
+        component.uploadFileCallback(file);
+        tick(500);
+
+        expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
+        expect(component.dataUrls).toEqual([
+          {
+            type: 'image/jpeg',
+            url: 'data:image/jpeg;base64,test',
+            thumbnail: 'data:image/jpeg;base64,test',
+          },
+        ]);
+      }));
+    });
+
+    it('onChangeCallback(): should call upload file callback', fakeAsync(() => {
+      spyOn(component, 'uploadFileCallback');
+
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+      const mockNativeElement = {
+        files: [mockFile],
+      } as unknown as HTMLInputElement;
+
+      component.onChangeCallback(mockNativeElement);
+      tick(500);
+
+      expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);
+    }));
 
     it('addAttachments(): should open camera option popup and add receipt details', fakeAsync(() => {
       component.dataUrls = [];
@@ -163,7 +239,6 @@ export function TestCases2(getTestBed) {
       tick(100);
 
       expect(event.stopPropagation).toHaveBeenCalledTimes(1);
-      expect(event.preventDefault).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
@@ -174,20 +249,43 @@ export function TestCases2(getTestBed) {
       expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
       expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(
-        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf'
+        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
       );
       expect(component.dataUrls).toEqual(expectedFileData2);
     }));
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
       component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
+
+      let callCount = 0;
+      transactionsOutboxService.fileUpload.and.callFake(() => {
+        callCount++;
+        const mockFile = { ...cloneDeep(fileObject9[0]), id: `file${callCount}` };
+        return Promise.resolve(mockFile);
+      });
+
       const attachmentModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
       attachmentModalSpy.onWillDismiss.and.resolveTo({ data: { attachments: expectedFileData2 } });
       modalController.create.and.resolveTo(attachmentModalSpy);
 
       component.viewAttachments();
       tick(100);
-      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams4);
+
+      const expectedAttachmentsWithIds = cloneDeep(advanceRequestFileUrlData2).map((attachment, index) => ({
+        ...attachment,
+        id: `file${index + 1}`,
+        type: attachment.type === 'application/pdf' || attachment.type === 'pdf' ? 'pdf' : 'image',
+      }));
+
+      // Check that the modal was created with the correct parameters
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        ...modalControllerParams4,
+        componentProps: {
+          ...modalControllerParams4.componentProps,
+          attachments: expectedAttachmentsWithIds,
+          isTeamAdvance: false,
+        },
+      });
       expect(attachmentModalSpy.present).toHaveBeenCalledTimes(1);
       expect(attachmentModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.dataUrls).toEqual(expectedFileData2);
@@ -315,6 +413,8 @@ export function TestCases2(getTestBed) {
 
     describe('ionViewWillEnter():', () => {
       beforeEach(() => {
+        // initialize component form and state
+        component.ngOnInit();
         expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
         authService.getEou.and.resolveTo(apiEouRes);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
@@ -322,16 +422,15 @@ export function TestCases2(getTestBed) {
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         advanceRequestService.getSpenderPermissions.and.returnValue(of(apiAdvanceRequestAction));
         advanceRequestService.getApproverPermissions.and.returnValue(of(apiAdvanceRequestAction));
-        loaderService.showLoader.and.resolveTo(undefined);
-        loaderService.hideLoader.and.resolveTo(undefined);
-        advanceRequestService.getEReqFromPlatform.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
+        advanceRequestService.getEReqFromApprover.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         spyOn(component, 'modifyAdvanceRequestCustomFields');
         spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
         projectsService.getAllActive.and.returnValue(of(projectsV1Data));
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData);
-        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
         spyOn(component, 'setupNetworkWatcher');
       });
 
@@ -420,13 +519,12 @@ export function TestCases2(getTestBed) {
         component.from = 'ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
-        advanceRequestService.getEReqFromPlatform.and.returnValue(of(mockAdvanceRequest));
+        advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));
         fixture.detectChanges();
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(advanceRequestService.getEReqFromPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReq).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
@@ -434,11 +532,11 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 
@@ -450,13 +548,12 @@ export function TestCases2(getTestBed) {
         component.from = 'TEAM_ADVANCE';
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
         mockAdvanceRequest.areq.project_id = '3019';
-        advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));
+        advanceRequestService.getEReqFromApprover.and.returnValue(of(mockAdvanceRequest));
         fixture.detectChanges();
         component.ionViewWillEnter();
         tick(100);
         component.extendedAdvanceRequest$.subscribe((res) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(advanceRequestService.getEReqFromApprover).toHaveBeenCalledWith('areqR1cyLgXdND');
           expect(component.fg.value.currencyObj).toEqual({
             currency: 'USD',
             amount: 2,
@@ -464,11 +561,11 @@ export function TestCases2(getTestBed) {
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
           expect(component.fg.value.project).toEqual(projects[0]);
           expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-            mockAdvanceRequest.areq.custom_field_values
+            mockAdvanceRequest.areq.custom_field_values,
           );
           expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
           expect(component.dataUrls).toEqual(fileObject4);
-          expect(res).toEqual(mockAdvanceRequest.areq);
+          expect(res).toEqual(jasmine.objectContaining(mockAdvanceRequest.areq));
         });
       }));
 
@@ -504,7 +601,8 @@ export function TestCases2(getTestBed) {
 
       it('should set customFields$ correctly', fakeAsync(() => {
         const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
-        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockCustomField));
+        advanceRequestService.getCustomFieldsForApprover.and.returnValue(of(mockCustomField));
         const customFieldValuesData = cloneDeep(advanceRequestCustomFieldValuesData);
         customFieldValuesData[0].id = 150;
         fixture.detectChanges();
@@ -515,7 +613,7 @@ export function TestCases2(getTestBed) {
 
         expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
         component.customFields$.subscribe((res) => {
-          expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
           expect(res).toEqual(mockCustomField);
         });
       }));

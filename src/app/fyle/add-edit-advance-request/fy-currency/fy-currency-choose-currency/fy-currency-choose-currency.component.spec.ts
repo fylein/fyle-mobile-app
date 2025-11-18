@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -14,6 +15,7 @@ import {
 import { finalize, of, take } from 'rxjs';
 import { currencies } from 'src/app/core/mock-data/recently-used.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyCurrencyChooseCurrencyComponent', () => {
   let component: FyCurrencyChooseCurrencyComponent;
@@ -21,16 +23,23 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   let inputElement: HTMLInputElement;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getAll']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyChooseCurrencyComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, FyCurrencyChooseCurrencyComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: CurrencyService,
@@ -44,6 +53,10 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -53,6 +66,29 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyCurrencyChooseCurrency.selectCurrency': 'Select Currency',
+        'fyCurrencyChooseCurrency.search': 'Search',
+        'fyCurrencyChooseCurrency.clear': 'Clear',
+        'fyCurrencyChooseCurrency.allCurrencies': 'All Currencies',
+        'fyCurrencyChooseCurrency.indianRupee': 'Indian Rupee',
+        'fyCurrencyChooseCurrency.title': 'Select Currency',
+        'fyCurrencyChooseCurrency.searchPlaceholder': 'Search',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {
@@ -99,7 +135,7 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
 
   it('ngAfterViewInit(): should update the filteredCurrencies$', fakeAsync(() => {
     component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
-    const inputElement = component.searchBarRef.nativeElement as HTMLInputElement;
+    const inputElement = component.searchBarRef.nativeElement;
     const mockCurrencies = [
       { shortCode: 'IRR', longName: 'Iranian Rial' },
       { shortCode: 'INR', longName: 'Indian National Rupees' },

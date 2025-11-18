@@ -2,10 +2,10 @@ import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { BehaviorSubject, finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -14,8 +14,7 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PopupService } from 'src/app/core/services/popup.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -63,6 +62,8 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -74,7 +75,6 @@ describe('ViewTeamReportPageV2', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
@@ -84,7 +84,7 @@ describe('ViewTeamReportPageV2', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let exactCurrency: jasmine.SpyObj<ExactCurrencyPipe>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
@@ -101,7 +101,6 @@ describe('ViewTeamReportPageV2', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -117,7 +116,7 @@ describe('ViewTeamReportPageV2', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const exactCurrencySpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
       'getReportById',
       'permissions',
@@ -130,8 +129,7 @@ describe('ViewTeamReportPageV2', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe, ExactCurrencyPipe, DateWithTimezonePipe],
-      imports: [IonicModule.forRoot(), FormsModule],
+      imports: [ViewTeamReportPage, getTranslocoTestingModule(), MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -169,10 +167,6 @@ describe('ViewTeamReportPageV2', () => {
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
-        },
-        {
-          provide: PopupService,
-          useValue: popupServiceSpy,
         },
         {
           provide: NetworkService,
@@ -219,7 +213,7 @@ describe('ViewTeamReportPageV2', () => {
           useValue: exactCurrencySpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -247,7 +241,6 @@ describe('ViewTeamReportPageV2', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
@@ -257,7 +250,7 @@ describe('ViewTeamReportPageV2', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     exactCurrency = TestBed.inject(ExactCurrencyPipe) as jasmine.SpyObj<ExactCurrencyPipe>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
@@ -298,20 +291,13 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('loadReports(): should load reports', (done) => {
-    loaderService.showLoader.and.resolveTo();
     approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
-    loaderService.hideLoader.and.resolveTo();
 
     component
       .loadReports()
-      .pipe(
-        finalize(() => {
-          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        })
-      )
+      .pipe()
       .subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
         done();
       });
@@ -377,17 +363,15 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
+      spyOn(component, 'loadReports').and.callThrough();
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
 
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -400,7 +384,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -416,7 +399,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       component.report$.subscribe((res) => {
@@ -470,9 +453,7 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      loaderService.showLoader.and.resolveTo();
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
-      loaderService.hideLoader.and.resolveTo();
+      spyOn(component, 'loadReports').and.callThrough();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -490,7 +471,6 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(apiEouRes);
       });
 
-      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -505,7 +485,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
         component.convertToEstatus(component.systemComments),
-        component.type
+        component.type,
       );
 
       expect(component.totalCommentsCount).toEqual(3);
@@ -577,6 +557,7 @@ describe('ViewTeamReportPageV2', () => {
             comment: '',
             created_at: undefined,
             creator_user: null,
+            creator_type: 'USER',
             id: '',
           },
         ],
@@ -872,6 +853,7 @@ describe('ViewTeamReportPageV2', () => {
         icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report Sent Back successfully',
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -958,7 +940,8 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     it('should show comments tab', fakeAsync(() => {
-      spyOn(component.content, 'scrollToBottom');
+      const content = component.content();
+      spyOn(content, 'scrollToBottom');
       component.segmentChanged({
         detail: {
           value: 'comments',
@@ -969,7 +952,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.isExpensesView).toBeFalse();
       expect(component.isCommentsView).toBeTrue();
       expect(component.isHistoryView).toBeFalse();
-      expect(component.content.scrollToBottom).toHaveBeenCalledOnceWith(500);
+      expect(content.scrollToBottom).toHaveBeenCalledOnceWith(500);
 
       const commentTab = fixture.debugElement.query(By.css('.view-comment--container'));
       expect(commentTab).toBeDefined();
@@ -993,7 +976,7 @@ describe('ViewTeamReportPageV2', () => {
 
   it('addComment(): should add a comment', () => {
     approverReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component.content, 'scrollToBottom');
+    spyOn(component.content(), 'scrollToBottom');
     spyOn(component.refreshApprovals$, 'next');
     component.isCommentsView = true;
     component.newComment = 'comment';
@@ -1051,15 +1034,17 @@ describe('ViewTeamReportPageV2', () => {
     component.approvalAmount = 250.75;
     fixture.detectChanges();
 
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
-      expectedReportsSinglePage[0].employee.user.full_name
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--submitted-date__date'))).toEqual(
-      'Feb 01, 2023'
-    );
-    expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      component.approvalAmount.toString()
-    );
+    const empEl = getElementBySelector(fixture, '.view-reports--employee-name__name');
+    const dateEl = getElementBySelector(fixture, '.view-reports--submitted-date__date');
+    const amtEl = getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount');
+
+    expect(empEl).withContext('Employee element missing').not.toBeNull();
+    expect(dateEl).withContext('Date element missing').not.toBeNull();
+    expect(amtEl).withContext('Amount element missing').not.toBeNull();
+
+    expect(getTextContent(empEl)).toEqual(expectedReportsSinglePage[0].employee.user.full_name);
+    expect(getTextContent(dateEl)).toEqual('Feb 01, 2023');
+    expect(getTextContent(amtEl)).toEqual(component.approvalAmount.toString());
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
     click(openButton);
@@ -1179,6 +1164,7 @@ describe('ViewTeamReportPageV2', () => {
           icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Report name changed successfully.',
+          messageType: 'success' as const,
         },
         duration: 3000,
       };
@@ -1224,7 +1210,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.showApprovalInfoMessage).toBeTrue();
       expect(component.approvalInfoMessage).toEqual(
-        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`
+        `You are approving $250.75 in expenses, which differs from the report total since the report also includes 2 other expenses (which may include credits) that don't require your approval based on your company's policies.`,
       );
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
@@ -1240,7 +1226,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
         '#280a31',
-        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87'
+        'https://help.fylehq.com/en/articles/1205138-view-and-approve-expense-reports#h_1672226e87',
       );
     });
   });

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
@@ -9,25 +9,37 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { IonContent } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
+  imports: [
+    IonContent
+  ],
 })
 export class DeepLinkRedirectionPage {
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private loaderService: LoaderService,
-    private advanceRequestService: AdvanceRequestService,
-    private transactionService: TransactionService,
-    private authService: AuthService,
-    private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private spenderReportsService: SpenderReportsService
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private router = inject(Router);
+
+  private loaderService = inject(LoaderService);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private transactionService = inject(TransactionService);
+
+  private authService = inject(AuthService);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private expensesService = inject(ExpensesService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderReportsService = inject(SpenderReportsService);
 
   ionViewWillEnter(): void {
     const subModule = this.activatedRoute.snapshot.params.sub_module as string;
@@ -53,14 +65,14 @@ export class DeepLinkRedirectionPage {
         this.switchOrg();
         return EMPTY;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     // If orgId is the same as the current user orgId, then redirect to the dashboard page
     eou$
       .pipe(
         filter((eou) => orgId === eou.ou.org_id),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
         next: () => {
@@ -80,7 +92,7 @@ export class DeepLinkRedirectionPage {
     eou$
       .pipe(
         filter((eou) => orgId !== eou.ou.org_id),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
         next: () => {
@@ -118,7 +130,7 @@ export class DeepLinkRedirectionPage {
       },
       async () => {
         await this.loaderService.hideLoader();
-      }
+      },
     );
   }
 
@@ -139,7 +151,7 @@ export class DeepLinkRedirectionPage {
           this.switchOrg();
           return EMPTY;
         }),
-        shareReplay(1)
+        shareReplay(1),
       );
 
       // If expenseOrgId is the same as user orgId, then redirect to the expense page
@@ -148,7 +160,7 @@ export class DeepLinkRedirectionPage {
           filter((eou) => expenseOrgId === eou.ou.org_id),
           switchMap(() => this.expensesService.getExpenseById(txnId)),
           map((expense) => this.transactionService.transformExpense(expense)),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe({
           next: (etxn) => {
@@ -162,7 +174,7 @@ export class DeepLinkRedirectionPage {
       eou$
         .pipe(
           filter((eou) => expenseOrgId !== eou.ou.org_id),
-          finalize(() => from(this.loaderService.hideLoader()))
+          finalize(() => from(this.loaderService.hideLoader())),
         )
         .subscribe(() =>
           this.router.navigate([
@@ -173,7 +185,7 @@ export class DeepLinkRedirectionPage {
               txnId,
               orgId: expenseOrgId,
             },
-          ])
+          ]),
         );
     }
   }
@@ -212,7 +224,7 @@ export class DeepLinkRedirectionPage {
       },
       async () => {
         await this.loaderService.hideLoader();
-      }
+      },
     );
   }
 

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, inject, output } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { GmapsService } from 'src/app/core/services/gmaps.service';
@@ -6,16 +6,26 @@ import { LocationService } from 'src/app/core/services/location.service';
 import { MileageLocation } from './mileage-locations.interface';
 import { MileageRoute } from './mileage-route.interface';
 import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
   styleUrls: ['./route-visualizer.component.scss'],
+  imports: [AsyncPipe],
 })
 export class RouteVisualizerComponent implements OnChanges, OnInit {
+  private locationService = inject(LocationService);
+
+  private gmapsService = inject(GmapsService);
+
+  private staticMapPropertiesService = inject(StaticMapPropertiesService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mileageLocations: MileageLocation[];
 
-  @Output() mapClick = new EventEmitter<void>();
+  readonly mapClick = output<void>();
 
   showCurrentLocation = false;
 
@@ -31,17 +41,11 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
 
   currentLocationMapUrl: string;
 
-  constructor(
-    private locationService: LocationService,
-    private gmapsService: GmapsService,
-    private staticMapPropertiesService: StaticMapPropertiesService
-  ) {}
-
   ngOnChanges() {
     this.showCurrentLocation = false;
 
     const validLocations = this.mileageLocations.filter(
-      (location) => location && location.latitude && location.longitude
+      (location) => location && location.latitude && location.longitude,
     );
 
     if (validLocations.length === this.mileageLocations.length && this.mileageLocations.length >= 2) {
@@ -76,6 +80,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
   }
 
   mapClicked(event) {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.mapClick.emit();
   }
 
@@ -90,7 +95,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
     this.directionsPolyline$ = this.locationService.getDirections(
       mileageRoute.origin,
       mileageRoute.destination,
-      mileageRoute.waypoints
+      mileageRoute.waypoints,
     );
 
     this.directionsMapUrl$ = this.directionsPolyline$.pipe(
@@ -98,7 +103,7 @@ export class RouteVisualizerComponent implements OnChanges, OnInit {
         ...mileageRoute,
         directionsPolyline,
       })),
-      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
+      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute)),
     );
   }
 }

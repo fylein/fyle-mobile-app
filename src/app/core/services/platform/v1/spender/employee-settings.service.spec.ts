@@ -40,15 +40,16 @@ describe('PlatformEmployeeSettingsService', () => {
   });
 
   describe('get()', () => {
-    it('should return employee settings when data exists', (done) => {
+    it('should return employee settings when data exists with payment modes', (done) => {
+      const mutableEmployeeSettings1 = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData],
+        data: [mutableEmployeeSettings1],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
 
       service.get().subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData);
+        expect(result).toEqual(mutableEmployeeSettings1);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -71,14 +72,58 @@ describe('PlatformEmployeeSettingsService', () => {
     });
 
     it('should return first employee settings when multiple exist', (done) => {
+      const mutableEmployeeSettings1 = JSON.parse(JSON.stringify(employeeSettingsData));
+      const mutableEmployeeSettings2 = JSON.parse(JSON.stringify(employeeSettingsData2));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData, employeeSettingsData2],
+        data: [mutableEmployeeSettings1, mutableEmployeeSettings2],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
 
       service.get().subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData);
+        expect(result).toEqual(mutableEmployeeSettings1);
+        expect(spenderService.get).toHaveBeenCalledTimes(1);
+        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
+        done();
+      });
+    });
+
+    it('should handle employee settings without payment_mode_settings', (done) => {
+      const employeeSettingsWithoutPaymentModes = {
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        payment_mode_settings: undefined,
+      };
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [employeeSettingsWithoutPaymentModes],
+      };
+
+      spenderService.get.and.returnValue(of(mockResponse));
+
+      service.get().subscribe((result) => {
+        expect(result.payment_mode_settings).toBeUndefined();
+        expect(spenderService.get).toHaveBeenCalledTimes(1);
+        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
+        done();
+      });
+    });
+
+    it('should handle employee settings with empty allowed_payment_modes', (done) => {
+      const employeeSettingsWithEmptyPaymentModes = {
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        payment_mode_settings: {
+          allowed: true,
+          enabled: true,
+          allowed_payment_modes: [],
+        },
+      };
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [employeeSettingsWithEmptyPaymentModes],
+      };
+
+      spenderService.get.and.returnValue(of(mockResponse));
+
+      service.get().subscribe((result) => {
+        expect(result.payment_mode_settings.allowed_payment_modes).toEqual([]);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -88,51 +133,54 @@ describe('PlatformEmployeeSettingsService', () => {
 
   describe('post()', () => {
     it('should post employee settings and return the response', (done) => {
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockResponse: PlatformApiResponse<EmployeeSettings> = {
-        data: employeeSettingsData,
+        data: mutableEmployeeSettings,
       };
 
       spenderService.post.and.returnValue(of(mockResponse));
 
-      service.post(employeeSettingsData).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData);
+      service.post(mutableEmployeeSettings).subscribe((result) => {
+        expect(result).toEqual(mutableEmployeeSettings);
         expect(spenderService.post).toHaveBeenCalledTimes(1);
         expect(spenderService.post).toHaveBeenCalledWith('/employee_settings', {
-          data: employeeSettingsData,
+          data: mutableEmployeeSettings,
         });
         done();
       });
     });
 
     it('should handle posting different employee settings data', (done) => {
+      const mutableEmployeeSettings2 = JSON.parse(JSON.stringify(employeeSettingsData2));
       const mockResponse: PlatformApiResponse<EmployeeSettings> = {
-        data: employeeSettingsData2,
+        data: mutableEmployeeSettings2,
       };
 
       spenderService.post.and.returnValue(of(mockResponse));
 
-      service.post(employeeSettingsData2).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData2);
+      service.post(mutableEmployeeSettings2).subscribe((result) => {
+        expect(result).toEqual(mutableEmployeeSettings2);
         expect(spenderService.post).toHaveBeenCalledTimes(1);
         expect(spenderService.post).toHaveBeenCalledWith('/employee_settings', {
-          data: employeeSettingsData2,
+          data: mutableEmployeeSettings2,
         });
         done();
       });
     });
 
     it('should handle posting employee settings with payment modes', (done) => {
+      const mutableEmployeeSettingsWoPaymentModes = JSON.parse(JSON.stringify(employeeSettingsWoPaymentModes));
       const mockResponse: PlatformApiResponse<EmployeeSettings> = {
-        data: employeeSettingsWoPaymentModes,
+        data: mutableEmployeeSettingsWoPaymentModes,
       };
 
       spenderService.post.and.returnValue(of(mockResponse));
 
-      service.post(employeeSettingsWoPaymentModes).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsWoPaymentModes);
+      service.post(mutableEmployeeSettingsWoPaymentModes).subscribe((result) => {
+        expect(result).toEqual(mutableEmployeeSettingsWoPaymentModes);
         expect(spenderService.post).toHaveBeenCalledTimes(1);
         expect(spenderService.post).toHaveBeenCalledWith('/employee_settings', {
-          data: employeeSettingsWoPaymentModes,
+          data: mutableEmployeeSettingsWoPaymentModes,
         });
         done();
       });
@@ -150,16 +198,15 @@ describe('PlatformEmployeeSettingsService', () => {
 
   describe('getAllowedPaymentModes()', () => {
     it('should return allowed payment modes from employee settings', (done) => {
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData],
+        data: [mutableEmployeeSettings],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
 
-      const expectedPaymentModes = [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY];
-
       service.getAllowedPaymentModes().subscribe((result) => {
-        expect(result).toEqual(expectedPaymentModes);
+        expect(result).toEqual(mutableEmployeeSettings.payment_mode_settings.allowed_payment_modes);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -167,14 +214,15 @@ describe('PlatformEmployeeSettingsService', () => {
     });
 
     it('should return payment modes when employee settings has payment modes', (done) => {
+      const mutableEmployeeSettingsWoPaymentModes = JSON.parse(JSON.stringify(employeeSettingsWoPaymentModes));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsWoPaymentModes],
+        data: [mutableEmployeeSettingsWoPaymentModes],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
 
       service.getAllowedPaymentModes().subscribe((result) => {
-        expect(result).toEqual([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]);
+        expect(result).toEqual(mutableEmployeeSettingsWoPaymentModes.payment_mode_settings.allowed_payment_modes);
         expect(spenderService.get).toHaveBeenCalledTimes(1);
         expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
         done();
@@ -183,12 +231,47 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should handle employee settings without payment mode settings', (done) => {
       const employeeSettingsWithoutPaymentModes = {
-        ...employeeSettingsData,
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
         payment_mode_settings: null,
       };
 
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
         data: [employeeSettingsWithoutPaymentModes],
+      };
+
+      spenderService.get.and.returnValue(of(mockResponse));
+
+      service.getAllowedPaymentModes().subscribe((result) => {
+        expect(result).toBeUndefined();
+        expect(spenderService.get).toHaveBeenCalledTimes(1);
+        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
+        done();
+      });
+    });
+
+    it('should handle employee settings with undefined payment mode settings', (done) => {
+      const employeeSettingsWithUndefinedPaymentModes = {
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        payment_mode_settings: undefined,
+      };
+
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [employeeSettingsWithUndefinedPaymentModes],
+      };
+
+      spenderService.get.and.returnValue(of(mockResponse));
+
+      service.getAllowedPaymentModes().subscribe((result) => {
+        expect(result).toBeUndefined();
+        expect(spenderService.get).toHaveBeenCalledTimes(1);
+        expect(spenderService.get).toHaveBeenCalledWith('/employee_settings', {});
+        done();
+      });
+    });
+
+    it('should handle employee settings with null employee settings', (done) => {
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [],
       };
 
       spenderService.get.and.returnValue(of(mockResponse));
@@ -225,7 +308,7 @@ describe('PlatformEmployeeSettingsService', () => {
       const result = service.getEmailEvents();
 
       expect(result.expensesAndReports.eous_forward_email_to_user.textLabel).toBe(
-        'When an expense is created via email'
+        'When an expense is created via email',
       );
       expect(result.expensesAndReports.erpts_submitted.textLabel).toBe('On submission of expense report');
       expect(result.expensesAndReports.estatuses_created_txn.textLabel).toBe('When a comment is left on an expense');
@@ -329,7 +412,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
         // Check specific event types
         const hasExpenseCreatedEvent = expensesAndReportsEvents.some(
-          (event) => event.eventType === 'eous_forward_email_to_user'
+          (event) => event.eventType === 'eous_forward_email_to_user',
         );
         const hasAdvanceCreatedEvent = advancesEvents.some((event) => event.eventType === 'eadvances_created');
 

@@ -101,13 +101,6 @@ export const expenseFiltersData6: Partial<ExpenseFilters> = deepFreeze({
   splitExpense: 'YES',
 });
 
-export const expenseFiltersData7: Partial<ExpenseFilters> = deepFreeze({
-  receiptsAttached: 'YES',
-  sortParam: 'tx_txn_dt',
-  sortDir: 'asc',
-  splitExpense: 'YES',
-});
-
 export const expenseFiltersDataWCustom: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
@@ -160,7 +153,13 @@ export const expenseFiltersDataWoSplit: Partial<ExpenseFilters> = deepFreeze({
 });
 
 export const expenseFiltersDataAllStates: Partial<ExpenseFilters> = deepFreeze({
-  state: [FilterState.DRAFT, FilterState.CANNOT_REPORT, FilterState.POLICY_VIOLATED, FilterState.READY_TO_REPORT],
+  state: [
+    FilterState.DRAFT,
+    FilterState.BLOCKED,
+    FilterState.POLICY_VIOLATED,
+    FilterState.READY_TO_REPORT,
+    FilterState.CANNOT_REPORT,
+  ],
   date: DateFilters.thisWeek,
   customDateStart: new Date('2023-01-04'),
   customDateEnd: new Date('2023-01-10'),
@@ -173,7 +172,7 @@ export const expenseFiltersDataAllStates: Partial<ExpenseFilters> = deepFreeze({
 });
 
 export const expenseFiltersDataMonth: Partial<ExpenseFilters> = deepFreeze({
-  state: [FilterState.DRAFT, FilterState.CANNOT_REPORT, FilterState.POLICY_VIOLATED, FilterState.READY_TO_REPORT],
+  state: [FilterState.DRAFT, FilterState.BLOCKED, FilterState.POLICY_VIOLATED, FilterState.READY_TO_REPORT],
   date: DateFilters.thisMonth,
   customDateStart: new Date('2023-01-04'),
   customDateEnd: new Date('2023-01-10'),

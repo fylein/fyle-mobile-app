@@ -13,13 +13,13 @@ import {
   expenseList3,
   expenseList4,
 } from '../mock-data/expense.data';
-import { UndoMergeData } from '../mock-data/undo-merge.data';
+
 import { AccountsService } from './accounts.service';
 import { ApiService } from './api.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from './payment-modes.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -28,7 +28,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import {
   transformedExpensePayload,
@@ -60,7 +60,7 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
 import { TrackingService } from './tracking.service';
 import { employeeSettingsData } from '../mock-data/employee-settings.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('TransactionService', () => {
   let transactionService: TransactionService;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -74,11 +74,11 @@ describe('TransactionService', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let accountsService: jasmine.SpyObj<AccountsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -102,11 +102,49 @@ describe('TransactionService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
+    const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['transformTo', 'post', 'createFromFile']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['patchExpensesError']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'services.transaction.days': 'Days',
+        'services.transaction.day': 'Day',
+        'services.transaction.deleteSingleExpenseMessage': 'You are about to permanently delete 1 selected expense.',
+        'services.transaction.deleteMultipleExpensesMessage':
+          'You are about to permanently delete {expenseCount} selected expenses.',
+        'services.transaction.cccSingleExpenseWarning':
+          "There is {cccExpenses} corporate card expense from the selection which can't be deleted.",
+        'services.transaction.cccMultipleExpensesWarning':
+          "There are {cccExpenses} corporate card expenses from the selection which can't be deleted.",
+        'services.transaction.deleteOtherExpensesInfo': 'However you can delete the other expenses from the selection.',
+        'services.transaction.actionCantBeReversed': "Once deleted, the action can't be reversed.",
+        'services.transaction.confirmPermanentDelete':
+          'Are you sure to <b>permanently</b> delete the selected expenses?',
+        'services.transaction.splitExpenseRemovalInfo':
+          'Since this is a split expense, clicking on <strong>Confirm</strong> will remove the card details from all the related split expenses.',
+        'services.transaction.newExpenseCreationInfo':
+          'A new expense will be created from the card expense removed here.',
+        'services.transaction.confirmCardRemoval': 'Are you sure to remove your card expense from this expense?',
+        'services.transaction.reimbursable': 'Reimbursable',
+        'services.transaction.nonReimbursable': 'Non-Reimbursable',
+        'services.transaction.advance': 'Advance',
+        'services.transaction.ccc': 'CCC',
+        'services.transaction.cccMessagePlural':
+          "There are {cccExpenses} corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.",
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        if (params.cccExpenses !== undefined) {
+          translation = translation.replace('{cccExpenses}', params.cccExpenses);
+        }
+        if (params.expenseCount !== undefined) {
+          translation = translation.replace('{expenseCount}', params.expenseCount);
+        }
+      }
+      return translation;
+    });
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
@@ -127,7 +165,7 @@ describe('TransactionService', () => {
           useValue: fileServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -174,6 +212,10 @@ describe('TransactionService', () => {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
@@ -183,20 +225,21 @@ describe('TransactionService', () => {
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -265,13 +308,21 @@ describe('TransactionService', () => {
 
   it('removeCorporateCardExpense(): should remove corporate card expense', (done) => {
     const transactionID = 'tx7NU3Dviv4K';
+    const mockResponse = {
+      data: {
+        user_created_expense: expenseData,
+        auto_created_expense: expenseData,
+      },
+    };
 
-    apiService.post.and.returnValue(of(UndoMergeData));
+    spenderPlatformV1ApiService.post.and.returnValue(of(mockResponse));
 
     transactionService.removeCorporateCardExpense(transactionID).subscribe((res) => {
-      expect(res).toEqual(UndoMergeData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unlink_card_expense', {
-        txn_id: transactionID,
+      expect(res).toEqual(mockResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/unlink_card_transaction', {
+        data: {
+          id: transactionID,
+        },
       });
       done();
     });
@@ -347,7 +398,7 @@ describe('TransactionService', () => {
   });
 
   it('generateStateOrFilter(): should generate state Or filters', () => {
-    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'CANNOT_REPORT', 'DRAFT'] };
+    const filters = { state: ['READY_TO_REPORT', 'POLICY_VIOLATED', 'BLOCKED', 'CANNOT_REPORT', 'DRAFT'] };
     const params = {
       or: [
         '(and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)), tx_policy_amount.lt.0.0001, tx_state.in.(DRAFT))',
@@ -358,6 +409,7 @@ describe('TransactionService', () => {
     const stateOrFilter = [
       'and(tx_state.in.(COMPLETE),or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
       'and(tx_policy_flag.eq.true,or(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001))',
+      'tx_state.in.(UNREPORTABLE)',
       'tx_policy_amount.lt.0.0001',
       'tx_state.in.(DRAFT)',
     ];
@@ -403,7 +455,7 @@ describe('TransactionService', () => {
     expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledOnceWith(
       expenseData1.tx_skip_reimbursement,
       expenseData1.source_account_type,
-      etxnPaymentMode.key
+      etxnPaymentMode.key,
     );
   });
 
@@ -413,7 +465,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'reimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -422,7 +474,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'nonReimbursable';
       const txnSourceAccountType = AccountType.PERSONAL;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -431,7 +483,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'advance';
       const txnSourceAccountType = AccountType.ADVANCE;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
 
@@ -440,7 +492,7 @@ describe('TransactionService', () => {
       const txnPaymentMode = 'ccc';
       const txnSourceAccountType = AccountType.CCC;
       expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
       ).toBeTrue();
     });
   });
@@ -604,28 +656,6 @@ describe('TransactionService', () => {
     expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
   });
 
-  describe('setSortParams():', () => {
-    const currentParams = { pageNumber: 1 };
-    const filters = { sortParam: 'tx_txn_dt', sortDir: 'desc' };
-    const emptyFilters = { sortParam: null, sortDir: 'desc' };
-    const sortParams = { pageNumber: 1, sortParam: 'tx_txn_dt', sortDir: 'desc' };
-    beforeEach(() => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(currentParams);
-    });
-
-    it('should set sort params with sortParam and sortDir', () => {
-      expect(transactionService.setSortParams(currentParams, filters)).toEqual(sortParams);
-    });
-
-    it('should set sort params without filters sortParam and sortDir', () => {
-      expect(transactionService.setSortParams(currentParams, emptyFilters)).toEqual(sortParams);
-    });
-
-    afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(currentParams);
-    });
-  });
-
   it('generateTypeFilters(): should generate type filters', () => {
     const filters = { type: ['Mileage', 'PerDiem', 'RegularExpenses'] };
     const newQueryParams = { or: [] };
@@ -646,176 +676,6 @@ describe('TransactionService', () => {
     expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(newQueryParams);
     // @ts-ignore
     expect(transactionService.generateTypeOrFilter).toHaveBeenCalledOnceWith(filters);
-  });
-
-  describe('generateCustomDateParams():', () => {
-    const newQueryParams = { or: [] };
-    beforeEach(() => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(newQueryParams);
-    });
-    const filters = {
-      date: 'custom',
-      customDateStart: new Date('2023-01-17T18:30:00.000Z'),
-      customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
-    };
-
-    const filtersWithStartDateOnly = {
-      date: 'custom',
-      customDateStart: new Date('2023-01-17T18:30:00.000Z'),
-    };
-
-    const filtersWithEndDateOnly = {
-      date: 'custom',
-      customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
-    };
-
-    const customDateParams = {
-      or: [],
-      and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
-    };
-
-    const customDateParamsWithStartDateOnly = {
-      or: [],
-      and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z)',
-    };
-
-    const customDateParamsWithEndDateOnly = {
-      or: [],
-      and: '(tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
-    };
-
-    it('should generate custom date filters with start and end date', () => {
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams(newQueryParams, filters)).toEqual(customDateParams);
-    });
-
-    it('should return custom date params with start date only', () => {
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithStartDateOnly)).toEqual(
-        customDateParamsWithStartDateOnly
-      );
-    });
-
-    it('should return custom date params with end date only', () => {
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithEndDateOnly)).toEqual(
-        customDateParamsWithEndDateOnly
-      );
-    });
-
-    afterEach(() => {
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(newQueryParams);
-    });
-  });
-
-  describe('generateDateParams():', () => {
-    const queryParams = { or: [] };
-    it('should generate date params with date filter of this month', () => {
-      const thisMonth = {
-        from: new Date('2022-12-31T18:30:00.000Z'),
-        to: new Date('2023-01-31T18:29:00.000Z'),
-      };
-      const customDateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`,
-      };
-      const filters = { date: 'thisMonth' };
-      const dateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${thisMonth.from.toISOString()},tx_txn_dt.lt.${thisMonth.to.toISOString()})`,
-      };
-
-      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
-      // @ts-ignore
-      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
-      dateService.getThisMonthRange.and.returnValue(thisMonth);
-
-      // @ts-ignore
-      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
-      expect(dateService.getThisMonthRange).toHaveBeenCalledTimes(1);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
-    });
-
-    it('should generate date params with date filter of this week', () => {
-      const thisWeek = {
-        from: dayjs().startOf('week'),
-        to: dayjs().startOf('week').add(7, 'days'),
-      };
-      const customDateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`,
-      };
-
-      const filters = { date: 'thisWeek' };
-      const dateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${thisWeek.from.toISOString()},tx_txn_dt.lt.${thisWeek.to.toISOString()})`,
-      };
-
-      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
-      // @ts-ignore
-      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
-      dateService.getThisWeekRange.and.returnValue(thisWeek);
-
-      // @ts-ignore
-      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
-      expect(dateService.getThisWeekRange).toHaveBeenCalledTimes(1);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
-    });
-
-    it('should generate date params with date filter of last month', () => {
-      const lastMonth = {
-        from: new Date('2022-11-30T18:30:00.000Z'),
-        to: new Date('2022-12-31T18:29:00.000Z'),
-      };
-      const filters = { date: 'lastMonth' };
-      const dateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`,
-      };
-      const customDateParams = {
-        or: [],
-        and: `(tx_txn_dt.gte.${lastMonth.from.toISOString()},tx_txn_dt.lt.${lastMonth.to.toISOString()})`,
-      };
-
-      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
-      // @ts-ignore
-      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(customDateParams);
-      dateService.getLastMonthRange.and.returnValue(lastMonth);
-
-      // @ts-ignore
-      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
-      expect(dateService.getLastMonthRange).toHaveBeenCalledTimes(1);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(customDateParams, filters);
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
-    });
-
-    it('should generate date params with custom date filter', () => {
-      const filters = {
-        date: 'custom',
-        customDateStart: new Date('2023-01-17T18:30:00.000Z'),
-        customDateEnd: new Date('2023-01-23T18:30:00.000Z'),
-      };
-      const dateParams = {
-        or: [],
-        and: '(tx_txn_dt.gte.2023-01-17T18:30:00.000Z,tx_txn_dt.lt.2023-01-23T18:30:00.000Z)',
-      };
-
-      spyOn(lodash, 'cloneDeep').and.returnValue(queryParams);
-      // @ts-ignore
-      spyOn(transactionService, 'generateCustomDateParams').and.returnValue(dateParams);
-
-      // @ts-ignore
-      expect(transactionService.generateDateParams(queryParams, filters)).toEqual(dateParams);
-      // @ts-ignore
-      expect(transactionService.generateCustomDateParams).toHaveBeenCalledOnceWith(queryParams, filters);
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(queryParams);
-    });
   });
 
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
@@ -863,13 +723,13 @@ describe('TransactionService', () => {
   describe('getExpenseDeletionMessage():', () => {
     it('should return expense deletion message for single', () => {
       expect(transactionService.getExpenseDeletionMessage(apiExpenseRes)).toEqual(
-        'You are about to permanently delete 1 selected expense.'
+        'You are about to permanently delete 1 selected expense.',
       );
     });
 
     it('getExpenseDeletionMessage(): should return expense deletion message for multiple expenses', () => {
       expect(transactionService.getExpenseDeletionMessage(expenseList2)).toEqual(
-        'You are about to permanently delete 2 selected expenses.'
+        'You are about to permanently delete 2 selected expenses.',
       );
     });
   });
@@ -877,19 +737,19 @@ describe('TransactionService', () => {
   describe('getCCCExpenseMessage():', () => {
     it('should return ccc expense message for single ccc expense', () => {
       expect(transactionService.getCCCExpenseMessage(apiExpenseRes, 1)).toEqual(
-        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection."
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.",
       );
     });
 
     it('should return ccc expense message for multiple ccc expenses', () => {
       expect(transactionService.getCCCExpenseMessage(expenseList2, 2)).toEqual(
-        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection."
+        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.",
       );
     });
 
     it('should return ccc expense message for with only ccc expenses selected', () => {
       expect(transactionService.getCCCExpenseMessage(null, 3)).toEqual(
-        "There are 3 corporate card expenses from the selection which can't be deleted. "
+        "There are 3 corporate card expenses from the selection which can't be deleted.",
       );
     });
   });
@@ -900,13 +760,13 @@ describe('TransactionService', () => {
         "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.";
       const deletableExpensesMessage = 'You are about to permanently delete 1 selected expense.';
       expect(
-        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage)
+        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage),
       ).toEqual(
         `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
-        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
       );
     });
 
@@ -917,7 +777,7 @@ describe('TransactionService', () => {
       <li>${deletableExpensesMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
       );
     });
 
@@ -927,7 +787,7 @@ describe('TransactionService', () => {
       expect(transactionService.getDeleteDialogBody([], 1, null, cccExpensesMessage)).toEqual(
         `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
-      </ul>`
+      </ul>`,
       );
     });
   });
@@ -955,9 +815,10 @@ describe('TransactionService', () => {
 
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
-    paymentModesService.getDefaultAccount.and.returnValue(of(accountsData[0]));
+    const mockAccount = { ...accountsData[0], isReimbursable: false };
+    paymentModesService.getDefaultAccount.and.returnValue(of(mockAccount));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
@@ -970,17 +831,17 @@ describe('TransactionService', () => {
       expect(paymentModesService.getDefaultAccount).toHaveBeenCalledOnceWith(
         orgSettingsData,
         accountsData,
-        employeeSettingsData
+        employeeSettingsData,
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
       done();
     });
   });
 
   it('getPersonalAccount(): should get the personal account', (done) => {
-    accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+    accountsService.getMyAccounts.and.returnValue(of(accountsData));
 
     const expectedResult = {
       source_account_id: 'acc5APeygFjRd',
@@ -989,7 +850,7 @@ describe('TransactionService', () => {
     // @ts-ignore
     transactionService.getPersonalAccount().subscribe((res) => {
       expect(res).toEqual(expectedResult);
-      expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+      expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
       done();
     });
   });

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
@@ -8,28 +8,50 @@ import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
 import { combineLatest, concat, forkJoin, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states.enum';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, AsyncPipe } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { StatBadgeComponent } from '../stat-badge/stat-badge.component';
+import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
+  imports: [
+    AsyncPipe,
+    FyZeroStateComponent,
+    IonCol,
+    IonGrid,
+    IonRow,
+    StatBadgeComponent,
+    TranslocoPipe
+  ],
 })
 export class StatsComponent implements OnInit {
-  draftStats$: Observable<PlatformReportsStatsResponse>;
+  private dashboardService = inject(DashboardService);
 
-  approvedStats$: Observable<PlatformReportsStatsResponse>;
+  private currencyService = inject(CurrencyService);
 
-  paymentPendingStats$: Observable<PlatformReportsStatsResponse>;
+  private router = inject(Router);
 
-  processingStats$: Observable<PlatformReportsStatsResponse>;
+  private networkService = inject(NetworkService);
+
+  private trackingService = inject(TrackingService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private orgService = inject(OrgService);
+
+  private paymentModeService = inject(PaymentModesService);
 
   homeCurrency$: Observable<string>;
 
@@ -57,16 +79,9 @@ export class StatsComponent implements OnInit {
 
   redirectToNewPage$: Observable<boolean>;
 
-  constructor(
-    private dashboardService: DashboardService,
-    private currencyService: CurrencyService,
-    private router: Router,
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService,
-    private orgService: OrgService,
-    private paymentModeService: PaymentModesService
-  ) {}
+  isUserAnApprover$: Observable<boolean>;
+
+  isOrgPrimary$: Observable<boolean>;
 
   get ReportStates(): typeof ReportStates {
     return ReportStates;
@@ -76,7 +91,7 @@ export class StatsComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -86,17 +101,17 @@ export class StatsComponent implements OnInit {
       tap(() => {
         this.reportStatsLoading = false;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     const simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled })),
     );
 
     const isNonReimbursableOrg$ = orgSettings$.pipe(
-      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings))
+      map((orgSettings) => this.paymentModeService.isNonReimbursableOrg(orgSettings.payment_mode_settings)),
     );
 
     this.reportStatsData$ = forkJoin({
@@ -107,16 +122,8 @@ export class StatsComponent implements OnInit {
       isNonReimbursableOrg: isNonReimbursableOrg$,
     });
 
-    this.draftStats$ = reportStats$.pipe(map((stats) => stats.draft));
-
-    this.approvedStats$ = reportStats$.pipe(map((stats) => stats.approved));
-
-    this.paymentPendingStats$ = reportStats$.pipe(map((stats) => stats.paymentPending));
-
-    this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
-
     this.redirectToNewPage$ = orgSettings$.pipe(
-      map((orgSettings) => (orgSettings.mobile_app_my_expenses_beta_enabled ? true : false))
+      map((orgSettings) => (orgSettings.mobile_app_my_expenses_beta_enabled ? true : false)),
     );
   }
 
@@ -125,14 +132,14 @@ export class StatsComponent implements OnInit {
       shareReplay(1),
       tap(() => {
         this.isUnreportedExpensesStatsLoading = false;
-      })
+      }),
     );
 
     this.incompleteExpensesStats$ = this.dashboardService.getIncompleteExpensesStats().pipe(
       shareReplay(1),
       tap(() => {
         this.isIncompleteExpensesStatsLoading = false;
-      })
+      }),
     );
   }
 
@@ -148,7 +155,7 @@ export class StatsComponent implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -162,7 +169,6 @@ export class StatsComponent implements OnInit {
 
       const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
-      // eslint-disable-next-line @typescript-eslint/dot-notation
       const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
       // Converting the duration to seconds and fix it to 3 decimal places
@@ -186,7 +192,13 @@ export class StatsComponent implements OnInit {
 
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
-      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
+      map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide')),
+    );
+
+    that.isUserAnApprover$ = that.dashboardService.isUserAnApprover();
+
+    this.isOrgPrimary$ = combineLatest([this.orgService.getCurrentOrg(), this.orgService.getPrimaryOrg()]).pipe(
+      map(([currentOrg, primaryOrg]) => currentOrg.id === primaryOrg.id),
     );
 
     that.initializeReportStats();
@@ -208,10 +220,12 @@ export class StatsComponent implements OnInit {
   }
 
   goToReportsPage(state: ReportStates): void {
+    let queryParams: Params = { filters: JSON.stringify({ state: [state.toString()] }) };
+    if (state === ReportStates.OPEN) {
+      queryParams = { filters: JSON.stringify({ state: ['DRAFT', 'APPROVER_INQUIRY'] }) };
+    }
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
-      queryParams: {
-        filters: JSON.stringify({ state: [state.toString()] }),
-      },
+      queryParams,
     });
 
     const reportState = this.dashboardService.getReportStateMapping(state);

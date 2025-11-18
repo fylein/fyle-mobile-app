@@ -1,18 +1,42 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { ExpensePreviewComponent } from './expense-preview/expense-preview.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-personal-card.model';
+import { NgClass, DatePipe } from '@angular/common';
+import { ExpenseCardLiteComponent } from '../../shared/components/expense-card-lite/expense-card-lite.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { CurrencySymbolPipe } from '../../shared/pipes/currency-symbol.pipe';
 @Component({
   selector: 'app-personal-cards-matched-expenses',
   templateUrl: './personal-cards-matched-expenses.page.html',
   styleUrls: ['./personal-cards-matched-expenses.page.scss'],
+  imports: [
+    CurrencySymbolPipe,
+    DatePipe,
+    ExactCurrencyPipe,
+    ExpenseCardLiteComponent,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    NgClass
+  ],
 })
 export class PersonalCardsMatchedExpensesPage {
+  private router = inject(Router);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
   headerState: HeaderState = HeaderState.base;
 
   navigateBack = true;
@@ -23,11 +47,7 @@ export class PersonalCardsMatchedExpensesPage {
 
   expenseSuggestions: Expense[];
 
-  constructor(
-    private router: Router,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
-  ) {
+  constructor() {
     this.personalCard = this.router.getCurrentNavigation().extras.state.personalCard as PlatformPersonalCard;
     this.txnDetails = this.router.getCurrentNavigation().extras.state.txnDetails as PlatformPersonalCardTxn;
     this.expenseSuggestions = this.router.getCurrentNavigation().extras.state.expenseSuggestions as Expense[];

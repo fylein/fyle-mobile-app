@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { forkJoin, iif, Observable, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { SidemenuAllowedActions } from '../models/sidemenu-allowed-actions.model';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { PermissionsService } from './permissions.service';
 import { ReportService } from './report.service';
 
@@ -10,11 +10,11 @@ import { ReportService } from './report.service';
   providedIn: 'root',
 })
 export class SidemenuService {
-  constructor(
-    private permissionsService: PermissionsService,
-    private reportService: ReportService,
-    private orgSettingsService: OrgSettingsService
-  ) {}
+  private permissionsService = inject(PermissionsService);
+
+  private reportService = inject(ReportService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   getAllowedActions(): Observable<SidemenuAllowedActions> {
     return this.orgSettingsService.get().pipe(
@@ -23,7 +23,7 @@ export class SidemenuService {
         const allowedAdvancesActions$ = this.permissionsService.allowedActions(
           'advances',
           ['approve', 'create', 'delete'],
-          orgSettings
+          orgSettings,
         );
 
         return forkJoin({
@@ -31,10 +31,10 @@ export class SidemenuService {
           allowedAdvancesActions: iif(
             () => orgSettings.advance_requests.enabled || orgSettings.advances.enabled,
             allowedAdvancesActions$,
-            of(null)
+            of(null),
           ),
         });
-      })
+      }),
     );
   }
 }

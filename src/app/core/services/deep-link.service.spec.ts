@@ -2,11 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { DeepLinkService } from './deep-link.service';
 import { Router, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { appRoutes } from '../../app-routing.module';
-import { fyleRoutes } from '../../fyle/fyle-routing.module';
 import { TrackingService } from './tracking.service';
 import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
 import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
+import { appRoutes } from 'src/app/app-routes';
+import { fyleRoutes } from 'src/app/fyle/fyle.routes';
 
 describe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;
@@ -80,9 +80,9 @@ describe('DeepLinkService', () => {
   });
 
   describe('redirect():', () => {
-    it('should navigate to the expense page when the redirect URI contains "/view_expense/" with txn ID', () => {
+    it('should navigate to the expense page when the redirect URI contains "/my_expenses/" with txn ID', () => {
       deepLinkService.redirect({
-        redirect_uri: `${baseURL}/view_expense/tx1oTNwgRdRq`,
+        redirect_uri: `${baseURL}/my_expenses/?state=all&txnId=tx1oTNwgRdRq`,
       });
       expect(router.navigate).toHaveBeenCalledWith([
         '/',
@@ -112,7 +112,7 @@ describe('DeepLinkService', () => {
     it('should navigate to the new password page when the redirect URI contains "/new_password"', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/new_password/`,
-        refresh_token: 'token',
+        token: 'token',
       });
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -120,7 +120,7 @@ describe('DeepLinkService', () => {
         'auth',
         'new_password',
         {
-          refreshToken: 'token',
+          token: 'token',
         },
       ]);
     });

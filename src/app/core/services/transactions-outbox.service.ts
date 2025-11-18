@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { Observable, from, noop } from 'rxjs';
@@ -15,13 +15,34 @@ import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ParsedResponse } from '../models/parsed_response.model';
 import { SpenderFileService } from './platform/v1/spender/file.service';
+import { ApproverFileService } from './platform/v1/approver/file.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
+import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
+import { UserContext } from '../models/user-context.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionsOutboxService {
+  private storageService = inject(StorageService);
+
+  private dateService = inject(DateService);
+
+  private transactionService = inject(TransactionService);
+
+  private httpClient = inject(HttpClient);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
   queue: OutboxQueue[] = [];
 
   syncDeferred: Promise<void> = null;
@@ -33,16 +54,7 @@ export class TransactionsOutboxService {
   //Used for showing bulk mode prompt when instafyle is used more than thrice in the same session
   singleCaptureCountInSession = 0;
 
-  constructor(
-    private storageService: StorageService,
-    private dateService: DateService,
-    private transactionService: TransactionService,
-    private httpClient: HttpClient,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private spenderFileService: SpenderFileService,
-    private expenseCommentService: ExpenseCommentService
-  ) {
+  constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
   }
@@ -70,21 +82,10 @@ export class TransactionsOutboxService {
       this.queue = [];
     }
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
-    }
-  }
-
-  getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
-    if (entry.transaction.txn_dt) {
-      return new Date(entry.transaction.txn_dt);
-    } else if (extractedData.date) {
-      return new Date(extractedData.date);
-    } else {
-      return new Date();
     }
   }
 
@@ -94,7 +95,12 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
+  async fileUpload(
+    dataUrl: string,
+    fileType: string,
+    userContext?: UserContext,
+    useApproverService = false,
+  ): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -104,25 +110,43 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      this.spenderFileService
-        .createFile({
-          name: '000.' + fileExtension,
-          type: 'RECEIPT',
-        })
+      const filePayload: PlatformFilePostRequestPayload = {
+        name: '000.' + fileExtension,
+        type: 'RECEIPT',
+      };
+
+      if (userContext?.userId) {
+        filePayload.user_id = userContext.userId;
+      }
+
+      if (userContext?.orgId) {
+        filePayload.org_id = userContext.orgId;
+      }
+
+      // Use approver service for team advances, spender service for regular advances
+      const fileService = useApproverService ? this.approverFileService : this.spenderFileService;
+
+      fileService
+        .createFilesBulk([filePayload])
         .toPromise()
-        .then((fileObj: PlatformFile) => {
-          const uploadUrl = fileObj.upload_url;
+        .then((fileObj: PlatformFile[]) => {
+          const uploadUrl = fileObj[0].upload_url;
+
           // check from here
           return fetch(dataUrl)
-            .then((res) => res.blob())
-            .then((blob) =>
-              this.uploadData(uploadUrl, blob, contentType)
+            .then((res) => {
+              return res.blob();
+            })
+            .then((blob) => {
+              return this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
-                .then(() => resolve(fileObj))
+                .then(() => {
+                  resolve(fileObj[0]);
+                })
                 .catch((err) => {
                   reject(err);
-                })
-            );
+                });
+            });
         })
         .catch((err) => {
           reject(err);
@@ -137,11 +161,11 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   addEntry(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments?: string[]
+    comments?: string[],
   ): Promise<void> {
     this.queue.push({
       transaction,
@@ -153,11 +177,11 @@ export class TransactionsOutboxService {
   }
 
   // TODO: High impact area. Fix later
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   addEntryAndSync(
     transaction: Partial<Transaction>,
     dataUrls: { url: string; type: string }[],
-    comments: string[]
+    comments: string[],
   ): Promise<OutboxQueue> {
     this.addEntry(transaction, dataUrls, comments);
     return this.syncEntry(this.queue.pop());
@@ -327,7 +351,7 @@ export class TransactionsOutboxService {
             suggested_currency: suggestedCurrency,
           })
           .toPromise()
-          .then((res) => res as ParsedReceipt)
+          .then((res) => res as ParsedReceipt),
       );
   }
 

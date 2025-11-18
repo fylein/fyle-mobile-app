@@ -1,3 +1,4 @@
+@use '../../../../theme/colors.scss';
 $gray: #ccc;
 $note-container-color: #f1f1f1;
 
@@ -24,13 +25,7 @@ $note-container-color: #f1f1f1;
 
   &--helpLinkBtn {
     width: 100%;
-    font-weight: 400;
-    min-height: 40px;
-    max-height: 50px;
-    background-color: $gray;
     margin: 8px 0 14px 0;
-    border-radius: 8px;
-    font-size: 16px;
   }
 
   &--heading {
@@ -48,5 +43,4 @@ $note-container-color: #f1f1f1;
       padding: 16px 10px;
     }
   }
-
 }

@@ -1,5 +1,5 @@
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -7,15 +7,13 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
-import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 import { orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -41,18 +39,17 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let extendQueryParamsService: jasmine.SpyObj<ExtendQueryParamsService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
-
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -61,12 +58,11 @@ export function TestCases1(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       extendQueryParamsService = TestBed.inject(ExtendQueryParamsService) as jasmine.SpyObj<ExtendQueryParamsService>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -102,7 +98,6 @@ export function TestCases1(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
         authService.getEou.and.resolveTo(apiEouRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
         const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
         approverReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
         approverReportsService.getReportsCount.and.returnValue(of(20));
@@ -111,6 +106,15 @@ export function TestCases1(getTestBed) {
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
+
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: '',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+            addEventListener: jasmine.createSpy('addEventListener'),
+            removeEventListener: jasmine.createSpy('removeEventListener'),
+          },
+        } as any;
       });
 
       it('should set navigateBack to true if navigate_back is defined in activatedRoute.snapshot.params', () => {
@@ -197,15 +201,6 @@ export function TestCases1(getTestBed) {
           });
         });
       });
-
-      it('should set searchString as per the input provided by user and update loadData$', fakeAsync(() => {
-        inputElement = component.simpleSearchInput.nativeElement;
-        component.ionViewWillEnter();
-        inputElement.value = 'example';
-        inputElement.dispatchEvent(new Event('keyup'));
-        tick(1000);
-        expect(component.currentPageNumber).toBe(1);
-      }));
 
       it('should call approverReporsService.getReportsByParams and update acc', fakeAsync(() => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);

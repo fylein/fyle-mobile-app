@@ -6,17 +6,17 @@
   <div class="suggested-duplicates--body">
     <div class="suggested-duplicates--container">
       <div class="suggested-duplicates--header text-center">
-        {{ duplicateExpenses.length }} expenses for
-        {{ duplicateExpenses[0]?.amount | currency : duplicateExpenses[0]?.currency : 'symbol-narrow' }}
+        {{ duplicateExpenses.length }} {{ 'suggestedDuplicates.expensesFor' | transloco }}
+        {{ duplicateExpenses[0]?.amount | currency: duplicateExpenses[0]?.currency : 'symbol-narrow' }}
       </div>
-      <ng-container *ngFor="let expense of duplicateExpenses as list; let i = index">
+      @for (expense of duplicateExpenses; track expense.id; let i = $index) {
         <app-expense-card-v2
-          [previousExpenseTxnDate]="list[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i - 1]?.created_at"
+          [previousExpenseTxnDate]="duplicateExpenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="duplicateExpenses[i - 1]?.created_at"
           [expense]="expense"
         >
         </app-expense-card-v2>
-      </ng-container>
+      }
     </div>
   </div>
 </ion-content>
@@ -25,9 +25,11 @@
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="dismissAll()">
-        Dismiss all
+        {{ 'suggestedDuplicates.dismissAll' | transloco }}
       </ion-button>
-      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="mergeExpenses()"> Merge </ion-button>
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="mergeExpenses()">
+        {{ 'suggestedDuplicates.merge' | transloco }}
+      </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

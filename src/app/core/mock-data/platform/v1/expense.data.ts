@@ -12,6 +12,10 @@ import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-t
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
+import {
+  expenseCustomFieldsWithDependentFields1,
+  expenseCustomFieldsWithDependentFields2,
+} from './expense-custom-field.data';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -228,6 +232,7 @@ export const expenseData: Expense = deepFreeze({
   },
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2023-11-02T10:44:14.107720+00:00'),
   user: {
     email: 'ajain@fyle.in',
@@ -630,6 +635,7 @@ export const mileageExpense: Expense = deepFreeze({
   },
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2023-11-01T00:11:02.572303+00:00'),
   user: {
     email: 'omkar.j@fyle.in',
@@ -983,6 +989,7 @@ export const perDiemExpense: Expense = deepFreeze({
   },
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2023-11-02T07:56:41.156199+00:00'),
   user: {
     email: 'ajain@fyle.in',
@@ -1364,6 +1371,7 @@ export const apiExpenses1: Expense[] = deepFreeze([
     },
     tax_group_id: 'tg3iWuqWhfzB',
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2023-11-07T13:10:26.762914+00:00'),
     user: {
       email: 'jay.b@fyle.in',
@@ -1717,6 +1725,7 @@ export const apiExpenses1: Expense[] = deepFreeze([
     },
     tax_group_id: 'tg3iWuqWhfzB',
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2023-11-07T13:10:22.507923+00:00'),
     user: {
       email: 'jay.b@fyle.in',
@@ -1917,6 +1926,7 @@ export const splitExpensesData: Expense[] = deepFreeze([
     tax_group: null,
     tax_group_id: null,
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2024-03-03T06:23:38.568Z'),
     user: {
       email: 'devendra.r@fyle.in',
@@ -2061,6 +2071,7 @@ export const splitExpensesData: Expense[] = deepFreeze([
     tax_group: null,
     tax_group_id: null,
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2024-03-03T06:23:37.993Z'),
     user: {
       email: 'devendra.r@fyle.in',
@@ -2210,6 +2221,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     tax_group: null,
     tax_group_id: null,
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2024-03-03T06:23:41.011Z'),
     user: {
       email: 'devendra.r@fyle.in',
@@ -2239,7 +2251,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     claim_amount: 4.8,
     code: null,
     cost_center: null,
-    cost_center_id: null,
+    cost_center_id: 12488,
     created_at: new Date('2024-03-03T06:19:50.179Z'),
     creator_user_id: 'ouokfwl9OEdl',
     currency: 'USD',
@@ -2292,7 +2304,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     hotel_is_breakfast_provided: false,
     id: 'txZA0Oj6TV9c',
     invoice_number: null,
-    is_billable: null,
+    is_billable: false,
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
@@ -2307,7 +2319,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
     locations: [],
     matched_corporate_card_transaction_ids: [],
     matched_corporate_card_transactions: [],
-    merchant: null,
+    merchant: 'ramdev baba',
     mileage_calculated_amount: null,
     mileage_calculated_distance: null,
     mileage_is_round_trip: null,
@@ -2331,8 +2343,8 @@ export const apiExpenses3: Expense[] = deepFreeze([
       violations: null,
     },
     project: null,
-    project_id: null,
-    purpose: null,
+    project_id: 3812,
+    purpose: 'Others',
     report: null,
     report_id: null,
     report_last_approved_at: null,
@@ -2350,10 +2362,11 @@ export const apiExpenses3: Expense[] = deepFreeze([
     started_at: null,
     state: ExpenseState.COMPLETE,
     state_display_name: 'Complete',
-    tax_amount: null,
+    tax_amount: 0.32,
     tax_group: null,
-    tax_group_id: null,
+    tax_group_id: 'tgFDWBpJL3vy',
     travel_classes: [],
+    unreportable: false,
     updated_at: new Date('2024-03-03T06:19:55.582Z'),
     user: {
       email: 'devendra.r@fyle.in',
@@ -2519,6 +2532,7 @@ export const platformExpenseData: Expense = deepFreeze({
   tax_group: null,
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2024-01-22T07:17:05.949Z'),
   user: {
     email: 'devendra.r@fyle.in',
@@ -2527,6 +2541,43 @@ export const platformExpenseData: Expense = deepFreeze({
   },
   user_id: 'usvMoPfCC9Xw',
   verifier_comments: ['Amount changed due to following reason(s) : No policy violation explanation provided'],
+});
+
+export const platformExpenseDataWithPendingGasCharge: Expense = deepFreeze({
+  ...platformExpenseData,
+  amount: 1,
+  currency: 'USD',
+  category: {
+    code: 'FUEL',
+    id: 1,
+    display_name: 'Fuel',
+    name: 'Fuel',
+    sub_category: null,
+    system_category: 'Fuel',
+  },
+  matched_corporate_card_transaction_ids: ['transaction1'],
+  matched_corporate_card_transactions: [
+    {
+      id: 'transaction1',
+      corporate_card_id: 'card1',
+      corporate_card_number: '1234567890',
+      masked_corporate_card_number: '****1234',
+      corporate_card_user_full_name: 'John Doe',
+      bank_name: 'Test Bank',
+      amount: 1,
+      currency: 'USD',
+      spent_at: new Date(),
+      posted_at: new Date(),
+      description: 'Test transaction',
+      foreign_currency: 'USD',
+      status: ExpenseTransactionStatus.PENDING,
+      foreign_amount: 1,
+      merchant: 'Test Merchant',
+      category: 'Fuel',
+      matched_by: 'system',
+    },
+  ],
+  file_ids: [],
 });
 
 export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
@@ -2735,6 +2786,7 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   },
   tax_group_id: 'tgyvHlipn1sF',
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2024-02-09T08:04:59.324Z'),
   user: {
     email: 'devendra.r@fyle.in',
@@ -2945,6 +2997,7 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   tax_group: null,
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2024-02-11T22:57:47.856Z'),
   user: {
     email: 'devendra.r@fyle.in',
@@ -3121,6 +3174,7 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   tax_group: null,
   tax_group_id: null,
   travel_classes: [],
+  unreportable: false,
   updated_at: new Date('2024-01-23T06:49:49.370Z'),
   user: {
     email: 'devendra.r@fyle.in',
@@ -3152,4 +3206,56 @@ export const expensesList: Expense[] = deepFreeze([
   {
     ...platformExpenseData,
   },
+]);
+
+const expensesWithDependentFields: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], custom_fields: expenseCustomFieldsWithDependentFields1 },
+  { ...apiExpenses3[1], custom_fields: expenseCustomFieldsWithDependentFields2 },
+]);
+
+export const expensesWithDependentFieldsAndCostCenter: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[0], cost_center_id: 16743 },
+  { ...expensesWithDependentFields[1], cost_center_id: 16744 },
+]);
+
+export const expensesWithDependentFieldsAndSameProject: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[1], project_id: 316992 },
+  { ...expensesWithDependentFields[0], project_id: 316992 },
+]);
+
+export const expensesWithDependentFieldsAndDifferentProject: Expense[] = deepFreeze([
+  { ...expensesWithDependentFields[0], project_id: 316992 },
+  { ...expensesWithDependentFields[1], project_id: 316908 },
+]);
+
+export const expensesWithSameProject: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], project_id: 316992 },
+  { ...apiExpenses3[1], project_id: 316992 },
+]);
+
+export const advanceExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], source_account: { id: 'accDDeaVIs6p6', type: AccountType.PERSONAL_ADVANCE_ACCOUNT } },
+  { ...apiExpenses3[1], source_account: { id: 'accDDeaVIs6p6', type: AccountType.PERSONAL_ADVANCE_ACCOUNT } },
+]);
+
+export const approvedAndAboveExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVED },
+  { ...apiExpenses3[1], state: ExpenseState.PAYMENT_PENDING },
+  { ...apiExpenses3[0], state: ExpenseState.PAYMENT_PROCESSING },
+  { ...apiExpenses3[1], state: ExpenseState.PAID },
+]);
+
+export const reportedExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVER_PENDING },
+  { ...apiExpenses3[1], state: ExpenseState.APPROVER_PENDING },
+]);
+
+export const belowReportedExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.DRAFT },
+  { ...apiExpenses3[1], state: ExpenseState.COMPLETE },
+]);
+
+export const reportedAndAboveExpenses: Expense[] = deepFreeze([
+  { ...apiExpenses3[0], state: ExpenseState.APPROVER_PENDING },
+  { ...apiExpenses3[1], state: ExpenseState.APPROVED },
 ]);

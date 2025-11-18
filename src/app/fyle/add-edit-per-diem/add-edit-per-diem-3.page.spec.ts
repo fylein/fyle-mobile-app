@@ -12,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -28,8 +28,8 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
@@ -44,7 +44,6 @@ import {
   perDiemFormValuesData10,
   perDiemFormValuesData8,
   perDiemFormValuesData9,
-  perDiemFormValuesWithAdvanceWalletData,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
@@ -106,7 +105,7 @@ export function TestCases3(getTestBed) {
     let tokenService: jasmine.SpyObj<TokenService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
@@ -146,13 +145,13 @@ export function TestCases3(getTestBed) {
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -180,113 +179,6 @@ export function TestCases3(getTestBed) {
       });
     }));
 
-    describe('isPaymentModeValid():', () => {
-      it('should return false if snapshot.params.id is undefined', (done) => {
-        activatedRoute.snapshot.params.id = undefined;
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesData[0]);
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should return true if tentative_balance_amount is lesser than currencyObj.amount', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return true if tentative_balance_amount is lesser than currencyObj.amount if etxn is undefined', (done) => {
-        component.etxn$ = of(undefined);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return true if acc_id equals to source_account_id and tentative_balance_amount + tx_amount is lesser than currencyObj.amount', (done) => {
-        const mockTxnData = cloneDeep(unflattenedTxnData);
-        mockTxnData.tx.source_account_id = unflattenedAccount2Data.acc.id;
-        mockTxnData.tx.state = 'COMPLETE';
-        mockTxnData.tx.amount = 7;
-        component.etxn$ = of(mockTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc.tentative_balance_amount = 0;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.fg.value.currencyObj = currencyObjData5;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return false if paymentMode.acc is undefined', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
-        mockPaymentMode.acc = undefined;
-        component.fg.value.paymentMode = mockPaymentMode;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-
-      it('should return false if paymentMode is undefined', (done) => {
-        component.etxn$ = of(unflattenedTxnData);
-        component.fg.value.paymentMode = undefined;
-        component.isPaymentModeValid().subscribe((res) => {
-          expect(res).toBeFalse();
-          done();
-        });
-      });
-    });
-
-    describe('getAdvanceWalletId():', () => {
-      it('should get advance wallet id', () => {
-        component.fg.controls.paymentMode.setValue({
-          id: 'areq1234',
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toEqual('areq1234');
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
-      });
-
-      it('should return null when advance wallet setting is disabled', () => {
-        component.fg.controls.paymentMode.setValue(null);
-
-        const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
-      });
-
-      it('should return null', () => {
-        component.fg.controls.paymentMode.setValue({
-          acc: {
-            id: 'id',
-          },
-        });
-
-        const result = component.getAdvanceWalletId(true);
-        expect(result).toBeNull();
-      });
-    });
-
     describe('generateEtxnFromFg():', () => {
       beforeEach(() => {
         spyOn(component, 'getFormValues').and.returnValue(perDiemFormValuesData8);
@@ -300,7 +192,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -325,7 +217,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -342,33 +234,6 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return etxn object from form data when advance wallets is enabled', (done) => {
-        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesWithAdvanceWalletData);
-        const etxn = of(unflattenedTxnWithAdvanceWallet);
-        const customProperties = of(cloneDeep(expectedTxnCustomProperties));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        dateService.getUTCDate.and.returnValues(
-          new Date('2023-02-13T17:00:00.000Z'),
-          new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
-        );
-        spyOn(component, 'getAdvanceWalletId').and.returnValue('areq1234');
-
-        const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
-
-        expectedEtxn$.subscribe((res) => {
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(3);
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnWithAdvanceWallet.tx, ...perDiemTransactionWithAdvanceWallet });
-          expect(res.tx.skip_reimbursement).toBeTrue();
-          expect(res.ou).toEqual(unflattenedTxnWithAdvanceWallet.ou);
-          expect(res.dataUrls).toEqual([]);
-          done();
-        });
-      });
-
       it('should return etxn object from form data if sub_category.id is undefined in form', (done) => {
         component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData9);
         const etxn = of(unflattenedTxnData);
@@ -376,7 +241,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -386,7 +251,7 @@ export function TestCases3(getTestBed) {
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-02-13T17:00:00.000Z'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-01'));
           expect(dateService.getUTCDate).toHaveBeenCalledWith(new Date('2023-08-03'));
-          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, org_category_id: 16577 });
+          expect(res.tx).toEqual({ ...unflattenedTxnData.tx, ...perDiemTransaction, category_id: 16577 });
           expect(res.ou).toEqual(unflattenedTxnData.ou);
           expect(res.dataUrls).toEqual([]);
           done();
@@ -408,7 +273,7 @@ export function TestCases3(getTestBed) {
               value: null,
             },
           ],
-          expenseFieldResponse
+          expenseFieldResponse,
         );
 
         expect(res).toEqual(txnCustomPropertiesData5);
@@ -434,7 +299,7 @@ export function TestCases3(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
         'fyCriticalPolicyViolationPopOver',
-        ['present', 'onWillDismiss']
+        ['present', 'onWillDismiss'],
       );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -480,7 +345,7 @@ export function TestCases3(getTestBed) {
 
       const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
       tick(100);
 
@@ -560,7 +425,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -585,7 +450,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
@@ -632,10 +497,10 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData) })
+          of({ etxn: cloneDeep(unflattenedTxnData) }),
         );
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' })
+          of({ etxn: cloneDeep(unflattenedTxnData), comment: 'comment' }),
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -657,7 +522,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -683,7 +548,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -699,7 +564,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -725,7 +590,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -744,7 +609,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -770,7 +635,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -787,7 +652,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -813,7 +678,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               undefined,
-              ['comment']
+              ['comment'],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -830,7 +695,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe({
             next: (res) => {
@@ -852,7 +717,7 @@ export function TestCases3(getTestBed) {
               expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
                 expectedEtxnDataWithReportId.tx,
                 undefined,
-                ['comment']
+                ['comment'],
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -874,7 +739,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -896,7 +761,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               [],
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -912,7 +777,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -930,7 +795,7 @@ export function TestCases3(getTestBed) {
             expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
               expectedEtxnDataWithReportId.tx,
               [],
-              []
+              [],
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -953,7 +818,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();

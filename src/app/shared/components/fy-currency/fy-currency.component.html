@@ -3,7 +3,7 @@
     <div class="fy-currency--input-wrapper fy-currency--currency-block">
       <div class="fy-currency--input-container">
         <div class="fy-currency--label">
-          Currency
+          {{ 'fyCurrency.currency' | transloco }}
           <span class="fy-currency--mandatory"> * </span>
         </div>
         <input
@@ -13,33 +13,52 @@
           (blur)="onBlur()"
         />
       </div>
-      <div *ngIf="currencyAutoCodeMessage" class="fy-currency__auto-coded">
-        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
-        {{ currencyAutoCodeMessage }}
-      </div>
+      @if (currencyAutoCodeMessage) {
+        <div class="fy-currency__auto-coded">
+          <mat-icon class="fy-currency__auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
+          {{ currencyAutoCodeMessage }}
+        </div>
+      }
     </div>
     <div class="fy-currency--input-wrapper fy-currency--amount-block">
       <div class="fy-currency--input-container" [ngClass]="{ 'fy-currency__invalid': !valid }">
         <div class="fy-currency--label">
-          Amount
+          {{ 'fyCurrency.amount' | transloco }}
           <span class="fy-currency--mandatory"> * </span>
         </div>
-        <app-fy-number placeholder="00.00" formControlName="amount" [isAmount]="true"> </app-fy-number>
+        <app-fy-number
+          [placeholder]="'fyCurrency.amountPlaceholder' | transloco"
+          formControlName="amount"
+          [isAmount]="true"
+        >
+        </app-fy-number>
       </div>
-      <div *ngIf="amountAutoCodeMessage" class="fy-currency__auto-coded">
-        <mat-icon class="fy-currency__sparkle-icon" svgIcon="sparkle"></mat-icon>
-        {{ amountAutoCodeMessage }}
-      </div>
+      @if (amountAutoCodeMessage) {
+        <div class="fy-currency__auto-coded">
+          <mat-icon class="fy-currency__auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
+          {{ amountAutoCodeMessage }}
+        </div>
+      }
     </div>
   </form>
 </div>
-<ng-container *ngIf="value?.currency && value?.orig_currency">
+@if (value?.currency && value?.orig_currency) {
   <div class="fy-currency--exchange-rate-container" [ngClass]="{ expanded: expanded }">
     <mat-icon class="fy-currency--exchange-rate-icon" svgIcon="info-circle-fill"></mat-icon>
     <div class="fy-currency--exchange-rate-message">
-      <strong>{{ value.amount | currency : value.currency : 'code' }}</strong>
-      at {{ exchangeRate | number : '1.0-6' }} {{ value.currency }} / {{ value.orig_currency }}
+      <strong>{{ value.amount | currency: value.currency : 'code' }}</strong>
+      {{
+        'fyCurrency.exchangeRateInfo'
+          | transloco
+            : {
+                exchangeRate: (exchangeRate | number: '1.0-6'),
+                currency: value.currency,
+                origCurrency: value.orig_currency,
+              }
+      }}
     </div>
-    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()">Modify</button>
+    <button class="fy-currency--exchange-rate-modify" (click)="setExchangeRate()" [disabled]="fg.disabled">
+      {{ 'fyCurrency.modifyButton' | transloco }}
+    </button>
   </div>
-</ng-container>
+}

@@ -1,29 +1,60 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
+import { PopoverController } from '@ionic/angular/standalone';
 
 import { ShowAllApproversPopoverComponent } from './show-all-approvers-popover.component';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('ShowAllApproversPopoverComponent', () => {
   let component: ShowAllApproversPopoverComponent;
   let fixture: ComponentFixture<ShowAllApproversPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [ShowAllApproversPopoverComponent, EllipsisPipe],
-      imports: [IonicModule.forRoot()],
-      providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
+      imports: [TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe,
+        MatIconTestingModule],
+      providers: [
+        { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ShowAllApproversPopoverComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'showAllApproversPopover.title': 'Show all approvers',
+        'showAllApproversPopover.approvalPending': 'Approval pending',
+        'showAllApproversPopover.approved': 'Approved',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
@@ -41,7 +72,7 @@ describe('ShowAllApproversPopoverComponent', () => {
     expect(component.closePopover).toHaveBeenCalled();
   });
 
-  it('should display approval status correctly', () => {
+  it('should display approval status correctly', fakeAsync(() => {
     component.approvals = [
       {
         approver_user_id: 'usvKA4X8Ugcr',
@@ -57,13 +88,14 @@ describe('ShowAllApproversPopoverComponent', () => {
       },
     ];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     const pendingStatus = getElementRef(fixture, '.show-all-approvers-popover__approver-state-pending');
     const doneStatus = getElementRef(fixture, '.show-all-approvers-popover__approver-state-done');
 
     expect(pendingStatus.nativeElement.textContent).toContain('Approval pending');
     expect(doneStatus.nativeElement.textContent).toContain('Approved');
-  });
+  }));
 
   it('should display correct step numbers in the stepper', () => {
     component.approvals = [

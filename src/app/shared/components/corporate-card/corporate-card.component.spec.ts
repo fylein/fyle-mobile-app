@@ -1,6 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { CorporateCardComponent } from './corporate-card.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -13,45 +11,52 @@ import {
   yodleeCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { bankFeedSourcesData } from 'src/app/core/mock-data/bank-feed-sources.data';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { By } from '@angular/platform-browser';
-
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CardNumberComponent } from '../card-number/card-number.component';
 @Component({
   selector: 'app-card-number',
   template: '<div></div>',
+  imports: [],
 })
 class MockCardNumberComponent {
-  @Input() cardNumber: string;
-  @Input() cardNickname: string;
+  readonly cardNumber = input<string>(undefined);
+  readonly cardNickname = input<string>(undefined);
 }
 
 describe('CorporateCardComponent', () => {
   let component: CorporateCardComponent;
   let fixture: ComponentFixture<CorporateCardComponent>;
-
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
   beforeEach(waitForAsync(() => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getBankFeedSources',
     ]);
-
     TestBed.configureTestingModule({
-      declarations: [CorporateCardComponent, MockCardNumberComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ getTranslocoTestingModule(), CorporateCardComponent],
       providers: [
         {
           provide: CorporateCreditCardExpenseService,
           useValue: corporateCreditCardExpenseServiceSpy,
         },
+
       ],
+    }).overrideComponent(CorporateCardComponent, {
+      remove: {
+        imports: [CardNumberComponent],
+      },
+      add: {
+        imports: [MockCardNumberComponent],
+      },
     }).compileComponents();
 
     fixture = TestBed.createComponent(CorporateCardComponent);
     component = fixture.componentInstance;
 
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
 
     corporateCreditCardExpenseService.getBankFeedSources.and.returnValue(bankFeedSourcesData);
@@ -71,7 +76,7 @@ describe('CorporateCardComponent', () => {
     const cardNumberComponent = fixture.debugElement.query(By.directive(MockCardNumberComponent));
 
     expect(cardNumberComponent).toBeTruthy();
-    expect(cardNumberComponent.componentInstance.cardNumber).toBe(mastercardRTFCard.card_number);
+    expect(cardNumberComponent.componentInstance.cardNumber()).toBe(mastercardRTFCard.card_number);
   });
 
   describe('card logo', () => {
@@ -241,28 +246,30 @@ describe('CorporateCardComponent', () => {
       expect(actualDateString).toEqual(expectedDateString);
     });
 
-    it('should show the data feed source when the card is connected to bank feed', () => {
+    it('should show the data feed source when the card is connected to bank feed', fakeAsync(() => {
       component.card = bankFeedCard;
 
       component.ngOnInit();
       fixture.detectChanges();
-
+      tick();
+      fixture.detectChanges();
       const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
 
       expect(feedInfo).toBeTruthy();
       expect(feedInfo.textContent).toBe('Bank Feed');
-    });
+    }));
 
-    it('should show the data feed source when the card is connected to statement upload', () => {
+    it('should show the data feed source when the card is connected to statement upload', fakeAsync(() => {
       component.card = statementUploadedCard;
 
       component.ngOnInit();
       fixture.detectChanges();
-
+      tick();
+      fixture.detectChanges();
       const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
 
       expect(feedInfo).toBeTruthy();
       expect(feedInfo.textContent).toBe('Statement upload');
-    });
+    }));
   });
 });

@@ -1,0 +1,93 @@
+<ion-header mode="md" class="header">
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button
+        (click)="dismissModal()"
+        class="pending-gas-charge-info-modal__toolbar-close-btn"
+        data-testid="close-btn"
+      >
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="text-center pending-gas-charge-info-modal__toolbar-title" data-testid="title">
+      {{ 'pendingGasChargeInfoModal.title' | transloco }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="pending-gas-charge-info-modal__content">
+  <div class="pending-gas-charge-info-modal__body" data-testid="content">
+    <span class="pending-gas-charge-info-modal__description">
+      {{ 'pendingGasChargeInfoModal.description' | transloco }}
+    </span>
+
+    <div class="pending-gas-charge-info-modal__timeline-container">
+      <div class="timeline-flow-step">
+        <mat-icon class="icon-container" svgIcon="fuel"></mat-icon>
+        <span class="pending-gas-charge-info-modal__step-description--step1">
+          {{ 'pendingGasChargeInfoModal.step1Description' | transloco }}
+        </span>
+      </div>
+
+      <mat-icon class="navigation-arrow" svgIcon="arrow-long-tail-right"></mat-icon>
+
+      <div class="timeline-flow-step">
+        <mat-icon class="icon-container" svgIcon="hourglass"></mat-icon>
+        <span class="pending-gas-charge-info-modal__step-description--step2">
+          {{ 'pendingGasChargeInfoModal.step2Description' | transloco }}
+        </span>
+      </div>
+
+      <mat-icon class="navigation-arrow" svgIcon="arrow-long-tail-right"></mat-icon>
+
+      <div class="timeline-flow-step">
+        <mat-icon class="icon-container" svgIcon="list"></mat-icon>
+        <span class="pending-gas-charge-info-modal__step-description--step3">
+          {{ 'pendingGasChargeInfoModal.step3Description' | transloco }}
+        </span>
+      </div>
+
+      <mat-icon class="navigation-arrow" svgIcon="arrow-long-tail-right"></mat-icon>
+
+      <div class="timeline-flow-step">
+        <mat-icon class="icon-container" svgIcon="arrow-tail-up-down"></mat-icon>
+        <span class="pending-gas-charge-info-modal__step-description--step4">
+          {{ 'pendingGasChargeInfoModal.step4Description' | transloco }}
+        </span>
+      </div>
+
+      <mat-icon class="navigation-arrow" svgIcon="arrow-long-tail-right"></mat-icon>
+
+      <div class="timeline-flow-step last-step">
+        <mat-icon class="icon-container" svgIcon="check-pad"></mat-icon>
+        <span class="pending-gas-charge-info-modal__step-description--step5">
+          {{ 'pendingGasChargeInfoModal.step5Description' | transloco }}
+        </span>
+      </div>
+    </div>
+
+    <div class="pending-gas-charge-info-modal__info-box">
+      <span class="pending-gas-charge-info-modal__info-title">
+        {{ 'pendingGasChargeInfoModal.additionalInfoTitle' | transloco }}
+      </span>
+      <p class="pending-gas-charge-info-modal__info-description">
+        {{ 'pendingGasChargeInfoModal.additionalInfoDescription' | transloco }}
+      </p>
+    </div>
+
+    <div class="pending-gas-charge-info-modal__read-more-container">
+      <span class="pending-gas-charge-info-modal__read-more-text">
+        {{ 'pendingGasChargeInfoModal.readMoreText' | transloco }}
+        <a
+          class="pending-gas-charge-info-modal__read-more-link"
+          href="https://www.fylehq.com/help/en/articles/11936320-understanding-gas-station-charges-in-fyle-if-your-cards-are-on-real-time-feed"
+          target="_blank"
+        >
+          {{ 'pendingGasChargeInfoModal.readMoreLinkText' | transloco }}
+          <mat-icon class="pending-gas-charge-info-modal__read-more-link-icon" svgIcon="open-in-new-tab"></mat-icon>
+        </a>
+      </span>
+    </div>
+  </div>
+</ion-content>

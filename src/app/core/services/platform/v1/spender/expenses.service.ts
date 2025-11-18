@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -24,6 +24,7 @@ import { Location } from 'src/app/core/models/location.model';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { MergeExpensesPayload } from 'src/app/core/models/merge-expenses-payload.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
@@ -33,12 +34,15 @@ export class ExpensesService {
     expenses: Partial<Transaction>[] | PlatformExpense[];
   } | null>(null);
 
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderService: SpenderService,
-    private sharedExpenseService: SharedExpenseService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
-  ) {}
+  private spenderService = inject(SpenderService);
+
+  private sharedExpenseService = inject(SharedExpenseService);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private translocoService = inject(TranslocoService);
+
+  private paginationSize = inject(PAGINATION_SIZE);
 
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
@@ -63,9 +67,9 @@ export class ExpensesService {
           limit: this.paginationSize,
           ...params.queryParams,
           order: params.order || 'spent_at.desc,created_at.desc,id.desc',
-        })
+        }),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[]),
     );
   }
 
@@ -83,9 +87,9 @@ export class ExpensesService {
         return range(0, numBatches);
       }),
       concatMap((batchNum) =>
-        this.getExpenses({ offset: this.paginationSize * batchNum, limit: this.paginationSize, ...params })
+        this.getExpenses({ offset: this.paginationSize * batchNum, limit: this.paginationSize, ...params }),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[]),
     );
   }
 
@@ -106,14 +110,14 @@ export class ExpensesService {
             ) {
               expense.matched_corporate_card_transactions = [
                 formattedCCCTransaction.find(
-                  (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0]
+                  (ccTransaction) => ccTransaction.id === expense.matched_corporate_card_transaction_ids[0],
                 ),
               ];
             }
           });
 
           return expenses;
-        })
+        }),
       );
   }
 
@@ -122,7 +126,7 @@ export class ExpensesService {
       .filter(
         (expense) =>
           expense.matched_corporate_card_transaction_ids.length > 0 &&
-          expense.matched_corporate_card_transactions.length === 0
+          expense.matched_corporate_card_transactions.length === 0,
       )
       .map((expense) => expense.matched_corporate_card_transaction_ids[0]);
   }
@@ -139,7 +143,7 @@ export class ExpensesService {
       map((res) => res.data[0]),
       switchMap((expense) => {
         if (!expense) {
-          throw new Error('expense not found');
+          throw new Error(this.translocoService.translate('services.expenses.expenseNotFound'));
         }
         if (
           expense.matched_corporate_card_transaction_ids.length > 0 &&
@@ -151,12 +155,12 @@ export class ExpensesService {
               map((res) => {
                 expense.matched_corporate_card_transactions = [this.mapCCCEToExpense(res.data[0])];
                 return expense;
-              })
+              }),
             );
         } else {
           return of(expense);
         }
-      })
+      }),
     );
   }
 
@@ -183,6 +187,9 @@ export class ExpensesService {
     };
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
     return this.spenderService
       .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
@@ -200,7 +207,7 @@ export class ExpensesService {
         } else {
           return of(expenses);
         }
-      })
+      }),
     );
   }
 
@@ -251,8 +258,11 @@ export class ExpensesService {
       .pipe(switchMap((res) => this.clearCache().pipe(map(() => res))));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpenseStats(
-    params: Record<string, string | string[] | boolean>
+    params: Record<string, string | string[] | boolean>,
   ): Observable<{ data: { count: number; total_amount: number } }> {
     return this.spenderService.post('/expenses/stats', {
       data: {
@@ -303,8 +313,8 @@ export class ExpensesService {
   transformTo(transaction: Partial<Transaction>): Partial<Expense> {
     const expense: Partial<Expense> = {
       id: transaction.id,
-      spent_at: transaction.txn_dt,
-      category_id: transaction.org_category_id,
+      spent_at: transaction.spent_at,
+      category_id: transaction.category_id,
       purpose: transaction.purpose,
       source_account_id: transaction.source_account_id,
       claim_amount: transaction.amount,
@@ -324,6 +334,7 @@ export class ExpensesService {
       ended_at: transaction.to_dt,
       locations: transaction.locations as unknown as Location[],
       custom_fields: transaction.custom_properties.map((customProperty) => ({
+        ...(customProperty.id && { id: customProperty.id }),
         name: customProperty.name,
         value: customProperty.value,
       })),

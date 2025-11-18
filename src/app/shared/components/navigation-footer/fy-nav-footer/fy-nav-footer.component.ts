@@ -1,24 +1,41 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonButton, IonButtons, IonFooter, IonIcon, IonToolbar } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-nav-footer',
   templateUrl: './fy-nav-footer.component.html',
   styleUrls: ['./fy-nav-footer.component.scss'],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonFooter,
+    IonIcon,
+    IonToolbar,
+    TranslocoPipe
+  ],
 })
 export class FyNavFooterComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() activeExpenseIndex: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportExpenseCount: number;
 
-  @Output() nextClicked = new EventEmitter<void>();
+  readonly nextClicked = output<void>();
 
-  @Output() prevClicked = new EventEmitter<void>();
+  readonly prevClicked = output<void>();
 
   goToNext(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.nextClicked.emit();
   }
 
   goToPrev(): void {
+    // TODO: The 'emit' function requires a mandatory void argument
     this.prevClicked.emit();
   }
 }

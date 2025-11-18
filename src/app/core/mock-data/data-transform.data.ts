@@ -1,7 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { FlattenedAccount } from '../models/flattened-account.model';
-
 export const dataErtpTransformed = deepFreeze({
   '': {
     search_document:
@@ -128,68 +126,48 @@ export const apiErptReporDataParam = deepFreeze({
   },
 });
 
-export const flattenedData: FlattenedAccount = deepFreeze({
-  acc_id: 'acct0vTdfNQrT',
-  acc_created_at: '2019-09-19T10:19:37.764Z',
-  acc_updated_at: '2023-03-10T11:29:40.049Z',
-  acc_name: 'Personal Account',
-  acc_type: 'PERSONAL_ACCOUNT',
-  acc_currency: 'INR',
-  acc_target_balance_amount: 0,
-  acc_current_balance_amount: -65.060000000006,
-  acc_tentative_balance_amount: -67645301481.37274,
-  acc_category: 'category1',
-  ou_id: 'ourw7Hi4mmpO',
-  ou_org_id: 'orNVthTo2Zyo',
-  us_email: 'dimple.kh@fyle.in',
-  us_full_name: 'Dimple',
-  org_id: 'oRg123',
-  org_domain: 'staging.in',
-  advance_purpose: 'Testing',
-  advance_number: 1234,
-  orig_currency: 'INR',
-  currency: 'INR',
-  orig_amount: 2500,
-  amount: 2500,
-  advance_id: 'aDvId123',
+export const flattenedData = deepFreeze({
+  tx_id: 'txLC4ME4OLjp',
+  tx_org_user_id: 'ou6cE4dCLH8d',
+  tx_created_at: new Date('2023-09-13T08:27:11.922Z'),
+  tx_amount: 1010,
+  tx_currency: 'USD',
+  tx_state: 'COMPLETE',
+  tx_purpose: 'Client Meeting',
+  tx_vendor: 'Uber',
+  tx_vendor_id: 66,
+  tx_org_category: 'Taxi',
+  tx_fyle_category: 'Taxi',
+  tx_org_category_id: 256623,
+  tx_expense_number: 'E/2023/09/T/1',
+  us_full_name: 'devendra',
+  us_email: 'devendra.r@fyle.in',
+  source_account_type: 'PERSONAL_CASH_ACCOUNT',
+  source_account_id: 'accO6abI7gZ6T',
 });
 
 export const unflattenedData = deepFreeze({
-  acc: {
-    id: 'acct0vTdfNQrT',
-    created_at: '2019-09-19T10:19:37.764Z',
-    updated_at: '2023-03-10T11:29:40.049Z',
-    name: 'Personal Account',
-    type: 'PERSONAL_ACCOUNT',
-    currency: 'INR',
-    target_balance_amount: 0,
-    current_balance_amount: -65.060000000006,
-    tentative_balance_amount: -67645301481.37274,
-    category: 'category1',
-  },
-  ou: {
-    id: 'ourw7Hi4mmpO',
-    org_id: 'orNVthTo2Zyo',
+  tx: {
+    id: 'txLC4ME4OLjp',
+    org_user_id: 'ou6cE4dCLH8d',
+    created_at: new Date('2023-09-13T08:27:11.922Z'),
+    amount: 1010,
+    currency: 'USD',
+    state: 'COMPLETE',
+    purpose: 'Client Meeting',
+    vendor: 'Uber',
+    vendor_id: 66,
+    org_category: 'Taxi',
+    fyle_category: 'Taxi',
+    org_category_id: 256623,
+    expense_number: 'E/2023/09/T/1',
   },
   us: {
-    email: 'dimple.kh@fyle.in',
-    full_name: 'Dimple',
+    full_name: 'devendra',
+    email: 'devendra.r@fyle.in',
   },
-  org: {
-    id: 'oRg123',
-    domain: 'staging.in',
+  source: {
+    account_type: 'PERSONAL_CASH_ACCOUNT',
+    account_id: 'accO6abI7gZ6T',
   },
-  advance: {
-    purpose: 'Testing',
-
-    // eslint-disable-next-line id-blacklist
-    number: 1234,
-    id: 'aDvId123',
-  },
-  orig: {
-    currency: 'INR',
-    amount: 2500,
-  },
-  currency: 'INR',
-  amount: 2500,
 });

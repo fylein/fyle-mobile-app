@@ -1,12 +1,11 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, signal, inject } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -14,12 +13,12 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgClass, AsyncPipe, TitleCasePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
@@ -32,7 +31,7 @@ import { ExpenseCommentService as SpenderExpenseCommentService } from 'src/app/c
 import { ExpenseCommentService as ApproverExpenseCommentService } from 'src/app/core/services/platform/v1/approver/expense-comment.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpenseState as ExpenseStateEnum } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
@@ -40,14 +39,104 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { TransactionStatusComponent } from '../../shared/components/transaction-status/transaction-status.component';
+import { PendingGasChargeInfoComponent } from '../../shared/components/pending-gas-charge-info/pending-gas-charge-info.component';
+import { ReceiptPreviewThumbnailComponent } from '../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { ViewDependentFieldsComponent } from '../../shared/components/view-dependent-fields/view-dependent-fields.component';
+import { ViewExpenseSkeletonLoaderComponent } from '../../shared/components/view-expense-skeleton-loader/view-expense-skeleton-loader.component';
+import { NavigationFooterComponent } from '../../shared/components/navigation-footer/navigation-footer.component';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { HumanizeCurrencyPipe } from '../../shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
+import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-view-expense',
   templateUrl: './view-expense.page.html',
   styleUrls: ['./view-expense.page.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    EllipsisPipe,
+    ExactCurrencyPipe,
+    ExpenseStatePipe,
+    FyAlertInfoComponent,
+    FyCurrencyPipe,
+    FyPolicyViolationInfoComponent,
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MaskNumber,
+    NavigationFooterComponent,
+    NgClass,
+    PendingGasChargeInfoComponent,
+    ReceiptPreviewThumbnailComponent,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TransactionStatusComponent,
+    ViewDependentFieldsComponent,
+    ViewExpenseSkeletonLoaderComponent
+  ],
 })
 export class ViewExpensePage {
-  @ViewChild('comments') commentsContainer: ElementRef;
+  private loaderService = inject(LoaderService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private customInputsService = inject(CustomInputsService);
+
+  private fileService = inject(FileService);
+
+  private modalController = inject(ModalController);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private policyService = inject(PolicyService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private spenderExpensesService = inject(SpenderExpensesService);
+
+  private approverExpensesService = inject(ApproverExpensesService);
+
+  private spenderFileService = inject(SpenderFileService);
+
+  private approverFileService = inject(ApproverFileService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
+
+  private approverExpenseCommentService = inject(ApproverExpenseCommentService);
 
   expense$: Observable<Expense>;
 
@@ -135,31 +224,9 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
-  constructor(
-    private loaderService: LoaderService,
-    private transactionService: TransactionService,
-    private activatedRoute: ActivatedRoute,
-    private customInputsService: CustomInputsService,
-    private fileService: FileService,
-    private modalController: ModalController,
-    private router: Router,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private policyService: PolicyService,
-    private modalProperties: ModalPropertiesService,
-    private trackingService: TrackingService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService,
-    private dependentFieldsService: DependentFieldsService,
-    private spenderExpensesService: SpenderExpensesService,
-    private approverExpensesService: ApproverExpensesService,
-    private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService,
-    private spenderExpenseCommentService: SpenderExpenseCommentService,
-    private approverExpenseCommentService: ApproverExpenseCommentService
-  ) {}
+  readonly isPendingGasCharge = signal<boolean>(false);
+
+  private sharedExpensesService = inject(SharedExpensesService);
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
@@ -174,7 +241,7 @@ export class ViewExpensePage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -277,9 +344,9 @@ export class ViewExpensePage {
       switchMap(() =>
         this.view === ExpenseView.team
           ? this.approverExpensesService.getExpenseById(this.expenseId)
-          : this.spenderExpensesService.getExpenseById(this.expenseId)
+          : this.spenderExpensesService.getExpenseById(this.expenseId),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expenseWithoutCustomProperties$.subscribe((res) => {
@@ -289,16 +356,16 @@ export class ViewExpensePage {
     this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
       concatMap((expense) =>
         this.customInputsService.fillCustomProperties(
-          expense.category_id,
-          expense.custom_fields as Partial<CustomInput>[]
-        )
+          expense.category_id.toString(),
+          expense.custom_fields as Partial<CustomInput>[],
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expense$ = this.expenseWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -311,9 +378,9 @@ export class ViewExpensePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput>[],
-          expenseFields.project_id[0]?.id
-        )
-      )
+          expenseFields.project_id[0]?.id,
+        ),
+      ),
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
@@ -324,10 +391,10 @@ export class ViewExpensePage {
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields as Partial<CustomInput>[],
-          expenseFields.cost_center_id[0]?.id
-        )
+          expenseFields.cost_center_id[0]?.id,
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.expense$.subscribe((expense) => {
@@ -348,6 +415,7 @@ export class ViewExpensePage {
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
+      this.isPendingGasCharge.set(this.sharedExpensesService.isPendingGasCharge(expense));
     });
 
     forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])
@@ -356,7 +424,7 @@ export class ViewExpensePage {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
-        })
+        }),
       )
       .subscribe(noop);
 
@@ -364,9 +432,9 @@ export class ViewExpensePage {
       concatMap((expense) =>
         this.view === ExpenseView.team
           ? this.approverExpenseCommentService.getTransformedComments(expense.id)
-          : this.spenderExpenseCommentService.getTransformedComments(expense.id)
+          : this.spenderExpenseCommentService.getTransformedComments(expense.id),
       ),
-      map((comments) => comments.filter(this.isPolicyComment))
+      map((comments) => comments.filter(this.isPolicyComment)),
     );
 
     this.comments$ =
@@ -377,17 +445,17 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense }))),
       ),
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
-      )
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
+      ),
     );
 
     this.isAmountCapped$ = this.expense$.pipe(
-      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount)),
     );
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
@@ -403,12 +471,12 @@ export class ViewExpensePage {
       .pipe(
         map((expenseFieldsMap) => {
           this.merchantFieldName = expenseFieldsMap.vendor_id[0]?.field_name;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isCriticalPolicyViolated$ = this.expense$.pipe(
-      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails(this.expenseId);
@@ -441,7 +509,7 @@ export class ViewExpensePage {
         });
 
         return fileObjs;
-      })
+      }),
     );
 
     this.attachments$ = editExpenseAttachments;
@@ -475,7 +543,7 @@ export class ViewExpensePage {
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header: 'Remove Expense',
+        header: 'Remove expense',
         body: 'Are you sure you want to remove this expense from the report?',
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
@@ -500,7 +568,7 @@ export class ViewExpensePage {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => this.attachments$),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(async (attachments) => {
         const attachmentsModal = await this.modalController.create({

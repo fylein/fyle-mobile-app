@@ -9,35 +9,39 @@
 </ion-header>
 
 <ion-content class="support">
-  <div *ngIf="dialogType === 'contact_support'">
-    <div class="support--header">
-      <div class="support_title">Contact support</div>
-    </div>
-
-    <div class="support--content">
-      <p class="support--heading">Having trouble with the process?</p>
-      <p>Contact your admin</p>
-
-      <div class="support--admin-list">
-        <div *ngFor="let admin of adminList let i=index" class="support--admin-list-contact-card smartlook-hide">
-          <div>{{ admin.full_name }}</div>
-          <a href="mailto:{{ admin.email }}">{{ admin.email }}</a>
-        </div>
+  @if (dialogType === 'contact_support') {
+    <div>
+      <div class="support--header">
+        <div class="support_title">Contact support</div>
       </div>
-      <div class="support--page-divider"></div>
-      <div>
-        <p class="support--heading">Having trouble understanding fyle</p>
-        <p>We have everything to clear up in our help center</p>
+      <div class="support--content">
+        <p class="support--heading">Having trouble with the process?</p>
+        <p>Contact your admin</p>
+        <div class="support--admin-list">
+          @for (admin of adminList; track admin; let i = $index) {
+            <div class="support--admin-list-contact-card smartlook-hide">
+              <div>{{ admin.full_name }}</div>
+              <a href="mailto:{{ admin.email }}">{{ admin.email }}</a>
+            </div>
+          }
+        </div>
+        <div class="support--page-divider"></div>
         <div>
-          <button (click)="openHelpLink()" mat-flat-button class="support--helpLinkBtn">Visit help center</button>
+          <p class="support--heading">Having trouble understanding fyle</p>
+          <p>We have everything to clear up in our help center</p>
+          <div>
+            <button (click)="openHelpLink()" class="support--helpLinkBtn btn-outline-secondary">
+              Visit help center
+            </button>
+          </div>
+          <p>Still facing issues that you need help with?</p>
+          <p>We are happy to help</p>
+          <p>Please send your queries along with screenshot(if necessary) to</p>
+          <p>
+            <a href="mailto:support@fylehq.com">support&#64;fylehq.com</a>
+          </p>
         </div>
-        <p>Still facing issues that you need help with?</p>
-        <p>We are happy to help</p>
-        <p>Please send your queries along with screenshot(if necessary) to</p>
-        <p>
-          <a href="mailto:support@fylehq.com">support@fylehq.com</a>
-        </p>
       </div>
     </div>
-  </div>
+  }
 </ion-content>

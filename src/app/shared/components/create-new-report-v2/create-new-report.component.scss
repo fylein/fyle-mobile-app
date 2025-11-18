@@ -1,9 +1,9 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .create-new-report {
   &--title-container {
     margin-left: -15%;
-    color: $black;
+    color: colors.$black;
     padding: 12px;
   }
 
@@ -17,7 +17,7 @@
     font-size: 14px;
     margin-top: 4px;
     font-weight: 500;
-    color: $blue-black;
+    color: colors.$blue-black;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -29,28 +29,28 @@
     font-size: 14px;
     margin-top: 4px;
     font-weight: 400;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--body {
-    background-color: $grey-4;
+    background-color: colors.$grey-4;
     padding-bottom: 200px;
   }
 
   &--name {
     padding: 20px 12px;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red-2;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -59,7 +59,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 1.35;
     white-space: nowrap;
     font-weight: 400;
@@ -71,7 +71,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 1.3;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -79,31 +79,31 @@
 
   &--error-message {
     margin-top: 2px;
-    color: $red;
+    color: colors.$negative-500;
   }
 
   &--heading {
-    color: $black-light;
+    color: colors.$black-light;
     font-size: 14px;
     padding: 12px;
-    background-color: $white;
+    background-color: colors.$white;
     font-weight: 500;
   }
 
   &--select-all-checkbox {
     font-size: 14px;
-    padding: 12px;
-    background-color: $pure-white;
+    padding: 12px 12px 12px 2px;
+    background-color: colors.$pure-white;
   }
 
   &--add-more-container {
     padding: 16px;
     display: flex;
-    background-color: $grey-4;
+    background-color: colors.$grey-4;
   }
 
   &--add-more-icon-container {
-    color: $brand-primary !important;
+    color: colors.$brand-primary !important;
   }
 
   &--add-more-icon {
@@ -114,7 +114,7 @@
 
   &--add-more-text {
     margin-left: 5px;
-    color: $black-light;
+    color: colors.$black-light;
     font-weight: 500;
     font-size: 14px;
   }
@@ -131,7 +131,7 @@
     padding: 16px;
     bottom: 0;
     width: 100%;
-    background-color: $pure-white;
+    background-color: colors.$pure-white;
     box-shadow: 0 2px 10px 0 rgba(44, 48, 78, 0.1);
     z-index: 999;
   }
@@ -143,13 +143,13 @@
   &--secondary-cta {
     height: auto;
     background-color: transparent;
-    color: $black;
+    color: colors.$brand-primary;
     font-size: 14px;
     line-height: 1.25;
     flex: auto;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
-    border: 1px solid $grey;
+    border: 2px solid colors.$brand-primary;
 
     &__disabled {
       opacity: 0.2;
@@ -158,11 +158,11 @@
 
   &--primary-cta {
     min-height: 52px;
-    background: $pink-gradient;
-    color: $pure-white;
+    background: colors.$brand-primary;
+    color: colors.$pure-white;
     font-size: 14px;
     line-height: 1.3;
-    border-radius: 4px;
+    border-radius: 32px;
     padding: 10px 12px;
     min-width: 50%;
     &__disabled {

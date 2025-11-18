@@ -658,6 +658,11 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
     email: true,
     eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
   },
+  {
+    event: 'When an expense is marked as personal',
+    email: true,
+    eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+  },
 ]);
 
 export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([
@@ -685,6 +690,11 @@ export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([
     event: 'When a reimbursement is processed',
     email: true,
     eventEnum: NotificationEventsEnum.EREIMBURSEMENTS_COMPLETED,
+  },
+  {
+    event: 'When an expense report is ready to process',
+    email: true,
+    eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
   },
 ]);
 

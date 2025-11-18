@@ -1,23 +1,39 @@
-import { Component, Input, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, Input, OnInit, output } from '@angular/core';
 import { FilterPill } from './filter-pill.interface';
+import { TitleCasePipe } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-filter-pills',
   templateUrl: './fy-filter-pills.component.html',
   styleUrls: ['./fy-filter-pills.component.scss'],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class FyFilterPillsComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filterPills: FilterPill[];
 
-  @Output() clearAll = new EventEmitter();
+  readonly clearAll = output();
 
-  @Output() filterClicked = new EventEmitter();
+  readonly filterClicked = output<string>();
 
-  @Output() filterClose = new EventEmitter();
+  readonly filterClose = output<string>();
 
-  @Output() filterClicked2 = new EventEmitter();
+  readonly filterClicked2 = output<string>();
 
-  @Output() filterClose2 = new EventEmitter();
+  readonly filterClose2 = output<string>();
 
   constructor() {}
 

@@ -1,10 +1,16 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
@@ -47,13 +53,12 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -70,13 +75,18 @@ import {
   multiplePaymentModesData,
   orgSettingsData,
   advanceWallet1Data,
+  multiplePaymentModes,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  expenseData,
+  platformExpenseData,
+  platformExpenseDataWithPendingGasCharge,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData3,
@@ -88,6 +98,7 @@ import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card
 import { cloneDeep } from 'lodash';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -114,7 +125,6 @@ export function TestCases6(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -124,7 +134,7 @@ export function TestCases6(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -139,11 +149,14 @@ export function TestCases6(getTestBed) {
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
+    let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
         get: () => null,
       });
+      // Mock getRawValue() to return null as well since we're now using getRawValue() instead of value
+      spyOn(component.fg, 'getRawValue').and.returnValue(null);
     }
 
     beforeEach(() => {
@@ -175,21 +188,20 @@ export function TestCases6(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -199,12 +211,13 @@ export function TestCases6(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -260,7 +273,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -275,7 +288,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
       });
     });
@@ -368,7 +381,7 @@ export function TestCases6(getTestBed) {
           'tax_group_id',
           'org_category_id',
         ],
-        undefined
+        undefined,
       );
     }));
 
@@ -501,10 +514,10 @@ export function TestCases6(getTestBed) {
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx6I9xcOZFU6');
         expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(
           unflattenedExpWithoutCCExpnSync,
-          ccTransactionData1
+          ccTransactionData1,
         );
         expect(corporateCreditCardExpenseService.getMatchedTransactionById).toHaveBeenCalledOnceWith(
-          unflattenedExpWithoutCCExpnSync.tx.corporate_credit_card_expense_group_id
+          unflattenedExpWithoutCCExpnSync.tx.corporate_credit_card_expense_group_id,
         );
         expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
@@ -609,7 +622,8 @@ export function TestCases6(getTestBed) {
     describe('getSourceAccID():', () => {
       it('should get source account id', () => {
         component.fg.controls.paymentMode.setValue({
-          acc: { id: 'id' },
+          id: 'id',
+          type: AccountType.PERSONAL,
         });
 
         const result = component.getSourceAccID();
@@ -638,14 +652,14 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(true);
-        expect(result).toBeUndefined();
+        expect(result).toBeNull();
       });
 
       it('should return null when advance wallet setting is disabled', () => {
         setFormValueNull();
 
         const result = component.getAdvanceWalletId(false);
-        expect(result).toBeFalse();
+        expect(result).toBeNull();
       });
 
       it('should return null', () => {
@@ -679,9 +693,8 @@ export function TestCases6(getTestBed) {
     describe('getSkipRemibursement():', () => {
       it('should get reimbursement', () => {
         component.fg.controls.paymentMode.setValue({
-          acc: {
-            type: AccountType.PERSONAL,
-          },
+          type: AccountType.PERSONAL,
+          isReimbursable: false,
         });
 
         const result = component.getSkipRemibursement();
@@ -1002,14 +1015,14 @@ export function TestCases6(getTestBed) {
           },
         });
 
-        const result = component.getTxnDate();
+        const result = component.getSpendDate();
         expect(result).toBeNull();
       });
 
       it('should return null', () => {
         setFormValueNull();
 
-        const result = component.getTxnDate();
+        const result = component.getSpendDate();
         expect(result).toBeNull();
       });
     });
@@ -1168,7 +1181,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
+        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModes[2]);
 
         expect(result).toBeTrue();
       });
@@ -1240,5 +1253,23 @@ export function TestCases6(getTestBed) {
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     }));
+
+    describe('Pending Gas Charge Functionality', () => {
+      it('should return true when expense is a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseDataWithPendingGasCharge);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeTrue();
+      });
+
+      it('should return false when expense is not a pending gas charge', () => {
+        const mockExpense = cloneDeep(platformExpenseData);
+
+        const result = sharedExpensesService.isPendingGasCharge(mockExpense);
+
+        expect(result).toBeFalse();
+      });
+    });
   });
 }

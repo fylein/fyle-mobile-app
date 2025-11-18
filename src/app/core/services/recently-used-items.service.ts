@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
@@ -14,10 +14,9 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(
-    private SpenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private projectsService: ProjectsService
-  ) {}
+  private SpenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private projectsService = inject(ProjectsService);
 
   formatRecentlyUsedFields(data: RecentlyUsed): RecentlyUsed {
     const idFields = ['project_ids', 'category_ids', 'cost_center_ids'] as const;
@@ -35,7 +34,7 @@ export class RecentlyUsedItemsService {
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
     return this.SpenderPlatformV1ApiService.get<PlatformApiResponse<RecentlyUsed>>('/recently_used_fields').pipe(
-      map((res) => this.formatRecentlyUsedFields(res.data))
+      map((res) => this.formatRecentlyUsedFields(res.data)),
     );
   }
 
@@ -65,7 +64,7 @@ export class RecentlyUsedItemsService {
             limit: 10,
           },
           config.isProjectCategoryRestrictionsEnabled,
-          config.activeCategoryList
+          config.activeCategoryList,
         )
         .pipe(
           map((project) => {
@@ -74,7 +73,7 @@ export class RecentlyUsedItemsService {
               projectsMap[item.project_id] = item;
             });
             return config.recentValues.project_ids.map((id) => projectsMap[id]).filter((id) => id);
-          })
+          }),
         );
     } else {
       return of(null);
@@ -83,7 +82,7 @@ export class RecentlyUsedItemsService {
 
   getRecentCostCenters(
     costCenters: CostCenters[],
-    recentValue: RecentlyUsed
+    recentValue: RecentlyUsed,
   ): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
     if (
       costCenters &&
@@ -99,7 +98,7 @@ export class RecentlyUsedItemsService {
       const recentCostCenterList = recentValue.cost_center_ids.map((id) => costCentersMap[id]).filter((id) => id);
       if (recentCostCenterList.length > 0) {
         return of(
-          recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value }))
+          recentCostCenterList.map((costCenter) => ({ label: costCenter.value.name, value: costCenter.value })),
         );
       } else {
         return of(null);
@@ -111,7 +110,7 @@ export class RecentlyUsedItemsService {
 
   getRecentCategories(
     filteredCategories: OrgCategoryListItem[],
-    recentValues: RecentlyUsed
+    recentValues: RecentlyUsed,
   ): Observable<OrgCategoryListItem[]> {
     if (
       filteredCategories &&

@@ -1,11 +1,24 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { GenericFieldsFormComponent } from './generic-fields-form.component';
-import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { NG_VALUE_ACCESSOR, UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
+
+// app-fy-select
+@Component({
+  selector: 'app-fy-select',
+  template: '<div></div>',
+  providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: MockFySelectComponent, multi: true }],
+})
+export class MockFySelectComponent {
+  writeValue(value: any): void {}
+  registerOnChange(fn: any): void {}
+  registerOnTouched(fn: any): void {}
+  setDisabledState(isDisabled: boolean): void {}
+}
 
 describe('GenericFieldsFormComponent', () => {
   let component: GenericFieldsFormComponent;
@@ -13,14 +26,25 @@ describe('GenericFieldsFormComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [GenericFieldsFormComponent],
-      imports: [IonicModule.forRoot()],
-      providers: [UntypedFormBuilder],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+      imports: [ getTranslocoTestingModule(), GenericFieldsFormComponent],
+      providers: [
+        UntypedFormBuilder,
+      ],
+    })
+    .overrideComponent(GenericFieldsFormComponent, {
+      remove: {
+        imports: [FySelectComponent],
+      },
+      add: {
+        imports: [MockFySelectComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(GenericFieldsFormComponent);
     component = fixture.componentInstance;
+
     fixture.detectChanges();
   }));
 
@@ -59,8 +83,8 @@ describe('GenericFieldsFormComponent', () => {
     it('should emit paymentModeChanged event if payment mode option changes', () => {
       spyOn(component.paymentModeChanged, 'emit');
       component.ngOnInit();
-      component.genericFieldsFormGroup.controls.paymentMode.setValue(AllowedPaymentModes.PERSONAL_ACCOUNT);
-      expect(component.paymentModeChanged.emit).toHaveBeenCalledOnceWith(AllowedPaymentModes.PERSONAL_ACCOUNT);
+      component.genericFieldsFormGroup.controls.paymentMode.setValue(AllowedPaymentModes.PERSONAL_CASH_ACCOUNT);
+      expect(component.paymentModeChanged.emit).toHaveBeenCalledOnceWith(AllowedPaymentModes.PERSONAL_CASH_ACCOUNT);
     });
 
     it('should emit receiptChanged event if receipt option changes', () => {

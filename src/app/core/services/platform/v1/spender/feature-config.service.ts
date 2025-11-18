@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { Observable, Subject, from, map, switchMap } from 'rxjs';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
@@ -12,7 +12,9 @@ const featureConfigCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class FeatureConfigService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService, private authService: AuthService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private authService = inject(AuthService);
 
   @Cacheable({
     cacheBusterObserver: featureConfigCacheBuster$,
@@ -37,7 +39,7 @@ export class FeatureConfigService {
         return this.spenderPlatformV1ApiService
           .get('/feature_configs', data)
           .pipe(map((response: PlatformApiResponse<FeatureConfig<T>[]>) => response.data[0]));
-      })
+      }),
     );
   }
 

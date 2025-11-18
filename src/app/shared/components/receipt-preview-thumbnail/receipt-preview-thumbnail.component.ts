@@ -1,32 +1,58 @@
-import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { Swiper } from 'swiper';
-import { SwiperComponent } from 'swiper/angular';
+import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonSpinner } from '@ionic/angular/standalone';
+
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
+  imports: [
+    IonSpinner,
+    MatIcon,
+    NgClass,
+    PdfViewerModule,
+    PinchZoomComponent,
+    SwiperModule,
+    TranslocoPipe
+  ],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
+  private trackingService = inject(TrackingService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() attachments: FileObject[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() isUploading: boolean;
 
-  @Input() canEdit: boolean;
+  readonly canEdit = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mode: string;
 
-  @Input() hideLabel: boolean;
+  readonly hideLabel = input<boolean>(undefined);
 
-  @Input() isMileageExpense: boolean;
+  readonly isMileageExpense = input<boolean>(undefined);
 
-  @Output() addMoreAttachments: EventEmitter<void> = new EventEmitter();
+  readonly addMoreAttachments = output<void>();
 
-  @Output() viewAttachments: EventEmitter<void> = new EventEmitter();
+  readonly viewAttachments = output<void>();
 
   sliderOptions;
 
@@ -35,8 +61,6 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   previousCount: number;
 
   numLoadedImage = 0;
-
-  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {
     this.sliderOptions = {

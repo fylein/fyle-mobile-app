@@ -46,7 +46,7 @@ describe('ExpenseFieldsService', () => {
 
     expenseFieldsService = TestBed.inject(ExpenseFieldsService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
   });
@@ -92,6 +92,16 @@ describe('ExpenseFieldsService', () => {
         expect(expenseFields).toEqual(expenseFieldObjData);
         done();
       });
+  });
+
+  it('getMandatoryExpenseFields(): should get all mandatory expense fields', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformExpenseFieldResponse));
+
+    expenseFieldsService.getMandatoryExpenseFields().subscribe((expenseFields) => {
+      expect(expenseFields).toEqual(transformedResponse);
+      done();
+    });
   });
 
   it('should return correct mapping for column name', () => {

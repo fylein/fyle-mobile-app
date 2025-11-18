@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +28,7 @@ describe('DelegatedAccountsPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', [
@@ -45,10 +46,10 @@ describe('DelegatedAccountsPage', () => {
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', [
       'clearRecentLocalStorageCache',
     ]);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      declarations: [DelegatedAccountsPage],
-      imports: [IonicModule.forRoot(), FormsModule],
+      imports: [ FormsModule, DelegatedAccountsPage],
       providers: [
         {
           provide: ActivatedRoute,
@@ -88,6 +89,10 @@ describe('DelegatedAccountsPage', () => {
           provide: RecentLocalStorageItemsService,
           useValue: recentLocalStorageItemsServiceSpy,
         },
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -102,9 +107,10 @@ describe('DelegatedAccountsPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
 
     fixture.detectChanges();
   }));
@@ -149,7 +155,7 @@ describe('DelegatedAccountsPage', () => {
 
     it('should allow user to search and select a delegatee account', fakeAsync(() => {
       component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
-      const input = component.searchDelegatees.nativeElement as HTMLInputElement;
+      const input = component.searchDelegatees.nativeElement;
       activatedRoute.snapshot.params.switchToOwn = null;
       orgUserService.findDelegatedAccounts.and.returnValue(of([delegatorData]));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
@@ -168,7 +174,7 @@ describe('DelegatedAccountsPage', () => {
 
     it('should set delegatee acc list to empty array if no accounts are provided', fakeAsync(() => {
       component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
-      const input = component.searchDelegatees.nativeElement as HTMLInputElement;
+      const input = component.searchDelegatees.nativeElement;
       activatedRoute.snapshot.params.switchToOwn = null;
       orgUserService.findDelegatedAccounts.and.returnValue(of([]));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));

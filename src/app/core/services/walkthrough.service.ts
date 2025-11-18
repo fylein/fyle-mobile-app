@@ -1,21 +1,41 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DriveStep } from 'driver.js';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WalkthroughService {
+  private translocoService = inject(TranslocoService);
+
   activeWalkthroughIndex = 0;
 
   isOverlayClicked = true;
+
+  getDashboardAddExpenseWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#dashboard-add-expense-button',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.dashboardAddExpenseDescription'),
+          side: 'bottom',
+          align: 'end',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
+
+    return steps;
+  }
 
   getNavBarWalkthroughConfig(isApprover: boolean): DriveStep[] {
     const steps: DriveStep[] = [
       {
         element: '#footer-walkthrough',
         popover: {
-          description:
-            'Expenses & Reports are now on the bottom bar of the home page for easy access and smooth navigation!',
+          description: this.translocoService.translate('services.walkthrough.navBarDescription'),
           side: 'top',
           align: 'center',
           showButtons: ['next', 'close'],
@@ -27,7 +47,7 @@ export class WalkthroughService {
       {
         element: '#tab-button-expenses',
         popover: {
-          description: 'Tap here to quickly access and manage your expenses!',
+          description: this.translocoService.translate('services.walkthrough.expensesTabDescription'),
           side: 'top',
           align: 'start',
         },
@@ -38,7 +58,7 @@ export class WalkthroughService {
       {
         element: '#tab-button-reports',
         popover: {
-          description: 'Tap here to quickly access and manage your expense reports!',
+          description: this.translocoService.translate('services.walkthrough.reportsTabDescription'),
           side: 'top',
           align: 'end',
         },
@@ -52,7 +72,7 @@ export class WalkthroughService {
       steps.push({
         element: '#approval-pending-stat',
         popover: {
-          description: `Easily manage and approve reports — Access your team's reports right from the home page!`,
+          description: this.translocoService.translate('services.walkthrough.approverDescription'),
           side: 'top',
           align: 'center',
         },
@@ -61,6 +81,117 @@ export class WalkthroughService {
         },
       });
     }
+
+    return steps;
+  }
+
+  getProfileEmailOptInWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#profile-email-opt-in-walkthrough',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.profileEmailOptInDescription'),
+          side: 'top',
+          align: 'center',
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 4;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesBlockedFilterWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '#blocked-filter-checkbox',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedFilterDescription'),
+          side: 'left',
+          align: 'center',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesBlockedStatusPillWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-blocked:nth-child(1)',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesIncompleteStatusPillWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-incomplete:nth-child(1)',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.incompleteStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
+
+    return steps;
+  }
+
+  getMyExpensesStatusPillSequenceWalkthroughConfig(): DriveStep[] {
+    const steps: DriveStep[] = [
+      {
+        element: '.expenses-card--state-container.state-blocked',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.blockedStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+      {
+        element: '.expenses-card--state-container.state-incomplete',
+        popover: {
+          description: this.translocoService.translate('services.walkthrough.incompleteStatusPillDescription'),
+          side: 'bottom',
+          align: 'start',
+          showButtons: ['close', 'next'],
+        },
+        onHighlightStarted: (_el, _step, opts): void => {
+          opts.config.stagePadding = 6;
+          opts.config.stageRadius = 8;
+        },
+      },
+    ];
 
     return steps;
   }

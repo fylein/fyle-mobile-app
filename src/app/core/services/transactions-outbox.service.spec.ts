@@ -1,4 +1,4 @@
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { expenseList2 } from '../mock-data/expense.data';
 import { txnData2 } from '../mock-data/transaction.data';
@@ -16,6 +16,7 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { parsedResponseData1 } from '../mock-data/parsed-response.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -45,7 +46,7 @@ describe('TransactionsOutboxService', () => {
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         TransactionsOutboxService,
         { provide: StorageService, useValue: storageServiceSpy },
@@ -57,6 +58,8 @@ describe('TransactionsOutboxService', () => {
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService);
@@ -69,7 +72,7 @@ describe('TransactionsOutboxService', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
     httpTestingController = TestBed.inject(HttpTestingController);
@@ -180,12 +183,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -195,12 +198,12 @@ describe('TransactionsOutboxService', () => {
       transactionsOutboxService.addEntryAndSync(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
         txnData2,
         [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-        null
+        null,
       );
       expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
       expect(transactionsOutboxService.queue.length).toEqual(0);
@@ -213,7 +216,7 @@ describe('TransactionsOutboxService', () => {
     const res = transactionsOutboxService.getPendingTransactions();
     expect(res.length).toEqual(1);
     expect(res).toEqual(
-      transactionsOutboxService.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls }))
+      transactionsOutboxService.queue.map((entry) => ({ ...entry.transaction, dataUrls: entry.dataUrls })),
     );
   });
 
@@ -275,31 +278,5 @@ describe('TransactionsOutboxService', () => {
       expect(transactionsOutboxService.queue).toEqual([]);
       expect(dateService.fixDates).not.toHaveBeenCalled();
     }));
-  });
-
-  describe('getExpenseDate():', () => {
-    it('should return transaction date if txn_dt is present', () => {
-      const txnDate = new Date('2023-02-15T06:30:00.000Z');
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = txnDate;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
-      expect(res).toEqual(txnDate);
-    });
-
-    it('should return extracted date if txn_dt is not present', () => {
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = null;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
-      expect(res).toEqual(parsedResponseData1.date);
-    });
-
-    it('should return today date if txn_dt and extracted date is not present', () => {
-      const mockQueue = cloneDeep(outboxQueueData1[0]);
-      mockQueue.transaction.txn_dt = null;
-      const mockParsedResponse = cloneDeep(parsedResponseData1);
-      mockParsedResponse.date = null;
-      const res = transactionsOutboxService.getExpenseDate(mockQueue, mockParsedResponse);
-      expect(res).toEqual(new Date());
-    });
   });
 });

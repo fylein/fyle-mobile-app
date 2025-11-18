@@ -2,7 +2,7 @@
   <ion-row>
     <ion-col size="9">
       <div class="filter-pills--pills">
-        <ng-container *ngFor="let filterPill of filterPills">
+        @for (filterPill of filterPills; track filterPill) {
           <div class="filter-pills--pill" (click)="onFilterClick(filterPill)">
             <span class="filter-pills--label"> {{ filterPill.label }}: </span>
             <span class="filter-pills--value">
@@ -15,11 +15,13 @@
               (click)="onFilterClose($event, filterPill)"
             ></ion-icon>
           </div>
-        </ng-container>
+        }
       </div>
     </ion-col>
     <ion-col size="3">
-      <div class="filter-pills--pill filter-pills--pill__clear-all" (click)="onClearAll()">Clear all</div>
+      <div class="filter-pills--pill filter-pills--pill__clear-all" (click)="onClearAll()">
+        {{ 'fyFilterPills.clearAll' | transloco }}
+      </div>
     </ion-col>
   </ion-row>
 </ion-grid>

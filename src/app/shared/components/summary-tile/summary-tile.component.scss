@@ -1,30 +1,28 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
-$advance_pulled_back_color: #979797;
 $advance_pending_approval_color: #1ab6bb;
-$advance_paid_color: darken(#5cb85c, 15%);
 
 .summary-tile {
   &--card-container {
     padding: 14px 16px;
     margin-top: 16px;
-    background: $purple-gradient;
     border-radius: 16px;
+    background-color: colors.$background;
     width: 100%;
-    color: $black-light;
+    color: colors.$black-light;
 
     &__block {
       width: 100%;
     }
 
     &__category {
-      color: $black;
+      color: colors.$black;
       font-size: 14px;
       font-weight: 500;
     }
 
     &__purpose {
-      color: $black;
+      color: colors.$black;
       font-size: 14px;
       font-weight: 500;
       overflow: hidden;
@@ -35,17 +33,17 @@ $advance_paid_color: darken(#5cb85c, 15%);
     &__merchant {
       padding-top: 2px;
       font-size: 14px;
-      color: $dark-grey;
+      color: colors.$dark-grey;
     }
 
     &__project {
       font-size: 14px;
-      color: $dark-grey;
+      color: colors.$dark-grey;
     }
 
     &__icon {
       vertical-align: text-bottom;
-      color: $black;
+      color: colors.$black;
       height: 16px;
       width: 16px;
     }
@@ -57,11 +55,11 @@ $advance_paid_color: darken(#5cb85c, 15%);
     &__amount {
       font-size: 16px;
       font-weight: 500;
-      color: $black;
+      color: colors.$black;
     }
 
     &__exchange-rate {
-      color: $black-light;
+      color: colors.$black-light;
     }
 
     &__state-pill {
@@ -95,27 +93,27 @@ $advance_paid_color: darken(#5cb85c, 15%);
 
   &--approval-state {
     &__submitted {
-      color: $submitted-color;
+      color: colors.$submitted-color;
     }
     &__complete {
-      color: $fyled-color;
+      color: colors.$fyled-color;
     }
     &_sent_back {
-      color: $sent-back-color;
+      color: colors.$sent-back-color;
     }
     &__approval {
       background: $advance_pending_approval_color;
     }
     &__approved {
-      color: $approved-color;
+      color: colors.$approved-color;
     }
     &__paid {
-      color: $paid-color;
+      color: colors.$paid-color;
     }
   }
 
   &--approvers {
-    color: $black-light;
+    color: colors.$black-light;
     padding-right: 10px;
     width: min-content;
   }
@@ -134,7 +132,7 @@ $advance_paid_color: darken(#5cb85c, 15%);
     &__date {
       margin: 0 4px;
       font-size: 10px;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
@@ -145,19 +143,19 @@ $advance_paid_color: darken(#5cb85c, 15%);
     margin-right: 4px;
 
     &__approval_pending {
-      background-color: $fyled-color;
+      background-color: colors.$fyled-color;
     }
 
     &__approval_done {
-      background-color: $approved-color;
+      background-color: colors.$approved-color;
     }
 
     &__approval_disabled {
-      background-color: $gray-3;
+      background-color: colors.$gray-3;
     }
 
     &__approval_rejected {
-      background-color: $rejected-color;
+      background-color: colors.$rejected-color;
     }
   }
 }

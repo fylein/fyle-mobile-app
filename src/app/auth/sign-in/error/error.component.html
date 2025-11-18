@@ -9,36 +9,44 @@
       {{ header }}
     </div>
   </div>
-  <div *ngIf="error" class="error-internal__details">
-    <div *ngIf="error.status === 401 && (error.data || error.message)">
-      This email address will be temporarily locked after 5 unsuccessful login attempts. Would you like to try
-      <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">resetting</a> your
-      password?
+  @if (error) {
+    <div class="error-internal__details">
+      @if (error.status === 401 && (error.data || error.message)) {
+        <div>
+          {{ 'error.lockedWarning' | transloco }}
+          <a class="error-internal__redirect" (click)="routeTo(['/', 'auth', 'reset_password'])">{{
+            'error.resettingLink' | transloco
+          }}</a>
+          {{ 'error.yourPassword' | transloco }}
+        </div>
+      }
+      @if (error.status === 400) {
+        <div>
+          {{ 'error.notVerified' | transloco }}
+        </div>
+      }
+      @if (error.status === 500) {
+        <div>
+          <div [innerHTML]="'error.serverError' | transloco"></div>
+        </div>
+      }
+      @if (error.status === 433) {
+        <div>
+          <div>
+            {{ 'error.temporarilyLocked' | transloco }}
+          </div>
+        </div>
+      }
+      @if (error.status === 401 && !(error.data || error.message)) {
+        <div>
+          <div>{{ 'error.restrictedAccess' | transloco }}</div>
+        </div>
+      }
     </div>
-
-    <div *ngIf="error.status === 400">
-      Your account is not verified. Please request a verification link, if required
-    </div>
-
-    <div *ngIf="error.status === 500">
-      <div>
-        Please retry in a while. Send us a note to <a href="mailto:support@fylehq.com">support@fylehq.com</a> if the
-        problem persists.
-      </div>
-    </div>
-
-    <div *ngIf="error.status === 433">
-      <div>
-        This email address is locked temporarily, as there are too many unsuccessful login attempts recently. Please
-        retry later.
-      </div>
-    </div>
-
-    <div *ngIf="error.status === 401 && !(error.data || error.message)">
-      <div>Your organization has restricted Fyle access to its corporate network.</div>
-    </div>
-  </div>
+  }
   <div class="error-internal__primary-cta">
-    <ion-button class="btn-primary" fill="clear" (click)="closePopover()">Try again</ion-button>
+    <ion-button class="btn-primary" fill="clear" (click)="closePopover()">{{
+      'error.tryAgain' | transloco
+    }}</ion-button>
   </div>
 </div>

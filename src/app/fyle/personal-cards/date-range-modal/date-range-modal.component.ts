@@ -1,19 +1,31 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
+import { IonItem, IonLabel, IonList, ModalController } from '@ionic/angular/standalone';
+import { MatDateRangeInput, MatStartDate, MatEndDate, MatDateRangePicker } from '@angular/material/datepicker';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-date-range-modal',
   templateUrl: './date-range-modal.component.html',
   styleUrls: ['./date-range-modal.component.scss'],
+  imports: [
+    IonItem,
+    IonLabel,
+    IonList,
+    MatDateRangeInput,
+    MatDateRangePicker,
+    MatEndDate,
+    MatStartDate,
+    TranslocoPipe
+  ],
 })
 export class DateRangeModalComponent implements OnInit {
-  @ViewChild('dateRangeStart') dateRangeStart: ElementRef;
+  private modalController = inject(ModalController);
 
-  @ViewChild('dateRangeEnd') dateRangeEnd: ElementRef;
+  readonly dateRangeStart = viewChild<ElementRef<HTMLInputElement>>('dateRangeStart');
+
+  readonly dateRangeEnd = viewChild<ElementRef<HTMLInputElement>>('dateRangeEnd');
 
   isCalenderVisible = false;
-
-  constructor(private modalController: ModalController) {}
 
   ngOnInit(): void {}
 
@@ -26,8 +38,8 @@ export class DateRangeModalComponent implements OnInit {
   datePicked() {
     this.modalController.dismiss({
       range: 'Custom Range',
-      startDate: this.dateRangeStart.nativeElement.value,
-      endDate: this.dateRangeEnd.nativeElement.value,
+      startDate: this.dateRangeStart().nativeElement.value,
+      endDate: this.dateRangeEnd().nativeElement.value,
     });
   }
 

@@ -1,24 +1,47 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, inject } from '@angular/core';
+import { UntypedFormArray, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Observable, Subject, distinctUntilKeyChanged, finalize, map, of, takeUntil } from 'rxjs';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { DependentFieldComponent } from './dependent-field/dependent-field.component';
+import { IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-dependent-fields',
   templateUrl: './dependent-fields.component.html',
   styleUrls: ['./dependent-fields.component.scss'],
+  imports: [
+    DependentFieldComponent,
+    FormsModule,
+    IonSkeletonText,
+    ReactiveFormsModule
+  ],
 })
 export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() dependentFieldsFormArray: UntypedFormArray;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() dependentCustomFields: ExpenseField[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldId: number;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() parentFieldValue: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnCustomProperties: CustomProperty<string>[];
 
   dependentFields = [];
@@ -26,8 +49,6 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   isDependentFieldLoading = false;
 
   onPageExit$: Subject<void>;
-
-  constructor(private dependentFieldsService: DependentFieldsService, private formBuilder: UntypedFormBuilder) {}
 
   ngOnInit(): void {
     return;
@@ -60,7 +81,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
   addDependentFieldWithValue(
     txCustomProperties: CustomProperty<string>[],
     dependentFields: ExpenseField[],
-    parentField: { id: number; value: string }
+    parentField: { id: number; value: string },
   ): void {
     //Get dependent field for the field whose id is parentFieldId
     const dependentField = dependentFields.find((dependentField) => dependentField.parent_field_id === parentField.id);
@@ -68,7 +89,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     if (dependentField) {
       //Get selected value for dependent field
       const dependentFieldValue = txCustomProperties.find(
-        (customProp) => customProp.name === dependentField.field_name
+        (customProp) => customProp.name === dependentField.field_name,
       );
 
       if (dependentFieldValue?.value) {
@@ -98,10 +119,10 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
 
   getDependentField(
     parentFieldId: number,
-    parentFieldValue: string
+    parentFieldValue: string,
   ): Observable<{ dependentField: ExpenseField; parentFieldValue: string }> {
     const dependentField = this.dependentCustomFields.find(
-      (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId
+      (dependentCustomField) => dependentCustomField.parent_field_id === parentFieldId,
     );
     if (dependentField && parentFieldValue) {
       return this.dependentFieldsService
@@ -113,8 +134,8 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
         })
         .pipe(
           map((dependentFieldOptions) =>
-            dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null
-          )
+            dependentFieldOptions?.length > 0 ? { dependentField, parentFieldValue } : null,
+          ),
         );
     }
     return of(null);
@@ -161,7 +182,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     //TODO: Fix Types Here
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
-      (depField: { label: string }) => depField.label === data.label
+      (depField: { label: string }) => depField.label === data.label,
     ) as number;
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.

@@ -1,9 +1,11 @@
 <div class="add-more--content">
-  <div class="add-more--heading text-uppercase">Add more using</div>
+  <div class="add-more--heading text-uppercase">{{ 'addMorePopup.addMoreUsing' | transloco }}</div>
 
   <div class="add-more--body">
-    <ng-container *ngFor="let actionButton of actionButtons; index as i">
-      <div *ngIf="i > 0" class="add-more--divider"></div>
+    @for (actionButton of actionButtons; track actionButton; let i = $index) {
+      @if (i > 0) {
+        <div class="add-more--divider"></div>
+      }
       <div class="add-more--container" (click)="ctaClickedEvent(actionButton.mode)">
         <mat-icon
           class="add-more--icon"
@@ -14,6 +16,6 @@
           {{ actionButton.title }}
         </div>
       </div>
-    </ng-container>
+    }
   </div>
 </div>

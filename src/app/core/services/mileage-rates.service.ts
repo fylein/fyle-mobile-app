@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
@@ -8,6 +8,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, map, reduce } from 'rxjs/operators';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { TranslocoService } from '@jsverse/transloco';
 
 const mileageRateCacheBuster$ = new Subject<void>();
 
@@ -15,12 +16,15 @@ const mileageRateCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class MileageRatesService {
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformV1ApiService: ApproverPlatformApiService,
-    private currencyPipe: CurrencyPipe
-  ) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private approverPlatformV1ApiService = inject(ApproverPlatformApiService);
+
+  private currencyPipe = inject(CurrencyPipe);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: mileageRateCacheBuster$,
@@ -32,7 +36,7 @@ export class MileageRatesService {
         return range(0, count);
       }),
       concatMap((page) => this.getMileageRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[])
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[]),
     );
   }
 
@@ -97,20 +101,23 @@ export class MileageRatesService {
 
   formatMileageRateName(rateName: string): string {
     const names: Record<string, string> = {
-      two_wheeler: 'Two Wheeler',
-      four_wheeler: 'Four Wheeler - Type 1',
-      four_wheeler1: 'Four Wheeler - Type 2',
-      four_wheeler3: 'Four Wheeler - Type 3',
-      four_wheeler4: 'Four Wheeler - Type 4',
-      bicycle: 'Bicycle',
-      electric_car: 'Electric Car',
+      two_wheeler: this.translocoService.translate('services.mileageRates.twoWheeler'),
+      four_wheeler: this.translocoService.translate('services.mileageRates.fourWheelerType1'),
+      four_wheeler1: this.translocoService.translate('services.mileageRates.fourWheelerType2'),
+      four_wheeler3: this.translocoService.translate('services.mileageRates.fourWheelerType3'),
+      four_wheeler4: this.translocoService.translate('services.mileageRates.fourWheelerType4'),
+      bicycle: this.translocoService.translate('services.mileageRates.bicycle'),
+      electric_car: this.translocoService.translate('services.mileageRates.electricCar'),
     };
 
     return rateName && names[rateName] ? names[rateName] : rateName;
   }
 
   getReadableRate(rate: number, currency: string, unit: string): string {
-    unit = unit && unit.toLowerCase() === 'miles' ? 'mile' : 'km';
+    unit =
+      unit && unit.toLowerCase() === 'miles'
+        ? this.translocoService.translate('services.mileageRates.mile')
+        : this.translocoService.translate('services.mileageRates.km');
 
     return this.currencyPipe.transform(rate, currency, 'symbol', '1.2-2') + '/' + unit;
   }

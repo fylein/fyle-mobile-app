@@ -6,22 +6,38 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { SortingValue } from '../models/sorting-value.model';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { TitleCasePipe } from '@angular/common';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('FiltersHelperService', () => {
   let filterHelperService: FiltersHelperService;
   let modalController: jasmine.SpyObj<ModalController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const SortDirAsc: number = SortingDirection.ascending;
   const SortDirDesc: number = SortingDirection.descending;
 
   beforeEach(() => {
     const controllerSpy = jasmine.createSpyObj('ModalController', ['create']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.filtersHelper.creationDateNewToOld': 'created date - new to old',
+        'services.filtersHelper.creationDateOldToNew': 'created date - old to new',
+        'services.filtersHelper.approvalDateNewToOld': 'approved date - new to old',
+        'services.filtersHelper.approvalDateOldToNew': 'approved date - old to new',
+        'services.filtersHelper.projectAToZ': 'project - A to Z',
+        'services.filtersHelper.projectZToA': 'project - Z to A',
+        'services.filtersHelper.state': 'State',
+        'services.filtersHelper.sortBy': 'Sort by',
+        'services.filtersHelper.aToZ': ' - A to Z',
+        'services.filtersHelper.zToA': ' - Z to A',
+        'services.filtersHelper.sortDirection': 'Sort Direction',
+      };
+      return translations[key] || key;
+    });
     TestBed.configureTestingModule({
       providers: [
         {
@@ -29,10 +45,15 @@ describe('FiltersHelperService', () => {
           useValue: controllerSpy,
         },
         TitleCasePipe,
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     filterHelperService = TestBed.inject(FiltersHelperService);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -433,16 +454,16 @@ describe('FiltersHelperService', () => {
 
     modalController.create.and.returnValue(
       new Promise((resolve) => {
-        const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']) as any;
+        const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['onWillDismiss', 'present']);
         filterPopoverSpy.onWillDismiss.and.returnValue(
           new Promise((resInt) => {
             resInt({
               data: selectedFilters,
             });
-          })
+          }),
         );
         resolve(filterPopoverSpy);
-      })
+      }),
     );
     const result = await filterHelperService.openFilterModal(testFilters, filterOptions);
     expect(result).toEqual(expectedFilters);

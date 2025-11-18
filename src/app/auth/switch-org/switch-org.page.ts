@@ -1,8 +1,8 @@
-import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { Platform, PopoverController } from '@ionic/angular';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, Platform, PopoverController } from '@ionic/angular/standalone';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -12,7 +12,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -23,7 +23,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
@@ -31,19 +31,100 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { OrgCardComponent } from './org-card/org-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 
 @Component({
   selector: 'app-switch-org',
   templateUrl: './switch-org.page.html',
   styleUrls: ['./switch-org.page.scss'],
+  imports: [
+    ActiveOrgCardComponent,
+    AsyncPipe,
+    FormsModule,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    OrgCardComponent
+  ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
+  private platform = inject(Platform);
+
+  private loaderService = inject(LoaderService);
+
+  private userService = inject(UserService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private authService = inject(AuthService);
+
+  private secureStorageService = inject(SecureStorageService);
+
+  private storageService = inject(StorageService);
+
+  private router = inject(Router);
+
+  private orgService = inject(OrgService);
+
+  private userEventService = inject(UserEventService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private cdRef = inject(ChangeDetectorRef);
+
+  private trackingService = inject(TrackingService);
+
+  private deviceService = inject(DeviceService);
+
+  private popoverController = inject(PopoverController);
+
+  private orgUserService = inject(OrgUserService);
+
+  private appVersionService = inject(AppVersionService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private transactionService = inject(TransactionService);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private expensesService = inject(ExpensesService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('search') searchRef: ElementRef<HTMLElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('content') contentRef: ElementRef<HTMLElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchOrgsInput') searchOrgsInput: ElementRef<HTMLInputElement>;
 
   orgs$: Observable<Org[]>;
@@ -63,35 +144,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   isIos = false;
 
   orgs: Org[];
-
-  constructor(
-    private platform: Platform,
-    private loaderService: LoaderService,
-    private userService: UserService,
-    private activatedRoute: ActivatedRoute,
-    private authService: AuthService,
-    private secureStorageService: SecureStorageService,
-    private storageService: StorageService,
-    private router: Router,
-    private orgService: OrgService,
-    private userEventService: UserEventService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private cdRef: ChangeDetectorRef,
-    private trackingService: TrackingService,
-    private deviceService: DeviceService,
-    private popoverController: PopoverController,
-    private orgUserService: OrgUserService,
-    private appVersionService: AppVersionService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private routerAuthService: RouterAuthService,
-    private transactionService: TransactionService,
-    private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderOnboardingService: SpenderOnboardingService
-  ) {}
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
@@ -152,7 +204,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         }
         return currentOrgs;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     currentOrgs$.subscribe(() => {
@@ -160,12 +212,11 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       this.trackSwitchOrgLaunchTime();
     });
 
-    // eslint-disable-next-line
     this.filteredOrgs$ = fromEvent<{ srcElement: { value: string } }>(this.searchOrgsInput.nativeElement, 'keyup').pipe(
       map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
+      switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText)))),
     );
   }
 
@@ -209,7 +260,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         map((eou) => {
           this.setSentryUser(eou);
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe({
         next: () => {
@@ -234,7 +285,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           return this.expensesService.getExpenseById(txnId);
         }),
         map((expense) => this.transactionService.transformExpense(expense)),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe({
         next: (etxn) => {
@@ -264,7 +315,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           catchError((error: Error) => {
             this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
-          })
+          }),
         )
         .subscribe(() => {
           this.showToastNotification('Verification email sent');
@@ -334,7 +385,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
               },
             ]);
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -346,7 +397,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       finalize(() => {
         this.loaderService.hideLoader();
         this.navigateToDashboard();
-      })
+      }),
     );
   }
 
@@ -371,7 +422,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   handlePendingDetails(
     roles: string[],
     isFromInviteLink?: boolean,
-    isPasswordSetRequired?: boolean
+    isPasswordSetRequired?: boolean,
   ): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
       return this.handleInviteLinkFlow(roles, isPasswordSetRequired);
@@ -402,7 +453,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.router.navigate(['/', 'auth', 'disabled']);
         }
         return of(null);
-      })
+      }),
     );
   }
 
@@ -417,7 +468,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.setSentryUser(eou);
           return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe();
 
@@ -453,7 +504,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.appVersionService.load(deviceInfo);
           return this.appVersionService.getUserAppVersionDetails(deviceInfo);
         }),
-        filter((userAppVersionDetails) => !!userAppVersionDetails)
+        filter((userAppVersionDetails) => !!userAppVersionDetails),
       )
       .subscribe((userAppVersionDetails) => {
         const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
@@ -504,7 +555,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.userEventService.logout();
           globalCacheBusterNotifier.next();
           await this.loaderService.hideLoader();
-        }
+        },
       );
   }
 
@@ -519,14 +570,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.authService.logout({
               device_id: device.identifier,
               user_id: eou.us.id,
-            })
+            }),
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          })
+          }),
         )
         .subscribe(noop);
     } catch (e) {
@@ -542,7 +593,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         Object.values(org)
           .map((value: string | Date | number | boolean) => value && value.toString().toLowerCase())
           .filter((value) => !!value)
-          .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
+          .some((value) => value.toLowerCase().includes(searchText.toLowerCase())),
       )
       .sort((a, b) => a.name.localeCompare(b.name));
   }

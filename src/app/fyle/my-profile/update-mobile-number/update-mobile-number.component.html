@@ -1,7 +1,7 @@
 <ion-header mode="md">
   <ion-toolbar mode="md" class="fy-modal-toolbar update-mobile-number--toolbar">
     <ion-title class="text-center">
-      <div class="update-mobile-number--toolbar__title">{{ title }}</div>
+      <div class="update-mobile-number--toolbar__title">{{ title() }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="closePopover()">
@@ -13,7 +13,7 @@
 
 <div class="update-mobile-number--input-container">
   <div class="update-mobile-number--input-container__label">
-    <span> {{ inputLabel }} </span>
+    <span> {{ inputLabel() }} </span>
     <span class="update-mobile-number--input-container__mandatory"> * </span>
   </div>
   <input
@@ -23,21 +23,23 @@
     class="update-mobile-number--input-container__input smartlook-show"
     [ngClass]="{ 'update-mobile-number--input-container__input--error': error?.length }"
     (focus)="onFocus()"
-    [placeholder]="placeholder || 'Enter ' + inputLabel"
+    [placeholder]="placeholder() || ('updateMobileNumber.enterInputLabel' | transloco: { inputLabel: inputLabel() })"
     type="tel"
     [maxlength]="15"
     [minlength]="7"
   />
-  <span *ngIf="error?.length" class="update-mobile-number--input-container__error">{{ error }}</span>
+  @if (error?.length) {
+    <span class="update-mobile-number--input-container__error">{{ error }}</span>
+  }
   <ion-buttons class="update-mobile-number--cta">
     <ion-button
       (click)="saveValue()"
-      [loadingText]="'Saving'"
+      [loadingText]="'updateMobileNumber.saving' | transloco"
       [loading]="updatingMobileNumber"
       appFormButtonValidation
       class="btn-primary"
     >
-      Save
+      {{ 'updateMobileNumber.save' | transloco }}
     </ion-button>
   </ion-buttons>
 </div>

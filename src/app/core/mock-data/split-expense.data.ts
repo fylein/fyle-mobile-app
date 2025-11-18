@@ -1,13 +1,13 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { SplitExpense } from '../models/split-expense.model';
 
 export const splitExpense1: SplitExpense = deepFreeze({
   amount: 15000,
   currency: 'INR',
   percentage: 60,
-  txn_dt: '2023-06-14',
+  spent_at: '2023-06-14',
   project: {
     ap1_email: null,
     ap1_full_name: null,
@@ -33,7 +33,7 @@ export const splitExpense2: SplitExpense = deepFreeze({
   amount: 2160,
   currency: 'INR',
   percentage: 60,
-  txn_dt: '2023-06-14',
+  spent_at: '2023-06-14',
   category: {
     code: null,
     created_at: '2019-01-07T11:12:02.164897+00:00',
@@ -52,7 +52,7 @@ export const splitExpense3 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
-  txn_dt: '2023-02-08',
+  spent_at: '2023-02-08',
   category: '',
 });
 
@@ -60,7 +60,7 @@ export const splitExpense4 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
-  txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
+  spent_at: dayjs(new Date()).format('YYYY-MM-DD'),
   category: '',
 });
 
@@ -68,7 +68,7 @@ export const splitExpense5 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
-  txn_dt: '2023-02-08',
+  spent_at: '2023-02-08',
   project: '',
 });
 
@@ -76,7 +76,7 @@ export const splitExpense6 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
-  txn_dt: '2023-02-08',
+  spent_at: '2023-02-08',
   cost_center: '',
 });
 
@@ -146,7 +146,7 @@ export const splitExpenseDataWithProject: SplitExpense = deepFreeze({
     projectv2_name: 'Project 103',
     sub_project_name: 'Sub 103',
   },
-  txn_dt: '2023-08-10',
+  spent_at: '2023-08-10',
 });
 
 export const splitExpenseDataWithProject2: SplitExpense = deepFreeze({

@@ -1,12 +1,14 @@
-import { Component, OnInit, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop, Observable } from 'rxjs';
-import { ModalController } from '@ionic/angular';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyUserlistModalComponent } from './fy-userlist-modal/fy-userlist-modal.component';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { cloneDeep } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-userlist',
@@ -19,22 +21,39 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyUserlistComponent implements OnInit {
-  @Input() options: { label: string; value: any }[];
+  private modalController = inject(ModalController);
 
-  @Input() disabled = false;
+  private modalProperties = inject(ModalPropertiesService);
 
-  @Input() label = '';
+  readonly options = input<
+    {
+      label: string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      value: any;
+    }[]
+  >(undefined);
 
-  @Input() mandatory = false;
+  readonly disabled = input(false);
 
+  readonly label = input('');
+
+  readonly mandatory = input(false);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() allowCustomValues: boolean;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
   eouc$: Observable<Employee[]>;
@@ -47,9 +66,7 @@ export class FyUserlistComponent implements OnInit {
 
   onChangeCallback: (_: any) => void = noop;
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
-
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.validInParent;
     } else {

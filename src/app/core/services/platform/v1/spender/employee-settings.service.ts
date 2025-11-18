@@ -1,7 +1,7 @@
 import { map, Observable, of, Subject } from 'rxjs';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { SpenderService } from './spender.service';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { EmailEventsObject } from 'src/app/core/models/email-events.model';
@@ -18,15 +18,21 @@ const employeeSettingsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class PlatformEmployeeSettingsService {
-  constructor(private spenderService: SpenderService) {}
+  private spenderService = inject(SpenderService);
 
   @Cacheable({
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   get(): Observable<EmployeeSettings> {
-    return this.spenderService
-      .get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {})
-      .pipe(map((response) => (response.data.length > 0 ? response.data[0] : null)));
+    return this.spenderService.get<PlatformApiResponse<EmployeeSettings[]>>('/employee_settings', {}).pipe(
+      map((response) => {
+        if (response.data.length > 0) {
+          const employeeSettings = response.data[0];
+          return employeeSettings;
+        }
+        return null;
+      }),
+    );
   }
 
   @CacheBuster({
@@ -49,7 +55,7 @@ export class PlatformEmployeeSettingsService {
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
   getAllowedPaymentModes(): Observable<AccountType[]> {
-    return this.get().pipe(map((employeeSettings) => employeeSettings.payment_mode_settings?.allowed_payment_modes));
+    return this.get().pipe(map((employeeSettings) => employeeSettings?.payment_mode_settings?.allowed_payment_modes));
   }
 
   getEmailEvents(): EmailEventsObject {
@@ -246,7 +252,7 @@ export class PlatformEmployeeSettingsService {
           features: emailEvents.features,
           events,
         };
-      })
+      }),
     );
   }
 }

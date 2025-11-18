@@ -1,10 +1,10 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .view-comment {
   &--toolbar {
     text-align: center;
     margin-bottom: 12px;
-    --background: #{$pure-white};
+    --background: #{colors.$pure-white};
   }
 
   &--btn-close {
@@ -13,10 +13,10 @@
   }
 
   &--segment-block {
-    padding: 4px;
+    padding: 4px 4px 0;
 
     &__btn {
-      color: $blue-black;
+      color: colors.$blue-black;
       font-size: 14px;
       text-transform: capitalize;
       font-weight: 500;
@@ -36,13 +36,13 @@
   }
 
   &--self-comment {
-    background-color: $light-blue;
+    background-color: colors.$light-blue;
     margin-left: 24px;
     margin-right: 10px;
   }
 
   &--others-comment {
-    background-color: $light-purple;
+    background-color: colors.$light-purple;
     margin-right: 24px;
     margin-left: 10px;
   }
@@ -51,27 +51,27 @@
     left: 5px;
     font-size: 14px;
     line-height: 18px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 8px;
   }
 
   &--comment-timestamp {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--type-comment-block {
     height: 40px;
     display: flex;
-    background-color: $pure-white;
-    border: 1px solid $outline-grey;
+    background-color: colors.$pure-white;
+    border: 1px solid colors.$outline-grey;
     border-radius: 4px;
     padding: 6px;
-    color: $black-2;
+    color: colors.$black-2;
 
     &:focus {
-      border: 1px solid $black-light;
+      border: 1px solid colors.$black-light;
     }
   }
 
@@ -79,12 +79,11 @@
     width: calc(100% - 40px);
     height: 30px;
     border: none;
-    padding-top: 5px;
   }
 
   &--send-icon {
     margin-left: 10px;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--add-comment-container {
@@ -103,19 +102,19 @@
   }
 
   &--self-profile {
-    background: linear-gradient(0deg, $light-blue, $light-blue);
+    background: linear-gradient(0deg, colors.$light-blue, colors.$light-blue);
     margin-right: 8px;
   }
 
   &--others-profile {
-    background: $light-purple;
+    background: colors.$light-purple;
     margin-left: 8px;
   }
 
   &--profile-icon {
     margin: 10px;
     padding: 2px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--block {
@@ -139,14 +138,14 @@
   &--date {
     font-size: 12px;
     line-height: 20px;
-    color: $grey-light;
+    color: colors.$grey-light;
     margin-top: 16px;
   }
 
   &--comment-detail {
     font-size: 16px;
     line-height: 20px;
-    color: $dark-blue;
+    color: colors.$dark-blue;
   }
 
   &--zero-state-block {
@@ -169,7 +168,7 @@
     }
 
     &__content {
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 }

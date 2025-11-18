@@ -1,11 +1,14 @@
-import { Component, OnInit, forwardRef, Input, TemplateRef, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, TemplateRef, Injector, inject, input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { SelectionReturnType, VirtualSelectOptions } from './virtual-select.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-virtual-select',
@@ -18,36 +21,59 @@ import { SelectionReturnType, VirtualSelectOptions } from './virtual-select.mode
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
+  private modalController = inject(ModalController);
+
+  private injector = inject(Injector);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: VirtualSelectOptions }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  @Input() selectionElement: TemplateRef<any>;
+  readonly selectionElement = input<TemplateRef<any>>(undefined);
 
-  @Input() nullOption = true;
+  readonly nullOption = input(true);
 
-  @Input() cacheName = '';
+  readonly cacheName = input('');
 
-  @Input() subheader = 'All';
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() subheader: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() enableSearch = true;
 
-  @Input() selectModalHeader = '';
+  readonly selectModalHeader = input('');
 
-  @Input() showSaveButton = false;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() placeholder: string;
-
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: VirtualSelectOptions; selected?: boolean }[];
+  readonly recentlyUsed = input<
+    {
+      label: string;
+      value: VirtualSelectOptions;
+      selected?: boolean;
+    }[]
+  >(undefined);
 
   displayValue: string;
 
@@ -58,12 +84,6 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: VirtualSelectOptions) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private injector: Injector,
-    private modalProperties: ModalPropertiesService
-  ) {}
 
   get valid(): boolean {
     if (this.ngControl.touched) {
@@ -99,26 +119,30 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
+    this.subheader = this.subheader || this.translocoService.translate('virtualSelect.subheader');
   }
 
   async openModal(): Promise<void> {
-    const cssClass = this.label === 'Payment mode' ? 'payment-mode-modal' : 'virtual-modal';
+    const selectModalHeader = this.translocoService.translate('virtualSelect.selectItemHeader');
+    const cssClass =
+      this.label === this.translocoService.translate('virtualSelect.paymentModeLabel')
+        ? 'payment-mode-modal'
+        : 'virtual-modal';
 
     const selectionModal = await this.modalController.create({
       component: VirtualSelectModalComponent,
       componentProps: {
         options: this.options,
         currentSelection: this.value,
-        selectionElement: this.selectionElement,
-        nullOption: this.nullOption,
-        cacheName: this.cacheName,
+        selectionElement: this.selectionElement(),
+        nullOption: this.nullOption(),
+        cacheName: this.cacheName(),
         subheader: this.subheader,
         enableSearch: this.enableSearch,
-        selectModalHeader: this.selectModalHeader || 'Select item',
-        placeholder: this.placeholder,
-        showSaveButton: this.showSaveButton,
+        selectModalHeader: this.selectModalHeader() || selectModalHeader,
+        placeholder: this.placeholder(),
         defaultLabelProp: this.defaultLabelProp,
-        recentlyUsed: this.recentlyUsed,
+        recentlyUsed: this.recentlyUsed(),
         label: this.label,
       },
       mode: 'ios',
@@ -160,7 +184,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   //Hack for display_name values added to resolve BR related to merchant name not in list of options, BR: https://app.clickup.com/t/85ztztwg6;
   handleDisplayNameException(): void {
     if (this.innerValue && this.innerValue.hasOwnProperty('display_name') && !this.displayValue) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/dot-notation
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const displayName = this.innerValue['display_name'];
       if (displayName) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

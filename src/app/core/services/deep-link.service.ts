@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
@@ -8,7 +8,9 @@ import { TrackingService } from './tracking.service';
   providedIn: 'root',
 })
 export class DeepLinkService {
-  constructor(private router: Router, private trackingService: TrackingService) {}
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
 
   getJsonFromUrl(url?: string): Redirect {
     const query = url?.split('?')[1];
@@ -30,7 +32,7 @@ export class DeepLinkService {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
-    const refreshToken: string = redirectionParam.refresh_token;
+    const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
       if (redirectUri.match('verify')) {
@@ -49,7 +51,7 @@ export class DeepLinkService {
           'auth',
           'new_password',
           {
-            refreshToken,
+            token: refreshToken,
           },
         ]);
       } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
@@ -63,8 +65,8 @@ export class DeepLinkService {
             id: reportId,
           },
         ]);
-      } else if (redirectUri.match('/view_expense/tx') && redirectUri.split('/view_expense/').pop().length === 12) {
-        const txnId = redirectUri.split('/view_expense/').pop();
+      } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
+        const txnId = redirectUri.split('txnId=').pop();
         const subModule = 'expense';
         this.router.navigate([
           '/',

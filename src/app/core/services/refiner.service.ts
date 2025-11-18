@@ -1,5 +1,4 @@
-/* eslint-disable max-len */
-import { EventEmitter, Injectable } from '@angular/core';
+import { EventEmitter, Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
@@ -17,6 +16,16 @@ import { TokenService } from './token.service';
   providedIn: 'root',
 })
 export class RefinerService {
+  private currencyService = inject(CurrencyService);
+
+  private authService = inject(AuthService);
+
+  private networkService = inject(NetworkService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private tokenService = inject(TokenService);
+
   isConnected$: Observable<boolean>;
 
   americasCurrencyList = [
@@ -198,13 +207,7 @@ export class RefinerService {
     'ZWL',
   ];
 
-  constructor(
-    private currencyService: CurrencyService,
-    private authService: AuthService,
-    private networkService: NetworkService,
-    private orgUserService: OrgUserService,
-    private tokenService: TokenService
-  ) {
+  constructor() {
     this.setupNetworkWatcher();
   }
 
@@ -252,33 +255,36 @@ export class RefinerService {
       deviceInfo: Device.getInfo(),
       clusterDomain: this.tokenService.getClusterDomain(),
     }).subscribe(({ isConnected, eou, homeCurrency, deviceInfo, clusterDomain }) => {
-      if (this.canStartSurvey(homeCurrency, eou) && isConnected) {
-        const device = deviceInfo.operatingSystem.toUpperCase();
-        (window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void })._refiner(
-          'identifyUser',
-          {
-            id: eou.us.id, // Replace with your user ID
-            orgUserId: eou.ou.id,
-            orgId: eou.ou.org_id,
-            clusterDomain,
-            account: {
-              company_id: eou.ou.org_id,
-              region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
-            },
-            source: `Mobile - ${device}`,
-            is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
-            action_name: properties.actionName,
+      this.canStartSurvey(homeCurrency, eou)
+        .pipe(take(1))
+        .subscribe((canStart) => {
+          if (canStart && isConnected) {
+            const device = deviceInfo.operatingSystem.toUpperCase();
+            (
+              window as typeof window & { _refiner: (eventName: string, payload: IdentifyUserPayload) => void }
+            )._refiner('identifyUser', {
+              id: eou.us.id, // Replace with your user ID
+              orgUserId: eou.ou.id,
+              orgId: eou.ou.org_id,
+              clusterDomain,
+              account: {
+                company_id: eou.ou.org_id,
+                region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
+              },
+              source: `Mobile - ${device}`,
+              is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
+              action_name: properties.actionName,
+            });
+            (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+              'setProject',
+              environment.REFINER_NPS_FORM_PROJECT,
+            );
+            (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
+              'showForm',
+              environment.REFINER_NPS_FORM_ID,
+            );
           }
-        );
-        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-          'setProject',
-          environment.REFINER_NPS_FORM_PROJECT
-        );
-        (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
-          'showForm',
-          environment.REFINER_NPS_FORM_ID
-        );
-      }
+        });
     });
   }
 }

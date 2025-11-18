@@ -1,5 +1,5 @@
-@import '../../../../../../theme/colors.scss';
-@import '../../../../../../assets/styles/fy_select';
+@use '../../../../../../theme/colors.scss';
+@use '../../../../../../assets/styles/fy_select';
 
 .selection-modal {
   &--title {
@@ -10,7 +10,7 @@
 
   &--cta {
     @extend %fy-select-cta;
-    color: $brand-primary;
+    color: colors.$brand-primary;
   }
 
   &--toolbar {
@@ -19,21 +19,18 @@
 
   &--form-container {
     display: flex;
-    border: 1px solid $grey-lighter;
-    border-radius: 4px;
     margin: 8px 16px;
     font-size: 12px;
-    padding: 4px;
 
-    &__chips {
-      padding: 3px 4px 3px 8px;
+    &__chip-grid {
+      padding-top: 2px;
     }
   }
 
   &--form-input {
     margin-top: -4px !important;
     font-size: 14px;
-    color: $black-2;
+    color: colors.$black-2;
     margin-left: 6px !important;
 
     &__chips {
@@ -42,14 +39,14 @@
   }
 
   &--selected-count {
-    color: $grey-light;
+    color: colors.$grey-light;
     text-align: left;
     margin: 0 16px 10px;
   }
 
   &--search-icon {
     @extend %fy-select-search-icon;
-    margin-top: -12px;
+    margin-top: -8px;
   }
 
   &--container {
@@ -61,8 +58,8 @@
   &--list-element {
     padding: 18px 0;
     margin: 0 16px;
-    border-bottom: 1px solid $grey-6;
-    color: $gray-3;
+    border-bottom: 1px solid colors.$grey-6;
+    color: colors.$gray-3;
 
     &__label {
       display: flex;
@@ -79,12 +76,12 @@
     &__title {
       font-size: 16px;
       display: block;
-      color: $black;
+      color: colors.$black;
     }
 
     &__content {
       font-size: 12px;
-      color: $grey-light;
+      color: colors.$grey-light;
     }
   }
 }

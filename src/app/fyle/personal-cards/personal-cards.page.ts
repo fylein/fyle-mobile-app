@@ -8,6 +8,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { InfiniteScrollCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import {
@@ -32,13 +33,13 @@ import { PlatformPersonalCard } from 'src/app/core/models/platform/platform-pers
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { ModalController, Platform } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { ExtendQueryParamsService } from 'src/app/core/services/extend-query-params.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -48,7 +49,7 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox';
+import { MatCheckboxChange, MatCheckbox } from '@angular/material/checkbox';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
@@ -59,6 +60,18 @@ import { PersonalCardFilter } from 'src/app/core/models/personal-card-filters.mo
 import { PlatformPersonalCardFilterParams } from 'src/app/core/models/platform/platform-personal-card-filter-params.model';
 import { PlatformPersonalCardTxnState } from 'src/app/core/models/platform/platform-personal-card-txn-state.enum';
 import { PlatformPersonalCardQueryParams } from 'src/app/core/models/platform/platform-personal-card-query-params.model';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { BankAccountCardsComponent } from '../../shared/components/bank-account-cards/bank-account-cards.component';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { PersonalCardTransactionComponent } from '../../shared/components/personal-card-transaction/personal-card-transaction.component';
+import { TransactionsShimmerComponent } from './transactions-shimmer/transactions-shimmer.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { AsyncPipe } from '@angular/common';
 
 // eslint-disable-next-line custom-rules/prefer-semantic-extension-name
 type Filters = Partial<PersonalCardFilter>;
@@ -67,8 +80,75 @@ type Filters = Partial<PersonalCardFilter>;
   selector: 'app-personal-cards',
   templateUrl: './personal-cards.page.html',
   styleUrls: ['./personal-cards.page.scss'],
+  imports: [
+    AsyncPipe,
+    BankAccountCardsComponent,
+    FooterComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonItem,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonToolbar,
+    MatCheckbox,
+    MatFormField,
+    MatIcon,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    PersonalCardTransactionComponent,
+    TransactionsShimmerComponent
+  ],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
+  private personalCardsService = inject(PersonalCardsService);
+
+  private networkService = inject(NetworkService);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private inAppBrowserService = inject(InAppBrowserService);
+
+  private loaderService = inject(LoaderService);
+
+  private zone = inject(NgZone);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private modalController = inject(ModalController);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private platform = inject(Platform);
+
+  private spinnerDialog = inject(SpinnerDialog);
+
+  private trackingService = inject(TrackingService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
@@ -141,25 +221,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
 
   onComponentDestroy$ = new Subject();
 
-  constructor(
-    private personalCardsService: PersonalCardsService,
-    private networkService: NetworkService,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private inAppBrowserService: InAppBrowserService,
-    private loaderService: LoaderService,
-    private zone: NgZone,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private modalController: ModalController,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private platform: Platform,
-    private spinnerDialog: SpinnerDialog,
-    private trackingService: TrackingService,
-    private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.trackingService.personalCardsViewed();
@@ -192,10 +253,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           }),
           finalize(() => {
             this.isLoading = false;
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -206,13 +267,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           this.extendQueryParamsService.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
   loadInfiniteScroll(): void {
     const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
   }
@@ -220,7 +281,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   loadAccountCount(): void {
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getPersonalCardsCount()),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -241,7 +302,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         }
         queryParams = this.extendQueryParamsService.extendQueryParamsForTextSearch(
           queryParams as {},
-          params.searchString
+          params.searchString,
         );
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
@@ -256,7 +317,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
                   finalize(() => {
                     this.isTransactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  })
+                  }),
                 );
             } else {
               this.isTransactionsLoading = false;
@@ -264,7 +325,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
                 data: [] as PlatformPersonalCardTxn[],
               });
             }
-          })
+          }),
         );
       }),
       map((res) => {
@@ -275,7 +336,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
     );
   }
 
@@ -299,7 +360,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400),
-        takeUntil(this.onComponentDestroy$)
+        takeUntil(this.onComponentDestroy$),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -321,7 +382,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onComponentDestroy$),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -337,7 +398,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, false);
@@ -349,7 +410,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
       url,
       access_token,
       isMfaFlow,
-      this.selectedAccount?.yodlee_provider_account_id
+      this.selectedAccount?.yodlee_provider_account_id,
     );
     const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
@@ -362,11 +423,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
     });
     browser.on('loadstart').subscribe((event) => {
       /* As of now yodlee not supported for postmessage for cordova
-         So now added callback url as https://www.fylehq.com ,
-         after success yodlee will redirect to the url with success message on params,
-         while start loading this url below code will parse the success message and
-         close the inappborwser. this url will not visible to users.
-      */
+               So now added callback url as https://www.fylehq.com ,
+               after success yodlee will redirect to the url with success message on params,
+               while start loading this url below code will parse the success message and
+               close the inappborwser. this url will not visible to users.
+            */
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {
@@ -387,16 +448,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   postAccounts(): void {
-    from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
+    from(this.loaderService.showLoader('Linking your card with Sage Expense Management...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((data) => {
         const message =
-          data.length === 1 ? '1 card successfully added to Fyle!' : `${data.length} cards successfully added to Fyle!`;
+          data.length === 1 ? '1 card successfully added to Sage Expense Management!' : `${data.length} cards successfully added to Sage Expense Management!`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
           panelClass: ['msb-success'],
@@ -491,7 +552,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token, true);
@@ -549,7 +610,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit, OnDestroy {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        })
+        }),
       )
       .subscribe(noop);
   }

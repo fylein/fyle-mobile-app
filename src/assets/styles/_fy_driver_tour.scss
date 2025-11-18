@@ -1,7 +1,7 @@
-@import '../../theme/colors.scss';
+@use '../../theme/colors.scss';
 
 .driver-popover {
-  background-color: $walkthrough-bg;
+  background-color: colors.$walkthrough-bg;
   color: white;
   min-height: 154px;
   max-width: 280px;
@@ -11,7 +11,7 @@
 .driver-popover-arrow {
   content: '';
   position: absolute;
-  border: 5px solid $walkthrough-bg;
+  border: 5px solid colors.$walkthrough-bg;
 }
 
 .driver-popover-arrow-side-top {
@@ -21,27 +21,34 @@
   border-left-color: transparent;
 }
 
+.driver-popover-arrow-side-bottom {
+  bottom: 100%;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  border-left-color: transparent;
+}
+
 .driver-popover-description {
   font-size: 14px;
+  padding-bottom: 10px;
   max-width: 200px;
+  font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
 }
 
 .driver-popover-close-btn {
-  color: $walkthrough-text-color !important;
+  color: colors.$walkthrough-text-color !important;
   font-weight: normal;
   font-size: 24px;
   top: 5px;
   right: 5px;
 }
 
-.driver-popover-description {
-  padding-bottom: 10px;
-}
-
 .driver-popover-footer {
   margin-top: 38px;
+  font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
   button {
     background-color: transparent;
+    font-family: 'sage-ui', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Segoe UI', 'Arial';
   }
 }
 
@@ -63,7 +70,7 @@
 }
 
 .driver-popover-progress-text {
-  color: $walkthrough-text-color;
+  color: colors.$walkthrough-text-color;
 }
 
 .driver-popover-navigation-btns {

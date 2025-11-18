@@ -1,25 +1,23 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SidemenuService } from 'src/app/core/services/sidemenu.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { Router } from '@angular/router';
-import { MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular/standalone';
 import { SidemenuComponent } from './sidemenu.component';
 import { of, take } from 'rxjs';
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, NO_ERRORS_SCHEMA, Output } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { currentEouRes, eouListWithDisabledUser } from 'src/app/core/test-data/org-user.service.spec.data';
+import { currentEouRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { cloneDeep } from 'lodash';
@@ -35,6 +33,11 @@ import {
 } from 'src/app/core/mock-data/sidemenu.data';
 import { delegatorData } from 'src/app/core/mock-data/platform/v1/delegator.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
+import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
+import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('SidemenuComponent', () => {
   let component: SidemenuComponent;
@@ -44,7 +47,7 @@ describe('SidemenuComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let menuController: jasmine.SpyObj<MenuController>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let sidemenuService: jasmine.SpyObj<SidemenuService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -53,19 +56,25 @@ describe('SidemenuComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
+  // mocks
   @Component({
-    selector: 'app-sidemenu',
-    template: '<ion-menu></ion-menu>',
+    selector: 'app-sidemenu-content',
+    template: '',
   })
-  class MockIonMenuComponent {
-    @Input() side: string;
+  class SidemenuContentStubComponent {}
 
-    @Input() class: string;
+  @Component({
+    selector: 'app-sidemenu-footer',
+    template: '',
+  })
+  class SidemenuFooterStubComponent {}
 
-    @Input() contentId: string;
+  @Component({
+    selector: 'app-sidemenu-header',
+    template: '',
+  })
+  class SidemenuHeaderStubComponent {}
 
-    @Input() swipeGesture: boolean;
-  }
   beforeEach(waitForAsync(() => {
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
@@ -77,7 +86,7 @@ describe('SidemenuComponent', () => {
       'isSwitchedToDelegator',
       'getCurrent',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const sidemenuServiceSpy = jasmine.createSpyObj('SidemenuService', ['getAllowedActions']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
@@ -88,17 +97,15 @@ describe('SidemenuComponent', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
-
     TestBed.configureTestingModule({
-      declarations: [SidemenuComponent],
-      imports: [IonicModule.forRoot(), MatMenuModule],
+      imports: [SidemenuComponent, getTranslocoTestingModule(), MatIconTestingModule],
       providers: [
         { provide: DeviceService, useValue: deviceServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: SidemenuService, useValue: sidemenuServiceSpy },
         { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
@@ -107,25 +114,31 @@ describe('SidemenuComponent', () => {
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(SidemenuComponent, {
+        remove: { imports: [SidemenuContentComponent, SidemenuFooterComponent, SidemenuHeaderComponent] },
+        add: {
+          imports: [SidemenuContentStubComponent, SidemenuFooterStubComponent, SidemenuHeaderStubComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     menuController = TestBed.inject(MenuController) as jasmine.SpyObj<MenuController>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     sidemenuService = TestBed.inject(SidemenuService) as jasmine.SpyObj<SidemenuService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
 
     spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));
@@ -321,7 +334,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Home',
           isVisible: true,
-          icon: 'dashboard',
+          icon: 'house-outline',
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
@@ -462,10 +475,10 @@ describe('SidemenuComponent', () => {
 
     it('should setup the side menu', fakeAsync(() => {
       const getPrimarySidemenuOptionsSpy = spyOn(component, 'getPrimarySidemenuOptions').and.returnValue(
-        getPrimarySidemenuOptionsRes1
+        getPrimarySidemenuOptionsRes1,
       );
       const getSecondarySidemenuOptionsSpy = spyOn(component, 'getSecondarySidemenuOptions').and.returnValue(
-        getSecondarySidemenuOptionsRes1
+        getSecondarySidemenuOptionsRes1,
       );
       const resData = setSideMenuRes;
       component.setupSideMenu(true, orgData1, true);
@@ -478,7 +491,7 @@ describe('SidemenuComponent', () => {
 
     it('should only get the primary options when there is no internet connection', fakeAsync(() => {
       const getPrimarySidemenuOptionsOfflineSpy = spyOn(component, 'getPrimarySidemenuOptionsOffline').and.returnValue(
-        sidemenuData1
+        sidemenuData1,
       );
       const resData = sidemenuData1;
       component.setupSideMenu(false, orgData1, false);

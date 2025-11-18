@@ -9,100 +9,125 @@
   </ion-toolbar>
 </ion-header>
 
-<div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
-  <div *ngIf="corporateCards$ | async as corporateCards">
-    <div *ngIf="isVirtualCardsEnabled.enabled && showSegment" class="manage-corporate-cards__segment-container">
-      <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
-        <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize"
-          >Corporate cards</ion-segment-button
-        >
-        <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual cards</ion-segment-button>
-      </ion-segment>
-    </div>
+@if (isVirtualCardsEnabled$ | async; as isVirtualCardsEnabled) {
+  <div>
+    @if (corporateCards$ | async; as corporateCards) {
+      <div>
+        @if (isVirtualCardsEnabled.enabled && showSegment) {
+          <div class="manage-corporate-cards__segment-container">
+            <ion-segment
+              (ionChange)="segmentChanged($event)"
+              [value]="segmentValue"
+              class="manage-corporate-cards__segment"
+            >
+              <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize"
+                >Corporate cards</ion-segment-button
+              >
+              <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize"
+                >Virtual cards</ion-segment-button
+              >
+            </ion-segment>
+          </div>
+        }
+      </div>
+    }
   </div>
-</div>
+}
 
 <!-- Corporate Cards will always be the default segment value -->
-<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS" class="manage-corporate-cards__corporate-cards">
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-
-  <div class="manage-corporate-cards__cards">
-    <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
-      <div *ngIf="getCorporateCardsLength(corporateCards); else zeroState" class="manage-corporate-cards__cards-list">
-        <div *ngFor="let corporateCard of filteredCorporateCards" class="manage-corporate-cards__card">
-          <app-corporate-card
-            *ngIf="!corporateCard.virtual_card_id"
-            [card]="corporateCard"
-            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-            (cardOptionsClick)="openCardOptions($event)"
-          ></app-corporate-card>
-        </div>
-      </div>
-      <ng-template #zeroState>
-        <div class="manage-corporate-cards__zero-state-container" data-testid="zero-state">
-          <img class="manage-corporate-cards__zero-state-img" src="../../../../assets/images/cards.svg" />
-
-          <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
-          <div class="manage-corporate-cards__zero-state-subheading">
-            Add corporate cards to sync your transactions on Fyle.
+@if (segmentValue === Segment.CORPORATE_CARDS) {
+  <ion-content class="manage-corporate-cards__corporate-cards">
+    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    <div class="manage-corporate-cards__cards">
+      @if (corporateCards$ | async; as corporateCards) {
+        @if (getCorporateCardsLength(corporateCards)) {
+          <div class="manage-corporate-cards__cards-list">
+            @for (corporateCard of filteredCorporateCards; track corporateCard) {
+              <div class="manage-corporate-cards__card">
+                @if (!corporateCard.virtual_card_id) {
+                  <app-corporate-card
+                    [card]="corporateCard"
+                    [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+                    [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+                    (cardOptionsClick)="openCardOptions($event)"
+                  ></app-corporate-card>
+                }
+              </div>
+            }
           </div>
-        </div>
-      </ng-template>
-    </ng-container>
-
-    <ng-template #shimmers>
-      <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
-    </ng-template>
-  </div>
-</ion-content>
-<ion-content *ngIf="segmentValue === Segment.VIRTUAL_CARDS" class="manage-corporate-cards__virtual-cards">
-  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-
-  <div
-    *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled"
-    class="manage-corporate-cards__cards manage-corporate-cards__cards-list manage-corporate-cards__tab-available"
-  >
-    <ng-container *ngIf="isVirtualCardsEnabled.enabled && corporateCards$ | async as corporateCards; else shimmers">
-      <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
-        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__virtual-card">
-          <app-virtual-card
-            *ngIf="virtualCardDetails[corporateCard.virtual_card_id]"
-            [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id]?.full_card_number"
-            [cvv]="virtualCardDetails[corporateCard.virtual_card_id]?.cvv"
-            [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
-            [cardStatus]="corporateCard.virtual_card_state"
-            [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
-            [availableAmount]="virtualCardDetails[corporateCard.virtual_card_id]?.current_amount"
-            class="manage-corporate-cards__virtual-cards__virtual-card"
-          ></app-virtual-card>
-        </div>
-      </ng-container>
-    </ng-container>
-
-    <ng-template #shimmers>
-      <ion-skeleton-text
-        data-testid="shimmer"
-        animated
-        class="manage-corporate-cards__virtual-card-shimmer"
-      ></ion-skeleton-text>
-    </ng-template>
-  </div>
-</ion-content>
-
-<ion-footer *ngIf="(isAddCorporateCardVisible$ | async) && segmentValue === Segment.CORPORATE_CARDS">
-  <ion-toolbar mode="md">
-    <div class="manage-corporate-cards__footer-toolbar">
-      <ion-button
-        data-testid="add-button"
-        class="fy-footer-cta fy-footer-cta--primary"
-        (click)="openAddCorporateCardPopover()"
-        >Add corporate card</ion-button
-      >
+        } @else {
+          <div class="manage-corporate-cards__zero-state-container" data-testid="zero-state">
+            <img class="manage-corporate-cards__zero-state-img" src="../../../../assets/svg/zero-states/cards.svg" />
+            <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
+            <div class="manage-corporate-cards__zero-state-subheading">
+              Add corporate cards to sync your transactions on Sage Expense Management.
+            </div>
+          </div>
+        }
+      } @else {
+        <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+      }
     </div>
-  </ion-toolbar>
-</ion-footer>
+  </ion-content>
+}
+@if (segmentValue === Segment.VIRTUAL_CARDS) {
+  <ion-content class="manage-corporate-cards__virtual-cards">
+    <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    @if (isVirtualCardsEnabled$ | async; as isVirtualCardsEnabled) {
+      <div
+        class="manage-corporate-cards__cards manage-corporate-cards__cards-list manage-corporate-cards__tab-available"
+      >
+        @if (isVirtualCardsEnabled.enabled && corporateCards$ | async; as corporateCards) {
+          @if (virtualCardDetails$ | async; as virtualCardDetails) {
+            @for (corporateCard of corporateCards; track corporateCard) {
+              <div class="manage-corporate-cards__virtual-card">
+                @if (virtualCardDetails[corporateCard.virtual_card_id]) {
+                  <app-virtual-card
+                    [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id]?.full_card_number"
+                    [cvv]="virtualCardDetails[corporateCard.virtual_card_id]?.cvv"
+                    [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
+                    [cardStatus]="corporateCard.virtual_card_state"
+                    [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
+                    [availableAmount]="virtualCardDetails[corporateCard.virtual_card_id]?.current_amount"
+                    class="manage-corporate-cards__virtual-cards__virtual-card"
+                  ></app-virtual-card>
+                }
+              </div>
+            }
+          } @else {
+            <ion-skeleton-text
+              data-testid="shimmer"
+              animated
+              class="manage-corporate-cards__virtual-card-shimmer"
+            ></ion-skeleton-text>
+          }
+        } @else {
+          <ion-skeleton-text
+            data-testid="shimmer"
+            animated
+            class="manage-corporate-cards__virtual-card-shimmer"
+          ></ion-skeleton-text>
+        }
+      </div>
+    }
+  </ion-content>
+}
+
+@if ((isAddCorporateCardVisible$ | async) && segmentValue === Segment.CORPORATE_CARDS) {
+  <ion-footer>
+    <ion-toolbar mode="md">
+      <div class="manage-corporate-cards__footer-toolbar">
+        <ion-button
+          data-testid="add-button"
+          class="fy-footer-cta fy-footer-cta--primary"
+          (click)="openAddCorporateCardPopover()"
+          >Add corporate card</ion-button
+        >
+      </div>
+    </ion-toolbar>
+  </ion-footer>
+}

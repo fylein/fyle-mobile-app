@@ -1,16 +1,27 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, inject, output } from '@angular/core';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { PasswordChecks } from './password-checks.model';
 import { PasswordCriteria } from './password-criteria.model';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-password-check-tooltip',
   templateUrl: './password-check-tooltip.component.html',
   styleUrls: ['./password-check-tooltip.component.scss'],
+  imports: [
+    IonIcon,
+    TranslocoPipe
+  ],
 })
 export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() password: string;
 
-  @Output() isPasswordValid = new EventEmitter<boolean>();
+  readonly isPasswordValid = output<boolean>();
 
   passwordChecks: PasswordChecks = {
     lengthValid: false,
@@ -26,23 +37,23 @@ export class PasswordCheckTooltipComponent implements OnChanges, OnInit {
     this.passwordCriteria = [
       {
         isValid: this.passwordChecks.lengthValid,
-        message: '12 to 32 characters',
+        message: this.translocoService.translate('passwordCheckTooltip.lengthRequirement'),
       },
       {
         isValid: this.passwordChecks.uppercaseValid,
-        message: '1 uppercase character',
+        message: this.translocoService.translate('passwordCheckTooltip.uppercaseRequirement'),
       },
       {
         isValid: this.passwordChecks.lowercaseValid,
-        message: '1 lowercase character',
+        message: this.translocoService.translate('passwordCheckTooltip.lowercaseRequirement'),
       },
       {
         isValid: this.passwordChecks.numberValid,
-        message: '1 number',
+        message: this.translocoService.translate('passwordCheckTooltip.numberRequirement'),
       },
       {
         isValid: this.passwordChecks.specialCharValid,
-        message: '1 special character',
+        message: this.translocoService.translate('passwordCheckTooltip.specialCharRequirement'),
       },
     ];
   }

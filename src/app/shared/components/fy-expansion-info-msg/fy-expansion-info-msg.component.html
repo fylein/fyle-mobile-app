@@ -11,18 +11,14 @@
           <mat-icon class="info-icon" svgIcon="info-circle-fill"></mat-icon>
           <span>
             {{ infoMsgContent }}
-            <a
-              *ngIf="showHelpLink"
-              (click)="onHelpLinkClick()"
-              class="fy-expansion--article-link"
-              role="button"
-              tabindex="0"
-            >
-              <span>
-                {{ helpLinkLabel }}
-                <mat-icon class="fy-expansion--link-icon" svgIcon="open-in-new-tab"></mat-icon>
-              </span>
-            </a>
+            @if (showHelpLink) {
+              <a (click)="onHelpLinkClick()" class="fy-expansion--article-link" role="button" tabindex="0">
+                <span>
+                  {{ helpLinkLabel ?? ('fyExpansionInfoMsg.learnMore' | transloco) }}
+                  <mat-icon class="fy-expansion--link-icon" svgIcon="open-in-new-tab"></mat-icon>
+                </span>
+              </a>
+            }
           </span>
         </div>
       </ion-item>

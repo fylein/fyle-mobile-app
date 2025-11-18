@@ -5,7 +5,7 @@ import { SpenderOnboardingPage } from './spender-onboarding.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OnboardingStep } from './models/onboarding-step.enum';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
@@ -16,7 +16,21 @@ import { orgSettingsWoTaxAndRtf } from 'src/app/core/mock-data/org-settings.data
 import { statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { orgSettingsCardsDisabled } from 'src/app/core/test-data/org-settings.service.spec.data';
+import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+
+// mock for SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent
+@Component({
+  selector: 'app-spender-onboarding-connect-card-step',
+  template: '<div></div>',
+})
+export class MockSpenderOnboardingConnectCardStepComponent {}
+@Component({
+  selector: 'app-spender-onboarding-opt-in-step',
+  template: '<div></div>',
+})
+export class MockSpenderOnboardingOptInStepComponent {}
 
 describe('SpenderOnboardingPage', () => {
   let component: SpenderOnboardingPage;
@@ -24,7 +38,7 @@ describe('SpenderOnboardingPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -41,7 +55,7 @@ describe('SpenderOnboardingPage', () => {
       'markWelcomeModalStepAsComplete',
       'setOnboardingStatusEvent',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
       'clearCache',
@@ -50,17 +64,27 @@ describe('SpenderOnboardingPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     await TestBed.configureTestingModule({
-      declarations: [SpenderOnboardingPage],
+      imports: [SpenderOnboardingPage],
       providers: [
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(SpenderOnboardingPage, {
+        remove: {
+          imports: [SpenderOnboardingConnectCardStepComponent, SpenderOnboardingOptInStepComponent],
+        },
+        add: {
+          imports: [MockSpenderOnboardingConnectCardStepComponent, MockSpenderOnboardingOptInStepComponent],
+          schemas: [CUSTOM_ELEMENTS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(SpenderOnboardingPage);
     component = fixture.componentInstance;
@@ -68,9 +92,9 @@ describe('SpenderOnboardingPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -101,7 +125,7 @@ describe('SpenderOnboardingPage', () => {
       });
     });
 
-    it('should go to Opt in step when RTF is disabled', (done) => {
+    it('should go to Opt-in step when RTF is disabled', (done) => {
       loaderService.showLoader.and.resolveTo();
       orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsWoTaxAndRtf));
@@ -121,12 +145,12 @@ describe('SpenderOnboardingPage', () => {
       });
     });
 
-    it('should go to Opt in step when connect card is skipped', (done) => {
+    it('should go to Opt-in step when connect card is skipped', (done) => {
       loaderService.showLoader.and.resolveTo();
       orgUserService.getCurrent.and.returnValue(of(extendedOrgUserResponse));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true }),
       );
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([statementUploadedCard]));
 
@@ -153,10 +177,10 @@ describe('SpenderOnboardingPage', () => {
       orgUserService.getCurrent.and.returnValue(of(apiEouRes));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: false }),
       );
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(
-        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }])
+        of([{ ...statementUploadedCard, is_mastercard_enrolled: true }]),
       );
       spenderOnboardingService.skipConnectCardsStep.and.returnValue(of(onboardingRequestResponse));
 
@@ -181,7 +205,7 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('skipOnboardingStep(): ', () => {
-    it('should set onboarding as complete if mobile number is verified before navigating to opt in', fakeAsync(() => {
+    it('should set onboarding as complete if mobile number is verified before navigating to opt-in', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       fixture.detectChanges();
 
@@ -202,7 +226,7 @@ describe('SpenderOnboardingPage', () => {
       expect(spenderOnboardingService.skipConnectCardsStep).toHaveBeenCalledTimes(1);
     }));
 
-    it('should move from Opt in to connect card step if mobile number is not verified', fakeAsync(() => {
+    it('should move from Opt-in to connect card step if mobile number is not verified', fakeAsync(() => {
       component.currentStep = OnboardingStep.CONNECT_CARD;
       component.eou = apiEouRes;
       fixture.detectChanges();
@@ -261,7 +285,7 @@ describe('SpenderOnboardingPage', () => {
       expect(spenderOnboardingService.markConnectCardsStepAsComplete).toHaveBeenCalled();
     }));
 
-    it('should mark the current step as complete - Opt in', fakeAsync(() => {
+    it('should mark the current step as complete - Opt-in', fakeAsync(() => {
       const onboardingRequestResponse: OnboardingStepStatus = {
         is_configured: true,
         is_skipped: false,

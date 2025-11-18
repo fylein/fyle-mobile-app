@@ -29,18 +29,30 @@ import { CategoriesService } from './categories.service';
 import { fileObject4 } from '../mock-data/file-object.data';
 import { unspecifiedCategory } from '../mock-data/org-category.data';
 import { eCCCData1 } from '../mock-data/corporate-card-expense-unflattened.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('PolicyService', () => {
   let policyService: PolicyService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getCategoryByName']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    // Configure the translate spy to return expected values
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.policy.unspecified': 'Unspecified',
+        'services.policy.expenseNeedsAdditionalApproval': 'Expense will need additional approval from ',
+        'services.policy.expenseWillBeFlagged': 'flagged',
+        'services.policy.primaryApproverSkipped': 'Primary approver will be skipped',
+        'services.policy.expenseNeedsApprovalFrom': 'This expense will need approval from',
+        'services.policy.expenseCappedTo': 'This expense will be capped to',
+      };
+      return translations[key] || key;
+    });
     TestBed.configureTestingModule({
       providers: [
         PolicyService,
@@ -56,16 +68,21 @@ describe('PolicyService', () => {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     policyService = TestBed.inject(PolicyService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     approverPlatformApiService = TestBed.inject(
-      ApproverPlatformApiService
+      ApproverPlatformApiService,
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -257,15 +274,15 @@ describe('PolicyService', () => {
       });
     });
 
-    it('should set org_category_id to unspecified if no category is present in the expense', (done) => {
+    it('should set category_id to unspecified if no category is present in the expense', (done) => {
       categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
       const etxn = {
-        tx: { ...publicPolicyExpenseData1, org_category_id: null },
+        tx: { ...publicPolicyExpenseData1, category_id: null },
         dataUrls: fileObject4,
       };
 
       policyService.prepareEtxnForPolicyCheck(etxn, null).subscribe((res) => {
-        expect(res.org_category_id).toEqual(unspecifiedCategory.id);
+        expect(res.category_id).toEqual(unspecifiedCategory.id);
         expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
         done();
       });

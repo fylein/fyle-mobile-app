@@ -3,22 +3,40 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { FyPopoverComponent } from './fy-popover.component';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 
 describe('FyPopoverComponent', () => {
   let component: FyPopoverComponent;
   let fixture: ComponentFixture<FyPopoverComponent>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let simpleFormInput: DebugElement;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(async () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     await TestBed.configureTestingModule({
-      declarations: [FyPopoverComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
-      providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        FyPopoverComponent,
+      ],
+      providers: [
+        { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
+      ],
     }).compileComponents();
   });
 
@@ -28,6 +46,24 @@ describe('FyPopoverComponent', () => {
     simpleFormInput = fixture.debugElement.nativeElement.querySelector('textarea');
     component = fixture.componentInstance;
     fixture.detectChanges();
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyPopover.done': 'Done',
+        'fyPopover.placeholder': 'Type your reason here',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   });
 
   it('should create', () => {

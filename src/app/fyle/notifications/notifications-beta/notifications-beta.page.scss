@@ -1,12 +1,42 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .notifications {
   &--toolbar {
-    box-shadow: 0 0 8px $black-shadow;
+    box-shadow: 0 0 8px colors.$black-shadow;
+  }
+
+  &--zero-state-container {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    padding: 0 24px;
+    box-sizing: border-box;
+  }
+
+  &--zero-state-img {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 32px;
+    margin-top: 0;
+    display: block;
+  }
+
+  &--zero-state-subheading {
+    color: colors.$blue-black;
+    font-size: 16px;
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 auto;
+    font-weight: 400;
+    letter-spacing: 0.01em;
   }
 
   &--toolbar-title {
-    color: $black;
+    color: colors.$black;
     font-size: 20px;
     font-weight: 500;
     line-height: normal;
@@ -14,12 +44,12 @@
   }
 
   &--content-container {
-    --background: #{$pure-white};
+    --background: #{colors.$pure-white};
   }
 
   &--container {
     margin: 16px;
-    background: $pure-white;
+    background: colors.$pure-white;
   }
 
   &--card {
@@ -27,48 +57,48 @@
     align-items: center;
     padding: 16px;
     margin-bottom: 16px;
-    background: $pure-white;
+    background: colors.$pure-white;
     justify-content: space-between;
-    border: 1px solid $grey;
+    border: 1px solid colors.$grey;
     border-radius: 8px;
 
     &--title {
       font-size: 16px;
       font-weight: 500;
-      color: $blue-black;
+      color: colors.$blue-black;
     }
   }
 
   &--preferences-container {
     padding: 16px;
-    background: $pure-white;
-    border: 1px solid $grey;
+    background: colors.$pure-white;
+    border: 1px solid colors.$grey;
     border-radius: 8px 8px 0 0;
 
     &--title {
       font-size: 16px;
       font-weight: 500;
-      color: $blue-black;
+      color: colors.$blue-black;
     }
 
     &--description {
       font-size: 12px;
       font-weight: 400;
-      color: $black-light;
+      color: colors.$black-light;
     }
   }
 
   &--preferences-form {
     padding: 20px 16px;
-    background: $pure-white;
-    border: 1px solid $grey;
+    background: colors.$pure-white;
+    border: 1px solid colors.$grey;
     border-top: none;
     border-radius: 0 0 8px 8px;
 
     &--radio-button {
       font-size: 14px;
       font-weight: 400;
-      color: $blue-black;
+      color: colors.$blue-black;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -86,6 +116,20 @@
 
   &--navigate-icon {
     height: 16px;
-    color: $blue-black;
+    color: colors.$blue-black;
+  }
+}
+
+// Skeleton Loading Styles
+.notifications {
+  &--skeleton-wrapper {
+    padding: 16px;
+  }
+
+  &--skeleton-card {
+    width: 100%;
+    height: 56px;
+    border-radius: 8px;
+    margin-bottom: 16px;
   }
 }

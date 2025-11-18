@@ -1,5 +1,5 @@
-@import '../../../theme/colors.scss';
-@import '../../../theme/forms.scss';
+@use '../../../theme/colors.scss';
+@use '../../../theme/forms.scss';
 
 .merge-expenses {
   &--toolbar {
@@ -29,7 +29,7 @@
       padding-inline-end: 0;
       position: relative;
       line-height: 26px;
-      color: $black;
+      color: colors.$black;
       top: 12px;
       height: 64px;
     }
@@ -56,47 +56,6 @@
     }
   }
 
-  &--primary-cta,
-  &--secondary-cta {
-    height: 48px;
-    text-transform: inherit;
-    font-weight: 600;
-    border-radius: 8px;
-    width: 100%;
-    margin: 12px 0;
-    --border-radius: 4px !important;
-
-    &:first-child {
-      margin-right: 4px;
-    }
-
-    &:last-child {
-      margin-left: 4px;
-    }
-  }
-
-  &--secondary-cta {
-    margin: 0;
-    border-radius: 0;
-    &__border {
-      border-right: 1px solid $grey;
-    }
-  }
-
-  &--secondary-cta-text {
-    min-width: 80px;
-  }
-
-  &--secondary-cta-icon {
-    &__left {
-      margin-right: 18px;
-    }
-
-    &__right {
-      margin-left: 18px;
-    }
-  }
-
   &--currency {
     margin: 12px 0 0 0;
   }
@@ -110,7 +69,7 @@
   }
 
   &--date {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--date-label {
@@ -118,7 +77,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
@@ -135,7 +94,7 @@
 
   &--text {
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -144,7 +103,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
@@ -153,7 +112,7 @@
     border: 0;
     height: 24px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     margin: 6px 0;
     padding: 0;
@@ -165,7 +124,7 @@
   }
 
   &--checkbox {
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--project-container {
@@ -185,7 +144,7 @@
 
   &--internal-block {
     padding: 6px 0;
-    background: $pure-white;
+    background: colors.$pure-white;
     line-height: 1;
     margin-bottom: 12px;
     &__margin {
@@ -208,22 +167,22 @@
   }
 
   &--payment-mode-header {
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--payment-mode-section {
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     margin-top: 4px;
   }
 
   &--check {
-    color: $brand-primary;
+    color: colors.$brand-primary;
     font-size: 20px;
   }
 
   &--error {
-    color: $red;
+    color: colors.$negative-500;
   }
 
   &--icon-corporate-card {
@@ -238,11 +197,11 @@
   }
 
   &--matching-card {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
     display: flex;
     padding: 4px 0;
     justify-content: space-between;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--icon-loading {
@@ -267,24 +226,24 @@
   }
 
   &--card-arrow {
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--error {
-    color: $red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -12px;
     font-size: 12px;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
   }
 
   &--ccc-expense {
     pointer-events: none;
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &--text-block {
@@ -292,21 +251,21 @@
   }
 
   &--disabled {
-    background: $grey-7;
+    background: colors.$grey-7;
   }
 }
 
 .fy-header {
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
   &--title {
     line-height: 1.3;
-    color: $black;
+    color: colors.$black;
     font-weight: 500;
     padding: 18px 0 18px 12px;
   }
 
   &--toolbar {
-    border-bottom: 1px solid $grey-2;
+    border-bottom: 1px solid colors.$grey-2;
     &__hide {
       border-bottom: none;
     }

@@ -1,7 +1,7 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
+import { Component, ElementRef, EventEmitter, Input, OnInit, ViewChild, inject, input, output } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { IonIcon, IonSpinner, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
+import dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
@@ -14,7 +14,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
@@ -26,55 +26,149 @@ import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReceiptDetail } from 'src/app/core/models/receipt-detail.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import {
+  NgClass,
+  NgStyle,
+  NgTemplateOutlet,
+  AsyncPipe,
+  LowerCasePipe,
+  TitleCasePipe,
+  CurrencyPipe,
+} from '@angular/common';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { MatIcon } from '@angular/material/icon';
+import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
+import { DateFormatPipe } from '../../pipes/date-format.pipe';
+import { ExpenseState } from '../../pipes/expense-state.pipe';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
+import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 
 @Component({
   selector: 'app-expense-card',
   templateUrl: './expenses-card.component.html',
   styleUrls: ['./expenses-card.component.scss'],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    CurrencySymbolPipe,
+    DateFormatPipe,
+    ExpenseState,
+    FyCurrencyPipe,
+    HumanizeCurrencyPipe,
+    IonIcon,
+    IonSpinner,
+    LowerCasePipe,
+    MatCheckbox,
+    MatIcon,
+    NgClass,
+    NgStyle,
+    NgTemplateOutlet,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
-export class ExpensesCardComponent implements OnInit {
+export class ExpensesCardV1Component implements OnInit {
+  private transactionService = inject(TransactionService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private fileService = inject(FileService);
+
+  private popoverController = inject(PopoverController);
+
+  private networkService = inject(NetworkService);
+
+  private transactionOutboxService = inject(TransactionsOutboxService);
+
+  private modalController = inject(ModalController);
+
+  private platform = inject(Platform);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private currencyService = inject(CurrencyService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private expensesService = inject(ExpensesService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expense: Expense;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseTxnDate: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() previousExpenseCreatedAt: string | Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isSelectionModeEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() selectedElements: Expense[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFirstOfflineExpense: boolean;
 
-  @Input() attachments;
+  readonly attachments = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isOutboxExpense: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromViewReports: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isFromPotentialDuplicates: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() etxnIndex: number;
 
-  @Input() isDismissable: boolean;
+  readonly isDismissable = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter<{
+  readonly goToTransaction = output<{
     etxn: Expense;
     etxnIndex: number;
   }>();
 
-  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly cardClickedForSelection = output<Expense>();
 
-  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly setMultiselectMode = output<Expense>();
 
-  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
+  readonly dismissed = output<Expense>();
 
-  @Output() showCamera = new EventEmitter<boolean>();
+  readonly showCamera = output<boolean>();
 
   inlineReceiptDataUrl: string;
 
@@ -117,24 +211,6 @@ export class ExpensesCardComponent implements OnInit {
   showPaymentModeIcon: boolean;
 
   isIos = false;
-
-  constructor(
-    private transactionService: TransactionService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private fileService: FileService,
-    private popoverController: PopoverController,
-    private networkService: NetworkService,
-    private transactionOutboxService: TransactionsOutboxService,
-    private modalController: ModalController,
-    private platform: Platform,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService
-  ) {}
 
   get isSelected(): boolean {
     if (this.selectedElements) {
@@ -223,7 +299,7 @@ export class ExpensesCardComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
+      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
     );
 
     this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
@@ -243,13 +319,13 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        })
+        }),
       )
       .subscribe(noop);
 
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     if (!this.expense.tx_id) {
@@ -257,7 +333,7 @@ export class ExpensesCardComponent implements OnInit {
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
       const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
       ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -384,7 +460,7 @@ export class ExpensesCardComponent implements OnInit {
         }
         if (receiptDetails && receiptDetails.dataUrl) {
           this.attachReceipt(receiptDetails as ReceiptDetail);
-          const message = 'Receipt added to Expense successfully';
+          const message = this.translocoService.translate('expensesCard.receiptAddedSuccess');
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
             panelClass: ['msb-success-with-camera-icon'],
@@ -414,7 +490,7 @@ export class ExpensesCardComponent implements OnInit {
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        })
+        }),
       )
       .subscribe(() => {
         this.isReceiptPresent = true;
@@ -424,7 +500,7 @@ export class ExpensesCardComponent implements OnInit {
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true)
+      startWith(true),
     );
   }
 
@@ -435,15 +511,17 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
+    const title = this.translocoService.translate('expensesCard.sizeLimitExceeded');
+    const message = this.translocoService.translate('expensesCard.fileSizeError', {
+      maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+    });
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0
-        )}MB in size. Please reduce the file size and try again.`,
+        title,
+        message,
         primaryCta: {
-          text: 'OK',
+          text: this.translocoService.translate('expensesCard.ok'),
         },
       },
       cssClass: 'pop-up-in-center',

@@ -1,39 +1,55 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { DependentFieldsComponent } from './dependent-fields.component';
 import { DependentFieldComponent } from './dependent-field/dependent-field.component';
 import {
+  NG_VALUE_ACCESSOR,
   UntypedFormArray,
   UntypedFormBuilder,
   UntypedFormControl,
   UntypedFormGroup,
-  FormsModule,
-  ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
 import { dependentFieldOptionsForCostCode } from 'src/app/core/mock-data/dependent-field-value.data';
 import { Subject, of } from 'rxjs';
-import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { dependentCustomProperties } from 'src/app/core/mock-data/custom-property.data';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { SimpleChange } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, SimpleChange } from '@angular/core';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+
+// mock for DependentFieldComponent
+@Component({ selector: 'app-dependent-field', template: '<div></div>',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: MockDependentFieldComponent,
+      multi: true,
+    },
+  ],
+ })
+class MockDependentFieldComponent {
+  writeValue(value: any): void {}
+  registerOnChange(fn: any): void {}
+  registerOnTouched(fn: any): void {}
+  setDisabledState(isDisabled: boolean): void {}
+}
 
 describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
-
   beforeEach(waitForAsync(() => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
-
     TestBed.configureTestingModule({
-      declarations: [DependentFieldsComponent, DependentFieldComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        DependentFieldsComponent,
+      ],
       providers: [
         {
           provide: DependentFieldsService,
@@ -44,6 +60,14 @@ describe('DependentFieldsComponent', () => {
           useValue: formBuilderSpy,
         },
       ],
+    }).overrideComponent(DependentFieldsComponent, {
+      remove: {
+        imports: [DependentFieldComponent],
+      },
+      add: {
+        imports: [MockDependentFieldComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      },
     }).compileComponents();
     fixture = TestBed.createComponent(DependentFieldsComponent);
     component = fixture.componentInstance;
@@ -51,7 +75,6 @@ describe('DependentFieldsComponent', () => {
 
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
-
     component.dependentCustomFields = dependentCustomFields;
     component.dependentFieldsFormArray = new UntypedFormArray([]);
     component.parentFieldId = 219175;
@@ -112,7 +135,7 @@ describe('DependentFieldsComponent', () => {
         {
           id: changes.parentFieldId.currentValue,
           value: changes.parentFieldValue.currentValue,
-        }
+        },
       );
     });
 
@@ -166,14 +189,14 @@ describe('DependentFieldsComponent', () => {
       const addDependentFieldSpy = spyOn(component, 'addDependentField').and.returnValues(null);
       const getDependentFieldSpy = spyOn(component, 'getDependentField').and.returnValues(
         of(dependentFieldDetails),
-        of(null)
+        of(null),
       );
 
       const addDependentFieldWithValueSpy = spyOn(component, 'addDependentFieldWithValue').and.callThrough();
       component.addDependentFieldWithValue(
         component.txnCustomProperties,
         component.dependentCustomFields,
-        parentField[0]
+        parentField[0],
       );
 
       expect(addDependentFieldSpy).toHaveBeenCalledTimes(2);
@@ -199,13 +222,13 @@ describe('DependentFieldsComponent', () => {
       component.addDependentFieldWithValue(
         component.txnCustomProperties,
         component.dependentCustomFields,
-        parentField[1]
+        parentField[1],
       );
 
       expect(component.getDependentField).toHaveBeenCalledOnceWith(parentField[1].id, parentField[1].value);
       expect(component.addDependentField).toHaveBeenCalledOnceWith(
         component.dependentCustomFields[1],
-        parentField[1].value
+        parentField[1].value,
       );
     });
 
@@ -260,7 +283,7 @@ describe('DependentFieldsComponent', () => {
       fixture.detectChanges();
 
       const dependentFieldFg = component.dependentFieldsFormArray.at(
-        component.dependentFieldsFormArray.length - 1
+        component.dependentFieldsFormArray.length - 1,
       ) as UntypedFormGroup;
 
       //This field should be the last field in dependentFields and formArray

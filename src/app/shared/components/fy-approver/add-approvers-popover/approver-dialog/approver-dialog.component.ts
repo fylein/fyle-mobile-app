@@ -1,31 +1,69 @@
-import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnInit } from '@angular/core';
+import { Component, Input, ElementRef, AfterViewInit, OnInit, inject, input, viewChild } from '@angular/core';
 import { Observable, from, fromEvent } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { switchMap, map, finalize, startWith, distinctUntilChanged } from 'rxjs/operators';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { MatChipInputEvent, MatChipGrid, MatChipRow, MatChipRemove, MatChipInput } from '@angular/material/chips';
 import { Approver } from '../models/approver.model';
 import { EmployeeParams } from 'src/app/core/models/employee-params.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { MatFormField, MatPrefix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatCheckbox } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-approver-dialog',
   templateUrl: './approver-dialog.component.html',
   styleUrls: ['./approver-dialog.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatChipGrid,
+    MatChipInput,
+    MatChipRemove,
+    MatChipRow,
+    MatFormField,
+    MatIcon,
+    MatPrefix,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class ApproverDialogComponent implements AfterViewInit, OnInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLElement>;
+  private loaderService = inject(LoaderService);
 
+  private employeesService = inject(EmployeesService);
+
+  private modalController = inject(ModalController);
+
+  private translocoService = inject(TranslocoService);
+
+  readonly searchBarRef = viewChild<ElementRef<HTMLElement>>('searchBar');
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approverEmailsList: string[];
 
-  @Input() id: string;
+  readonly id = input<string>(undefined);
 
-  @Input() ownerEmail: string;
+  readonly ownerEmail = input<string>(undefined);
 
-  @Input() type;
+  readonly type = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() initialApproverList: Approver[];
 
   value: string;
@@ -38,21 +76,11 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   areApproversAdded = true;
 
-  selectable = true;
-
-  removable = true;
-
   addOnBlur = true;
 
   selectedApproversDict = {};
 
   readonly separatorKeysCodes = this.getSeparatorKeysCodes();
-
-  constructor(
-    private loaderService: LoaderService,
-    private employeesService: EmployeesService,
-    private modalController: ModalController
-  ) {}
 
   ngOnInit(): void {
     this.selectedApproversList = this.initialApproverList;
@@ -68,7 +96,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef().nativeElement as HTMLInputElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     this.getSearchedUsersList();
@@ -98,7 +126,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
       this.selectedApproversList.push({ name: approver.full_name, email: approver.email });
     } else {
       this.selectedApproversList = this.selectedApproversList.filter(
-        (selectedApprover) => selectedApprover.email !== approver.email
+        (selectedApprover) => selectedApprover.email !== approver.email,
       );
     }
     this.areApproversAdded = this.selectedApproversList.length === 0;
@@ -107,7 +135,7 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
 
   removeApprover(approver: Approver): void {
     this.selectedApproversList = this.selectedApproversList.filter(
-      (selectedApprover) => selectedApprover.email !== approver.email
+      (selectedApprover) => selectedApprover.email !== approver.email,
     );
     this.areApproversAdded = this.selectedApproversList.length === 0;
     this.selectedApproversDict = this.getSelectedApproversDict();
@@ -124,16 +152,16 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
       params.limit = 20;
     }
 
-    return from(this.loaderService.showLoader('Loading...')).pipe(
+    return from(this.loaderService.showLoader(this.translocoService.translate('approverDialog.loading'))).pipe(
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       switchMap((_) => this.employeesService.getEmployeesBySearch(params)),
       map((approvers) =>
         approvers.map((approver) => {
           approver.is_selected = true;
           return approver;
-        })
+        }),
       ),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
     );
   }
 
@@ -155,8 +183,8 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
             eou.is_selected = this.approverEmailsList.indexOf(eou.email) > -1;
             return eou;
           })
-          .filter((employee) => employee.email !== this.ownerEmail)
-      )
+          .filter((employee) => employee.email !== this.ownerEmail()),
+      ),
     );
   }
 
@@ -171,29 +199,29 @@ export class ApproverDialogComponent implements AfterViewInit, OnInit {
             map((searchedEmployees: Partial<Employee>[]) => {
               searchedEmployees = this.getSearchedEmployees(searchedEmployees, employees);
               return employees.concat(searchedEmployees);
-            })
+            }),
           );
-        })
+        }),
       );
     }
   }
 
   getSearchedEmployees(searchedEmployees: Partial<Employee>[], employees: Partial<Employee>[]): Partial<Employee>[] {
     searchedEmployees = searchedEmployees.filter(
-      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email)
+      (searchedEmployee) => !employees.find((employee) => employee.email === searchedEmployee.email),
     );
     return searchedEmployees;
   }
 
   ngAfterViewInit(): void {
     this.searchedApprovers$ = fromEvent<{ srcElement: { value: string } }>(
-      this.searchBarRef.nativeElement,
-      'keyup'
+      this.searchBarRef().nativeElement,
+      'keyup',
     ).pipe(
       map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText: string) => this.getUsersList(searchText))
+      switchMap((searchText: string) => this.getUsersList(searchText)),
     );
   }
 }

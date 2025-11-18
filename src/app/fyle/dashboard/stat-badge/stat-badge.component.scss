@@ -1,9 +1,10 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors.scss';
+@use 'sass:map';
 
 .stat-badge {
-  background-color: $pure-white;
+  background-color: colors.$pure-white;
   border-radius: 8px;
-  border: 1px solid $lighter-grey;
+  border: 1px solid colors.$lighter-grey;
 
   &--container {
     padding: 10px 16px;
@@ -20,7 +21,7 @@
   &--currency {
     font-size: 12px;
     line-height: 15px;
-    color: $black-light;
+    color: colors.$black-light;
   }
 
   &--grid-outer-col {
@@ -46,36 +47,43 @@
     line-height: 2.2;
     height: 32px;
     border-radius: 50%;
-    color: $pure-white;
+    color: colors.$pure-white;
     font-weight: 500;
 
-    &__draft {
-      background-color: map-get($fdl-state-bg-map, 'draft');
-      color: map-get($fdl-state-color-map, 'draft');
+    &__open {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'draft-report');
+      color: map.get(colors.$fdl-state-color-map, 'draft');
     }
 
     &__incomplete_expense {
-      background-color: map-get($fdl-state-bg-map, 'incomplete');
-      color: map-get($fdl-state-color-map, 'incomplete');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'incomplete');
+      color: map.get(colors.$fdl-state-color-map, 'incomplete');
     }
 
-    &__incomplete,
-    &__approver_pending,
+    &__approver_pending {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'submitted');
+      color: map.get(colors.$fdl-state-color-map, 'submitted');
+    }
+
     &__unapproved_team_reports {
-      background-color: map-get($fdl-state-bg-map, 'submitted');
-      color: map-get($fdl-state-color-map, 'submitted');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'unapproved_team_reports');
+      color: map.get(colors.$fdl-state-color-map, 'submitted');
     }
 
     &__complete {
-      background-color: map-get($fdl-state-bg-map, 'complete');
-      color: map-get($fdl-state-color-map, 'complete');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'complete');
+      color: map.get(colors.$fdl-state-color-map, 'complete');
     }
 
     &__approved,
-    &__payment_pending,
+    &__payment_pending {
+      background-color: map.get(colors.$fdl-stat-bg-map, 'approved');
+      color: map.get(colors.$fdl-state-color-map, 'approved');
+    }
+
     &__payment_processing {
-      background-color: map-get($fdl-state-bg-map, 'approved');
-      color: map-get($fdl-state-color-map, 'approved');
+      background-color: map.get(colors.$fdl-stat-bg-map, 'processing');
+      color: map.get(colors.$fdl-state-color-map, 'processing');
     }
   }
 
@@ -99,13 +107,13 @@
   &--amount {
     font-weight: 500;
     font-size: 16px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--name {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow-x: hidden;

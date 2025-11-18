@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NavigationFooterComponent } from './navigation-footer.component';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -9,6 +8,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { of } from 'rxjs';
 import { expenseData, mileageExpense, perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('NavigationFooterComponent', () => {
   let component: NavigationFooterComponent;
@@ -18,15 +18,21 @@ describe('NavigationFooterComponent', () => {
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['expenseNavClicked']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [NavigationFooterComponent, FyNavFooterComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TranslocoModule, NavigationFooterComponent, FyNavFooterComponent],
       providers: [
         {
           provide: ActivatedRoute,
@@ -55,6 +61,10 @@ describe('NavigationFooterComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(NavigationFooterComponent);
@@ -66,6 +76,7 @@ describe('NavigationFooterComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     component.reportExpenseCount = 3;
     component.activeExpenseIndex = 1;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     fixture.detectChanges();
   }));
 

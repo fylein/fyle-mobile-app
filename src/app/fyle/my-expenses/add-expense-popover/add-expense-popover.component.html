@@ -1,11 +1,15 @@
 <div class="add-expense-popover-internal">
   <div class="add-expense-popover-internal--element" matRipple (click)="instafyle($event)">
     <div>
-      <img class="add-expense-popover-internal--icon" src="../../../../assets/svg/insta-fyle.svg" alt="Instafyle" />
+      <img
+        class="add-expense-popover-internal--icon"
+        src="../../../../assets/svg/insta-fyle.svg"
+        [alt]="'addExpensePopover.instafyleAltText' | transloco"
+      />
     </div>
     <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">Capture receipt</div>
-      <div class="add-expense-popover-internal--info">Scan paper receipts using camera</div>
+      <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.captureReceipt' | transloco }}</div>
+      <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.scanReceiptsInfo' | transloco }}</div>
     </div>
   </div>
 
@@ -14,40 +18,44 @@
       <img
         class="add-expense-popover-internal--icon"
         src="../../../../assets/svg/create-list.svg"
-        alt="createExpense"
+        [alt]="'addExpensePopover.createExpenseAltText' | transloco"
       />
     </div>
     <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">Add expense</div>
-      <div class="add-expense-popover-internal--info">Enter details manually</div>
+      <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addExpense' | transloco }}</div>
+      <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.manualEntryInfo' | transloco }}</div>
     </div>
   </div>
 
-  <div class="add-expense-popover-internal--element" matRipple (click)="createMileage($event)" *ngIf="isMileageEnabled">
-    <div>
-      <img
-        class="add-expense-popover-internal--icon"
-        src="../../../../assets/svg/create-mileage.svg"
-        alt="createMileage"
-      />
+  @if (isMileageEnabled) {
+    <div class="add-expense-popover-internal--element" matRipple (click)="createMileage($event)">
+      <div>
+        <img
+          class="add-expense-popover-internal--icon"
+          src="../../../../assets/svg/create-mileage.svg"
+          [alt]="'addExpensePopover.createMileageAltText' | transloco"
+        />
+      </div>
+      <div class="add-expense-popover-internal--content">
+        <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addMileage' | transloco }}</div>
+        <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.mileageInfo' | transloco }}</div>
+      </div>
     </div>
-    <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">Add mileage</div>
-      <div class="add-expense-popover-internal--info">For your daily travels</div>
-    </div>
-  </div>
+  }
 
-  <div class="add-expense-popover-internal--element" matRipple (click)="createPerDiem($event)" *ngIf="isPerDiemEnabled">
-    <div>
-      <img
-        class="add-expense-popover-internal--icon"
-        src="../../../../assets/svg/create-per-diem.svg"
-        alt="createPerDiem"
-      />
+  @if (isPerDiemEnabled) {
+    <div class="add-expense-popover-internal--element" matRipple (click)="createPerDiem($event)">
+      <div>
+        <img
+          class="add-expense-popover-internal--icon"
+          src="../../../../assets/svg/create-per-diem.svg"
+          [alt]="'addExpensePopover.createPerDiemAltText' | transloco"
+        />
+      </div>
+      <div class="add-expense-popover-internal--content">
+        <div class="add-expense-popover-internal--head">{{ 'addExpensePopover.addPerDiem' | transloco }}</div>
+        <div class="add-expense-popover-internal--info">{{ 'addExpensePopover.perDiemInfo' | transloco }}</div>
+      </div>
     </div>
-    <div class="add-expense-popover-internal--content">
-      <div class="add-expense-popover-internal--head">Add per diem</div>
-      <div class="add-expense-popover-internal--info">Log your daily per diems</div>
-    </div>
-  </div>
+  }
 </div>

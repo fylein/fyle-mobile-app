@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select items</div>
+      <div class="selection-modal--title">{{ 'fyUserlistModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -10,31 +10,27 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <ion-button class="selection-modal--cta" (click)="useSelected()"> Done </ion-button>
+      <ion-button class="selection-modal--cta" (click)="useSelected()">
+        {{ 'fyUserlistModal.done' | transloco }}
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
-    <mat-form-field
-      class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
-      [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
-    >
-      <mat-chip-list #chipList aria-label="Multi select">
-        <mat-chip
-          *ngFor="let item of currentSelections"
-          [selectable]="selectable"
-          [removable]="removable"
-          (removed)="removeChip(item)"
-        >
-          {{ item }}
-          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
-        <mat-icon
-          *ngIf="!(currentSelections?.length > 0)"
-          class="selection-modal--search-icon"
-          matPrefix
-          svgIcon="search"
-        ></mat-icon>
+    <mat-form-field class="selection-modal--form-container mat-form-field-no-padding" appearance="outline">
+      <mat-chip-grid
+        class="selection-modal--form-container__chip-grid"
+        #chipList
+        [attr.aria-label]="'fyUserlistModal.multiSelectAriaLabel' | transloco"
+      >
+        @for (item of currentSelections; track item) {
+          <mat-chip-row (removed)="removeChip(item)">
+            {{ item }}
+            <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip-row>
+        }
+        @if (!(currentSelections?.length > 0)) {
+          <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
+        }
         <input
           #searchBar
           [(ngModel)]="value"
@@ -45,69 +41,73 @@
           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
           [matChipInputAddOnBlur]="addOnBlur"
           (matChipInputTokenEnd)="addChip($event)"
-          [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''"
+          [placeholder]="!(currentSelections?.length > 0) ? ('fyUserlistModal.searchPlaceholder' | transloco) : ''"
         />
-        <mat-icon
-          *ngIf="isLoading && value"
-          class="selection-modal--autocomplete-loader"
-          svgIcon="loader"
-          matSuffix
-        ></mat-icon>
-      </mat-chip-list>
+        @if (isLoading && value) {
+          <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+        }
+      </mat-chip-grid>
     </mat-form-field>
-    <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
-      {{ currentSelections.length }} selected
-    </div>
+    @if (currentSelections?.length > 0) {
+      <div class="selection-modal--selected-count">
+        {{ currentSelections.length }} {{ 'fyUserlistModal.selected' | transloco }}
+      </div>
+    }
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ng-container *ngIf="isLoading">
+  @if (isLoading) {
     <div class="selection-modal--spinner">
       <ion-spinner name="crescent"></ion-spinner>
     </div>
-  </ng-container>
+  }
   <div>
-    <div class="selection-modal--list-container" *ngFor="let newlyAddedItem of newlyAddedItems$ | async as list">
-      <div class="selection-modal--list-element">
-        <label class="selection-modal--list-element-label">
-          <mat-checkbox
-            *ngIf="!newlyAddedItem.isNew"
-            [checked]="selectedItemDict[newlyAddedItem.email]"
-            (change)="onSelect(newlyAddedItem, $event)"
-          ></mat-checkbox>
-          <span *ngIf="!newlyAddedItem.isNew" class="selection-modal--approver-details">
-            <span>{{ newlyAddedItem.email }}</span>
-          </span>
-          <div
-            class="selection-modal--add-item-block"
-            *ngIf="newlyAddedItem.isNew && value && value.length > 0"
-            (click)="onAddNew()"
-          >
-            <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
-            <span
-              >Add "<span class="selection-modal--new-item-name"
-                ><strong>{{ value }}</strong></span
-              >"</span
-            >
-          </div>
-        </label>
+    @for (newlyAddedItem of newlyAddedItems$ | async; track newlyAddedItem) {
+      <div class="selection-modal--list-container">
+        <div class="selection-modal--list-element">
+          <label class="selection-modal--list-element-label">
+            @if (!newlyAddedItem.isNew) {
+              <mat-checkbox
+                [checked]="selectedItemDict[newlyAddedItem.email]"
+                (change)="onSelect(newlyAddedItem, $event)"
+              ></mat-checkbox>
+            }
+            @if (!newlyAddedItem.isNew) {
+              <span class="selection-modal--approver-details">
+                <span>{{ newlyAddedItem.email }}</span>
+              </span>
+            }
+            @if (newlyAddedItem.isNew && value && value.length > 0) {
+              <div class="selection-modal--add-item-block" (click)="onAddNew()">
+                <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
+                <span
+                  >{{ 'fyUserlistModal.addPrefix' | transloco
+                  }}<span class="selection-modal--new-item-name"
+                    ><strong>{{ value }}</strong></span
+                  >"</span
+                >
+              </div>
+            }
+          </label>
+        </div>
       </div>
-    </div>
-
-    <div class="selection-modal--list-container" *ngFor="let filteredListItem of filteredOptions$ | async as list">
-      <div class="selection-modal--list-element">
-        <label class="selection-modal--list-element-label">
-          <mat-checkbox
-            [checked]="selectedItemDict[filteredListItem.email]"
-            (change)="onSelect(filteredListItem, $event)"
-          ></mat-checkbox>
-          <span class="selection-modal--approver-details">
-            <span class="selection-modal--approver-details_name">{{ filteredListItem.full_name }}</span>
-            <span>{{ filteredListItem.email }}</span>
-          </span>
-        </label>
+    }
+    @for (filteredListItem of filteredOptions$ | async; track filteredListItem) {
+      <div class="selection-modal--list-container">
+        <div class="selection-modal--list-element">
+          <label class="selection-modal--list-element-label">
+            <mat-checkbox
+              [checked]="selectedItemDict[filteredListItem.email]"
+              (change)="onSelect(filteredListItem, $event)"
+            ></mat-checkbox>
+            <span class="selection-modal--approver-details">
+              <span class="selection-modal--approver-details_name">{{ filteredListItem.full_name }}</span>
+              <span>{{ filteredListItem.email }}</span>
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
+    }
   </div>
 </ion-content>

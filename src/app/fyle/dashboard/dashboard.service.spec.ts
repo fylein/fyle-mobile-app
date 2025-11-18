@@ -1,4 +1,4 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -8,7 +8,12 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
-import { expectedEmptyReportStats, expectedReportStats } from '../../core/mock-data/report-stats.data';
+import {
+  expectedReportStats,
+  expectedGroupedReportStats,
+  expectedSentBackResponse,
+  expectedEmptyReportStats,
+} from '../../core/mock-data/report-stats.data';
 import { apiAssignedCardDetailsRes } from '../../core/mock-data/stats-response.data';
 import {
   emptyStatsAgg,
@@ -19,7 +24,8 @@ import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportStates } from './stat-badge/report-states.enum';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { expectedSentBackResponse } from '../../core/mock-data/report-stats.data';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -28,15 +34,15 @@ describe('DashboardService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportService: jasmine.SpyObj<ApproverReportsService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-
   beforeEach(() => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getGroupedReportsStats']);
     const approverReportServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
+
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [getTranslocoTestingModule()],
       providers: [
         DashboardService,
         CorporateCreditCardExpenseService,
@@ -60,6 +66,8 @@ describe('DashboardService', () => {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
@@ -68,7 +76,7 @@ describe('DashboardService', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
@@ -131,63 +139,11 @@ describe('DashboardService', () => {
   });
 
   it('getReportsStats(): should get Report stats', (done) => {
-    spenderReportsService.getReportsStats.and.returnValues(
-      of(expectedReportStats.draft),
-      of(expectedReportStats.report),
-      of(expectedReportStats.approved),
-      of(expectedReportStats.paymentPending),
-      of(expectedReportStats.processing)
-    );
+    spenderReportsService.getGroupedReportsStats.and.returnValue(of(expectedGroupedReportStats));
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedReportStats);
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledTimes(5);
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.DRAFT',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.APPROVER_PENDING',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.APPROVED',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.PAYMENT_PENDING',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.PAYMENT_PROCESSING',
-      });
-      done();
-    });
-  });
-
-  it('getReportsStats(): should return empty response as various report stats data is empty', (done) => {
-    spenderReportsService.getReportsStats.and.returnValues(
-      of(expectedEmptyReportStats.draft),
-      of(expectedEmptyReportStats.report),
-      of(expectedEmptyReportStats.approved),
-      of(expectedEmptyReportStats.paymentPending),
-      of(expectedEmptyReportStats.processing)
-    );
-
-    dashboardService.getReportsStats().subscribe((res) => {
-      expect(res).toEqual(expectedEmptyReportStats);
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledTimes(5);
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.DRAFT',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.APPROVER_PENDING',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.APPROVED',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.PAYMENT_PENDING',
-      });
-      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
-        state: 'eq.PAYMENT_PROCESSING',
-      });
+      expect(spenderReportsService.getGroupedReportsStats).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -205,7 +161,7 @@ describe('DashboardService', () => {
       expect(res).toEqual(expectedAssignedCCCStats);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(
         '/corporate_card_transactions/expenses/stats',
-        config
+        config,
       );
       done();
     });
@@ -230,8 +186,8 @@ describe('DashboardService', () => {
       expect(dashboardService.getReportStateMapping(ReportStates.APPROVED)).toEqual('Approved');
     });
 
-    it('should return "Draft" if report state is DRAFT', () => {
-      expect(dashboardService.getReportStateMapping(ReportStates.DRAFT)).toEqual('Draft');
+    it('should return "Open" if report state is OPEN', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.OPEN)).toEqual('Open');
     });
 
     it('should return "Payment Pending" if report state is PAYMENT_PENDING', () => {
@@ -244,6 +200,25 @@ describe('DashboardService', () => {
 
     it('should return "Reported" if report state is APPROVER_PENDING', () => {
       expect(dashboardService.getReportStateMapping(ReportStates.APPROVER_PENDING)).toEqual('Reported');
+    });
+  });
+
+  describe('transformStat():', () => {
+    it('should return all zeros if stat is undefined', () => {
+      const result = (dashboardService as any).transformStat(undefined);
+      expect(result).toEqual(expectedEmptyReportStats.draft);
+    });
+
+    it('should convert null values to 0 using nullish coalescing', () => {
+      const statWithNulls = expectedGroupedReportStats[0];
+      const result = (dashboardService as any).transformStat(statWithNulls);
+      expect(result).toEqual(expectedReportStats.draft);
+    });
+
+    it('should preserve actual values when they are not null', () => {
+      const statWithValues = expectedGroupedReportStats[5]; // PAYMENT_PROCESSING
+      const result = (dashboardService as any).transformStat(statWithValues);
+      expect(result).toEqual(expectedReportStats.processing);
     });
   });
 });

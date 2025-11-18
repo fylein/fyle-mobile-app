@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FyMsgPopoverComponent } from './fy-msg-popover.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyMsgPopoverComponent', () => {
   let component: FyMsgPopoverComponent;
@@ -12,8 +13,8 @@ describe('FyMsgPopoverComponent', () => {
     popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [FyMsgPopoverComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [FyMsgPopoverComponent,
+        MatIconTestingModule],
       providers: [{ provide: PopoverController, useValue: popoverControllerSpy }],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -28,9 +29,9 @@ describe('FyMsgPopoverComponent', () => {
   });
 
   it('should set message input', () => {
-    component.msg = 'No category is available for the selected project.';
+    fixture.componentRef.setInput('msg', 'No category is available for the selected project.');
     fixture.detectChanges();
-    expect(component.msg).toBe('No category is available for the selected project.');
+    expect(component.msg()).toBe('No category is available for the selected project.');
   });
 
   it('should call popoverController.dismiss() when dismiss() is called', () => {

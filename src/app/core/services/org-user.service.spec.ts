@@ -3,8 +3,6 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import {
   currentEouRes,
   currentEouUnflatted,
-  employeesParamsRes,
-  employeesRes,
   eouListWithDisabledUser,
   switchToDelegatorParams,
   extendedOrgUserResponse,
@@ -14,6 +12,9 @@ import {
   accessTokenData,
   accessTokenWithProxyOrgUserId,
 } from '../test-data/org-user.service.spec.data';
+import { eouPlatformApiResponse } from '../mock-data/extended-org-user.data';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { EmployeeResponse } from '../models/employee-response.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { DataTransformService } from './data-transform.service';
@@ -22,6 +23,8 @@ import { OrgUserService } from './org-user.service';
 import { TokenService } from './token.service';
 import { delegatorData } from '../mock-data/platform/v1/delegator.data';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('OrgUserService', () => {
   let orgUserService: OrgUserService;
@@ -34,11 +37,11 @@ describe('OrgUserService', () => {
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('spenderPlatformV1ApiService', ['get', 'post']);
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['decodeToken']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getAccessToken']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken', 'refreshEou']);
-    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
+    const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['transformEmployeeResponse']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -67,12 +70,14 @@ describe('OrgUserService', () => {
           provide: DataTransformService,
           useValue: dataTransformServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
     orgUserService = TestBed.inject(OrgUserService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     jwtHelperService = TestBed.inject(JwtHelperService) as jasmine.SpyObj<JwtHelperService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -85,8 +90,10 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to get current eou', (done) => {
-    apiService.get.and.returnValue(of(currentEouUnflatted));
-    dataTransformService.unflatten.withArgs(currentEouUnflatted).and.returnValue(currentEouRes);
+    spenderPlatformV1ApiService.get.and.returnValue(
+      of({ data: eouPlatformApiResponse } as PlatformApiResponse<EmployeeResponse>),
+    );
+    dataTransformService.transformEmployeeResponse.withArgs(eouPlatformApiResponse).and.returnValue(currentEouRes);
 
     orgUserService.getCurrent().subscribe((res) => {
       expect(res).toEqual(currentEouRes);
@@ -144,15 +151,19 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to post org user', (done) => {
-    apiService.post.and.returnValue(of(postOrgUser));
+    const platformResponse = { data: postOrgUser };
+    spenderPlatformV1ApiService.post.and.returnValue(of(platformResponse));
     orgUserService.postOrgUser(postOrgUser).subscribe((res) => {
       expect(res).toEqual(postOrgUser);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/employees', {
+        data: { id: postOrgUser.id, mobile: postOrgUser.mobile },
+      });
       done();
     });
   });
 
   it('should be able to mark active', (done) => {
-    apiService.post.and.returnValue(of(extendedOrgUserResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(extendedOrgUserResponse));
     authService.refreshEou.and.returnValue(of(extendedOrgUserResponse));
     orgUserService.markActive().subscribe((res) => {
       expect(res).toEqual(extendedOrgUserResponse);

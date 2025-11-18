@@ -1,33 +1,62 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { RouteSelectorComponent } from './route-selector.component';
-import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
-import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { Injector, NO_ERRORS_SCHEMA, SimpleChanges, Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  UntypedFormArray,
+  UntypedFormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 import { expenseFieldsMapResponse3 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { mileageLocationData1, mileageLocationData4 } from '../../../core/mock-data/mileage-location.data';
-import { of } from 'rxjs';
+
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { By } from '@angular/platform-browser';
+
 import { cloneDeep } from 'lodash';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatCheckbox } from '@angular/material/checkbox';
+
+@Component({
+  selector: 'mat-checkbox',
+  template: '<div class="mock-checkbox"></div>',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: MockMatCheckboxComponent,
+      multi: true,
+    },
+  ],
+  imports: [ReactiveFormsModule, MatIconTestingModule, MatIconModule],
+})
+class MockMatCheckboxComponent implements ControlValueAccessor {
+  writeValue(value: any): void {}
+  registerOnChange(fn: any): void {}
+  registerOnTouched(fn: any): void {}
+  setDisabledState(isDisabled: boolean): void {}
+}
 
 describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
-  let fb: jasmine.SpyObj<UntypedFormBuilder>;
+  let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
-
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
     TestBed.configureTestingModule({
-      declarations: [RouteSelectorComponent],
-      imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
+      imports: [
+        MatIconTestingModule,
+        MatIconModule,
+        getTranslocoTestingModule(),
+        RouteSelectorComponent,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -40,22 +69,23 @@ describe('RouteSelectorComponent', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(RouteSelectorComponent, {
+      remove: {imports: [MatCheckbox]},
+      add: {imports: [MockMatCheckboxComponent],schemas: [CUSTOM_ELEMENTS_SCHEMA]}
     }).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
-    fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
+    fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     const mockOrgSettings = cloneDeep(orgSettingsRes);
     component.mileageConfig = mockOrgSettings.mileage;
     component.formInitialized = true;
-    component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
       mileageLocations: new UntypedFormArray([]),
-      distance: [, Validators.required],
-      roundTrip: [],
+      distance: [10, Validators.required],
+      roundTrip: [false],
     });
-    component.form.controls.distance.setValue(10);
-    component.form.controls.roundTrip.setValue(10);
+    component.onChangeSub = component.form.valueChanges.subscribe(() => {});
     fixture.detectChanges();
   }));
 
@@ -112,7 +142,7 @@ describe('RouteSelectorComponent', () => {
 
     fixture.whenStable();
 
-    expect(changeTestCallback.test).toHaveBeenCalledOnceWith({ mileageLocations: [], distance: 10, roundTrip: 10 });
+    expect(changeTestCallback.test).toHaveBeenCalledOnceWith({ mileageLocations: [], distance: 10, roundTrip: false });
   });
 
   it('registerOnTouched(): should registered onTouched property', async () => {
@@ -122,11 +152,10 @@ describe('RouteSelectorComponent', () => {
 
     component.registerOnTouched(onTouchTested.touchedTested);
 
-    const input = fixture.debugElement.query(By.css('.route-selector--input'));
-    input.triggerEventHandler('blur', null);
+    // Manually call the onTouched function to test it
+    component.onTouched();
 
-    await fixture.whenStable();
-    fixture.detectChanges();
+    expect(onTouchTested.touchedTested).toHaveBeenCalled();
   });
 
   describe('setDisabledState():', () => {
@@ -153,7 +182,7 @@ describe('RouteSelectorComponent', () => {
               distance: 20,
             },
           });
-        })
+        }),
       );
       modalController.create.and.resolveTo(selectionModalSpy);
     });
@@ -167,11 +196,11 @@ describe('RouteSelectorComponent', () => {
         componentProps: {
           unit: component.unit,
           mileageConfig: component.mileageConfig,
-          isDistanceMandatory: component.isDistanceMandatory,
-          isAmountDisabled: component.isAmountDisabled,
+          isDistanceMandatory: component.isDistanceMandatory(),
+          isAmountDisabled: component.isAmountDisabled(),
           txnFields: component.txnFields,
           value: component.form.value,
-          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations(),
         },
       });
     });
@@ -185,7 +214,7 @@ describe('RouteSelectorComponent', () => {
               distance: 20,
             },
           });
-        })
+        }),
       );
       modalController.create.and.resolveTo(selectionModalSpy);
 
@@ -195,11 +224,11 @@ describe('RouteSelectorComponent', () => {
         componentProps: {
           unit: component.unit,
           mileageConfig: component.mileageConfig,
-          isDistanceMandatory: component.isDistanceMandatory,
-          isAmountDisabled: component.isAmountDisabled,
+          isDistanceMandatory: component.isDistanceMandatory(),
+          isAmountDisabled: component.isAmountDisabled(),
           txnFields: component.txnFields,
           value: component.form.value,
-          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations(),
         },
       });
     });

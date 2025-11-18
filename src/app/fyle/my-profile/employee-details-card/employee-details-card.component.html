@@ -17,9 +17,11 @@
           <div>
             {{ eou.us.email }}
           </div>
-          <ng-container *ngIf="eou.ou.employee_id">
-            <div class="employee-details-card__employee-id">Employee ID - {{ eou.ou.employee_id }}</div>
-          </ng-container>
+          @if (eou.ou.employee_id) {
+            <div class="employee-details-card__employee-id">
+              {{ 'employeeDetailsCard.employeeId' | transloco }} {{ eou.ou.employee_id }}
+            </div>
+          }
         </ion-col>
       </ion-row>
     </ion-grid>

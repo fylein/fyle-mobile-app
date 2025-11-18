@@ -1,57 +1,86 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-fy-input-popover',
   templateUrl: './fy-input-popover.component.html',
   styleUrls: ['./fy-input-popover.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    TranslocoPipe
+  ],
 })
-export class FyInputPopoverComponent implements OnInit, AfterViewInit {
-  @ViewChild('input') inputEl: ElementRef;
+export class FyInputPopoverComponent implements AfterViewInit {
+  private popoverController = inject(PopoverController);
 
+  private translocoService = inject(TranslocoService);
+
+  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() ctaText: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() inputLabel: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() inputValue = '';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() inputType = 'text';
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isRequired = true;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
   error: string;
 
-  constructor(private popoverController: PopoverController) {}
-
-  ngOnInit(): void {}
-
-  ngAfterViewInit() {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+  ngAfterViewInit(): void {
+    setTimeout(() => this.inputEl().nativeElement.focus(), 400);
   }
 
-  closePopover() {
+  closePopover(): void {
     this.popoverController.dismiss();
   }
 
-  validateInput() {
+  validateInput(): void {
     if (this.isRequired) {
       if (this.inputValue?.length === 0) {
-        this.error = `Please enter a ${this.inputLabel}`;
+        this.error = this.translocoService.translate('fyInputPopover.errorEnterLabel', { inputLabel: this.inputLabel });
       } else if (this.inputType === 'tel' && !this.inputValue.match(/[+]\d{7,}$/)) {
-        this.error = 'Please enter a valid mobile number with country code. e.g. +12025559975';
+        this.error = this.translocoService.translate('fyInputPopover.errorValidMobile');
       }
     }
   }
 
-  onFocus() {
+  onFocus(): void {
     this.error = null;
   }
 
-  saveValue() {
+  saveValue(): void {
     this.validateInput();
     if (!this.error?.length) {
       this.popoverController.dismiss({ newValue: this.inputValue });

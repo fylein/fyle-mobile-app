@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
@@ -12,6 +12,7 @@ import { PermissionsService } from './permissions.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -19,14 +20,21 @@ const reportsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class ReportService {
-  constructor(
-    private transactionService: TransactionService,
-    private userEventService: UserEventService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService,
-    private datePipe: DatePipe,
-    private permissionsService: PermissionsService
-  ) {
+  private transactionService = inject(TransactionService);
+
+  private userEventService = inject(UserEventService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
+
+  private datePipe = inject(DatePipe);
+
+  private permissionsService = inject(PermissionsService);
+
+  private translocoService = inject(TranslocoService);
+
+  constructor() {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
@@ -75,7 +83,7 @@ export class ReportService {
             res.data.next_at = dateObj;
           }
           return res;
-        })
+        }),
       );
   }
 
@@ -91,10 +99,12 @@ export class ReportService {
       map((reportAutoSubmissionDetails) => {
         const nextReportAutoSubmissionDate = reportAutoSubmissionDetails.data?.next_at;
         if (nextReportAutoSubmissionDate) {
-          return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
+          return this.translocoService.translate('services.report.automaticSubmissionOnDate', {
+            date: this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d'),
+          });
         }
         return null;
-      })
+      }),
     );
   }
 

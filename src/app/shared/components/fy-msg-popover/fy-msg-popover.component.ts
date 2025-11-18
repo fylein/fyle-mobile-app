@@ -1,15 +1,22 @@
-import { Component, Input } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, inject, input } from '@angular/core';
+import { IonButton, IonButtons, IonContent, PopoverController } from '@ionic/angular/standalone';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-fy-msg-popover',
   templateUrl: './fy-msg-popover.component.html',
   styleUrls: ['./fy-msg-popover.component.scss'],
+  imports: [
+    IonButton,
+    IonButtons,
+    IonContent,
+    MatIcon
+  ],
 })
 export class FyMsgPopoverComponent {
-  @Input() msg = '';
+  private popoverController = inject(PopoverController);
 
-  constructor(private popoverController: PopoverController) {}
+  readonly msg = input<string>('');
 
   dismiss(): void {
     this.popoverController.dismiss();

@@ -1,18 +1,27 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
+import { IonCol, IonGrid, IonIcon, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-fy-statistic',
   templateUrl: './fy-statistic.component.html',
   styleUrls: ['./fy-statistic.component.scss'],
+  imports: [
+    IonCol,
+    IonGrid,
+    IonIcon,
+    IonRow
+  ],
 })
 export class FyStatisticComponent implements OnInit {
-  @Input() icon: string;
+  readonly icon = input<string>(undefined);
 
-  @Input() label: string;
+  readonly label = input<string>(undefined);
 
-  @Input() value: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly value = input<any>(undefined);
 
-  @Input() type: string;
+  readonly type = input<string>(undefined);
 
   constructor() {}
 

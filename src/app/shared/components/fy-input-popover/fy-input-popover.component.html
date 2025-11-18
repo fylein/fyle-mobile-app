@@ -9,7 +9,7 @@
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
-      <button class="input-popover--toolbar__btn" (click)="saveValue()">
+      <button class="input-popover--toolbar__btn btn-auto-dimension btn-secondary" (click)="saveValue()">
         {{ ctaText }}
       </button>
     </ion-buttons>
@@ -19,7 +19,9 @@
 <div class="input-popover--input-container">
   <div class="input-popover--input-container__label">
     <span> {{ inputLabel }} </span>
-    <span *ngIf="isRequired" class="input-popover--input-container__mandatory"> * </span>
+    @if (isRequired) {
+      <span class="input-popover--input-container__mandatory"> * </span>
+    }
   </div>
   <input
     #input
@@ -28,10 +30,16 @@
     class="input-popover--input-container__input smartlook-show"
     [ngClass]="{ 'input-popover--input-container__input--error': error?.length }"
     (focus)="onFocus()"
-    [placeholder]="placeholder?.length ? placeholder : 'Enter ' + inputLabel"
+    [placeholder]="
+      placeholder()?.length
+        ? placeholder()
+        : ('fyInputPopover.enterLabelPlaceholder' | transloco: { inputLabel: inputLabel })
+    "
     [type]="inputType"
     [maxlength]="inputType === 'tel' ? 15 : null"
     [minlength]="inputType === 'tel' ? 7 : null"
   />
-  <span *ngIf="error?.length" class="input-popover--input-container__error">{{ error }}</span>
+  @if (error?.length) {
+    <span class="input-popover--input-container__error">{{ error }}</span>
+  }
 </div>

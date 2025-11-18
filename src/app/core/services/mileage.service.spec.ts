@@ -5,17 +5,29 @@ import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-
 import { of } from 'rxjs';
 import { locationData1, locationData2, locationData3 } from '../mock-data/location.data';
 import { employeeSettingsData } from '../mock-data/employee-settings.data';
+import { TranslocoService } from '@jsverse/transloco';
 
 describe('MileageService', () => {
   let mileageService: MileageService;
   let locationService: jasmine.SpyObj<LocationService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   const distance = 13167;
 
   beforeEach(() => {
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
     const platformEmployeeSettingsSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.mileage.oneWayDistance': 'One way distance',
+        'services.mileage.roundTripDistance': 'Round trip distance',
+        'services.mileage.noDeduction': 'No deduction',
+      };
+      return translations[key] || key;
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,14 +40,19 @@ describe('MileageService', () => {
           provide: PlatformEmployeeSettingsService,
           useValue: platformEmployeeSettingsSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
 
     mileageService = TestBed.inject(MileageService);
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

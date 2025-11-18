@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
 import { ApproverService } from './approver.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -10,7 +10,9 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private approverService: ApproverService) {}
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private approverService = inject(ApproverService);
 
   getExpenseById(id: string): Observable<Expense> {
     const data = {
@@ -46,9 +48,9 @@ export class ExpensesService {
         return range(0, numBatches);
       }),
       concatMap((batchNum) =>
-        this.getExpenses({ offset: this.paginationSize * batchNum, limit: this.paginationSize, ...params })
+        this.getExpenses({ offset: this.paginationSize * batchNum, limit: this.paginationSize, ...params }),
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[]),
     );
   }
 }

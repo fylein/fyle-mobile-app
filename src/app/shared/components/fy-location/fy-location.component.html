@@ -1,20 +1,24 @@
 <label class="fy-location--label">
   <div class="fy-location--label-content">
     <span>
-      {{ label }}
+      {{ label() }}
     </span>
-    <span *ngIf="mandatory" class="fy-location--mandatory"> * </span>
+    @if (mandatory()) {
+      <span class="fy-location--mandatory"> * </span>
+    }
   </div>
   <div class="fy-location--input-container" [ngClass]="{ 'fy-location--input-invalid': !valid }">
     <input
       class="fy-location--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || 'Select ' + label"
+      [placeholder]="placeholder() || ('fyLocation.selectLocation' | transloco: { label: label() })"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
     />
-    <mat-icon *ngIf="!hideSuffix" class="fy-location--icon" svgIcon="arrow-down"></mat-icon>
+    @if (!hideSuffix()) {
+      <mat-icon class="fy-location--icon" svgIcon="arrow-down"></mat-icon>
+    }
   </div>
   <ng-content></ng-content>
 </label>

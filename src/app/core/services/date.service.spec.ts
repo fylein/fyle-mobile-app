@@ -1,15 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { DateService } from './date.service';
-import * as dayjs from 'dayjs';
-import * as timezone from 'dayjs/plugin/timezone';
-import * as utc from 'dayjs/plugin/utc';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { DateParams } from '../models/date-parameters.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 describe('DateService', () => {
   let dateService: DateService;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   const today = new Date();
 
@@ -42,7 +44,7 @@ describe('DateService', () => {
 
   it('isSameDate(): check if two dates are same', () => {
     expect(
-      dateService.isSameDate(new Date('2023-02-24T12:03:57.680Z'), new Date('2023-02-23T16:24:01.335Z'))
+      dateService.isSameDate(new Date('2023-02-24T12:03:57.680Z'), new Date('2023-02-23T16:24:01.335Z')),
     ).toBeFalse();
   });
 
@@ -134,7 +136,7 @@ describe('DateService', () => {
     const numOfDays = '5';
 
     expect(dateService.addDaysToDate(date, numOfDays)).toEqual(
-      new Date(date.getTime() + parseInt(numOfDays, 10) * 24 * 60 * 60 * 1000)
+      new Date(date.getTime() + parseInt(numOfDays, 10) * 24 * 60 * 60 * 1000),
     );
   });
 
@@ -184,7 +186,7 @@ describe('DateService', () => {
       };
       const userTimezoneOffset = new Date(data.tx_txn_dt).getTimezoneOffset() * 60000;
       spyOn(dateService, 'getUTCDate').and.returnValue(
-        new Date(new Date(data.tx_txn_dt).getTime() + userTimezoneOffset)
+        new Date(new Date(data.tx_txn_dt).getTime() + userTimezoneOffset),
       );
 
       const updatedData = {
@@ -201,7 +203,7 @@ describe('DateService', () => {
       };
       const userTimezoneOffset = new Date(data.created_at).getTimezoneOffset() * 60000;
       spyOn(dateService, 'getUTCDate').and.returnValue(
-        new Date(new Date(data.created_at).getTime() + userTimezoneOffset)
+        new Date(new Date(data.created_at).getTime() + userTimezoneOffset),
       );
 
       const updatedData = {
@@ -218,7 +220,7 @@ describe('DateService', () => {
       };
       const userTimezoneOffset = new Date(data.joining_dt).getTimezoneOffset() * 60000;
       spyOn(dateService, 'getUTCDate').and.returnValue(
-        new Date(new Date(data.joining_dt).getTime() + userTimezoneOffset)
+        new Date(new Date(data.joining_dt).getTime() + userTimezoneOffset),
       );
 
       const updatedData = {
@@ -306,7 +308,7 @@ describe('DateService', () => {
       describe('GET:', () => {
         it('date is viewed in new zealand', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11
@@ -319,7 +321,7 @@ describe('DateService', () => {
 
         it('date is viewed in america', () => {
           const incomingDate = dateService.getUTCMidAfternoonDate(
-            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate()
+            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate(),
           );
           const date = incomingDate.getDate();
           const month = incomingDate.getMonth() + 1; // js month is 0 - 11

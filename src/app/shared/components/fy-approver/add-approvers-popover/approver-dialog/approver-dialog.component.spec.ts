@@ -1,19 +1,16 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ApproverDialogComponent } from './approver-dialog.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatLegacyChipInputEvent as MatChipInputEvent,
-  MatLegacyChipsModule as MatChipsModule,
-} from '@angular/material/legacy-chips';
+import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { FormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
 
@@ -23,6 +20,7 @@ describe('ApproverDialogComponent', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let modalController: jasmine.SpyObj<ModalController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   const approvers = [
     {
@@ -62,16 +60,23 @@ describe('ApproverDialogComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getEmployeesBySearch']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [ApproverDialogComponent],
       imports: [
-        IonicModule.forRoot(),
+        
         MatIconTestingModule,
         MatIconModule,
         FormsModule,
         MatChipsModule,
         MatCheckboxModule,
+        TranslocoModule,
+        ApproverDialogComponent,
       ],
       providers: [
         {
@@ -86,6 +91,10 @@ describe('ApproverDialogComponent', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(ApproverDialogComponent);
@@ -94,7 +103,24 @@ describe('ApproverDialogComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'approverDialog.selectApprovers': 'Select approvers',
+        'approverDialog.done': 'Done',
+        'approverDialog.multiSelect': 'Multi select',
+        'approverDialog.search': 'Search',
+        'approverDialog.selected': 'selected',
+        'approverDialog.loading': 'Loading...',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     component.initialApproverList = cloneDeep(approvers);
 
     component.approverEmailsList = ['jay.b@fyle.in', 'ajain@fyle.in'];
@@ -164,7 +190,7 @@ describe('ApproverDialogComponent', () => {
           user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: true }
+        { checked: true },
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -193,7 +219,7 @@ describe('ApproverDialogComponent', () => {
           user_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: false }
+        { checked: false },
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -356,7 +382,7 @@ describe('ApproverDialogComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--selected-count'))).toEqual(
-      `${component.selectedApproversList.length} selected`
+      `${component.selectedApproversList.length} selected`,
     );
   });
 
@@ -366,7 +392,7 @@ describe('ApproverDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__title'))).toEqual('AA23');
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__content'))).toEqual(
-      'ajain+12+12+1@fyle.in'
+      'ajain+12+12+1@fyle.in',
     );
   });
 

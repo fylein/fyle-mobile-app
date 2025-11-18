@@ -2,17 +2,16 @@ import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
   ActionSheetController,
-  IonicModule,
   ModalController,
   NavController,
   Platform,
   PopoverController,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -27,13 +26,12 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -48,16 +46,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
-import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
-import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { TestCases1 } from './add-edit-mileage-1.spec';
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { LocationService } from 'src/app/core/services/location.service';
-import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
 import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
 import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
@@ -65,8 +58,8 @@ import { TestCases5 } from './add-edit-mileage-5.spec';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -77,7 +70,7 @@ export function setFormValid(component) {
 describe('AddEditMileagePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getEtxnSelectedPaymentMode',
       'getAccountTypeFromPaymentMode',
@@ -106,7 +99,6 @@ describe('AddEditMileagePage', () => {
       'addExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', [
       'standardizeCustomFields',
@@ -160,7 +152,6 @@ describe('AddEditMileagePage', () => {
       'getAll',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
@@ -171,7 +162,6 @@ describe('AddEditMileagePage', () => {
       'deleteExpense',
       'unlinkCorporateCardExpense',
       'showToastMessage',
-      'setCategoryFromVendor',
       'saveReceiptWithInvalidForm',
       'clickSaveAddNew',
       'policyCorrection',
@@ -206,7 +196,7 @@ describe('AddEditMileagePage', () => {
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const sanitizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl', 'sanitize']);
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['matchExpense']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -245,20 +235,10 @@ describe('AddEditMileagePage', () => {
       'getGeocode',
     ]);
 
-    const platformHandlerService = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
-      declarations: [
-        AddEditMileagePage,
-        MaskNumber,
-        FySelectComponent,
-        EllipsisPipe,
-        DependentFieldComponent,
-        FyLocationComponent,
-      ],
-      imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      imports: [RouterTestingModule, AddEditMileagePage, getTranslocoTestingModule()],
       providers: [
         UntypedFormBuilder,
         {
@@ -355,10 +335,6 @@ describe('AddEditMileagePage', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: PopupService,
-          useValue: popupServiceSpy,
-        },
-        {
           provide: NavController,
           useValue: navControllerSpy,
         },
@@ -395,7 +371,7 @@ describe('AddEditMileagePage', () => {
           useValue: actionSheetControllerSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {

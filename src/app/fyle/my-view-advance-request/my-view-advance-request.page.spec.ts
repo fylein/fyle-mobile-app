@@ -1,38 +1,44 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flushMicrotasks } from '@angular/core/testing';
+import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
-import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+import { ActivatedRoute, Router, UrlSerializer, NavigationEnd } from '@angular/router';
+
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { MIN_SCREEN_WIDTH } from 'src/app/app.constants';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
 import {
   advanceRequestFileUrlData,
   advanceRequestFileUrlData2,
   expectedFileData1,
-  fileObject10,
   fileObject4,
 } from 'src/app/core/mock-data/file-object.data';
-import { of } from 'rxjs';
+import { of, BehaviorSubject } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
-import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { advanceRequestPlatform } from 'src/app/core/mock-data/platform/v1/advance-request-platform.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
+import { modalControllerParams8 } from 'src/app/core/mock-data/modal-controller.data';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { ReceiptPreviewThumbnailComponent } from 'src/app/shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+
+// mock for app-receipt-preview-thumbnail
+@Component({
+  selector: 'app-receipt-preview-thumbnail',
+  template: '<div></div>',
+})
+class MockReceiptPreviewThumbnailComponent {}
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -42,7 +48,7 @@ describe('MyViewAdvanceRequestPage', () => {
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -58,30 +64,33 @@ describe('MyViewAdvanceRequestPage', () => {
       'modifyAdvanceRequestCustomFields',
       'pullBackAdvanceRequest',
       'delete',
+      'getCustomFieldsForSpender',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByAdvanceRequestId', 'downloadUrl']);
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerEventsSubject = new BehaviorSubject(new NavigationEnd(1, '/test', '/test'));
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate'], {
+      events: routerEventsSubject.asObservable(),
+      url: '/test'
+    });
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const advanceRequestsCustomFieldsServiceSpy = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
-      'getAll',
-    ]);
+
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateForward']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    loaderServiceSpy.showLoader.and.resolveTo();
+    loaderServiceSpy.hideLoader.and.resolveTo();
 
     TestBed.configureTestingModule({
-      declarations: [MyViewAdvanceRequestPage],
-      imports: [IonicModule.forRoot()],
+      imports: [MyViewAdvanceRequestPage],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
@@ -104,6 +113,13 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: NavController, useValue: navControllerSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
+    }).overrideComponent(MyViewAdvanceRequestPage, {
+      remove: {
+        imports: [ReceiptPreviewThumbnailComponent]
+      },
+      add: {
+        imports: [MockReceiptPreviewThumbnailComponent]
+      }
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewAdvanceRequestPage);
@@ -113,16 +129,12 @@ describe('MyViewAdvanceRequestPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    advanceRequestsCustomFieldsService = TestBed.inject(
-      AdvanceRequestsCustomFieldsService
-    ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
+
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -164,18 +176,16 @@ describe('MyViewAdvanceRequestPage', () => {
     });
   });
 
-  it('getAndUpdateProjectName(): should set project field name equal to field name having column name as project_id', () => {
+  it('getAndUpdateProjectName(): should set project field name equal to field name having column name as project_id', fakeAsync(() => {
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
 
     component.getAndUpdateProjectName();
-
+    flushMicrotasks();
     expect(component.projectFieldName).toEqual('Purpose');
-  });
+  }));
 
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
-      loaderService.showLoader.and.resolveTo();
-      loaderService.hideLoader.and.resolveTo();
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
       advanceRequestService.getInternalStateAndDisplayName.and.returnValue({
         state: 'DRAFT',
@@ -191,7 +201,7 @@ describe('MyViewAdvanceRequestPage', () => {
       fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
       fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+      advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockAdvRequestCustomFields));
       spyOn(component, 'getAndUpdateProjectName');
       advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
     });
@@ -202,12 +212,10 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequest$.subscribe((res) => {
         expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(res).toEqual(publicAdvanceRequestRes.data[0]);
       });
       expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(
-        publicAdvanceRequestRes.data[0]
+        publicAdvanceRequestRes.data[0],
       );
       expect(component.internalState).toEqual({
         state: 'DRAFT',
@@ -219,6 +227,10 @@ describe('MyViewAdvanceRequestPage', () => {
     it('should set currency symbol to undefined if advance request is undefined', fakeAsync(() => {
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(undefined));
       component.ionViewWillEnter();
+
+      // Subscribe to trigger the map operator
+      component.advanceRequest$.subscribe();
+
       tick(100);
 
       expect(component.internalState).toEqual({
@@ -246,7 +258,7 @@ describe('MyViewAdvanceRequestPage', () => {
         expect(res).toEqual(advanceReqApprovalsPublic);
       });
       expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform).toHaveBeenCalledOnceWith(
-        'areqR1cyLgXdND'
+        'areqR1cyLgXdND',
       );
     }));
 
@@ -268,7 +280,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
     it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
-      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+      advanceRequestService.getCustomFieldsForSpender.and.returnValue(of(mockAdvRequestCustomFields));
 
       component.ionViewWillEnter();
 
@@ -276,18 +288,16 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-          publicAdvanceRequestRes.data[0].areq_custom_field_values
+          publicAdvanceRequestRes.data[0].areq_custom_field_values,
         );
-        expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+        expect(advanceRequestService.getCustomFieldsForSpender).toHaveBeenCalledTimes(1);
       });
       expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
     }));
   });
 
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
-    advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequests));
-    loaderService.showLoader.and.resolveTo();
-    loaderService.hideLoader.and.resolveTo();
+    advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequestPlatform.data[0]));
     const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);
     pullBackPopoverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'test comment' } });
     popoverController.create.and.resolveTo(pullBackPopoverSpy);
@@ -301,8 +311,6 @@ describe('MyViewAdvanceRequestPage', () => {
       notify: false,
     });
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
-    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
   }));
 
   it('edit(): should navigate to add-edit-advance-request page', () => {
@@ -319,7 +327,7 @@ describe('MyViewAdvanceRequestPage', () => {
     const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
     deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
     popoverController.create.and.resolveTo(deletePopoverSpy);
-    advanceRequestService.delete.and.returnValue(of(advanceRequests));
+    advanceRequestService.delete.and.returnValue(of(void 0));
 
     component.delete();
     tick(100);

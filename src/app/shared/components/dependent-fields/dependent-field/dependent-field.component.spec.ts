@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { DependentFieldComponent } from './dependent-field.component';
 import { DebugElement } from '@angular/core';
@@ -9,20 +8,35 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { DependentFieldModalComponent } from './dependent-field-modal/dependent-field-modal.component';
 import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
-
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
 describe('DependentFieldComponent', () => {
   let component: DependentFieldComponent;
   let fixture: ComponentFixture<DependentFieldComponent>;
   let componentElement: DebugElement;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [DependentFieldComponent, DependentFieldModalComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        TranslocoModule,
+        DependentFieldComponent,
+        DependentFieldModalComponent,
+      ],
       providers: [
         {
           provide: ModalController,
@@ -31,6 +45,10 @@ describe('DependentFieldComponent', () => {
         {
           provide: ModalPropertiesService,
           useValue: modalPropertiesSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     })
@@ -50,7 +68,24 @@ describe('DependentFieldComponent', () => {
 
         modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
         modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
+        translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+        translocoService.translate.and.callFake((key: any, params?: any) => {
+          const translations: { [key: string]: string } = {
+            'dependentField.selectLabel': 'Select {{label}}',
+            'dependentField.validationError': 'Please enter {{label}}.',
+          };
+          let translation = translations[key] || key;
 
+          // Handle parameter interpolation
+          if (params && typeof translation === 'string') {
+            Object.keys(params).forEach((paramKey) => {
+              const placeholder = `{{${paramKey}}}`;
+              translation = translation.replace(placeholder, params[paramKey]);
+            });
+          }
+
+          return translation;
+        });
         fixture.detectChanges();
       });
   }));

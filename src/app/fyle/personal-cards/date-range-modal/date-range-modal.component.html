@@ -1,41 +1,49 @@
-<div class="date-range-modal" *ngIf="!isCalenderVisible">
-  <ion-list>
-    <div class="date-range-modal--title">Date range</div>
-    <ion-item (click)="selectRange('This Month')">
-      <ion-label>
-        <div class="date-range-modal--label">This month</div>
-      </ion-label>
-    </ion-item>
-    <ion-item (click)="selectRange('Last Month')">
-      <ion-label>
-        <div class="date-range-modal--label">Last month</div>
-      </ion-label>
-    </ion-item>
-    <ion-item (click)="selectRange('Last 30 Days')">
-      <ion-label>
-        <div class="date-range-modal--label">Last 30 days</div>
-      </ion-label>
-    </ion-item>
-    <ion-item (click)="selectRange('Last 60 Days')">
-      <ion-label>
-        <div class="date-range-modal--label">Last 60 days</div>
-      </ion-label>
-    </ion-item>
-    <ion-item (click)="selectRange('All Time')">
-      <ion-label>
-        <div class="date-range-modal--label">All time</div>
-      </ion-label>
-    </ion-item>
-    <ion-item (click)="picker.open()">
-      <ion-label>
-        <div class="date-range-modal--label">Custom range</div>
-      </ion-label>
-    </ion-item>
-  </ion-list>
-</div>
+@if (!isCalenderVisible) {
+  <div class="date-range-modal">
+    <ion-list>
+      <div class="date-range-modal--title">{{ 'dateRangeModal.dateRange' | transloco }}</div>
+      <ion-item (click)="selectRange('This Month')">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.thisMonth' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+      <ion-item (click)="selectRange('Last Month')">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.lastMonth' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+      <ion-item (click)="selectRange('Last 30 Days')">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.last30Days' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+      <ion-item (click)="selectRange('Last 60 Days')">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.last60Days' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+      <ion-item (click)="selectRange('All Time')">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.allTime' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+      <ion-item (click)="picker.open()">
+        <ion-label>
+          <div class="date-range-modal--label">{{ 'dateRangeModal.customRange' | transloco }}</div>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </div>
+}
 <mat-date-range-input [rangePicker]="picker" class="date-range-modal--range-picker">
-  <input matStartDate placeholder="Start date" class="smartlook-show" #dateRangeStart />
-  <input matEndDate placeholder="End date" class="smartlook-show" (dateChange)="datePicked()" #dateRangeEnd />
+  <input matStartDate [placeholder]="'dateRangeModal.startDate' | transloco" class="smartlook-show" #dateRangeStart />
+  <input
+    matEndDate
+    [placeholder]="'dateRangeModal.endDate' | transloco"
+    class="smartlook-show"
+    (dateChange)="datePicked()"
+    #dateRangeEnd
+  />
 </mat-date-range-input>
 <mat-date-range-picker
   touchUi="true"

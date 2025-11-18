@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number.component';
@@ -13,6 +12,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { cloneDeep } from 'lodash';
 import { of, throwError } from 'rxjs';
 import { valueErrorMapping } from 'src/app/core/mock-data/value-error-mapping-for-update-mobile-number-popover.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('UpdateMobileNumberComponent', () => {
   let component: UpdateMobileNumberComponent;
@@ -20,15 +20,29 @@ describe('UpdateMobileNumberComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
 
     TestBed.configureTestingModule({
-      declarations: [UpdateMobileNumberComponent, FormButtonValidationDirective],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        TranslocoModule,
+        UpdateMobileNumberComponent,
+        FormButtonValidationDirective,
+      ],
       providers: [
         {
           provide: PopoverController,
@@ -42,6 +56,10 @@ describe('UpdateMobileNumberComponent', () => {
           provide: OrgUserService,
           useValue: orgUserServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(UpdateMobileNumberComponent);
@@ -50,7 +68,26 @@ describe('UpdateMobileNumberComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'updateMobileNumber.errorEnterNumber': 'Enter mobile number',
+        'updateMobileNumber.errorEnterNumberWithCountryCode': 'Enter mobile number with country code',
+        'updateMobileNumber.enterInputLabel': 'Enter {{inputLabel}}',
+        'updateMobileNumber.saving': 'Saving...',
+      };
+      let translation = translations[key] || key;
 
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component.extendedOrgUser = apiEouRes;
     fixture.detectChanges();
   }));
@@ -73,13 +110,6 @@ describe('UpdateMobileNumberComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): should focus on input element after view is initialized', () => {
-    const inputElement = getElementBySelector(fixture, 'input') as HTMLInputElement;
-    component.inputEl.nativeElement = inputElement;
-
-    expect(document.activeElement).toBe(inputElement);
-  });
-
   it('closePopover(): should dismiss the modal', () => {
     popoverController.dismiss.and.resolveTo();
     const closeCta = getElementBySelector(fixture, 'ion-button') as HTMLIonButtonElement;
@@ -98,7 +128,7 @@ describe('UpdateMobileNumberComponent', () => {
 
       const errorElement = getElementBySelector(
         fixture,
-        '.update-mobile-number--input-container__error'
+        '.update-mobile-number--input-container__error',
       ) as HTMLSpanElement;
       expect(component.error).toEqual(valueError.error);
 

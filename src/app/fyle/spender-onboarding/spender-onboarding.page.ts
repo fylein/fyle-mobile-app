@@ -1,24 +1,53 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { finalize, forkJoin, from, map, Observable, switchMap } from 'rxjs';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OnboardingStep } from './models/onboarding-step.enum';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { NgClass } from '@angular/common';
+import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
+import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
+import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-spender-onboarding',
   templateUrl: './spender-onboarding.page.html',
   styleUrls: ['./spender-onboarding.page.scss'],
+  imports: [
+    FyMenuIconComponent,
+    IonButtons,
+    IonContent,
+    IonIcon,
+    NgClass,
+    SpenderOnboardingConnectCardStepComponent,
+    SpenderOnboardingOptInStepComponent
+  ],
 })
 export class SpenderOnboardingPage {
+  private loaderService = inject(LoaderService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private corporateCreditCardExpenseService = inject(CorporateCreditCardExpenseService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
   isLoading = true;
 
   userFullName: string;
@@ -41,16 +70,6 @@ export class SpenderOnboardingPage {
 
   areCardsEnrolled = false;
 
-  constructor(
-    private loaderService: LoaderService,
-    private orgUserService: OrgUserService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private orgSettingsService: OrgSettingsService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private router: Router,
-    private trackingService: TrackingService
-  ) {}
-
   isMobileVerified(eou: ExtendedOrgUser): boolean {
     return !!(eou.ou.mobile && eou.ou.mobile_verified);
   }
@@ -72,7 +91,7 @@ export class SpenderOnboardingPage {
     return this.spenderOnboardingService.markWelcomeModalStepAsComplete().pipe(
       map(() => {
         this.setPostOnboardingScreen(isComplete);
-      })
+      }),
     );
   }
 
@@ -109,7 +128,7 @@ export class SpenderOnboardingPage {
             this.orgSettingsService.get(),
             this.spenderOnboardingService.getOnboardingStatus(),
             this.corporateCreditCardExpenseService.getCorporateCards(),
-          ])
+          ]),
         ),
         map(([eou, orgSettings, onboardingStatus, corporateCards]) => {
           this.eou = eou;
@@ -134,7 +153,7 @@ export class SpenderOnboardingPage {
         finalize(() => {
           this.isLoading = false;
           return from(this.loaderService.hideLoader());
-        })
+        }),
       )
       .subscribe();
   }
@@ -155,7 +174,7 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
-          })
+          }),
         )
         .subscribe();
     } else if (this.currentStep === OnboardingStep.OPT_IN) {
@@ -166,7 +185,7 @@ export class SpenderOnboardingPage {
           map(() => {
             this.trackingService.eventTrack('Sms Opt In Onboarding Step - Skipped');
           }),
-          switchMap(() => this.completeOnboarding())
+          switchMap(() => this.completeOnboarding()),
         )
         .subscribe();
     }
@@ -183,7 +202,7 @@ export class SpenderOnboardingPage {
             } else {
               this.currentStep = OnboardingStep.OPT_IN;
             }
-          })
+          }),
         )
         .subscribe();
     } else if (this.currentStep === OnboardingStep.OPT_IN) {

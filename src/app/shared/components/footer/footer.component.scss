@@ -1,4 +1,4 @@
-@import '../../../../theme/colors';
+@use '../../../../theme/colors';
 
 .fy-footer {
   &--button {
@@ -9,10 +9,10 @@
     align-items: center;
     min-height: 100%;
     justify-content: center;
-    color: $black;
+    color: colors.$black;
     overflow: hidden;
     &__inactive {
-      color: $grey-light;
+      color: colors.$grey-light;
     }
 
     &__disabled {
@@ -37,8 +37,8 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    background: $pure-white;
-    box-shadow: 0 -2px 12px $pink-shadow;
+    background: colors.$pure-white;
+    box-shadow: 0 -2px 12px colors.$pink-shadow;
     z-index: 999;
     &__message-gap {
       margin-bottom: 36px;
@@ -48,9 +48,9 @@
   &--icon {
     width: 20px;
     height: 20px;
-    fill: $black-2;
+    fill: colors.$black-2;
     &__primary {
-      fill: $pure-white;
+      fill: colors.$pure-white;
       height: 28px;
       width: 28px;
       position: relative;
@@ -61,8 +61,8 @@
 
   &--icon-pill {
     position: absolute;
-    background-color: $brand-primary;
-    color: $pure-white;
+    background-color: colors.$stat-badge-blue;
+    color: colors.$pure-white;
     line-height: 8px;
     top: 4px;
     margin-left: 14px;
@@ -85,12 +85,12 @@
     min-width: 77px;
     max-width: 77px;
     line-height: 1.2;
-    background: $pink-gradient;
-    border: 6px solid $pure-white;
+    background: colors.$brand-primary;
+    border: 6px solid colors.$pure-white;
   }
 
   &--primary-icon {
-    color: $pure-white;
+    color: colors.$pure-white;
   }
 }
 

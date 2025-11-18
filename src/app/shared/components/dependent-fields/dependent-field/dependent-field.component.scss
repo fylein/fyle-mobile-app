@@ -1,4 +1,4 @@
-@import '../../../../../theme/colors.scss';
+@use '../../../../../theme/colors.scss';
 
 .dependent-field {
   &__label {
@@ -12,13 +12,13 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
 
   &__disabled {
-    background: $grey-7;
+    background: colors.$grey-7;
   }
 
   &__input-container {
@@ -26,30 +26,30 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 0;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &__input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     padding: 0;
   }
 
   &__input-invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &__mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
     font-size: 14px;
     font-weight: 400;
   }
 
   &__icon {
-    color: $grey-light;
+    color: colors.$grey-light;
   }
 
   &__input-disabled {
@@ -57,7 +57,7 @@
   }
 
   &__error {
-    color: $red;
+    color: colors.$negative-500;
     font-size: 12px;
     padding-top: 4px;
   }

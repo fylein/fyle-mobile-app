@@ -1,24 +1,40 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { NotificationsBetaPageService } from './notifications-beta.page.service';
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { MatIcon } from '@angular/material/icon';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-notifications-beta',
   templateUrl: './notifications-beta.page.html',
   styleUrls: ['./notifications-beta.page.scss'],
+  imports: [
+    AsyncPipe,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    MatIcon
+  ],
 })
 export class NotificationsBetaPage implements OnInit {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';
@@ -41,17 +57,23 @@ export class NotificationsBetaPage implements OnInit {
 
   advanceNotificationsConfig: NotificationConfig;
 
-  orgUserSettings: OrgUserSettings;
+  employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
+
+  currentEou: ExtendedOrgUser;
+
+  isNotificationsDisabled = false;
+
+  isInitialLoading: boolean;
 
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
 
-  private orgUserSettingsService = inject(OrgUserSettingsService);
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
-  private orgSettingsService = inject(OrgSettingsService);
+  private orgSettingsService = inject(PlatformOrgSettingsService);
 
   private authService = inject(AuthService);
 
@@ -63,10 +85,14 @@ export class NotificationsBetaPage implements OnInit {
 
   private trackingService = inject(TrackingService);
 
+  private launchDarklyService = inject(LaunchDarklyService);
+
   ngOnInit(): void {
-    this.getOrgSettings().subscribe(({ orgSettings, orgUserSettings }) => {
+    this.isInitialLoading = true;
+    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
       this.orgSettings = orgSettings;
-      this.orgUserSettings = orgUserSettings;
+      this.employeeSettings = employeeSettings;
+      this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
       this.initializeEmailNotificationsConfig();
@@ -77,64 +103,76 @@ export class NotificationsBetaPage implements OnInit {
   initializeEmailNotificationsConfig(): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
-      this.orgUserSettings
+      this.employeeSettings,
+      this.currentEou,
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
     this.expenseReportNotificationsConfig = emailNotificationsConfig.expenseReportNotificationsConfig;
     this.advanceNotificationsConfig = emailNotificationsConfig.advanceNotificationsConfig;
+
+    this.isNotificationsDisabled =
+      this.expenseNotificationsConfig.notifications.length === 0 &&
+      this.expenseReportNotificationsConfig.notifications.length === 0 &&
+      this.advanceNotificationsConfig.notifications.length === 0;
   }
 
-  getOrgSettings(): Observable<{ orgSettings: OrgSettings; orgUserSettings: OrgUserSettings }> {
-    this.isLoading = true;
+  getOrgSettings(): Observable<{
+    orgSettings: OrgSettings;
+    employeeSettings: EmployeeSettings;
+    currentEou: ExtendedOrgUser;
+  }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
-      orgUserSettings: this.orgUserSettingsService.get(),
-    }).pipe(
-      finalize(() => {
-        this.isLoading = false;
-      })
-    );
+      employeeSettings: this.platformEmployeeSettingsService.get(),
+      currentEou: from(this.authService.getEou()),
+    }).pipe(finalize(() => (this.isInitialLoading = false)));
   }
 
   initializeDelegateNotification(): void {
-    this.isDelegateePresent$ = from(this.authService.getEou()).pipe(
-      switchMap((res) => this.employeesService.getByParams({ user_id: `eq.${res.us.id}` })),
+    if (!this.currentEou?.us?.id) {
+      this.isDelegateePresent$ = from(Promise.resolve(false));
+      return;
+    }
+
+    this.isDelegateePresent$ = from(this.employeesService.getByParams({ user_id: `eq.${this.currentEou.us.id}` })).pipe(
       map((employeesResponse) => employeesResponse?.data[0]?.delegatees?.length > 0),
       tap((isDelegateePresent) => {
         if (isDelegateePresent) {
           this.initializeSelectedPreference();
         }
-      })
+      }),
     );
   }
 
   initializeSelectedPreference(): void {
     this.selectedPreference = this.notificationsBetaPageService.getInitialDelegateNotificationPreference(
-      this.orgUserSettings
+      this.employeeSettings,
     );
   }
 
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
     const unsubscribedEventsByUser: string[] =
-      this.orgUserSettings.notification_settings.email?.unsubscribed_events ?? [];
+      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
 
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
       componentProps: {
         title: notificationConfig.title,
         notifications: notificationConfig.notifications,
-        orgUserSettings: this.orgUserSettings,
+        employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
       },
-      ...this.modalPropertiesService.getModalDefaultProperties('email-notifications-modal'),
+      ...this.modalPropertiesService.getModalDefaultProperties(),
+      initialBreakpoint: 0.5,
+      breakpoints: [0, 0.5, 1],
     });
 
     await emailNotificationsModal.present();
     const { data } = (await emailNotificationsModal.onWillDismiss()) as OverlayResponse<{
-      orgUserSettingsUpdated: boolean;
+      employeeSettingsUpdated: boolean;
     }>;
-    if (data?.orgUserSettingsUpdated) {
+    if (data?.employeeSettingsUpdated) {
       this.ngOnInit();
     }
   }
@@ -147,24 +185,24 @@ export class NotificationsBetaPage implements OnInit {
   updateDelegateNotificationPreference(): void {
     switch (this.selectedPreference) {
       case 'onlyMe':
-        this.orgUserSettings.notification_settings.notify_delegatee = false;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = false;
+        this.employeeSettings.notification_settings.notify_user = true;
         break;
       case 'onlyDelegate':
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = false;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = false;
         break;
       case 'both':
-        this.orgUserSettings.notification_settings.notify_delegatee = true;
-        this.orgUserSettings.notification_settings.notify_user = true;
+        this.employeeSettings.notification_settings.notify_delegatee = true;
+        this.employeeSettings.notification_settings.notify_user = true;
         break;
     }
 
-    this.orgUserSettingsService.post(this.orgUserSettings).subscribe(() => {
+    this.platformEmployeeSettingsService.post(this.employeeSettings).subscribe(() => {
       this.trackingService.eventTrack('Delegate notification preference updated from mobile app', {
         preference: this.selectedPreference,
       });
-      this.orgUserSettingsService.clearOrgUserSettings();
+      this.platformEmployeeSettingsService.clearEmployeeSettings();
     });
   }
 

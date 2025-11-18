@@ -2,10 +2,16 @@ import { TitleCasePipe } from '@angular/common';
 import { DebugElement } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { Observable, Subscription, of, throwError } from 'rxjs';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
@@ -51,12 +57,11 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -117,7 +122,6 @@ export function TestCases4(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -127,7 +131,7 @@ export function TestCases4(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -171,21 +175,20 @@ export function TestCases4(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -195,7 +198,7 @@ export function TestCases4(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -299,7 +302,7 @@ export function TestCases4(getTestBed) {
           nativeElement: dummyNativeElement,
         } as DebugElement;
 
-        const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
+        const nativeElement = component.fileUpload.nativeElement;
         spyOn(nativeElement, 'click').and.callThrough();
 
         component.addAttachments(new Event('click'));
@@ -365,12 +368,12 @@ export function TestCases4(getTestBed) {
           actionSource: 'camera',
         });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
-          { message: 'Receipt added to Expense successfully' },
+          { message: 'Receipt added to expense successfully' },
           'success',
-          ['msb-success-with-camera-icon']
+          ['msb-success-with-camera-icon'],
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
-          ToastContent: 'Receipt added to Expense successfully',
+          ToastContent: 'Receipt added to expense successfully',
         });
       }));
     });
@@ -380,8 +383,8 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = expectedUnflattendedTxnData4.tx.org_category_id as number;
-        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id as number;
+        component.presetCategoryId = expectedUnflattendedTxnData4.tx.category_id;
+        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
         component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
         component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
         fixture.detectChanges();
@@ -397,8 +400,8 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = trackAddExpenseWoCurrency.tx.org_category_id;
-        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id as number;
+        component.presetCategoryId = trackAddExpenseWoCurrency.tx.category_id;
+        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id;
         component.presetCostCenterId = trackAddExpenseWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackAddExpenseWoCurrency.tx.orig_currency;
         fixture.detectChanges();
@@ -486,7 +489,7 @@ export function TestCases4(getTestBed) {
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
             mockEtxn.tx,
             [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
-            []
+            [],
           );
           done();
         });
@@ -523,7 +526,7 @@ export function TestCases4(getTestBed) {
               ],
               etxn: mockEtxn,
             },
-            jasmine.any(Observable)
+            jasmine.any(Observable),
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData3, false);
@@ -547,7 +550,7 @@ export function TestCases4(getTestBed) {
           of({
             etxn: mockEtxn,
             comment: 'continue',
-          })
+          }),
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'trackCreateExpense');
@@ -569,7 +572,7 @@ export function TestCases4(getTestBed) {
               policyAction: expensePolicyData.data.final_desired_state,
               etxn: mockEtxn,
             },
-            jasmine.any(Observable)
+            jasmine.any(Observable),
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
@@ -619,7 +622,7 @@ export function TestCases4(getTestBed) {
           of({
             external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
-          })
+          }),
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
@@ -636,15 +639,15 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id
+          platformPersonalCardTxns.data[0].id,
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.tx.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },
           'success',
-          ['msb-success']
+          ['msb-success'],
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
           queryParams: { refresh: true },
@@ -669,7 +672,7 @@ export function TestCases4(getTestBed) {
           of({
             external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
-          })
+          }),
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
@@ -687,20 +690,20 @@ export function TestCases4(getTestBed) {
             ],
             etxn: expense,
           },
-          jasmine.any(Observable)
+          jasmine.any(Observable),
         );
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id
+          platformPersonalCardTxns.data[0].id,
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.tx.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },
           'success',
-          ['msb-success']
+          ['msb-success'],
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
           queryParams: { refresh: true },
@@ -725,7 +728,7 @@ export function TestCases4(getTestBed) {
           of({
             external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
-          })
+          }),
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
@@ -745,20 +748,20 @@ export function TestCases4(getTestBed) {
             policyAction: expensePolicyData.data.final_desired_state,
             etxn: expense,
           },
-          jasmine.any(Observable)
+          jasmine.any(Observable),
         );
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id
+          platformPersonalCardTxns.data[0].id,
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.tx.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },
           'success',
-          ['msb-success']
+          ['msb-success'],
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
           queryParams: { refresh: true },
@@ -785,7 +788,7 @@ export function TestCases4(getTestBed) {
           of({
             external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
-          })
+          }),
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
@@ -799,15 +802,15 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledTimes(1);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id
+          platformPersonalCardTxns.data[0].id,
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.tx.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },
           'success',
-          ['msb-success']
+          ['msb-success'],
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
           queryParams: { refresh: true },
@@ -834,7 +837,7 @@ export function TestCases4(getTestBed) {
           of({
             external_expense_id: expectedUnflattendedTxnData3.tx.id,
             transaction_split_group_id: expectedUnflattendedTxnData3.tx.split_group_id,
-          })
+          }),
         );
         spyOn(component, 'uploadAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'showSnackBarToast');
@@ -848,15 +851,15 @@ export function TestCases4(getTestBed) {
         expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTransactionDataPersonalCard.tx);
         expect(personalCardsService.matchExpense).toHaveBeenCalledOnceWith(
           unflattenedTransactionDataPersonalCard.tx.split_group_id,
-          platformPersonalCardTxns.data[0].id
+          platformPersonalCardTxns.data[0].id,
         );
         expect(component.uploadAttachments).toHaveBeenCalledOnceWith(
-          unflattenedTransactionDataPersonalCard.tx.split_group_id
+          unflattenedTransactionDataPersonalCard.tx.split_group_id,
         );
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Expense created successfully.' },
           'success',
-          ['msb-success']
+          ['msb-success'],
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards'], {
           queryParams: { refresh: true },
@@ -868,7 +871,7 @@ export function TestCases4(getTestBed) {
     describe('trackEditExpense():', () => {
       it('should track edit expense event', () => {
         spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
@@ -890,7 +893,7 @@ export function TestCases4(getTestBed) {
       });
 
       it('should track edit expense event for an expense where the original currency is same as preset currency', () => {
-        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.org_category_id;
+        component.presetCategoryId = trackCreateExpDataWoCurrency.tx.category_id;
         component.presetCostCenterId = trackCreateExpDataWoCurrency.tx.cost_center_id;
         component.presetCurrency = trackCreateExpDataWoCurrency.tx.orig_currency;
         component.presetProjectId = trackCreateExpDataWoCurrency.tx.project_id;
@@ -1058,7 +1061,7 @@ export function TestCases4(getTestBed) {
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: transformedExpenseDataWithSubCategory, comment: null })
+          of({ etxn: transformedExpenseDataWithSubCategory, comment: null }),
         );
         component.etxn$ = of(transformedExpenseDataWithSubCategory);
         authService.getEou.and.resolveTo(apiEouRes);
@@ -1081,7 +1084,7 @@ export function TestCases4(getTestBed) {
               ],
               etxn: transformedExpenseDataWithSubCategory,
             },
-            jasmine.any(Observable)
+            jasmine.any(Observable),
           );
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1104,7 +1107,7 @@ export function TestCases4(getTestBed) {
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: transformedExpenseDataWithReportId, comment: 'A comment' })
+          of({ etxn: transformedExpenseDataWithReportId, comment: 'A comment' }),
         );
         component.etxn$ = of(transformedExpenseDataWithReportId);
         authService.getEou.and.resolveTo(apiEouRes);
@@ -1131,7 +1134,7 @@ export function TestCases4(getTestBed) {
               policyAction: expensePolicyData.data.final_desired_state,
               etxn: transformedExpenseDataWithReportId,
             },
-            jasmine.any(Observable)
+            jasmine.any(Observable),
           );
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1140,7 +1143,7 @@ export function TestCases4(getTestBed) {
 
           expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.id,
-            transformedExpenseDataWithReportId.tx.org_user_id
+            transformedExpenseDataWithReportId.tx.org_user_id,
           );
           expect(expenseCommentService.post).toHaveBeenCalledOnceWith([
             {
@@ -1166,7 +1169,7 @@ export function TestCases4(getTestBed) {
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: transformedExpenseDataWithReportId2, comment: 'comment' })
+          of({ etxn: transformedExpenseDataWithReportId2, comment: 'comment' }),
         );
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         authService.getEou.and.resolveTo(apiEouRes);
@@ -1191,7 +1194,7 @@ export function TestCases4(getTestBed) {
               policyAction: expensePolicyData.data.final_desired_state,
               etxn: transformedExpenseDataWithReportId2,
             },
-            jasmine.any(Observable)
+            jasmine.any(Observable),
           );
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1199,7 +1202,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
           expect(expenseCommentService.findLatestExpenseComment).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId2.tx.id,
-            transformedExpenseDataWithReportId2.tx.org_user_id
+            transformedExpenseDataWithReportId2.tx.org_user_id,
           );
           done();
         });

@@ -1,22 +1,35 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 import { ShareReportComponent } from './share-report.component';
+import { of } from 'rxjs';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ShareReportComponent', () => {
   let component: ShareReportComponent;
   let fixture: ComponentFixture<ShareReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
-      declarations: [ShareReportComponent],
-      imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
+      imports: [
+        
+        FormsModule,
+        MatIconModule,
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        ShareReportComponent,
+      ],
       providers: [{ provide: ModalController, useValue: modalController }],
     }).compileComponents();
 
@@ -44,10 +57,14 @@ describe('ShareReportComponent', () => {
   it('should do nothing when the email input field is empty or invalid', async () => {
     modalController.dismiss.and.resolveTo(true);
 
-    component.shareReport({ value: '', invalid: false, control: { markAllAsTouched: () => {} } });
+    component.shareReport({ value: '', invalid: false, control: { markAllAsTouched: () => {}, setErrors: () => {} } });
     expect(modalController.dismiss).not.toHaveBeenCalled();
 
-    component.shareReport({ value: 'invalid_email', invalid: true, control: { markAllAsTouched: () => {} } });
+    component.shareReport({
+      value: 'invalid_email',
+      invalid: true,
+      control: { markAllAsTouched: () => {}, setErrors: () => {} },
+    });
     expect(modalController.dismiss).not.toHaveBeenCalled();
   });
 

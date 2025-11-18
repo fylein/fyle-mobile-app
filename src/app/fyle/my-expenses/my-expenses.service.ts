@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import { Injectable, inject } from '@angular/core';
+import dayjs from 'dayjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
@@ -8,11 +8,15 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
+import { TranslocoService } from '@jsverse/transloco';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MyExpensesService {
+  private translocoService = inject(TranslocoService);
+
   maskNumber = new MaskNumber();
 
   generateSortFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
@@ -24,7 +28,7 @@ export class MyExpensesService {
   }
 
   convertSelectedOptionsToExpenseFilters(
-    selectedFilters: SelectedFilters<string | string[]>[]
+    selectedFilters: SelectedFilters<string | string[]>[],
   ): Partial<ExpenseFilters> {
     const generatedFilters: Partial<ExpenseFilters> = {};
 
@@ -40,7 +44,7 @@ export class MyExpensesService {
       generatedFilters.customDateEnd = dateFilter.associatedData?.endDate;
     }
 
-    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts Attached');
+    const receiptAttachedFilter = selectedFilters.find((filter) => filter.name === 'Receipts attached');
 
     if (receiptAttachedFilter) {
       generatedFilters.receiptsAttached = <string>receiptAttachedFilter.value;
@@ -52,7 +56,7 @@ export class MyExpensesService {
       generatedFilters.potentialDuplicates = <string>potentialDuplicatesFilter.value;
     }
 
-    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense Type');
+    const expenseTypeFilter = selectedFilters.find((filter) => filter.name === 'Expense type');
 
     if (expenseTypeFilter) {
       generatedFilters.type = <string[]>expenseTypeFilter.value;
@@ -68,7 +72,7 @@ export class MyExpensesService {
 
     this.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
-    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split Expense');
+    const splitExpenseFilter = selectedFilters.find((filter) => filter.name === 'Split expense');
 
     if (splitExpenseFilter) {
       generatedFilters.splitExpense = <string>splitExpenseFilter.value;
@@ -80,15 +84,15 @@ export class MyExpensesService {
   generateSortAmountPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'amount - high to low',
+        value: this.translocoService.translate('services.myExpenses.amountHighToLowPill'),
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'amount - low to high',
+        value: this.translocoService.translate('services.myExpenses.amountLowToHighPill'),
       });
     }
   }
@@ -96,15 +100,15 @@ export class MyExpensesService {
   generateSortTxnDatePills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'date - old to new',
+        value: this.translocoService.translate('services.myExpenses.dateOldToNewPill'),
       });
     } else if (filter.sortParam === 'spent_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'date - new to old',
+        value: this.translocoService.translate('services.myExpenses.dateNewToOldPill'),
       });
     }
   }
@@ -113,11 +117,11 @@ export class MyExpensesService {
     const combinedValue = filter.type
       .map((type) => {
         if (type === 'EXPENSE') {
-          return 'Regular Expenses';
+          return this.translocoService.translate('services.myExpenses.regularExpenses');
         } else if (type === 'PER_DIEM') {
-          return 'Per Diem';
+          return this.translocoService.translate('services.myExpenses.perDiem');
         } else if (type === 'MILEAGE') {
-          return 'Mileage';
+          return this.translocoService.translate('services.myExpenses.mileage');
         } else {
           return type;
         }
@@ -125,7 +129,7 @@ export class MyExpensesService {
       .reduce((type1, type2) => `${type1}, ${type2}`);
 
     filterPills.push({
-      label: 'Expense Type',
+      label: this.translocoService.translate('services.myExpenses.expenseType'),
       type: 'type',
       value: combinedValue,
     });
@@ -134,33 +138,33 @@ export class MyExpensesService {
   generateDateFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): FilterPill[] {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: 'this Week',
+        value: this.translocoService.translate('services.myExpenses.thisWeekPill'),
       });
     }
 
     if (filter.date === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: 'this Month',
+        value: this.translocoService.translate('services.myExpenses.thisMonthPill'),
       });
     }
 
     if (filter.date === DateFilters.all) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: 'All',
+        value: this.translocoService.translate('services.myExpenses.all'),
       });
     }
 
     if (filter.date === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: 'Last Month',
+        value: this.translocoService.translate('services.myExpenses.lastMonthPill'),
       });
     }
 
@@ -177,21 +181,21 @@ export class MyExpensesService {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: `${startDate} to ${endDate}`,
+        value: `${startDate}${this.translocoService.translate('services.myExpenses.to')}${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: `>= ${startDate}`,
+        value: `${this.translocoService.translate('services.myExpenses.greaterThanOrEqual')}${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('services.myExpenses.date'),
         type: 'date',
-        value: `<= ${endDate}`,
+        value: `${this.translocoService.translate('services.myExpenses.lessThanOrEqual')}${endDate}`,
       });
     }
 
@@ -200,7 +204,7 @@ export class MyExpensesService {
 
   generateReceiptsAttachedFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
-      label: 'Receipts Attached',
+      label: this.translocoService.translate('services.myExpenses.receiptsAttached'),
       type: 'receiptsAttached',
       value: filter.receiptsAttached.toLowerCase(),
     });
@@ -208,7 +212,7 @@ export class MyExpensesService {
 
   generatePotentialDuplicatesFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
-      label: 'Potential duplicates',
+      label: this.translocoService.translate('services.myExpenses.potentialDuplicates'),
       type: 'potentialDuplicates',
       value: filter.potentialDuplicates.toLowerCase(),
     });
@@ -216,7 +220,7 @@ export class MyExpensesService {
 
   generateSplitExpenseFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
-      label: 'Split Expense',
+      label: this.translocoService.translate('services.myExpenses.splitExpense'),
       type: 'splitExpense',
       value: filter.splitExpense.toLowerCase(),
     });
@@ -224,7 +228,7 @@ export class MyExpensesService {
 
   generateCardFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
     filterPills.push({
-      label: 'Cards ending in...',
+      label: this.translocoService.translate('services.myExpenses.cardsEndingIn'),
       type: 'cardNumbers',
       value: filter.cardNumbers
         .map((cardNumber) => this.maskNumber.transform(cardNumber))
@@ -236,14 +240,20 @@ export class MyExpensesService {
     const filterState = filter.state as string[];
 
     filterPills.push({
-      label: 'Type',
+      label: this.translocoService.translate('services.myExpenses.type'),
       type: 'state',
       value: filterState
         .map((state) => {
           if (state === 'DRAFT') {
-            return 'Incomplete';
+            return this.translocoService.translate('services.myExpenses.incomplete');
           } else if (state === 'READY_TO_REPORT') {
-            return 'Complete';
+            return this.translocoService.translate('services.myExpenses.complete');
+          } else if (state === 'POLICY_VIOLATED') {
+            return this.translocoService.translate('services.myExpenses.policyViolatedPill');
+          } else if (state === 'BLOCKED') {
+            return this.translocoService.translate('services.myExpenses.blockedPill');
+          } else if (state === 'CANNOT_REPORT') {
+            return this.translocoService.translate('services.myExpenses.cannotReportPill');
           } else {
             return state.replace(/_/g, ' ').toLowerCase();
           }
@@ -254,7 +264,7 @@ export class MyExpensesService {
 
   convertSelectedSortFitlersToFilters(
     sortBy: SelectedFilters<string | string[]>,
-    generatedFilters: Partial<ExpenseFilters>
+    generatedFilters: Partial<ExpenseFilters>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -279,142 +289,154 @@ export class MyExpensesService {
     }
   }
 
-  getFilters(): FilterOptions<string>[] {
+  getFilters(orgSettings?: OrgSettings): FilterOptions<string>[] {
+    const typeOptions = [
+      {
+        label: this.translocoService.translate('services.myExpenses.complete'),
+        value: 'READY_TO_REPORT',
+      },
+      {
+        label: this.translocoService.translate('services.myExpenses.incomplete'),
+        value: 'DRAFT',
+      },
+    ];
+    // Add BLOCKED filter only if is_new_critical_policy_violation_flow_enabled is true
+    if (orgSettings?.is_new_critical_policy_violation_flow_enabled) {
+      typeOptions.push({
+        label: this.translocoService.translate('services.myExpenses.blocked'),
+        value: 'BLOCKED',
+      });
+    } else {
+      // Use CANNOT_REPORT when the flag is false
+      typeOptions.push({
+        label: this.translocoService.translate('services.myExpenses.cannotReport'),
+        value: 'CANNOT_REPORT',
+      });
+    }
+
+    typeOptions.push({
+      label: this.translocoService.translate('services.myExpenses.policyViolated'),
+      value: 'POLICY_VIOLATED',
+    });
+
     return [
       {
-        name: 'Type',
+        name: this.translocoService.translate('services.myExpenses.type'),
         optionType: FilterOptionType.multiselect,
-        options: [
-          {
-            label: 'Complete',
-            value: 'READY_TO_REPORT',
-          },
-          {
-            label: 'Policy Violated',
-            value: 'POLICY_VIOLATED',
-          },
-          {
-            label: 'Cannot Report',
-            value: 'CANNOT_REPORT',
-          },
-          {
-            label: 'Incomplete',
-            value: 'DRAFT',
-          },
-        ],
+        options: typeOptions,
       } as FilterOptions<string>,
       {
-        name: 'Date',
+        name: this.translocoService.translate('services.myExpenses.date'),
         optionType: FilterOptionType.date,
         options: [
           {
-            label: 'All',
+            label: this.translocoService.translate('services.myExpenses.all'),
             value: DateFilters.all,
           },
           {
-            label: 'This Week',
+            label: this.translocoService.translate('services.myExpenses.thisWeek'),
             value: DateFilters.thisWeek,
           },
           {
-            label: 'This Month',
+            label: this.translocoService.translate('services.myExpenses.thisMonth'),
             value: DateFilters.thisMonth,
           },
           {
-            label: 'Last Month',
+            label: this.translocoService.translate('services.myExpenses.lastMonth'),
             value: DateFilters.lastMonth,
           },
           {
-            label: 'Custom',
+            label: this.translocoService.translate('services.myExpenses.custom'),
             value: DateFilters.custom,
           },
         ],
       } as FilterOptions<DateFilters>,
       {
-        name: 'Receipts Attached',
+        name: this.translocoService.translate('services.myExpenses.receiptsAttached'),
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Yes',
+            label: this.translocoService.translate('services.myExpenses.yes'),
             value: 'YES',
           },
           {
-            label: 'No',
+            label: this.translocoService.translate('services.myExpenses.no'),
             value: 'NO',
           },
         ],
       } as FilterOptions<string>,
       {
-        name: 'Expense Type',
+        name: this.translocoService.translate('services.myExpenses.expenseType'),
         optionType: FilterOptionType.multiselect,
         options: [
           {
-            label: 'Mileage',
+            label: this.translocoService.translate('services.myExpenses.mileage'),
             value: ExpenseType.MILEAGE,
           },
           {
-            label: 'Per Diem',
+            label: this.translocoService.translate('services.myExpenses.perDiem'),
             value: ExpenseType.PER_DIEM,
           },
           {
-            label: 'Regular Expenses',
+            label: this.translocoService.translate('services.myExpenses.regularExpenses'),
             value: ExpenseType.EXPENSE,
           },
         ],
       } as FilterOptions<string>,
       {
-        name: 'Potential duplicates',
+        name: this.translocoService.translate('services.myExpenses.potentialDuplicates'),
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Yes',
+            label: this.translocoService.translate('services.myExpenses.yes'),
             value: 'YES',
           },
           {
-            label: 'No',
+            label: this.translocoService.translate('services.myExpenses.no'),
             value: 'NO',
           },
         ],
       } as FilterOptions<string>,
       {
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Date - New to Old',
+            label: this.translocoService.translate('services.myExpenses.dateNewToOldSort'),
             value: 'dateNewToOld',
           },
           {
-            label: 'Date - Old to New',
+            label: this.translocoService.translate('services.myExpenses.dateOldToNewSort'),
             value: 'dateOldToNew',
           },
           {
-            label: 'Amount - High to Low',
+            label: this.translocoService.translate('services.myExpenses.amountHighToLowSort'),
             value: 'amountHighToLow',
           },
           {
-            label: 'Amount - Low to High',
+            label: this.translocoService.translate('services.myExpenses.amountLowToHighSort'),
             value: 'amountLowToHigh',
           },
           {
-            label: 'Category - A to Z',
+            label: this.translocoService.translate('services.myExpenses.categoryAToZSort'),
             value: 'categoryAToZ',
           },
           {
-            label: 'Category - Z to A',
+            label: this.translocoService.translate('services.myExpenses.categoryZToASort'),
             value: 'categoryZToA',
           },
         ],
       } as FilterOptions<string>,
       {
-        name: 'Split Expense',
+        name: this.translocoService.translate('services.myExpenses.splitExpense'),
         optionType: FilterOptionType.singleselect,
         options: [
           {
-            label: 'Yes',
+            label: this.translocoService.translate('services.myExpenses.yes'),
             value: 'YES',
           },
           {
-            label: 'No',
+            label: this.translocoService.translate('services.myExpenses.no'),
             value: 'NO',
           },
         ],
@@ -427,28 +449,28 @@ export class MyExpensesService {
 
     if (filter.state) {
       generatedFilters.push({
-        name: 'Type',
+        name: this.translocoService.translate('services.myExpenses.type'),
         value: filter.state,
       });
     }
 
     if (filter.receiptsAttached) {
       generatedFilters.push({
-        name: 'Receipts Attached',
+        name: this.translocoService.translate('services.myExpenses.receiptsAttached'),
         value: filter.receiptsAttached,
       });
     }
 
     if (filter.potentialDuplicates) {
       generatedFilters.push({
-        name: 'Potential duplicates',
+        name: this.translocoService.translate('services.myExpenses.potentialDuplicates'),
         value: filter.potentialDuplicates,
       });
     }
 
     if (filter.date) {
       generatedFilters.push({
-        name: 'Date',
+        name: this.translocoService.translate('services.myExpenses.date'),
         value: filter.date,
         associatedData: {
           startDate: filter.customDateStart,
@@ -459,14 +481,14 @@ export class MyExpensesService {
 
     if (filter.type) {
       generatedFilters.push({
-        name: 'Expense Type',
+        name: this.translocoService.translate('services.myExpenses.expenseType'),
         value: filter.type,
       });
     }
 
     if (filter.cardNumbers) {
       generatedFilters.push({
-        name: 'Cards ending in...',
+        name: this.translocoService.translate('services.myExpenses.cardsEndingIn'),
         value: filter.cardNumbers,
       });
     }
@@ -477,7 +499,7 @@ export class MyExpensesService {
 
     if (filter.splitExpense) {
       generatedFilters.push({
-        name: 'Split Expense',
+        name: this.translocoService.translate('services.myExpenses.splitExpense'),
         value: filter.splitExpense,
       });
     }
@@ -487,7 +509,7 @@ export class MyExpensesService {
 
   addSortToGeneratedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     this.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -498,16 +520,16 @@ export class MyExpensesService {
 
   convertCategorySortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'categoryAToZ',
       });
     } else if (filter.sortParam === 'category->name' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'categoryZToA',
       });
     }
@@ -515,16 +537,16 @@ export class MyExpensesService {
 
   convertAmountSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'amountHighToLow',
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'amountLowToHigh',
       });
     }
@@ -532,16 +554,16 @@ export class MyExpensesService {
 
   convertTxnDtSortToSelectedFilters(
     filter: Partial<ExpenseFilters>,
-    generatedFilters: SelectedFilters<string | string[]>[]
+    generatedFilters: SelectedFilters<string | string[]>[],
   ): void {
     if (filter.sortParam === 'spent_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'dateOldToNew',
       });
     } else if (filter.sortParam === 'spent_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
-        name: 'Sort by',
+        name: this.translocoService.translate('services.myExpenses.sortBy'),
         value: 'dateNewToOld',
       });
     }
@@ -550,15 +572,15 @@ export class MyExpensesService {
   private generateSortCategoryPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'category->name' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'category - a to z',
+        value: this.translocoService.translate('services.myExpenses.categoryAToZPill'),
       });
     } else if (filter.sortParam === 'category->name' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('services.myExpenses.sortBy'),
         type: 'sort',
-        value: 'category - z to a',
+        value: this.translocoService.translate('services.myExpenses.categoryZToAPill'),
       });
     }
   }

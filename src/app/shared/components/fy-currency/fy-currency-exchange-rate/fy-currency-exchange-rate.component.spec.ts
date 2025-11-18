@@ -1,21 +1,16 @@
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import {
   UntypedFormBuilder,
-  FormControl,
-  FormGroup,
   FormsModule,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { of } from 'rxjs';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { FyNumberComponent } from '../../fy-number/fy-number.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('FyCurrencyExchangeRateComponent', () => {
   let component: FyCurrencyExchangeRateComponent;
@@ -24,7 +19,6 @@ describe('FyCurrencyExchangeRateComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss', 'create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
@@ -32,10 +26,11 @@ describe('FyCurrencyExchangeRateComponent', () => {
       'getAmountWithCurrencyFraction',
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-
     TestBed.configureTestingModule({
-      declarations: [FyCurrencyExchangeRateComponent, FyNumberComponent],
-      imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
+      imports: [FormsModule,
+        FyCurrencyExchangeRateComponent,
+        getTranslocoTestingModule(),
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
@@ -51,7 +46,8 @@ describe('FyCurrencyExchangeRateComponent', () => {
         },
         UntypedFormBuilder,
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+    }).overrideComponent(FyCurrencyExchangeRateComponent, {
+      add: {schemas: [CUSTOM_ELEMENTS_SCHEMA]}
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);

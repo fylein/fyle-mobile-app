@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
@@ -42,11 +42,13 @@ import { ExtendedOrgUser } from '../models/extended-org-user.model';
   providedIn: 'root',
 })
 export class TrackingService {
+  private authService = inject(AuthService);
+
+  private deviceService = inject(DeviceService);
+
   identityId = null;
 
   ROOT_ENDPOINT: string;
-
-  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
@@ -470,12 +472,20 @@ export class TrackingService {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
+  myExpenseActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my expense action sheet add button clicked', properties);
+  }
+
   myExpensesFilterApplied(properties: { filterLabels: string[] }): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
   myReportsFilterApplied(properties: ReportFilters): void {
     this.eventTrack('my reports filters applied', properties);
+  }
+
+  myReportsActionSheetAddButtonClicked(properties: { Action: string }): void {
+    this.eventTrack('my reports action sheet add button clicked', properties);
   }
 
   TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>): void {
@@ -667,10 +677,6 @@ export class TrackingService {
     this.eventTrack('Menu Item Clicked', properties);
   }
 
-  setCategoryFromVendor(properties = {} as OrgCategory): void {
-    this.eventTrack('Category Updated By Vendor', properties);
-  }
-
   receiptLimitReached(properties = {}): void {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
   }
@@ -855,6 +861,14 @@ export class TrackingService {
     this.eventTrack('Opted In From Dashboard Banner');
   }
 
+  optedInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Clicked On Dashboard Email Forwarding Banner');
+  }
+
+  skipOptInFromDashboardEmailOptInBanner(): void {
+    this.eventTrack('Skip Opt In From Dashboard Email Opt In Banner');
+  }
+
   skipOptInFromDashboardBanner(): void {
     this.eventTrack('Skip Opt In From Dashboard Banner');
   }
@@ -875,6 +889,14 @@ export class TrackingService {
     this.eventTrack('Clicked On Dashboard Banner');
   }
 
+  clickedOnRebrandingLearnMore(): void {
+    this.eventTrack('Clicked On Rebranding Learn More');
+  }
+
+  clickedOnRebrandingOk(): void {
+    this.eventTrack('Clicked On Rebranding Ok');
+  }
+
   // Track receipt scan duration event
   receiptScanTime(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time', properties);
@@ -882,6 +904,26 @@ export class TrackingService {
 
   receiptScanTimeInstaFyle(properties: { duration: number; fileType: string }): void {
     this.eventTrack('Receipt Scan Time InstaFyle', properties);
+  }
+
+  dashboardPendingTasksNotificationClicked(properties = {} as TaskPageOpenProperties): void {
+    this.eventTrack('Dashboard Pending Tasks Notification Clicked', properties);
+  }
+
+  saveReceiptForLater(): void {
+    this.eventTrack('Save receipt for later clicked');
+  }
+
+  discardReceipt(): void {
+    this.eventTrack('Discard receipt clicked from receipt preview');
+  }
+
+  clickedOnZeroStateAddExpense(): void {
+    this.eventTrack('Clicked on my expenses zero state CTA');
+  }
+
+  clickedOnZeroStateCreateReport(): void {
+    this.eventTrack('Clicked on my reports zero state CTA');
   }
 
   private isDemoAccount(eou: ExtendedOrgUser): boolean {

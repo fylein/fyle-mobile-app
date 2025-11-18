@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="selection-modal--title">Select merchant</div>
+      <div class="selection-modal--title">{{ 'fySelectVendorModal.title' | transloco }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -11,28 +11,30 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center">
-    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="outline">
       <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
         #searchBar
         id="selection-modal--search-input"
         class="selection-modal--search-input smartlook-show"
         matInput
-        placeholder="Search"
+        [placeholder]="'fySelectVendorModal.searchPlaceholder' | transloco"
         [(ngModel)]="value"
       />
-      <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
-      <button
-        mat-button
-        *ngIf="!isLoading && value"
-        matSuffix
-        data-testid="clear"
-        mat-icon-button
-        aria-label="Clear"
-        (click)="clearValue()"
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (isLoading) {
+        <mat-icon class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      }
+      @if (!isLoading && value) {
+        <button
+          matSuffix
+          data-testid="clear"
+          mat-icon-button
+          [attr.aria-label]="'fySelectVendorModal.clear' | transloco"
+          (click)="clearValue()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
@@ -45,48 +47,62 @@
     maxBufferPx="1350"
   >
     <div class="selection-modal--container">
-      <div *ngIf="value && value.trim().length">
-        <div *ngIf="!(selectableOptions?.length > 0)" class="selection-modal--list-element">
-          <i> No results found </i>
-        </div>
-        <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
-          <div class="selection-modal--add-item-block">
-            <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
-            <span
-              >Add "<span class="selection-modal--new-item-name"
-                ><strong>{{ value }}</strong></span
-              >"</span
-            >
+      @if (value && value.trim().length) {
+        <div>
+          @if (!(selectableOptions?.length > 0)) {
+            <div
+              class="selection-modal--list-element"
+              [innerHTML]="'fySelectVendorModal.noResultsFound' | transloco"
+            ></div>
+          }
+          <div matRipple class="selection-modal--list-element" (click)="onNewSelect()">
+            <div class="selection-modal--add-item-block">
+              <mat-icon class="selection-modal--add-item-icon"> add_circle_outline </mat-icon>
+              <span
+                >{{ 'fySelectVendorModal.add' | transloco }} "<span class="selection-modal--new-item-name"
+                  ><strong>{{ value }}</strong></span
+                >"</span
+              >
+            </div>
           </div>
         </div>
-      </div>
+      }
       <!-- All Vendors -->
-      <div *ngIf="selectableOptions?.length > 0" [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
-        <div
-          matRipple
-          class="selection-modal--list-element"
-          *cdkVirtualFor="let filteredListItem of selectableOptions"
-          (click)="onElementSelect(filteredListItem)"
-        >
-          <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
-            <div *ngIf="filteredListItem.isRecentlyUsed" class="selection-modal--recently-used-item-content">
-              <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
-              <div class="selection-modal--label">
-                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-              </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-            </div>
-
-            <div *ngIf="!filteredListItem.isRecentlyUsed" class="selection-modal--list-item">
-              <div class="selection-modal--label">
-                <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
-              </div>
-              <mat-icon *ngIf="selected" class="selection-modal--check"> check </mat-icon>
-            </div>
-          </ng-template>
-          <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
+      @if (selectableOptions?.length > 0) {
+        <div [ngClass]="{ 'selection-modal--all-merchants__margin-top': value }">
+          <div
+            matRipple
+            class="selection-modal--list-element"
+            *cdkVirtualFor="let filteredListItem of selectableOptions"
+            (click)="onElementSelect(filteredListItem)"
+          >
+            <ng-template #defaultSelectionElement let-label="label" let-selected="selected">
+              @if (filteredListItem.isRecentlyUsed) {
+                <div class="selection-modal--recently-used-item-content">
+                  <mat-icon class="selection-modal--recently-used-icon" svgIcon="clock"></mat-icon>
+                  <div class="selection-modal--label">
+                    <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                  </div>
+                  @if (selected) {
+                    <mat-icon class="selection-modal--check"> check </mat-icon>
+                  }
+                </div>
+              }
+              @if (!filteredListItem.isRecentlyUsed) {
+                <div class="selection-modal--list-item">
+                  <div class="selection-modal--label">
+                    <app-fy-highlight-text [fullText]="label" [queryText]="value"> </app-fy-highlight-text>
+                  </div>
+                  @if (selected) {
+                    <mat-icon class="selection-modal--check"> check </mat-icon>
+                  }
+                </div>
+              }
+            </ng-template>
+            <ng-container *ngTemplateOutlet="defaultSelectionElement; context: filteredListItem"> </ng-container>
+          </div>
         </div>
-      </div>
+      }
     </div>
   </cdk-virtual-scroll-viewport>
 </ion-content>

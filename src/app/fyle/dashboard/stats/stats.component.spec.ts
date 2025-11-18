@@ -1,12 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { StatsComponent } from './stats.component';
 import { DashboardService } from '../dashboard.service';
 import { Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -14,11 +12,12 @@ import { ReportStates } from '../stat-badge/report-states.enum';
 import { of } from 'rxjs';
 import { EventEmitter } from '@angular/core';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { expectedReportStats, expectedSentBackResponse } from 'src/app/core/mock-data/report-stats.data';
 import { reportStatsData1, reportStatsData2 } from 'src/app/core/mock-data/report-stats-data.data';
 import { expectedIncompleteExpStats, expectedUnreportedExpStats } from 'src/app/core/mock-data/stats.data';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
-import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { orgData1, orgData3 } from 'src/app/core/mock-data/org.data';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 
 describe('StatsComponent', () => {
   let component: StatsComponent;
@@ -28,17 +27,19 @@ describe('StatsComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let paymentModeService: jasmine.SpyObj<PaymentModesService>;
   let performance: jasmine.SpyObj<Performance>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dashboardServiceSpy = jasmine.createSpyObj('DashboardService', [
       'getReportsStats',
       'getUnreportedExpensesStats',
       'getIncompleteExpensesStats',
+      'getUnapprovedTeamReportsStats',
       'getReportStateMapping',
+      'isUserAnApprover',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -48,13 +49,18 @@ describe('StatsComponent', () => {
       'dashboardLaunchTime',
       'statsClicked',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['isNonReimbursableOrg']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [StatsComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, StatsComponent],
       providers: [
         {
           provide: DashboardService,
@@ -77,7 +83,7 @@ describe('StatsComponent', () => {
           useValue: trackingServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -87,6 +93,10 @@ describe('StatsComponent', () => {
         {
           provide: PaymentModesService,
           useValue: paymentModeServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
@@ -98,9 +108,39 @@ describe('StatsComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'stats.myExpenses': 'My expenses',
+        'stats.incomplete': 'Incomplete',
+        'stats.complete': 'Complete',
+        'stats.myExpenseReports': 'My expense reports',
+        'stats.draft': 'Draft',
+        'stats.submitted': 'Submitted',
+        'stats.reported': 'Reported',
+        'stats.approved': 'Approved',
+        'stats.processing': 'Processing',
+        'stats.paymentPending': 'Payment Pending',
+        'stats.teamExpenseReports': 'Team expense reports',
+        'stats.approvalPending': 'Approval pending',
+        'stats.offlineHeader': "You're Offline!",
+        'stats.offlineMessage': 'Fear not, you can still add expenses offline.',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {
@@ -142,7 +182,7 @@ describe('StatsComponent', () => {
         expect(dashboardService.getReportsStats).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(
-          orgSettingsParamsWithSimplifiedReport.payment_mode_settings
+          orgSettingsParamsWithSimplifiedReport.payment_mode_settings,
         );
         expect(component.reportStatsLoading).toBeFalse();
         done();
@@ -161,41 +201,6 @@ describe('StatsComponent', () => {
         expect(paymentModeService.isNonReimbursableOrg).toHaveBeenCalledOnceWith(orgSettingsRes.payment_mode_settings);
         expect(component.reportStatsLoading).toBeFalse();
         done();
-      });
-    });
-
-    it('should initialize draftStats$', (done) => {
-      component.initializeReportStats();
-
-      component.draftStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.draft);
-        done();
-      });
-    });
-
-    it('should initialize approvedStats$', (done) => {
-      component.initializeReportStats();
-
-      component.approvedStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.approved);
-        done();
-      });
-    });
-
-    it('should initialize paymentPendingStats$', (done) => {
-      component.initializeReportStats();
-
-      component.paymentPendingStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.paymentPending);
-        done();
-      });
-    });
-
-    it('should initialize processingStats$', () => {
-      component.initializeReportStats();
-
-      component.processingStats$.subscribe((res) => {
-        expect(res).toEqual(expectedReportStats.processing);
       });
     });
   });
@@ -220,6 +225,40 @@ describe('StatsComponent', () => {
     });
   });
 
+  describe('initializeUnapprovedTeamReportsStats():', () => {
+    it('should set unapprovedTeamReportsStats$ when currentOrg is primaryOrg', (done) => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
+      dashboardService.getUnapprovedTeamReportsStats.and.returnValue(of(expectedSentBackResponse));
+
+      component.initializeUnapprovedTeamReportsStats();
+
+      component.unapprovedTeamReportsStats$.subscribe((res) => {
+        expect(res).toEqual(expectedSentBackResponse);
+        expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+        expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
+        expect(dashboardService.getUnapprovedTeamReportsStats).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should set unapprovedTeamReportsStats$ to null when currentOrg is not primaryOrg', (done) => {
+      orgService.getCurrentOrg.and.returnValue(of(orgData3[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData3[1]));
+      dashboardService.getUnapprovedTeamReportsStats.and.returnValue(of(expectedSentBackResponse));
+
+      component.initializeUnapprovedTeamReportsStats();
+
+      component.unapprovedTeamReportsStats$.subscribe((res) => {
+        expect(res).toBeNull();
+        expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+        expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
+        expect(dashboardService.getUnapprovedTeamReportsStats).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
   describe('trackOrgLaunchTime()', () => {
     it('should track org launch time if getEntriesByName() returns empty array', () => {
       const performance = {
@@ -238,7 +277,7 @@ describe('StatsComponent', () => {
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.appLaunchTime,
         PerfTrackers.appLaunchStartTime,
-        PerfTrackers.appLaunchEndTime
+        PerfTrackers.appLaunchEndTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
       expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
@@ -263,7 +302,7 @@ describe('StatsComponent', () => {
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.appLaunchTime,
         PerfTrackers.appLaunchStartTime,
-        PerfTrackers.appLaunchEndTime
+        PerfTrackers.appLaunchEndTime,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
       expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
@@ -345,18 +384,35 @@ describe('StatsComponent', () => {
     });
   });
 
-  it('goToReportsPage(): should navigate to reports page with query params', () => {
-    dashboardService.getReportStateMapping.and.returnValue('Approved');
+  describe('goToReportsPage():', () => {
+    it('should navigate to reports page with query params', () => {
+      dashboardService.getReportStateMapping.and.returnValue('Approved');
 
-    component.goToReportsPage(ReportStates.APPROVED);
+      component.goToReportsPage(ReportStates.APPROVED);
 
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
-      queryParams: {
-        filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
-      },
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Approved Reports',
+      });
     });
-    expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
-      event: 'Clicked On Approved Reports',
+
+    it('should navigate to reports page with DRAFT and APPROVER_INQUIRY states when OPEN', () => {
+      dashboardService.getReportStateMapping.and.returnValue('Open');
+
+      component.goToReportsPage(ReportStates.OPEN);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT', 'APPROVER_INQUIRY'] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Open Reports',
+      });
     });
   });
 
@@ -388,6 +444,34 @@ describe('StatsComponent', () => {
     });
   });
 
+  describe('goToTeamReportsPage():', () => {
+    it('should navigate to team reports page with UNAPPROVED_TEAM_REPORTS state converted to APPROVER_PENDING', () => {
+      component.goToTeamReportsPage(ReportStates.UNAPPROVED_TEAM_REPORTS);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVER_PENDING.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Unapproved Team Reports',
+      });
+    });
+
+    it('should navigate to team reports page with other report states', () => {
+      component.goToTeamReportsPage(ReportStates.APPROVED);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
+        },
+      });
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Unapproved Team Reports',
+      });
+    });
+  });
+
   describe('trackDashboardLaunchTime():', () => {
     it('should track dashboard launch time', () => {
       const performance = {
@@ -404,7 +488,7 @@ describe('StatsComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.dashboardLaunchTime,
-        PerfTrackers.onClickSwitchOrg
+        PerfTrackers.onClickSwitchOrg,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
       expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({
@@ -427,7 +511,7 @@ describe('StatsComponent', () => {
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
         PerfTrackers.dashboardLaunchTime,
-        PerfTrackers.onClickSwitchOrg
+        PerfTrackers.onClickSwitchOrg,
       );
       expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
       expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({

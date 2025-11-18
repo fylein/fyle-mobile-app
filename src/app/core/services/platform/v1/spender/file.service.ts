@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { PlatformFilePostRequestPayload } from 'src/app/core/models/platform/platform-file-post-request-payload.model';
@@ -10,7 +10,7 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
   providedIn: 'root',
 })
 export class SpenderFileService {
-  constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   createFile(data: PlatformFilePostRequestPayload): Observable<PlatformFile> {
     const payload = { data };
@@ -52,5 +52,18 @@ export class SpenderFileService {
 
   downloadFile(id: string): Observable<{}> {
     return this.spenderPlatformV1ApiService.get('/files/download?id=' + id);
+  }
+
+  attachToAdvance(advanceRequestId: string, fileIds: string[]): Observable<void> {
+    const payload = {
+      data: [
+        {
+          id: advanceRequestId,
+          file_ids: fileIds,
+        },
+      ],
+    };
+
+    return this.spenderPlatformV1ApiService.post<void>('/advance_requests/attach_files/bulk', payload);
   }
 }

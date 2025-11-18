@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { FyOptInComponent } from './fy-opt-in.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -7,7 +8,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
@@ -22,6 +23,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
@@ -37,6 +39,7 @@ describe('FyOptInComponent', () => {
   let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
   let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -62,10 +65,16 @@ describe('FyOptInComponent', () => {
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyOptInComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, FyOptInComponent,
+        MatIconTestingModule],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
@@ -78,6 +87,7 @@ describe('FyOptInComponent', () => {
         { provide: BrowserHandlerService, useValue: browserHandlerServiceSpy },
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -88,7 +98,7 @@ describe('FyOptInComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     mobileNumberVerificationService = TestBed.inject(
-      MobileNumberVerificationService
+      MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -97,6 +107,46 @@ describe('FyOptInComponent', () => {
     browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyOptIn.enterMobileNumber': 'Please enter mobile number',
+        'fyOptIn.invalidMobileNumber': 'Please enter a valid number with +1 country code. Try re-entering your number.',
+        'fyOptIn.codeSent': 'Code sent successfully',
+        'fyOptIn.otpLimitReached': 'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+        'fyOptIn.invalidMobileTryAgain': 'Invalid mobile number. Please try again.',
+        'fyOptIn.codeExpired': 'The code has expired. Please request a new one.',
+        'fyOptIn.invalidCode': 'Code is invalid',
+        'fyOptIn.verifyingCode': 'Verifying code...',
+        'fyOptIn.tryAI': 'Try AI',
+        'fyOptIn.optInDescription': 'Opt into text messaging for instant expense submission',
+        'fyOptIn.mobileNumberLabel': 'Mobile number',
+        'fyOptIn.mobileNumberPlaceholder': 'Enter mobile number with country code e.g +155512345..',
+        'fyOptIn.otpDescription': 'Enter 6 digit code sent to your phone',
+        'fyOptIn.resendCodeIn': 'Resend code in',
+        'fyOptIn.attemptsLeft': 'attempts left',
+        'fyOptIn.resendCode': 'Resend code',
+        'fyOptIn.sendingCode': 'Sending Code',
+        'fyOptIn.successHeader': 'You are all set',
+        'fyOptIn.successDescription':
+          'We have sent you a confirmation message. You can now use text messages to create and submit your next expense!',
+        'fyOptIn.sendCodeBtn': 'Send code',
+        'fyOptIn.sendCodeLoading': 'Send Code',
+        'fyOptIn.readHelpArticle': 'Read help article',
+        'fyOptIn.gotIt': 'Got it',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {
@@ -151,7 +201,7 @@ describe('FyOptInComponent', () => {
       expect(component.hardwareBackButtonAction).toEqual(mockSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        component.goBack
+        component.goBack,
       );
     });
   });
@@ -196,7 +246,7 @@ describe('FyOptInComponent', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
 
@@ -210,7 +260,7 @@ describe('FyOptInComponent', () => {
       component.mobileNumberInputValue = '+911234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
   });
@@ -288,7 +338,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code sent successfully',
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon'
+        'msb-success-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
     });
@@ -299,7 +349,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
       expect(component.disableResendOtp).toBeTrue();
@@ -320,7 +370,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -341,7 +391,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -358,7 +408,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Invalid mobile number. Please try again.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -374,7 +424,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -391,7 +441,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -407,7 +457,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -422,7 +472,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
   });
@@ -463,7 +513,7 @@ describe('FyOptInComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.optInFlowState).toBe(OptInFlowState.OTP_VERIFICATION);
     }));
@@ -510,11 +560,11 @@ describe('FyOptInComponent', () => {
     expect(trackingService.clickedOnHelpArticle).toHaveBeenCalledTimes(1);
     expect(browserHandlerService.openLinkWithToolbarColor).toHaveBeenCalledOnceWith(
       '#280a31',
-      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message'
+      'https://www.fylehq.com/help/en/articles/8045065-submit-your-receipts-via-text-message',
     );
   });
 
-  it('onGotItClicked(): should dismiss the modal and track opt in event', () => {
+  it('onGotItClicked(): should dismiss the modal and track opt-in event', () => {
     component.onGotItClicked();
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       action: 'SUCCESS',

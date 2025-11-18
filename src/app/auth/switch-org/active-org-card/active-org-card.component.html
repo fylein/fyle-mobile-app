@@ -1,47 +1,47 @@
 <div class="active-org-card" (click)="switchOrg()">
-  <div class="active-org-card__header">Active organization</div>
+  <div class="active-org-card__header">{{ 'activeOrgCard.activeOrganization' | transloco }}</div>
   <ion-grid class="ion-grid-no-padding">
     <ion-row>
       <ion-col class="active-org-card__icon-container">
-        <ng-container *ngIf="!isLoading; else skeletonIcon">
+        @if (!isLoading) {
           <div class="active-org-card__icon-container__icon">
             <div class="active-org-card__icon-container__currency content-center">
               {{ org.currency }}
             </div>
           </div>
-        </ng-container>
+        } @else {
+          <div class="active-org-card__icon-container__skeleton-icon">
+            <ion-skeleton-text animated></ion-skeleton-text>
+          </div>
+        }
       </ion-col>
       <ion-col class="active-org-card__content-container">
         <ion-grid class="ion-grid-no-padding">
           <ion-row>
             <ion-col class="active-org-card__content-container__title smartlook-hide">
-              <ng-container *ngIf="!isLoading; else skeletonText">
+              @if (!isLoading) {
                 {{ org.name }}
-              </ng-container>
+              } @else {
+                <ion-skeleton-text animated></ion-skeleton-text>
+              }
             </ion-col>
           </ion-row>
           <ion-row>
             <ion-col class="active-org-card__content-container__sub-title">
-              <ng-container *ngIf="!isLoading; else skeletonText">
+              @if (!isLoading) {
                 {{ org.domain }}
-              </ng-container>
+              } @else {
+                <ion-skeleton-text animated></ion-skeleton-text>
+              }
             </ion-col>
           </ion-row>
         </ion-grid>
       </ion-col>
-      <ion-col *ngIf="isPrimaryOrg" class="active-org-card__pill-container">
-        <div class="active-org-card__pill-container__pill">Primary</div>
-      </ion-col>
+      @if (isPrimaryOrg) {
+        <ion-col class="active-org-card__pill-container">
+          <div class="active-org-card__pill-container__pill">{{ 'activeOrgCard.primaryLabel' | transloco }}</div>
+        </ion-col>
+      }
     </ion-row>
   </ion-grid>
 </div>
-
-<ng-template #skeletonIcon>
-  <div class="active-org-card__icon-container__skeleton-icon">
-    <ion-skeleton-text animated></ion-skeleton-text>
-  </div>
-</ng-template>
-
-<ng-template #skeletonText>
-  <ion-skeleton-text animated></ion-skeleton-text>
-</ng-template>

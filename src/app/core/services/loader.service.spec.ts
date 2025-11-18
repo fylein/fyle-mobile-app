@@ -1,23 +1,38 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular/standalone';
 import { LoaderService } from './loader.service';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('LoaderService', () => {
   let loaderService: LoaderService;
   let loadingController: jasmine.SpyObj<LoadingController>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const loadingControllerSpy = jasmine.createSpyObj('LoadingController', ['create', 'dismiss']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+
+    // Mock translate method to return expected strings
+    translocoServiceSpy.translate.and.callFake((key: string) => {
+      const translations: { [key: string]: string } = {
+        'services.loader.pleaseWait': 'Please wait...',
+      };
+      return translations[key] || key;
+    });
+
     TestBed.configureTestingModule({
       providers: [
         {
           provide: LoadingController,
           useValue: loadingControllerSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     loaderService = TestBed.inject(LoaderService);
     loadingController = TestBed.inject(LoadingController) as jasmine.SpyObj<LoadingController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {

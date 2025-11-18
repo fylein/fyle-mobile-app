@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { PlatformCommonApiService } from './platform-common-api.service';
-import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { of } from 'rxjs';
 
 const requestObj = {
@@ -22,13 +22,14 @@ describe('PlatformCommonApiService', () => {
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         PlatformCommonApiService,
         {
           provide: HttpClient,
           useValue: httpClientSpy,
         },
+        provideHttpClientTesting(),
       ],
     });
     platformCommonApiService = TestBed.inject(PlatformCommonApiService);
@@ -53,7 +54,7 @@ describe('PlatformCommonApiService', () => {
         expect(res).toEqual(apiResponse);
         expect(httpClient.get).toHaveBeenCalledOnceWith(
           'https://staging.fyle.tech/platform/v1/common/currency/list',
-          {}
+          {},
         );
         done();
       });
@@ -68,7 +69,7 @@ describe('PlatformCommonApiService', () => {
           'https://staging.fyle.tech/platform/v1/common/currency/exchange_rate',
           {
             params: requestObj,
-          }
+          },
         );
         done();
       });

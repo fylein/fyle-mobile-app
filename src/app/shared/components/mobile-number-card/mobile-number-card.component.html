@@ -3,18 +3,20 @@
     <div>
       <div (click)="clickedOnAdd()" class="mobile-number-card__title">
         <div>
-          <div>Mobile number</div>
+          <div>{{ 'mobileNumberCard.title' | transloco }}</div>
           <div class="mobile-number-card__description">
-            Add your mobile number to keep your profile information updated.
+            {{ 'mobileNumberCard.description' | transloco }}
           </div>
         </div>
-        <span *ngIf="!mobileNumber" class="mobile-number-card__add-btn">Add</span>
+        @if (!mobileNumber) {
+          <span class="mobile-number-card__add-btn">{{ 'mobileNumberCard.addButton' | transloco }}</span>
+        }
       </div>
 
-      <ng-container *ngIf="mobileNumber">
+      @if (mobileNumber) {
         <div class="mobile-number-card__divider"></div>
         <div class="mobile-number-card__mobile">
-          <span class="mobile-number-card__mobile__text">Mobile number</span>
+          <span class="mobile-number-card__mobile__text">{{ 'mobileNumberCard.mobileNumberLabel' | transloco }}</span>
           <div class="mobile-number-card__mobile__number-container">
             <span>
               {{ mobileNumber }}
@@ -35,7 +37,7 @@
             </span>
           </div>
         </div>
-      </ng-container>
+      }
     </div>
   </div>
 </ng-container>

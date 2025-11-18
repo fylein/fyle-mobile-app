@@ -3,22 +3,24 @@
     <span>
       {{ label }}
     </span>
-    <span *ngIf="mandatory" class="fy-select--mandatory"> * </span>
+    @if (mandatory()) {
+      <span class="fy-select--mandatory"> * </span>
+    }
   </div>
   <div class="fy-select--input-container" [ngClass]="{ 'fy-select--input-invalid': !valid }">
     <input
       class="fy-select--input smartlook-show"
       type="text"
-      [placeholder]="'Select a expense report'"
+      [placeholder]="'fyAddToReport.selectExpenseReport' | transloco"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
-      [disabled]="disabled"
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
+      [disabled]="disabled()"
     />
     <mat-icon
       class="fy-select--icon"
-      [ngClass]="{ 'fy-select--input-disabled': disabled }"
+      [ngClass]="{ 'fy-select--input-disabled': disabled() }"
       svgIcon="arrow-down"
     ></mat-icon>
   </div>

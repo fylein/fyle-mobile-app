@@ -1,8 +1,8 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors';
 
 .reports {
   &--toolbar-header {
-    border-bottom: 1px solid $grey-lightest;
+    border-bottom: 1px solid colors.$grey-lightest;
   }
 
   &--header-btn {
@@ -19,7 +19,7 @@
 
   &--body {
     padding-bottom: 20px;
-    background-color: $white;
+    background-color: colors.$white;
   }
 
   &--zero-state-body {
@@ -37,7 +37,7 @@
     padding-left: 12px;
     mat-form-field {
       ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+        color: colors.$black-light !important;
       }
     }
   }
@@ -47,7 +47,6 @@
     font-size: 14px;
 
     &-icon {
-      width: 14px;
       font-size: 18px;
       margin-right: 6px;
       color: #aaa;
@@ -59,17 +58,8 @@
     }
   }
 
-  &--simple-search-block {
-    display: flex;
-    vertical-align: baseline;
-  }
-
-  &--primary-cta {
-    margin: 12px;
-  }
-
   &--content {
-    --background: #{$white};
+    --background: #{colors.$white};
     --padding-bottom: 82px;
   }
 

@@ -1,4 +1,6 @@
-<div *ngIf="sidemenuItem.icon === 'user-three' || showDivider" class="sidemenu-item__divider"></div>
+@if (sidemenuItem.icon === 'user-three' || showDivider()) {
+  <div class="sidemenu-item__divider"></div>
+}
 <ion-item
   detail="false"
   [disabled]="sidemenuItem.disabled"
@@ -15,31 +17,35 @@
     <ion-grid class="sidemenu-item__content__block">
       <ion-row>
         <ion-col class="sidemenu-item__icon-container">
-          <div *ngIf="sidemenuItem.icon">
-            <ion-icon
-              class="sidemenu-item__icon-container__icon"
-              [ngClass]="{
-                'sidemenu-item__icon-container__icon--sm': ['folder', 'dashboard', 'fy-switch'].includes(
-                  sidemenuItem.icon
-                )
-              }"
-              [src]="'../../../../../assets/svg/' + sidemenuItem.icon + '.svg'"
-              slot="icon-only"
-            ></ion-icon>
-          </div>
+          @if (sidemenuItem.icon) {
+            <div>
+              <ion-icon
+                class="sidemenu-item__icon-container__icon"
+                [ngClass]="{
+                  'sidemenu-item__icon-container__icon--sm': ['folder', 'dashboard', 'fy-switch'].includes(
+                    sidemenuItem.icon
+                  ),
+                }"
+                [src]="'../../../../../assets/svg/' + sidemenuItem.icon + '.svg'"
+                slot="icon-only"
+              ></ion-icon>
+            </div>
+          }
         </ion-col>
         <ion-col class="sidemenu-item__label-container">
           <ion-label class="sidemenu-item__label-container__label">{{ sidemenuItem.title }}</ion-label>
         </ion-col>
-        <ion-col class="sidemenu-item__dropdown-container" *ngIf="sidemenuItem.dropdownOptions?.length">
-          <div>
-            <ion-icon
-              class="sidemenu-item__dropdown-container__icon"
-              [ngClass]="{ 'sidemenu-item__dropdown-container__icon--rotate': !sidemenuItem.isDropdownOpen }"
-              [src]="'../../../../../assets/svg/arrow-down.svg'"
-            ></ion-icon>
-          </div>
-        </ion-col>
+        @if (sidemenuItem.dropdownOptions?.length) {
+          <ion-col class="sidemenu-item__dropdown-container">
+            <div>
+              <ion-icon
+                class="sidemenu-item__dropdown-container__icon"
+                [ngClass]="{ 'sidemenu-item__dropdown-container__icon--rotate': !sidemenuItem.isDropdownOpen }"
+                [src]="'../../../../../assets/svg/arrow-down.svg'"
+              ></ion-icon>
+            </div>
+          </ion-col>
+        }
       </ion-row>
     </ion-grid>
   </a>
@@ -49,10 +55,10 @@
   [ngStyle]="{ height: dropdownHeight + 'px' }"
   [ngClass]="{ 'sidemenu-item__dropdown-items--hide': !sidemenuItem.isDropdownOpen }"
 >
-  <ng-container *ngFor="let sidemenuSubItem of sidemenuItem.dropdownOptions">
+  @for (sidemenuSubItem of sidemenuItem.dropdownOptions; track sidemenuSubItem) {
     <app-sidemenu-content-item
       [sidemenuItem]="sidemenuSubItem"
       (redirect)="goToRoute(sidemenuSubItem)"
     ></app-sidemenu-content-item>
-  </ng-container>
+  }
 </div>

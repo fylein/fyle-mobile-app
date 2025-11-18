@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
-import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
-import { HttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { of } from 'rxjs';
 
 const requestObj = {
@@ -22,13 +22,14 @@ describe('ApproverPlatformApiService', () => {
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         ApproverPlatformApiService,
         {
           provide: HttpClient,
           useValue: httpClientSpy,
         },
+        provideHttpClientTesting(),
       ],
     });
     approverPlatformApiService = TestBed.inject(ApproverPlatformApiService);
@@ -87,7 +88,7 @@ describe('ApproverPlatformApiService', () => {
         expect(res).toEqual(apiResponse);
         expect(httpClient.post).toHaveBeenCalledOnceWith(
           'https://staging.fyle.tech/platform/v1/approver/reports',
-          requestObj
+          requestObj,
         );
         done();
       });

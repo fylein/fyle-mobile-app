@@ -1,65 +1,117 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  inject,
+  input,
+} from '@angular/core';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { Observable, fromEvent, from, combineLatest } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, catchError, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { VendorService } from 'src/app/core/services/vendor.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { Vendor, VendorListItem } from 'src/app/core/models/vendor.model';
+import { VendorListItem } from 'src/app/core/models/vendor.model';
+import { Merchant } from 'src/app/core/models/platform/platform-merchants.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { CdkVirtualScrollViewport, CdkFixedSizeVirtualScroll, CdkVirtualForOf } from '@angular/cdk/scrolling';
+import { MatRipple } from '@angular/material/core';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+
 @Component({
   selector: 'app-fy-select-vendor-modal',
   templateUrl: './fy-select-vendor-modal.component.html',
   styleUrls: ['./fy-select-vendor-modal.component.scss'],
+  imports: [
+    CdkFixedSizeVirtualScroll,
+    CdkVirtualForOf,
+    CdkVirtualScrollViewport,
+    FormsModule,
+    FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgClass,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  private modalController = inject(ModalController);
 
-  @Input() currentSelection: any;
+  private cdr = inject(ChangeDetectorRef);
 
-  @Input() filteredOptions$: Observable<VendorListItem[]>;
+  private vendorService = inject(VendorService);
 
-  recentrecentlyUsedItems$: Observable<VendorListItem[]>;
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
+  @ViewChild('searchBar') searchBarRef!: ElementRef<HTMLInputElement>;
+
+  @Input() filteredOptions$!: Observable<VendorListItem[]>;
+
+  readonly currentSelection = input<Merchant | null>(null);
+
+  recentrecentlyUsedItems$!: Observable<VendorListItem[]>;
 
   value = '';
 
   isLoading = false;
 
-  selectableOptions: { label: string; value: any; selected?: boolean }[] = [];
+  selectableOptions: VendorListItem[] = [];
 
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private vendorService: VendorService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService
-  ) {}
+  ngOnInit(): void {
+    // Component initialization - no specific logic needed at this time
+  }
 
-  ngOnInit() {}
-
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedVendors() {
+  getRecentlyUsedVendors(): Observable<VendorListItem[]> {
     return from(this.recentLocalStorageItemsService.get('recentVendorList')).pipe(
       map((options: VendorListItem[]) =>
         options.map((option) => {
-          option.selected = isEqual(option.value, this.currentSelection);
+          option.selected = isEqual(option.value, this.currentSelection());
           return option;
-        })
-      )
+        }),
+      ),
     );
   }
 
-  ngAfterViewInit() {
-    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+  ngAfterViewInit(): void {
+    this.filteredOptions$ = fromEvent<KeyboardEvent>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       distinctUntilChanged(),
-      switchMap((searchText) => {
+      switchMap((searchText: string) => {
         searchText = searchText.trim();
         if (searchText) {
           // set isLoading to true
@@ -67,55 +119,67 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
           // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
           // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
           this.cdr.detectChanges();
-          return this.vendorService.get(searchText).pipe(
+          return this.vendorService.getMerchants(searchText).pipe(
             map((vendors) =>
               vendors.map((vendor) => ({
                 label: vendor.display_name,
                 value: vendor,
-              }))
+              })),
             ),
-            catchError((err) => []), // api fails on empty searchText and if app is offline - failsafe here
-            map((vendors) => [{ label: 'None', value: null }].concat(vendors)),
+            catchError(() => []), // api fails on empty searchText and if app is offline - failsafe here
+            map((vendors: VendorListItem[]) => {
+              const noneOption: VendorListItem = {
+                label: this.translocoService.translate('fySelectVendorModal.none'),
+                value: null as unknown as Merchant,
+              };
+              return [noneOption, ...vendors];
+            }),
             finalize(() => {
               // set isLoading to false
               this.isLoading = false;
               // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
               // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
               this.cdr.detectChanges();
-            })
+            }),
           );
         } else {
           return [];
         }
       }),
-      startWith([{ label: 'None', value: null }]),
+      startWith([
+        {
+          label: this.translocoService.translate('fySelectVendorModal.none'),
+          value: null as unknown as Merchant,
+        },
+      ]),
       map((vendors: VendorListItem[]) => {
-        if (!vendors.some((vendor) => isEqual(vendor.value, this.currentSelection))) {
-          vendors = vendors.concat({
-            label: this.currentSelection.display_name,
-            value: this.currentSelection,
-          });
+        if (this.currentSelection() && !vendors.some((vendor) => isEqual(vendor.value, this.currentSelection()))) {
+          const currentSelectionItem: VendorListItem = {
+            label: this.currentSelection().display_name,
+            value: this.currentSelection(),
+          };
+          vendors = [...vendors, currentSelectionItem];
         }
 
         return vendors.map((vendor) => {
-          if (isEqual(vendor.value, this.currentSelection)) {
+          if (isEqual(vendor.value, this.currentSelection())) {
             vendor.selected = true;
           }
           return vendor;
         });
-      })
+      }),
     );
 
-    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.recentrecentlyUsedItems$ = fromEvent<KeyboardEvent>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.getRecentlyUsedVendors().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        )
-      )
+          this.utilityService.searchArrayStream(searchText),
+        ),
+      ),
     );
 
     combineLatest({
@@ -133,20 +197,23 @@ export class FySelectVendorModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: VendorListItem) {
+  onElementSelect(option: VendorListItem): void {
     if (option.value) {
       this.recentLocalStorageItemsService.post('recentVendorList', option, 'label');
     }
     this.modalController.dismiss(option);
   }
 
-  onNewSelect() {
+  onNewSelect(): void {
     this.value = this.value.trim();
-    const newOption = { label: this.value, value: { display_name: this.value } };
+    const newOption: VendorListItem = {
+      label: this.value,
+      value: { display_name: this.value } as Merchant,
+    };
     this.recentLocalStorageItemsService.post('recentVendorList', newOption, 'label');
     this.modalController.dismiss(newOption);
   }

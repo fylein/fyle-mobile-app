@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, TemplateRef, inject, input, output } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -8,65 +8,107 @@ import {
   NG_VALUE_ACCESSOR,
   UntypedFormBuilder,
   Validators,
+  FormsModule,
+  ReactiveFormsModule,
 } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
 import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
+import { FySelectComponent } from '../../../shared/components/fy-select/fy-select.component';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { ReceiptPreviewThumbnailComponent } from '../../../shared/components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
+import { CardTransactionPreviewComponent } from '../card-transaction-preview/card-transaction-preview.component';
+import { FySelectDisabledComponent } from '../../../shared/components/fy-select-disabled/fy-select-disabled.component';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-generic-fields-form',
   templateUrl: './generic-fields-form.component.html',
   styleUrls: ['./generic-fields-form.component.scss'],
   providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: GenericFieldsFormComponent, multi: true }],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    FySelectComponent,
+    IonCol,
+    IonGrid,
+    IonRow,
+    NgClass,
+    ReceiptPreviewThumbnailComponent,
+    CardTransactionPreviewComponent,
+    FySelectDisabledComponent,
+    NgTemplateOutlet,
+    TranslocoPipe,
+  ],
 })
 export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor, OnDestroy {
-  @Input() amountOptionsData: MergeExpensesOptionsData<string>;
+  private formBuilder = inject(UntypedFormBuilder);
 
+  readonly amountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() receiptOptions: MergeExpensesOption<string>[];
 
-  @Input() dateOfSpendOptionsData: MergeExpensesOptionsData<string>;
+  readonly dateOfSpendOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() paymentModeOptionsData: MergeExpensesOptionsData<string>;
+  readonly paymentModeOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() attachments: FileObject[];
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() projectOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() billableOptionsData: MergeExpensesOptionsData<string>;
+  readonly billableOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() categoryOptionsData: MergeExpensesOptionsData<string>;
+  readonly categoryOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() vendorOptionsData: MergeExpensesOptionsData<string>;
 
-  @Input() taxGroupOptionsData: MergeExpensesOptionsData<string>;
+  readonly taxGroupOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() taxAmountOptionsData: MergeExpensesOptionsData<string>;
+  readonly taxAmountOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() constCenterOptionsData: MergeExpensesOptionsData<string>;
+  readonly constCenterOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() purposeOptionsData: MergeExpensesOptionsData<string>;
+  readonly purposeOptionsData = input<MergeExpensesOptionsData<string>>(undefined);
 
-  @Input() categoryDependentTemplate: TemplateRef<string[]>;
+  readonly categoryDependentTemplate = input<TemplateRef<string[]>>(undefined);
 
-  @Input() CCCTxns: corporateCardTransaction[];
+  readonly CCCTxns = input<corporateCardTransaction[]>(undefined);
 
-  @Input() disableFormElements: boolean;
+  readonly disableFormElements = input<boolean>(undefined);
 
-  @Input() showBillable: boolean;
+  readonly showBillable = input<boolean>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() projectDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() costCenterDependentFieldsMapping: { [id: number]: CustomProperty<string>[] };
 
-  @Output() fieldsTouched = new EventEmitter<string[]>();
+  readonly fieldsTouched = output<string[]>();
 
-  @Output() categoryChanged = new EventEmitter<number>();
+  readonly categoryChanged = output<number>();
 
-  @Output() receiptChanged = new EventEmitter<string>();
+  readonly receiptChanged = output<string>();
 
-  @Output() paymentModeChanged = new EventEmitter<AllowedPaymentModes>();
+  readonly paymentModeChanged = output<AllowedPaymentModes>();
 
   genericFieldsFormGroup: UntypedFormGroup;
 
@@ -77,8 +119,6 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   costCenterDependentFields: CustomProperty<string>[] = [];
 
   onTouched: () => void = noop;
-
-  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
 

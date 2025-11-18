@@ -8,11 +8,17 @@ import { DeviceService } from '../services/device.service';
 import { UserEventService } from '../services/user-event.service';
 import { StorageService } from '../services/storage.service';
 import { SecureStorageService } from '../services/secure-storage.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { apiAuthRes, authResData2 } from '../mock-data/auth-response.data';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData, extendedDeviceInfoMockDataWoApp } from '../mock-data/extended-device-info.data';
-import { HttpErrorResponse, HttpHeaders, HttpRequest } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpHeaders,
+  HttpRequest,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 
 describe('HttpConfigInterceptor', () => {
   let httpInterceptor: HttpConfigInterceptor;
@@ -35,7 +41,7 @@ describe('HttpConfigInterceptor', () => {
     const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
+      imports: [],
       providers: [
         HttpConfigInterceptor,
         {
@@ -66,6 +72,8 @@ describe('HttpConfigInterceptor', () => {
           provide: SecureStorageService,
           useValue: secureStorageServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
     });
 
@@ -86,28 +94,28 @@ describe('HttpConfigInterceptor', () => {
   describe('getUrlWithoutQueryParam:', () => {
     it('should return value truncating ;', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ?', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ;?', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense;?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
 
     it('should return value truncating ?;', () => {
       const result = httpInterceptor.getUrlWithoutQueryParam(
-        'https://staging1.fyle.tech/enterprise/add_edit_expense?;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j',
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
@@ -253,7 +261,7 @@ describe('HttpConfigInterceptor', () => {
                 () =>
                   new HttpErrorResponse({
                     status: 200,
-                  })
+                  }),
               ),
           })
           .subscribe({
@@ -280,7 +288,7 @@ describe('HttpConfigInterceptor', () => {
                 () =>
                   new HttpErrorResponse({
                     status: 401,
-                  })
+                  }),
               ),
           })
           .subscribe({
@@ -312,7 +320,7 @@ describe('HttpConfigInterceptor', () => {
                   new HttpErrorResponse({
                     status: 404,
                     headers: header,
-                  })
+                  }),
               ),
           })
           .subscribe({

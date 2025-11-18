@@ -1,41 +1,69 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { ModalController } from '@ionic/angular';
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { catchError, forkJoin, map, switchMap, throwError } from 'rxjs';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 import { LocationService } from 'src/app/core/services/location.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { FyLocationComponent } from '../fy-location/fy-location.component';
 
 @Component({
   selector: 'app-fy-select-commute-details',
   templateUrl: './fy-select-commute-details.component.html',
   styleUrls: ['./fy-select-commute-details.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    FyLocationComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FySelectCommuteDetailsComponent implements OnInit {
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private locationService = inject(LocationService);
+
+  private employeesService = inject(EmployeesService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() existingCommuteDetails?: CommuteDetails;
 
   commuteDetails: UntypedFormGroup;
 
   saveCommuteDetailsLoading = false;
-
-  constructor(
-    private formBuilder: UntypedFormBuilder,
-    private modalController: ModalController,
-    private locationService: LocationService,
-    private employeesService: EmployeesService,
-    private orgSettingsService: OrgSettingsService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService
-  ) {}
 
   ngOnInit(): void {
     this.commuteDetails = this.formBuilder.group({
@@ -60,8 +88,8 @@ export class FySelectCommuteDetailsComponent implements OnInit {
   }
 
   getCalculatedDistance(distanceResponse: number, distanceUnit: string): number {
-    const distanceInKM = distanceResponse / 1000;
-    const finalDistance = distanceUnit === 'MILES' ? distanceInKM * 0.6213 : distanceInKM;
+    const distanceInKM = parseFloat((distanceResponse / 1000).toFixed(2));
+    const finalDistance = distanceUnit === 'MILES' ? parseFloat((distanceInKM * 0.6213).toFixed(2)) : distanceInKM;
     return finalDistance;
   }
 
@@ -93,7 +121,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
         getMileageUnit: getMileageUnit$,
         distanceResponse: this.locationService.getDistance(
           commuteDetailsFormValue.homeLocation,
-          commuteDetailsFormValue.workLocation
+          commuteDetailsFormValue.workLocation,
         ),
       })
         .pipe(
@@ -111,10 +139,10 @@ export class FySelectCommuteDetailsComponent implements OnInit {
           catchError((err: HttpErrorResponse) => {
             this.saveCommuteDetailsLoading = false;
             this.trackingService.commuteDeductionDetailsError(err);
-            const message = 'We were unable to save your commute details. Please enter correct home and work location.';
+            const message = this.translocoService.translate('fySelectCommuteDetails.saveError');
             this.showToastMessage(message, ToastType.FAILURE, 'msb-failure');
             return throwError(err);
-          })
+          }),
         )
         .subscribe((commuteDetailsResponse) => {
           this.saveCommuteDetailsLoading = false;

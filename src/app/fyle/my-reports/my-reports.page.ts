@@ -1,11 +1,10 @@
-import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef, inject } from '@angular/core';
 import { concat, Observable, Subject, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { switchMap, map, shareReplay, distinctUntilChanged, debounceTime, takeUntil } from 'rxjs/operators';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, ModalController } from '@ionic/angular/standalone';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -17,10 +16,10 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
@@ -29,12 +28,84 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { MyReportsFilters } from 'src/app/core/models/my-reports-filters.model';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { FyHeaderComponent } from '../../shared/components/fy-header/fy-header.component';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { NgClass, AsyncPipe } from '@angular/common';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { ReportsCardComponent } from '../../shared/components/reports-card/reports-card.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 @Component({
   selector: 'app-my-reports',
   templateUrl: './my-reports.page.html',
   styleUrls: ['./my-reports.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FormsModule,
+    FyFilterPillsComponent,
+    FyHeaderComponent,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatSuffix,
+    NgClass,
+    ReportsCardComponent,
+    RouterLink,
+    TranslocoPipe
+  ],
 })
 export class MyReportsPage {
+  private networkService = inject(NetworkService);
+
+  private reportService = inject(ReportService);
+
+  private dateService = inject(DateService);
+
+  private router = inject(Router);
+
+  private currencyService = inject(CurrencyService);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private trackingService = inject(TrackingService);
+
+  private extendQueryParamsService = inject(ExtendQueryParamsService);
+
+  private tasksService = inject(TasksService);
+
+  private modalController = inject(ModalController);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private reportStatePipe = inject(ReportState);
+
+  private expensesService = inject(ExpensesService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
@@ -92,25 +163,6 @@ export class MyReportsPage {
 
   nonReimbursableOrg$: Observable<boolean>;
 
-  constructor(
-    private networkService: NetworkService,
-    private loaderService: LoaderService,
-    private reportService: ReportService,
-    private dateService: DateService,
-    private router: Router,
-    private currencyService: CurrencyService,
-    private activatedRoute: ActivatedRoute,
-    private popoverController: PopoverController,
-    private trackingService: TrackingService,
-    private extendQueryParamsService: ExtendQueryParamsService,
-    private tasksService: TasksService,
-    private modalController: ModalController,
-    private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState,
-    private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService
-  ) {}
-
   get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
@@ -146,7 +198,7 @@ export class MyReportsPage {
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(1000)
+        debounceTime(1000),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -179,7 +231,7 @@ export class MyReportsPage {
                 data: [],
               });
             }
-          })
+          }),
         );
       }),
       map((res: PlatformApiResponse<Report[]>) => {
@@ -189,7 +241,7 @@ export class MyReportsPage {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
     );
 
     this.myReports$ = paginatedPipe.pipe(shareReplay(1));
@@ -203,11 +255,11 @@ export class MyReportsPage {
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
+      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length))),
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
@@ -233,16 +285,16 @@ export class MyReportsPage {
             map((stats) => ({
               count: stats.data.count,
               sum: stats.data.total_amount,
-            }))
-          )
-      )
+            })),
+          ),
+      ),
     );
 
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({
         enabled: orgSettings?.simplified_report_closure_settings?.enabled,
-      }))
+      })),
     );
     this.nonReimbursableOrg$ = orgSettings$.pipe(
       map(
@@ -251,8 +303,8 @@ export class MyReportsPage {
           orgSettings.payment_mode_settings.enabled &&
           orgSettings.payment_mode_settings.payment_modes_order?.length === 1 &&
           orgSettings.payment_mode_settings.payment_modes_order[0] ===
-            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
-      )
+            AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
+      ),
     );
 
     this.myReports$.subscribe(noop);
@@ -263,7 +315,7 @@ export class MyReportsPage {
       this.filters = Object.assign(
         {},
         this.filters,
-        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<MyReportsFilters>,
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
@@ -293,7 +345,7 @@ export class MyReportsPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -409,7 +461,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
       searchString: string;
-    }>
+    }>,
   ): void {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
@@ -464,7 +516,7 @@ export class MyReportsPage {
     });
 
     this.trackingService.footerHomeTabClicked({
-      page: 'Reports',
+      page: this.translocoService.translate('myReportsPage.tracking.page'),
     });
   }
 
@@ -475,8 +527,16 @@ export class MyReportsPage {
     });
     this.trackingService.tasksPageOpened({
       Asset: 'Mobile',
-      from: 'My Reports',
+      from: this.translocoService.translate('myReportsPage.tracking.from'),
     });
+  }
+
+  trackReportZeroStateClick(): void {
+    this.trackingService.clickedOnZeroStateCreateReport();
+  }
+
+  trackCreateReportClick(): void {
+    this.trackingService.myReportsActionSheetAddButtonClicked({ Action: 'Create Report' });
   }
 
   onCameraClicked(): void {
@@ -552,7 +612,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -576,7 +636,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
@@ -622,7 +682,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
@@ -646,7 +706,7 @@ export class MyReportsPage {
       customDateEnd: Date;
       sortParam: string;
       sortDir: string;
-    }>
+    }>,
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
@@ -695,7 +755,7 @@ export class MyReportsPage {
 
   generateStateFilterPills(filterPills: FilterPill[], filter: Partial<MyReportsFilters>): void {
     filterPills.push({
-      label: 'State',
+      label: this.translocoService.translate('myReportsPage.filters.state'),
       type: 'state',
       value: (<string[]>filter.state)
         .map((state) => this.reportStatePipe.transform(state))
@@ -709,19 +769,19 @@ export class MyReportsPage {
 
     if (startDate && endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: `${startDate} to ${endDate}`,
+        value: `${startDate} ${this.translocoService.translate('myReportsPage.filterPills.dateTo')} ${endDate}`,
       });
     } else if (startDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
         value: `<= ${endDate}`,
       });
@@ -731,33 +791,33 @@ export class MyReportsPage {
   generateDateFilterPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'this Week',
+        value: this.translocoService.translate('myReportsPage.filterPills.thisWeek'),
       });
     }
 
     if (filter.date === DateFilters.thisMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'this Month',
+        value: this.translocoService.translate('myReportsPage.filterPills.thisMonth'),
       });
     }
 
     if (filter.date === DateFilters.all) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'All',
+        value: this.translocoService.translate('myReportsPage.filterPills.all'),
       });
     }
 
     if (filter.date === DateFilters.lastMonth) {
       filterPills.push({
-        label: 'Date',
+        label: this.translocoService.translate('myReportsPage.filters.date'),
         type: 'date',
-        value: 'Last Month',
+        value: this.translocoService.translate('myReportsPage.filterPills.lastMonth'),
       });
     }
 
@@ -769,15 +829,15 @@ export class MyReportsPage {
   generateSortRptDatePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'date - old to new',
+        value: this.translocoService.translate('myReportsPage.filterPills.dateOldToNew'),
       });
     } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'date - new to old',
+        value: this.translocoService.translate('myReportsPage.filterPills.dateNewToOld'),
       });
     }
   }
@@ -785,15 +845,15 @@ export class MyReportsPage {
   generateSortAmountPills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'amount - high to low',
+        value: this.translocoService.translate('myReportsPage.filterPills.amountHighToLow'),
       });
     } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'amount - low to high',
+        value: this.translocoService.translate('myReportsPage.filterPills.amountLowToHigh'),
       });
     }
   }
@@ -801,15 +861,15 @@ export class MyReportsPage {
   generateSortNamePills(filter: Partial<MyReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'Name - a to z',
+        value: this.translocoService.translate('myReportsPage.filterPills.nameAToZ'),
       });
     } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
-        label: 'Sort by',
+        label: this.translocoService.translate('myReportsPage.filters.sortBy'),
         type: 'sort',
-        value: 'Name - z to a',
+        value: this.translocoService.translate('myReportsPage.filterPills.nameZToA'),
       });
     }
   }
@@ -849,7 +909,7 @@ export class MyReportsPage {
       sortParam: string;
       sortDir: string;
     }>,
-    generatedFilters: SelectedFilters<string>[]
+    generatedFilters: SelectedFilters<string>[],
   ): void {
     if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
@@ -870,139 +930,139 @@ export class MyReportsPage {
       componentProps: {
         filterOptions: [
           {
-            name: 'State',
+            name: this.translocoService.translate('myReportsPage.filters.state'),
             optionType: FilterOptionType.multiselect,
             options: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Reported',
+                label: this.translocoService.translate('myReportsPage.stateOptions.reported'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Payment Pending',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paymentPending'),
                 value: 'PAYMENT_PENDING',
               },
               {
-                label: 'Payment Processing',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paymentProcessing'),
                 value: 'PAYMENT_PROCESSING',
               },
               {
-                label: 'Paid',
+                label: this.translocoService.translate('myReportsPage.stateOptions.paid'),
                 value: 'PAID',
               },
             ],
             optionsNewFlow: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Submitted',
+                label: this.translocoService.translate('myReportsPage.stateOptions.submitted'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Processing',
+                label: this.translocoService.translate('myReportsPage.stateOptions.processing'),
                 value: 'PAYMENT_PROCESSING',
               },
               {
-                label: 'Closed',
+                label: this.translocoService.translate('myReportsPage.stateOptions.closed'),
                 value: 'PAID',
               },
             ],
             optionsNewFlowCCCOnly: [
               {
-                label: 'Draft',
+                label: this.translocoService.translate('myReportsPage.stateOptions.draft'),
                 value: 'DRAFT',
               },
               {
-                label: 'Submitted',
+                label: this.translocoService.translate('myReportsPage.stateOptions.submitted'),
                 value: 'APPROVER_PENDING',
               },
               {
-                label: 'Sent Back',
+                label: this.translocoService.translate('myReportsPage.stateOptions.sentBack'),
                 value: 'APPROVER_INQUIRY',
               },
               {
-                label: 'Approved',
+                label: this.translocoService.translate('myReportsPage.stateOptions.approved'),
                 value: 'APPROVED',
               },
               {
-                label: 'Closed',
+                label: this.translocoService.translate('myReportsPage.stateOptions.closed'),
                 value: 'PAID',
               },
             ],
           } as FilterOptions<string>,
           {
-            name: 'Date',
+            name: this.translocoService.translate('myReportsPage.filters.date'),
             optionType: FilterOptionType.date,
             options: [
               {
-                label: 'All',
+                label: this.translocoService.translate('myReportsPage.dateOptions.all'),
                 value: DateFilters.all,
               },
               {
-                label: 'This Week',
+                label: this.translocoService.translate('myReportsPage.dateOptions.thisWeek'),
                 value: DateFilters.thisWeek,
               },
               {
-                label: 'This Month',
+                label: this.translocoService.translate('myReportsPage.dateOptions.thisMonth'),
                 value: DateFilters.thisMonth,
               },
               {
-                label: 'Last Month',
+                label: this.translocoService.translate('myReportsPage.dateOptions.lastMonth'),
                 value: DateFilters.lastMonth,
               },
               {
-                label: 'Custom',
+                label: this.translocoService.translate('myReportsPage.dateOptions.custom'),
                 value: DateFilters.custom,
               },
             ],
           } as FilterOptions<DateFilters>,
           {
-            name: 'Sort by',
+            name: this.translocoService.translate('myReportsPage.filters.sortBy'),
             optionType: FilterOptionType.singleselect,
             options: [
               {
-                label: 'Date - New to Old',
+                label: this.translocoService.translate('myReportsPage.sortOptions.dateNewToOld'),
                 value: 'dateNewToOld',
               },
               {
-                label: 'Date - Old to New',
+                label: this.translocoService.translate('myReportsPage.sortOptions.dateOldToNew'),
                 value: 'dateOldToNew',
               },
               {
-                label: 'Amount - High to Low',
+                label: this.translocoService.translate('myReportsPage.sortOptions.amountHighToLow'),
                 value: 'amountHighToLow',
               },
               {
-                label: 'Amount - Low to High',
+                label: this.translocoService.translate('myReportsPage.sortOptions.amountLowToHigh'),
                 value: 'amountLowToHigh',
               },
               {
-                label: 'Name - A to Z',
+                label: this.translocoService.translate('myReportsPage.sortOptions.nameAToZ'),
                 value: 'nameAToZ',
               },
               {
-                label: 'Name - Z to A',
+                label: this.translocoService.translate('myReportsPage.sortOptions.nameZToA'),
                 value: 'nameZToA',
               },
             ],

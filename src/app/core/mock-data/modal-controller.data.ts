@@ -132,6 +132,7 @@ export const openFromComponentConfig = {
     icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
+    messageType: 'failure' as const,
   },
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
@@ -503,6 +504,7 @@ export const modalControllerParams7 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: fileObject4[0],
+    isTeamAdvance: true,
   },
   mode: 'ios' as Mode,
   presentingElement: undefined,
@@ -569,7 +571,6 @@ export const virtualSelectModalControllerParams = {
     enableSearch: true,
     selectModalHeader: 'Select item',
     placeholder: undefined,
-    showSaveButton: false,
     defaultLabelProp: undefined,
     recentlyUsed: undefined,
     label: '',
@@ -589,7 +590,7 @@ export const permissionDeniedPopoverParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Photos permission',
-    message: 'Please allow Fyle to access device photos. Click Settings and allow Photos access',
+    message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Photos access',
     primaryCta: {
       text: 'Open settings',
       action: 'OPEN_SETTINGS',

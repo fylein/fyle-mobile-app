@@ -6,7 +6,6 @@ import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 import {
-  allExtendedReportsResponse,
   extendedOrgUserResponse,
   extendedOrgUserResponseSpender,
   incompleteExpensesResponse,
@@ -42,7 +41,7 @@ import {
   verifyMobileNumberTask2,
 } from '../mock-data/task.data';
 import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
-import { OrgSettingsService } from './org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
@@ -70,7 +69,7 @@ import {
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 import { UtilityService } from './utility.service';
-
+import { getTranslocoTestingModule } from '../testing/transloco-testing.utils';
 describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -85,7 +84,7 @@ describe('TasksService', () => {
   let employeesService: jasmine.SpyObj<EmployeesService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   const mockTaskClearSubject = new Subject();
@@ -103,7 +102,7 @@ describe('TasksService', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
@@ -111,6 +110,7 @@ describe('TasksService', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
+      imports: [getTranslocoTestingModule()],
       providers: [
         TasksService,
         {
@@ -154,7 +154,7 @@ describe('TasksService', () => {
           useValue: employeesServiceSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -182,14 +182,14 @@ describe('TasksService', () => {
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     exactCurrencyPipe = TestBed.inject(ExactCurrencyPipe) as jasmine.SpyObj<ExactCurrencyPipe>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
@@ -570,7 +570,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: true,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -598,7 +598,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: false,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -621,7 +621,7 @@ describe('TasksService', () => {
         potentialDuplicates: true,
         teamReports: true,
         sentBackAdvances: false,
-      })
+      }),
     ).toEqual([
       {
         label: 'Expenses',
@@ -655,7 +655,7 @@ describe('TasksService', () => {
         teamReports: [teamReportTaskSample],
         unreportedExpenses: [unreportedExpenseTaskSample],
         unsubmittedReports: [unsubmittedReportTaskSample],
-      }
+      },
     );
 
     expect(filteredTaskList).toEqual([
@@ -693,9 +693,9 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: totalCount,
       },
-      homeCurrency
+      homeCurrency,
     );
-    expect(tasks[0].subheader).toEqual('1 expense  worth ₹339.00  can be added to a report');
+    expect(tasks[0].subheader).toEqual('Add complete expenses to a report and submit.');
   });
 
   it('should not be generating tasks when no corresponding data is present', () => {
@@ -704,7 +704,7 @@ describe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([]);
@@ -714,7 +714,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks2).toEqual([]);
@@ -724,7 +724,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks3).toEqual([]);
@@ -734,7 +734,7 @@ describe('TasksService', () => {
         totalAmount: 0,
         totalCount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks4).toEqual([]);
@@ -744,7 +744,7 @@ describe('TasksService', () => {
         total_amount: 0,
         count: 0,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks5).toEqual([]);
@@ -754,7 +754,7 @@ describe('TasksService', () => {
         totalCount: 0,
         totalAmount: 0,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks6).toEqual([]);
@@ -821,13 +821,13 @@ describe('TasksService', () => {
     setupData();
     tasksService.getTasks(false, undefined, true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
-        '34 Potential Duplicates',
-        'Reports sent back!',
-        'Incomplete expenses',
-        'Unsubmitted reports',
-        'Expenses are ready to report',
-        'Reports to be approved',
-        'Advances sent back!',
+        'Merge duplicate expenses',
+        'Review sent back reports',
+        'Review sent back advances',
+        "Approve team's 2 reports",
+        'Complete 339 expenses',
+        'Submit 2 expense reports',
+        'Add 3 expenses to report',
       ]);
       done();
     });
@@ -846,7 +846,7 @@ describe('TasksService', () => {
         unreportedExpenses: false,
       })
       .subscribe((tasks) => {
-        expect(tasks.map((task) => task.header)).toEqual(['Advances sent back!']);
+        expect(tasks.map((task) => task.header)).toEqual(['Review sent back advances']);
         done();
       });
   });
@@ -855,10 +855,10 @@ describe('TasksService', () => {
     setupData();
     tasksService.getTasks(true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
-        '34 Potential Duplicates',
-        'Reports sent back!',
-        'Incomplete expenses',
-        'Advances sent back!',
+        'Merge duplicate expenses',
+        'Review sent back reports',
+        'Review sent back advances',
+        'Complete 339 expenses',
       ]);
       done();
     });
@@ -869,7 +869,7 @@ describe('TasksService', () => {
     userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
       mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      })
+      }),
     );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(
@@ -877,7 +877,7 @@ describe('TasksService', () => {
         data: {
           next_at: new Date(20, 12, 2022),
         },
-      })
+      }),
     );
 
     setupData();
@@ -889,7 +889,7 @@ describe('TasksService', () => {
     tasksService.totalTaskCount$
       .pipe(
         filter((count) => count === 5),
-        take(1)
+        take(1),
       )
       .subscribe((count) => {
         expect(count).toEqual(5);
@@ -910,19 +910,20 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: sentBackAdvancesResponse.total_amount,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(sentBackAdvanceTask).toEqual([
       {
+        hideAmount: true,
         amount: '123370000.00',
         count: 1,
-        header: 'Advance sent back!',
-        subheader: '1 advance worth ₹123370000.00  was sent back by your approver',
+        header: 'Review sent back advance',
+        subheader: 'Fix issues in your advance to resubmit.',
         icon: TaskIcon.ADVANCE,
         ctas: [
           {
-            content: 'View Advance',
+            content: 'Review',
             event: TASKEVENT.openSentBackAdvance,
           },
         ],
@@ -950,19 +951,20 @@ describe('TasksService', () => {
         count: 2,
         total_amount: sentBackResponse[0].aggregates[1].function_value,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(sentBackReportTask).toEqual([
       {
+        hideAmount: true,
         amount: '44.53',
         count: 2,
-        header: 'Reports sent back!',
-        subheader: '2 reports worth ₹44.53  were sent back by your approver',
+        header: 'Review sent back reports',
+        subheader: 'Fix issues in your reports to resubmit.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'View Reports',
+            content: 'Review',
             event: TASKEVENT.openSentBackReport,
           },
         ],
@@ -987,19 +989,20 @@ describe('TasksService', () => {
         totalCount: 1,
         totalAmount: incompleteExpensesResponse[0].aggregates[1].function_value,
       },
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '132573333762.37',
         count: 1,
-        header: 'Incomplete expense',
-        subheader: '1 expense worth ₹132573333762.37  require additional information',
+        header: 'Complete 1 expense',
+        subheader: 'Fill in missing details for incomplete expense',
         icon: TaskIcon.WARNING,
         ctas: [
           {
-            content: 'Review expense',
+            content: 'Complete',
             event: TASKEVENT.reviewExpenses,
           },
         ],
@@ -1021,19 +1024,20 @@ describe('TasksService', () => {
         total_amount: unsubmittedReportsResponse[0].aggregates[1].function_value,
         count: 1,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '0.00',
         count: 1,
-        header: 'Unsubmitted report',
-        subheader: '1 report remains in draft state',
+        header: 'Submit 1 expense report',
+        subheader: 'Submit report for approval.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Submit Report',
+            content: 'Submit',
             event: TASKEVENT.openDraftReports,
           },
         ],
@@ -1061,19 +1065,20 @@ describe('TasksService', () => {
         total_amount: teamReportResponse[0].aggregates[1].function_value,
         count: 1,
       } as PlatformReportsStatsResponse,
-      homeCurrency
+      homeCurrency,
     );
 
     expect(tasks).toEqual([
       {
+        hideAmount: true,
         amount: '733479.83',
         count: 1,
-        header: 'Report to be approved',
-        subheader: '1 report worth ₹733479.83  requires your approval',
+        header: "Approve team's 1 report",
+        subheader: 'Approve pending report from your team.',
         icon: TaskIcon.REPORT,
         ctas: [
           {
-            content: 'Show Report',
+            content: 'Approve',
             event: TASKEVENT.openTeamReport,
           },
         ],
@@ -1085,7 +1090,7 @@ describe('TasksService', () => {
     userEventService.onTaskCacheClear.and.callFake((refreshCallback) =>
       mockTaskClearSubject.subscribe(() => {
         refreshCallback();
-      })
+      }),
     );
 
     reportService.getReportAutoSubmissionDetails.and.returnValue(of(null));
@@ -1099,7 +1104,7 @@ describe('TasksService', () => {
     tasksService.totalTaskCount$
       .pipe(
         filter((count) => count === 7),
-        take(1)
+        take(1),
       )
       .subscribe((count) => {
         expect(count).toEqual(7);
@@ -1108,11 +1113,11 @@ describe('TasksService', () => {
   });
 
   describe('mapMobileNumberVerificationTask(): ', () => {
-    it('should return correct task object with CTA as Opt in if user not opted in', () => {
+    it('should return correct task object with CTA as Opt-in if user not opted-in', () => {
       expect(tasksService.mapMobileNumberVerificationTask(false)).toEqual([verifyMobileNumberTask]);
     });
 
-    it('should return correct task object with CTA as Update and Opt in if user added non +1 mobile number', () => {
+    it('should return correct task object with CTA as Update and Opt-in if user added non +1 mobile number', () => {
       expect(tasksService.mapMobileNumberVerificationTask(true)).toEqual([verifyMobileNumberTask2]);
     });
   });
@@ -1132,6 +1137,7 @@ describe('TasksService', () => {
     it('should not return any task if user is from IN cluster', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
+      eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
       utilityService.isUserFromINCluster.and.resolveTo(true);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
@@ -1144,14 +1150,14 @@ describe('TasksService', () => {
       });
     });
 
-    it('should return opt in task if user has not added mobile number and currency is CAD', (done) => {
+    it('should return opt-in task if user has not added mobile number and currency is CAD', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
       eou.org.currency = 'CAD';
       authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
-        [addMobileNumberTask]
+        [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -1161,18 +1167,35 @@ describe('TasksService', () => {
       });
     });
 
-    it('should return opt in task if user has not verified mobile number', (done) => {
+    it('should return opt-in task if user has not verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.org.currency = 'USD';
       authService.getEou.and.resolveTo(eou);
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
-        [addMobileNumberTask]
+        [addMobileNumberTask],
       );
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledTimes(1);
         expect(res).toEqual([addMobileNumberTask]);
+        done();
+      });
+    });
+
+    it('should not return any task if user currency is not USD or CAD', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      eou.org.currency = 'INR';
+      authService.getEou.and.resolveTo(eou);
+      utilityService.isUserFromINCluster.and.resolveTo(false);
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();
       });
     });

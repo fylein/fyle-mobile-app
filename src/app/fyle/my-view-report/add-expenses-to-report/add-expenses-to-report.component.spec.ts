@@ -1,16 +1,23 @@
-import { CurrencyPipe } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, waitForAsync, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
-import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { ExactCurrencyPipe } from 'src/app/shared/pipes/exact-currency.pipe';
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+
+// mock for expenses card component
+@Component({
+  selector: 'app-expense-card-v2',
+  template: '',
+})
+class ExpensesCardStubComponent {}
 
 describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
@@ -18,7 +25,7 @@ describe('AddExpensesToReportComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let router: jasmine.SpyObj<Router>;
-
+  let fyCurrencyPipe: jasmine.SpyObj<FyCurrencyPipe>;
   const expense1 = expenseData;
   const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
   const expense3 = { ...expenseData, id: 'txcSFe6efB63' };
@@ -26,14 +33,13 @@ describe('AddExpensesToReportComponent', () => {
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+    const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-
     TestBed.configureTestingModule({
-      declarations: [AddExpensesToReportComponent, HumanizeCurrencyPipe, ExactCurrencyPipe],
-      imports: [IonicModule.forRoot()],
+      imports: [getTranslocoTestingModule(),
+        AddExpensesToReportComponent,
+        MatIconTestingModule],
       providers: [
-        FyCurrencyPipe,
-        CurrencyPipe,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -46,8 +52,14 @@ describe('AddExpensesToReportComponent', () => {
           provide: Router,
           useValue: routerSpy,
         },
+        {
+          provide: FyCurrencyPipe,
+          useValue: fyCurrencyPipeSpy,
+        },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+    }).overrideComponent(AddExpensesToReportComponent, {
+      remove: {imports: [ExpensesCardComponent]},
+      add: {imports: [ExpensesCardStubComponent], schemas: [CUSTOM_ELEMENTS_SCHEMA]},
     }).compileComponents();
     fixture = TestBed.createComponent(AddExpensesToReportComponent);
     component = fixture.componentInstance;
@@ -55,7 +67,7 @@ describe('AddExpensesToReportComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-
+    fyCurrencyPipe = TestBed.inject(FyCurrencyPipe) as jasmine.SpyObj<FyCurrencyPipe>;
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     component.selectedExpenseIds = ['txCYDX0peUw5', 'txfCdl3TEZ7K'];
     component.selectedTotalAmount = 500;
@@ -188,33 +200,37 @@ describe('AddExpensesToReportComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('should show header if no expenses are not selected', () => {
+  it('should show header if no expenses are not selected', fakeAsync(() => {
     component.selectedElements = [];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.report-list--title'))).toEqual('Add expenses');
-  });
+  }));
 
-  it('should show number of expenses', () => {
+  it('should show number of expenses', fakeAsync(() => {
     component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toContain('2 Expenses');
-  });
+  }));
 
   it('should show total amount', () => {
+    fyCurrencyPipe.transform.and.returnValue('$500.00');
     component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--total-amount'))).toEqual('($500.00)');
   });
 
-  it('should zero state message if no unreported expense exist', () => {
+  it('should zero state message if no unreported expense exist', fakeAsync(() => {
     component.unreportedExpenses = [];
     fixture.detectChanges();
-
+    tick();
+    fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--zero-state--header'))).toEqual(
-      'You have no complete expenses'
+      'You have no complete expenses',
     );
-  });
+  }));
 });

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { ActivatedRoute } from '@angular/router';
 import { filter, shareReplay } from 'rxjs/operators';
@@ -6,21 +6,27 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { noop } from 'rxjs';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { IonContent } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-app-version',
   templateUrl: './app-version.page.html',
   styleUrls: ['./app-version.page.scss'],
+  imports: [
+    IonContent
+  ],
 })
 export class AppVersionPage implements OnInit {
-  message: string;
+  private deviceService = inject(DeviceService);
 
-  constructor(
-    private deviceService: DeviceService,
-    private activatedRoute: ActivatedRoute,
-    private browserHandlerService: BrowserHandlerService,
-    private platformHandlerService: PlatformHandlerService
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private browserHandlerService = inject(BrowserHandlerService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  message: string;
 
   ngOnInit() {
     this.message = this.activatedRoute.snapshot.params.message;
@@ -39,14 +45,14 @@ export class AppVersionPage implements OnInit {
     deviceAndroid$.subscribe(async () => {
       await this.browserHandlerService.openLinkWithWindowName(
         '_system',
-        'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781'
+        'https://play.google.com/store/apps/details?id=com.ionicframework.fyle595781',
       );
     });
 
     deviceIos$.subscribe(async () => {
       await this.browserHandlerService.openLinkWithWindowName(
         '_system',
-        'https://itunes.apple.com/in/app/fyle/id1137906166'
+        'https://itunes.apple.com/in/app/fyle/id1137906166',
       );
     });
   }

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -7,14 +8,14 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { cloneDeep } from 'lodash';
 import { eouRes2 } from 'src/app/core/mock-data/extended-org-user.data';
 import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
-import { of, throwError } from 'rxjs';
+import { of, throwError, from } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -39,6 +40,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
   let userEventService: jasmine.SpyObj<UserEventService>;
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
   let fb: UntypedFormBuilder;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -56,10 +58,15 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['clearTaskCache']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', ['getOnboardingStatus']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [SpenderOnboardingOptInStepComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TranslocoModule, SpenderOnboardingOptInStepComponent],
       providers: [
         UntypedFormBuilder,
         { provide: ModalController, useValue: modalControllerSpy },
@@ -74,6 +81,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
         { provide: PlatformHandlerService, useValue: platformHandlerServiceSpy },
         { provide: UserEventService, useValue: userEventServiceSpy },
         { provide: SpenderOnboardingService, useValue: spenderOnboardingServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -84,7 +92,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     mobileNumberVerificationService = TestBed.inject(
-      MobileNumberVerificationService
+      MobileNumberVerificationService,
     ) as jasmine.SpyObj<MobileNumberVerificationService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -93,6 +101,46 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     fb = TestBed.inject(UntypedFormBuilder);
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'spenderOnboardingOptInStep.title': 'Opt-in to send text receipts',
+        'spenderOnboardingOptInStep.subTitle': 'This will help you send receipts via text message.',
+        'spenderOnboardingOptInStep.mobileNumberLabel': 'Mobile number',
+        'spenderOnboardingOptInStep.mobileNumberPlaceholder': 'Enter mobile number with country code e.g +155512345..',
+        'spenderOnboardingOptInStep.otpDescription': 'Enter 6-digit code sent to your phone',
+        'spenderOnboardingOptInStep.resendCodeTimerPrefix': 'Resend code in',
+        'spenderOnboardingOptInStep.attemptsLeft': 'attempts left',
+        'spenderOnboardingOptInStep.sendingCodeLoader': 'Sending code',
+        'spenderOnboardingOptInStep.resendCode': 'Resend code',
+        'spenderOnboardingOptInStep.successHeader': 'You are all set',
+        'spenderOnboardingOptInStep.successDescription':
+          'We have sent you a confirmation message. You can now use text messages to create and submit your next expense!',
+        'spenderOnboardingOptInStep.goBack': 'Go back',
+        'spenderOnboardingOptInStep.continue': 'Continue',
+        'spenderOnboardingOptInStep.mobileNumberError': 'Please enter mobile number.',
+        'spenderOnboardingOptInStep.invalidMobileNumberError':
+          'Please enter a valid number with +1 country code. Try re-entering your number.',
+        'spenderOnboardingOptInStep.codeSentSuccess': 'Code sent successfully',
+        'spenderOnboardingOptInStep.otpLimitReached':
+          'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
+        'spenderOnboardingOptInStep.invalidMobileNumberToast': 'Invalid mobile number. Please try again.',
+        'spenderOnboardingOptInStep.codeExpired': 'The code has expired. Please request a new one.',
+        'spenderOnboardingOptInStep.invalidCode': 'Code is invalid',
+        'spenderOnboardingOptInStep.verifyingCodeLoader': 'Verifying code...',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
   }));
 
   it('should create', () => {
@@ -103,7 +151,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
     beforeEach(() => {
       component.eou = cloneDeep(eouRes2);
       spenderOnboardingService.getOnboardingStatus.and.returnValue(
-        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true })
+        of({ ...onboardingStatusData, step_connect_cards_is_skipped: true }),
       );
     });
 
@@ -137,7 +185,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       component.mobileNumberInputValue = '1234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
 
@@ -151,7 +199,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       component.mobileNumberInputValue = '+911234567890';
       expect(component.validateInput());
       expect(component.mobileNumberError).toBe(
-        'Please enter a valid number with +1 country code. Try re-entering your number.'
+        'Please enter a valid number with +1 country code. Try re-entering your number.',
       );
     });
   });
@@ -229,7 +277,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code sent successfully',
         ToastType.SUCCESS,
-        'msb-success-with-camera-icon'
+        'msb-success-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
     });
@@ -240,7 +288,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.sendCodeLoading).toBeFalse();
       expect(component.disableResendOtp).toBeTrue();
@@ -259,7 +307,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -277,7 +325,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.disableResendOtp).toBeTrue();
     });
@@ -294,7 +342,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Invalid mobile number. Please try again.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -310,7 +358,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -327,7 +375,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'The code has expired. Please request a new one.',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -343,7 +391,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
 
@@ -358,7 +406,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
     });
   });
@@ -399,7 +447,7 @@ describe('SpenderOnboardingOptInStepComponent', () => {
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         'Code is invalid',
         ToastType.FAILURE,
-        'msb-failure-with-camera-icon'
+        'msb-failure-with-camera-icon',
       );
       expect(component.optInFlowState).toBe(OptInFlowState.OTP_VERIFICATION);
     }));

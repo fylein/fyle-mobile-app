@@ -1,11 +1,14 @@
-import { Component, DebugElement, Renderer2 } from '@angular/core';
+import { Component, DebugElement } from '@angular/core';
 import { FormatDateDirective } from './format-date.directive';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
-@Component({
-  template: `<input appFormatDate type="date" />`,
-})
+@Component({ 
+  template: `<input appFormatDate type="date" />` ,
+  imports: [FormatDateDirective]
+}
+)
 class TestFormatDateDirectiveComponent {}
 
 describe('FormatDateDirective', () => {
@@ -16,12 +19,13 @@ describe('FormatDateDirective', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TestFormatDateDirectiveComponent, FormatDateDirective],
+      imports: [TestFormatDateDirectiveComponent, getTranslocoTestingModule()],
     });
+
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
-    directive = inputEl.injector.get(FormatDateDirective);
+    directive = inputEl.injector.get(FormatDateDirective)
   });
 
   it('should create an instance', () => {
@@ -39,9 +43,9 @@ describe('FormatDateDirective', () => {
     expect(directive.modifyDisplayValue).toHaveBeenCalledOnceWith('2023-01-02');
   });
 
-  it('ngOnInit(): should call modifyDisplayValue once with the initial value', () => {
+  it('ngAfterViewInit(): should call modifyDisplayValue once with the initial value', () => {
     spyOn(directive, 'modifyDisplayValue');
-    directive.ngOnInit();
+    directive.ngAfterViewInit();
     expect(directive.modifyDisplayValue).toHaveBeenCalledOnceWith('');
   });
 

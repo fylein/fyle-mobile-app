@@ -34,20 +34,20 @@ import { transformedExpensePayload, txnAmount1 } from 'src/app/core/mock-data/tr
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { generatedFormPropertiesData1 } from 'src/app/core/mock-data/generated-form-properties.data';
-
+import { TranslocoService } from '@jsverse/transloco';
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', ['generateStatsQueryParams']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getMatchedTransactionById',
     ]);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SpenderService, useValue: spenderServiceSpy },
@@ -60,14 +60,19 @@ describe('ExpensesService', () => {
           provide: CorporateCreditCardExpenseService,
           useValue: corporateCreditCardExpenseServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
     });
     service = TestBed.inject(ExpensesService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
   });
 
   it('should be created', () => {
@@ -290,7 +295,7 @@ describe('ExpensesService', () => {
   it('getExpenseStats(): should get expense stats for unreported stats', (done) => {
     spenderService.post.and.returnValue(of(completeStats));
     sharedExpenseService.generateStatsQueryParams.and.returnValue(
-      'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)'
+      'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
     );
 
     const queryParams = {

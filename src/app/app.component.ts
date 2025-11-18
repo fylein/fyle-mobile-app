@@ -1,8 +1,8 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
-import { Platform, MenuController, NavController } from '@ionic/angular';
+import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { IonApp, IonFooter, IonRouterOutlet, MenuController, NavController, Platform } from '@ionic/angular/standalone';
 import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
-import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params } from '@angular/router';
+import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
@@ -26,13 +26,68 @@ import { SpenderOnboardingService } from './core/services/spender-onboarding.ser
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
+import { DelegatedAccMessageComponent } from './shared/components/delegated-acc-message/delegated-acc-message.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { NgClass } from '@angular/common';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
+  imports: [
+    DelegatedAccMessageComponent,
+    FooterComponent,
+    FyConnectionComponent,
+    IonApp,
+    IonFooter,
+    IonRouterOutlet,
+    NgClass,
+    SidemenuComponent,
+  ],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  private platform = inject(Platform);
+
+  private router = inject(Router);
+
+  private activatedRoute = inject(ActivatedRoute);
+
+  private userEventService = inject(UserEventService);
+
+  private menuController = inject(MenuController);
+
+  private deviceService = inject(DeviceService);
+
+  private appVersionService = inject(AppVersionService);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private networkService = inject(NetworkService);
+
+  private freshChatService = inject(FreshChatService);
+
+  private zone = inject(NgZone);
+
+  private deepLinkService = inject(DeepLinkService);
+
+  private trackingService = inject(TrackingService);
+
+  private navController = inject(NavController);
+
+  private backButtonService = inject(BackButtonService);
+
+  private gmapsService = inject(GmapsService);
+
+  private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private footerService = inject(FooterService);
+
+  private tasksService = inject(TasksService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
 
   eou$: Observable<ExtendedOrgUser>;
@@ -71,29 +126,19 @@ export class AppComponent implements OnInit {
     'team_reports',
   ];
 
-  constructor(
-    private platform: Platform,
-    private router: Router,
-    private activatedRoute: ActivatedRoute,
-    private userEventService: UserEventService,
-    private menuController: MenuController,
-    private deviceService: DeviceService,
-    private appVersionService: AppVersionService,
-    private routerAuthService: RouterAuthService,
-    private networkService: NetworkService,
-    private freshChatService: FreshChatService,
-    private zone: NgZone,
-    private deepLinkService: DeepLinkService,
-    private trackingService: TrackingService,
-    private navController: NavController,
-    private backButtonService: BackButtonService,
-    private gmapsService: GmapsService,
-    private spenderOnboardingService: SpenderOnboardingService,
-    private footerService: FooterService,
-    private tasksService: TasksService
-  ) {
+  isLoading = true;
+
+  constructor() {
     this.initializeApp();
     this.registerBackButtonAction();
+  }
+
+  ngAfterViewInit(): void {
+    // Move platform ready check here after view is initialized
+    setTimeout(async () => {
+      this.isLoading = false;
+      await SplashScreen.hide();
+    }, 2000);
   }
 
   registerBackButtonAction(): void {
@@ -113,7 +158,6 @@ export class AppComponent implements OnInit {
   }
 
   initializeApp(): void {
-    // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
 
     App.addListener('appUrlOpen', (data) => {
@@ -123,18 +167,20 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
-        style: Style.Default,
-      });
-
-      setTimeout(async () => await SplashScreen.hide(), 200);
+      if (Capacitor.isNativePlatform()) {
+        await StatusBar.setStyle({
+          style: Style.Default,
+        });
+      }
 
       /*
        * Use the app's font size irrespective of the user's device font size.
        * This is to ensure that the app's UI is consistent across devices.
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
-      await TextZoom.set({ value: 1 });
+      if (Capacitor.isNativePlatform()) {
+        await TextZoom.set({ value: 1 });
+      }
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
@@ -145,7 +191,7 @@ export class AppComponent implements OnInit {
             this.appVersionService.load(deviceInfo);
             return this.appVersionService.getUserAppVersionDetails(deviceInfo);
           }),
-          filter((userAppVersionDetails) => !!userAppVersionDetails)
+          filter((userAppVersionDetails) => !!userAppVersionDetails),
         )
         .subscribe((userAppVersionDetails) => {
           const { appSupportDetails, lastLoggedInVersion, deviceInfo } = userAppVersionDetails;
@@ -162,7 +208,7 @@ export class AppComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -177,7 +223,7 @@ export class AppComponent implements OnInit {
           } else {
             this.sidemenuRef.showSideMenuOffline();
           }
-        })
+        }),
       )
       .subscribe();
   }
@@ -195,7 +241,7 @@ export class AppComponent implements OnInit {
     if ((window as any) && (window as any).localStorage) {
       // eslint-disable-next-line
       const lstorage = (window as any).localStorage as { removeItem: (key: string) => void };
-      // eslint-disable-next-line
+
       Object.keys(lstorage)
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));
@@ -210,8 +256,9 @@ export class AppComponent implements OnInit {
       isOnline: this.isConnected$.pipe(take(1)),
     }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
-      if (loggedInStatus) {
-        if (isOnline) {
+
+      if (this.isUserLoggedIn) {
+        if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();
@@ -371,13 +418,28 @@ export class AppComponent implements OnInit {
       .pipe(
         filter((event) => event instanceof NavigationEnd),
         map((event: NavigationEnd) => {
-          const segments = event.urlAfterRedirects.split(';')[0].split('/');
-          return segments.pop();
-        })
+          // Parse the URL using Angular's router
+          const urlTree: UrlTree = this.router.parseUrl(event.urlAfterRedirects);
+
+          // Get the last segment of the primary outlet (e.g., 'my_dashboard')
+          const segments = urlTree.root.children.primary?.segments as
+            | { path: string; parameters: { [key: string]: string } }[]
+            | undefined;
+          const lastSegment: string = segments && segments.length > 0 ? segments[segments.length - 1].path : '';
+
+          // Get matrix params for the last segment
+          const matrixParams: { [key: string]: string } =
+            segments && segments.length > 0 ? segments[segments.length - 1].parameters : {};
+
+          // Get query params (e.g., state)
+          const queryParams: { [key: string]: string } = urlTree.queryParams;
+
+          return { lastSegment, matrixParams, queryParams };
+        }),
       )
-      .subscribe((path) => {
-        this.currentPath = path.split('?')[0];
-        const state = this.getStateFromPath(path);
+      .subscribe(({ lastSegment, queryParams }: { lastSegment: string; queryParams: { [key: string]: string } }) => {
+        this.currentPath = lastSegment;
+        const state = queryParams.state || this.getStateFromPath(String(lastSegment));
         this.showFooter = this.routesWithFooter.includes(this.currentPath);
         this.updateFooterState(state);
       });

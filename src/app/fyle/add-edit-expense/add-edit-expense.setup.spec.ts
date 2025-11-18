@@ -2,17 +2,16 @@ import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { UntypedFormBuilder } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import {
   ActionSheetController,
-  IonicModule,
   ModalController,
   NavController,
   Platform,
   PopoverController,
-} from '@ionic/angular';
+} from '@ionic/angular/standalone';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -27,13 +26,12 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -63,7 +61,9 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -74,7 +74,7 @@ export function setFormValid(component) {
 describe('AddEditExpensePage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
-      'getEMyAccounts',
+      'getMyAccounts',
       'getPaymentModes',
       'getPaymentModesWithAdvanceWallets',
       'getEtxnSelectedPaymentMode',
@@ -116,7 +116,6 @@ describe('AddEditExpensePage', () => {
       'upsert',
       'review',
       'matchCCCExpense',
-      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -157,7 +156,6 @@ describe('AddEditExpensePage', () => {
       'getAll',
     ]);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
@@ -170,7 +168,6 @@ describe('AddEditExpensePage', () => {
       'deleteExpense',
       'unlinkCorporateCardExpense',
       'showToastMessage',
-      'setCategoryFromVendor',
       'saveReceiptWithInvalidForm',
       'clickSaveAddNew',
       'policyCorrection',
@@ -191,7 +188,7 @@ describe('AddEditExpensePage', () => {
       'receiptScanTime',
       'receiptScanTimeInstaFyle',
     ]);
-    const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
+    const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'clear']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
       'getRecentCostCenters',
       'getRecentlyUsedProjects',
@@ -208,7 +205,7 @@ describe('AddEditExpensePage', () => {
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const sanitizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
     const personalCardsServiceSpy = jasmine.createSpyObj('PersonalCardsService', ['matchExpense']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -238,11 +235,19 @@ describe('AddEditExpensePage', () => {
       'deleteExpenses',
     ]);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
 
     TestBed.configureTestingModule({
-      declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
-      imports: [HttpClientTestingModule, IonicModule.forRoot(), RouterTestingModule, RouterModule],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+      imports: [
+        RouterTestingModule,
+        RouterModule,
+        getTranslocoTestingModule(),
+        AddEditExpensePage,
+        MaskNumber,
+        FySelectComponent,
+        EllipsisPipe,
+        DependentFieldComponent,
+      ],
       providers: [
         UntypedFormBuilder,
         {
@@ -343,10 +348,6 @@ describe('AddEditExpensePage', () => {
           useValue: networkServiceSpy,
         },
         {
-          provide: PopupService,
-          useValue: popupServiceSpy,
-        },
-        {
           provide: NavController,
           useValue: navControllerSpy,
         },
@@ -383,7 +384,7 @@ describe('AddEditExpensePage', () => {
           useValue: actionSheetControllerSpy,
         },
         {
-          provide: OrgSettingsService,
+          provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
         {
@@ -446,8 +447,9 @@ describe('AddEditExpensePage', () => {
           provide: AdvanceWalletsService,
           useValue: advanceWalletsServiceSpy,
         },
+        provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting(),
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     });
 
     return TestBed;

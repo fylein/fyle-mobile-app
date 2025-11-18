@@ -8,16 +8,16 @@
     <ion-buttons slot="end">
       <ion-button
         (click)="save()"
-        [loadingText]="'Saving'"
+        [loadingText]="'fySelectCommuteDetails.saving' | transloco"
         [loading]="saveCommuteDetailsLoading"
         appFormButtonValidation
         class="commute-details--header-save text-right"
       >
-        Save
+        {{ 'fySelectCommuteDetails.save' | transloco }}
       </ion-button>
     </ion-buttons>
     <ion-title>
-      <div>Commute details</div>
+      <div>{{ 'fySelectCommuteDetails.title' | transloco }}</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -30,23 +30,22 @@
       </div>
       <div class="commute-details--location-field">
         <app-fy-location
-          [label]="'Home'"
+          [label]="'fySelectCommuteDetails.homeLabel' | transloco"
           class="route-selector--input"
           [formControl]="commuteDetails.controls.homeLocation"
           [mandatory]="true"
           [hideSuffix]="true"
-          [placeholder]="'Enter location'"
+          [placeholder]="'fySelectCommuteDetails.enterLocation' | transloco"
           [disableEnteringManualLocation]="true"
           [touchedInParent]="commuteDetails.controls.homeLocation?.touched"
           [validInParent]="commuteDetails.controls.homeLocation?.valid"
         >
         </app-fy-location>
-        <div
-          *ngIf="commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid"
-          class="commute-details--error"
-        >
-          Please select home location
-        </div>
+        @if (commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid) {
+          <div class="commute-details--error">
+            {{ 'fySelectCommuteDetails.errorSelectHome' | transloco }}
+          </div>
+        }
       </div>
     </div>
     <div class="commute-details--work-location">
@@ -55,23 +54,22 @@
       </div>
       <div class="commute-details--location-field">
         <app-fy-location
-          [label]="'Work'"
+          [label]="'fySelectCommuteDetails.workLabel' | transloco"
           class="route-selector--input"
           [formControl]="commuteDetails.controls.workLocation"
           [mandatory]="true"
           [hideSuffix]="true"
-          [placeholder]="'Enter location'"
+          [placeholder]="'fySelectCommuteDetails.enterLocation' | transloco"
           [disableEnteringManualLocation]="true"
           [touchedInParent]="commuteDetails.controls.workLocation?.touched"
           [validInParent]="commuteDetails.controls.workLocation?.valid"
         >
         </app-fy-location>
-        <div
-          *ngIf="commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid"
-          class="commute-details--error"
-        >
-          Please select work location
-        </div>
+        @if (commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid) {
+          <div class="commute-details--error">
+            {{ 'fySelectCommuteDetails.errorSelectWork' | transloco }}
+          </div>
+        }
       </div>
     </div>
   </div>

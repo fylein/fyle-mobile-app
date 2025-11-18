@@ -1,6 +1,6 @@
 import { getNumberOfCurrencyDigits } from '@angular/common';
-import { Injectable } from '@angular/core';
-import * as dayjs from 'dayjs';
+import { Injectable, inject } from '@angular/core';
+import dayjs from 'dayjs';
 import { Observable, from, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
@@ -15,11 +15,11 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class CurrencyService {
-  constructor(
-    private orgService: OrgService,
-    private authService: AuthService,
-    private platformCommonApiService: PlatformCommonApiService
-  ) {}
+  private orgService = inject(OrgService);
+
+  private authService = inject(AuthService);
+
+  private platformCommonApiService = inject(PlatformCommonApiService);
 
   @Cacheable()
   getExchangeRate(fromCurrency: string, toCurrency: string, dt = new Date(), txnId?: string): Observable<number> {
@@ -40,7 +40,7 @@ export class CurrencyService {
       })
       .pipe(
         map((res) => parseFloat(res.data.exchange_rate.toFixed(7))),
-        catchError(() => of(1))
+        catchError(() => of(1)),
       );
   }
 
@@ -54,8 +54,8 @@ export class CurrencyService {
               org_id: currentEou?.ou?.org_id,
             },
           })
-          .pipe(map((response) => response.data))
-      )
+          .pipe(map((response) => response.data)),
+      ),
     );
   }
 

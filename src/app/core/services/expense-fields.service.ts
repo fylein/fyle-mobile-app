@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
 import { map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
@@ -18,27 +18,46 @@ import { cloneDeep } from 'lodash';
   providedIn: 'root',
 })
 export class ExpenseFieldsService {
-  constructor(
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private authService: AuthService,
-    private dateService: DateService
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private authService = inject(AuthService);
+
+  private dateService = inject(DateService);
 
   @Cacheable()
-  getAllEnabled(): Observable<ExpenseField[]> {
+  getAllEnabled(onlyDefault = true): Observable<ExpenseField[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
           params: {
             org_id: `eq.${eou.ou.org_id}`,
             is_enabled: 'eq.true',
-            is_custom: 'eq.false',
+            ...(onlyDefault ? { is_custom: 'eq.false' } : {}),
             order: 'seq.asc',
           },
-        })
+        }),
       ),
       map((res) => this.transformFrom(res.data)),
-      map((res) => this.dateService.fixDates(res))
+      map((res) => this.dateService.fixDates(res)),
+    );
+  }
+
+  // function to get all the mandatory expense fields for a given org
+  @Cacheable()
+  getMandatoryExpenseFields(): Observable<ExpenseField[]> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformExpenseField[]>>('/expense_fields', {
+          params: {
+            org_id: `eq.${eou.ou.org_id}`,
+            is_mandatory: 'eq.true',
+            is_enabled: 'eq.true',
+            order: 'seq.asc',
+          },
+        }),
+      ),
+      map((res) => this.transformFrom(res.data)),
+      map((res) => this.dateService.fixDates(res)),
     );
   }
 
@@ -133,14 +152,14 @@ export class ExpenseFieldsService {
           expenseFieldMap[expenseField.column_name] = expenseFieldsList;
         });
         return expenseFieldMap;
-      })
+      }),
     );
   }
 
   filterByOrgCategoryId(
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
-    orgCategory: OrgCategory
+    orgCategory: OrgCategory,
   ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
@@ -173,7 +192,7 @@ export class ExpenseFieldsService {
             }
             return filteredField;
           })
-          .filter((filteredField) => !!filteredField)
+          .filter((filteredField) => !!filteredField),
       ),
       switchMap((fields) => from(fields)),
       map((field) => ({
@@ -182,7 +201,7 @@ export class ExpenseFieldsService {
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
-      }, {})
+      }, {}),
     );
   }
 
@@ -196,7 +215,7 @@ export class ExpenseFieldsService {
       To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
   */
   getDefaultTxnFieldValues(
-    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>,
   ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {

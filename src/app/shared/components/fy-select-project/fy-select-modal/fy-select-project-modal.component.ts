@@ -1,6 +1,16 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  ViewChild,
+  ElementRef,
+  Input,
+  ChangeDetectorRef,
+  TemplateRef,
+  inject,
+  input,
+} from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -8,38 +18,111 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatIconButton } from '@angular/material/button';
+import { MatRipple } from '@angular/material/core';
+import { FyHighlightTextComponent } from '../../fy-highlight-text/fy-highlight-text.component';
+import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-project-modal.component.html',
   styleUrls: ['./fy-select-project-modal.component.scss'],
+  imports: [
+    AsyncPipe,
+    FormsModule,
+    FyHighlightTextComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatFormField,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    MatPrefix,
+    MatRipple,
+    MatSuffix,
+    NgTemplateOutlet,
+    TranslocoPipe
+  ],
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
+  private modalController = inject(ModalController);
+
+  private cdr = inject(ChangeDetectorRef);
+
+  private projectsService = inject(ProjectsService);
+
+  private authService = inject(AuthService);
+
+  private recentLocalStorageItemsService = inject(RecentLocalStorageItemsService);
+
+  private utilityService = inject(UtilityService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private categoriesService = inject(CategoriesService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: ProjectV2;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() filteredOptions$: Observable<ProjectOption[]>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cacheName: string;
 
+  // TODO: Skipped for migration because:
+  //  This input is used in a control flow expression (e.g. `@if` or `*ngIf`)
+  //  and migrating would break narrowing currently.
   @Input() selectionElement: TemplateRef<ElementRef>;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() categoryIds: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultValue = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentlyUsed: ProjectOption[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isProjectCategoryRestrictionsEnabled: boolean;
+
+  readonly isSelectedProjectDisabled = input<boolean>(undefined);
+
+  readonly selectedDisabledProject = input<ProjectV2>(undefined);
 
   recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
@@ -48,18 +131,6 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   isLoading = false;
 
   activeCategories$: Observable<OrgCategory[]>;
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private projectsService: ProjectsService,
-    private authService: AuthService,
-    private recentLocalStorageItemsService: RecentLocalStorageItemsService,
-    private utilityService: UtilityService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private categoriesService: CategoriesService
-  ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
     // set isLoading to true
@@ -78,7 +149,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
     return this.orgSettingsService.get().pipe(
       switchMap((orgSettings) => {
@@ -86,8 +157,10 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.platformEmployeeSettingsService
             .get()
-            .pipe(map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids || [])),
-          of(null)
+            .pipe(
+              map((employeeSettings: EmployeeSettings) => employeeSettings.project_ids?.map((id) => Number(id)) || []),
+            ),
+          of(null),
         );
 
         return forkJoin({
@@ -110,8 +183,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             limit: 20,
           },
           this.isProjectCategoryRestrictionsEnabled,
-          activeCategories
-        )
+          activeCategories,
+        ),
       ),
       switchMap((projects) => {
         if (this.defaultValue) {
@@ -121,7 +194,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
                 projects.push(defaultProject);
               }
               return projects;
-            })
+            }),
           );
         } else {
           return of(projects);
@@ -139,14 +212,14 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           });
         }
 
-        return [{ label: 'None', value: null }]
+        return [{ label: this.translocoService.translate('fySelectProjectModal.none'), value: null }]
           .concat(currentElement)
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),
       finalize(() => {
         this.isLoading = false;
         this.cdr.detectChanges();
-      })
+      }),
     );
   }
 
@@ -166,8 +239,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           options.map((option: ProjectOption) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
-          })
-        )
+          }),
+        ),
       );
     }
   }
@@ -181,7 +254,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (this.categoryIds?.length > 0) {
       this.activeCategories$ = forkJoin(
-        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10)))
+        this.categoryIds.map((id) => this.categoriesService.getCategoryById(parseInt(id, 10))),
       ).pipe(shareReplay(1));
     } else {
       // Fallback if this.categoryIds is empty
@@ -200,13 +273,19 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             project.selected = true;
           }
           return project as ProjectOption;
-        })
-      )
+        }),
+      ),
+      map((projects) => {
+        if (this.isSelectedProjectDisabled() && this.selectedDisabledProject()) {
+          return projects.filter((project) => project.value?.project_id !== this.selectedDisabledProject()?.project_id);
+        }
+        return projects;
+      }),
     );
 
     this.recentrecentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(
       this.searchBarRef.nativeElement,
-      'keyup'
+      'keyup',
     ).pipe(
       map((event) => event.target.value),
       startWith(''),
@@ -215,9 +294,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
-          this.utilityService.searchArrayStream(searchText)
-        )
-      )
+          this.utilityService.searchArrayStream(searchText),
+        ),
+      ),
     );
 
     this.cdr.detectChanges();

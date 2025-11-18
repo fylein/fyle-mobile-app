@@ -11,44 +11,63 @@
   <div class="potential-duplicates--body">
     <div class="potential-duplicates--navigation">
       <div class="potential-duplicates--navigation-button text-center">
-        <span *ngIf="selectedSet !== 0" (click)="prev()"> Prev </span>
+        @if (selectedSet !== 0) {
+          <span (click)="prev()"> Prev </span>
+        }
       </div>
-      <div class="potential-duplicates--navigation-count">{{selectedSet + 1}} of {{duplicateSetData?.length}}</div>
+      <div class="potential-duplicates--navigation-count">{{ selectedSet + 1 }} of {{ duplicateSetData?.length }}</div>
       <div class="potential-duplicates--navigation-button text-center">
-        <span *ngIf="selectedSet+1 !== duplicateSetData?.length" (click)="next()"> Next </span>
+        @if (selectedSet + 1 !== duplicateSetData?.length) {
+          <span (click)="next()"> Next </span>
+        }
       </div>
     </div>
 
-    <div class="potential-duplicates--container" *ngIf="!isLoading">
-      <ng-container *ngFor="let duplicatesSet of duplicateExpenses; let setIndex=index">
-        <div *ngIf="setIndex === selectedSet" class="potential-duplicates--header text-center">
-          {{duplicatesSet?.length}} expenses for {{ duplicatesSet[0].amount | currency: duplicatesSet[0].currency:
-          'symbol-narrow' }}
+    @if (!isLoading) {
+      <div class="potential-duplicates--container">
+        @for (duplicatesSet of duplicateExpenses; track duplicatesSet; let setIndex = $index) {
+          @if (setIndex === selectedSet) {
+            <div class="potential-duplicates--header text-center">
+              {{ duplicatesSet?.length }} expenses for
+              {{ duplicatesSet[0].amount | currency: duplicatesSet[0].currency : 'symbol-narrow' }}
+            </div>
+          }
+
+          @if (setIndex === selectedSet && isMileageSet) {
+            <div class="potential-duplicates--alert-container">
+              <app-fy-alert-info
+                [type]="'warning'"
+                [message]="'tasks.potentialDuplicatesMileageNotSupported' | transloco"
+              ></app-fy-alert-info>
+            </div>
+          }
+
+          @for (expense of duplicatesSet; track expense.id; let i = $index) {
+            @if (setIndex === selectedSet) {
+              <app-expense-card-v2
+                [showDt]="false"
+                [isFromPotentialDuplicates]="true"
+                [expense]="expense"
+                [isDismissable]="duplicatesSet?.length > 2"
+                (dismissed)="dismiss($event)"
+                (goToTransaction)="goToTransaction($event)"
+              >
+              </app-expense-card-v2>
+            }
+          }
+        }
+      </div>
+    }
+    @if (isLoading) {
+      <div class="potential-duplicates--container">
+        <div class="potential-duplicates--shimmers-title text-center">
+          <ion-skeleton-text animated></ion-skeleton-text>
         </div>
-        <ng-container *ngFor="let expense of duplicatesSet as list; let i = index;">
-          <ng-container *ngIf="setIndex === selectedSet">
-            <app-expense-card-v2
-              [showDt]="false"
-              [isFromPotentialDuplicates]="true"
-              [expense]="expense"
-              [isDismissable]="duplicatesSet?.length > 2"
-              (dismissed)="dismiss($event)"
-              (goToTransaction)="goToTransaction($event)"
-            >
-            </app-expense-card-v2>
-          </ng-container>
-        </ng-container>
-      </ng-container>
-    </div>
-
-    <div class="potential-duplicates--container" *ngIf="isLoading">
-      <div class="potential-duplicates--shimmers-title text-center">
-        <ion-skeleton-text animated></ion-skeleton-text>
+        <div class="potential-duplicates--shimmers">
+          <app-fy-loading-screen></app-fy-loading-screen>
+        </div>
       </div>
-      <div class="potential-duplicates--shimmers">
-        <app-fy-loading-screen></app-fy-loading-screen>
-      </div>
-    </div>
+    }
   </div>
 </ion-content>
 
@@ -57,7 +76,7 @@
     <div class="potential-duplicates--footer-toolbar">
       <ion-buttons>
         <ion-button (click)="dismissAll()" class="btn-secondary"> Dismiss all </ion-button>
-        <ion-button (click)="mergeExpense()" class="btn-primary"> Merge </ion-button>
+        <ion-button (click)="mergeExpense()" class="btn-primary" [disabled]="isMileageSet"> Merge </ion-button>
       </ion-buttons>
     </div>
   </ion-toolbar>

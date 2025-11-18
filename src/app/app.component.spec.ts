@@ -1,7 +1,7 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { IonicModule, Platform } from '@ionic/angular';
+import { Platform, MenuController } from '@ionic/angular/standalone';
 import { NavigationEnd, Router } from '@angular/router';
 
 import { AppComponent } from './app.component';
@@ -17,7 +17,39 @@ import { TasksService } from './core/services/tasks.service';
 import { of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
-import { NavController } from '@ionic/angular';
+import { NavController } from '@ionic/angular/standalone';
+import { UserEventService } from './core/services/user-event.service';
+import { DeviceService } from './core/services/device.service';
+import { GmapsService } from './core/services/gmaps.service';
+
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar } from '@capacitor/status-bar';
+import { TextZoom } from '@capacitor/text-zoom';
+import { App } from '@capacitor/app';
+import { BackButtonService } from './core/services/back-button.service';
+import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
+import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
+import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
+import { FooterComponent } from './shared/components/footer/footer.component';
+import { extendedDeviceInfoMockData } from './core/mock-data/extended-device-info.data';
+
+// mock side menu component
+@Component({
+  selector: 'app-sidemenu',
+})
+class MockSidemenuComponent {}
+
+// mock connection component
+@Component({
+  selector: 'app-fy-connection',
+})
+class MockFyConnectionComponent {}
+
+// mock footer component
+@Component({
+  selector: 'app-fy-footer',
+})
+class MockFyFooterComponent {}
 
 describe('AppComponent', () => {
   let platformReadySpy;
@@ -34,31 +66,44 @@ describe('AppComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let navController: jasmine.SpyObj<NavController>;
-
+  let userEventService: jasmine.SpyObj<UserEventService>;
+  let deviceService: jasmine.SpyObj<DeviceService>;
+  let gmapsService: jasmine.SpyObj<GmapsService>;
+  let menuController: jasmine.SpyObj<MenuController>;
+  let backButtonService: jasmine.SpyObj<BackButtonService>;
   beforeEach(waitForAsync(() => {
+    // Mock Capacitor plugins before component creation
+    // Create spies that return resolved promises
+    const splashScreenHideSpy = jasmine.createSpy('hide').and.resolveTo();
+    const statusBarSetStyleSpy = jasmine.createSpy('setStyle').and.resolveTo();
+    const textZoomSetSpy = jasmine.createSpy('set').and.resolveTo();
+    const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
+
+    // Replace the methods on the imported modules
+    Object.defineProperty(SplashScreen, 'hide', { value: splashScreenHideSpy, writable: true });
+    Object.defineProperty(StatusBar, 'setStyle', { value: statusBarSetStyleSpy, writable: true });
+    Object.defineProperty(TextZoom, 'set', { value: textZoomSetSpy, writable: true });
+    Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
+
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
-    platformSpy.backButton = {
-      subscribeWithPriority: (priority: number, callback: (processNextHandler: () => void) => Promise<any> | void) => {
-        return { unsubscribe: jasmine.createSpy('unsubscribe') };
-      },
-      next: jasmine.createSpy('next'),
-      error: jasmine.createSpy('error'),
-      complete: jasmine.createSpy('complete'),
-      subscribe: jasmine.createSpy('subscribe'),
-      unsubscribe: jasmine.createSpy('unsubscribe'),
-      observers: [],
-      closed: false,
-      isStopped: false,
-      hasError: false,
-      thrownError: null,
-    } as any;
+    const backButtonSpy = jasmine.createSpyObj('backButton', ['subscribeWithPriority']);
+    backButtonSpy.subscribeWithPriority.and.callFake((priority: number, callback: () => void) => {
+      // Store the callback for later use in tests
+      backButtonSpy.lastCallback = callback;
+      return { unsubscribe: jasmine.createSpy('unsubscribe') };
+    });
+    platformSpy.backButton = backButtonSpy;
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['logout']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
+    appVersionServiceSpy.load.and.returnValue(of(null));
+    appVersionServiceSpy.getUserAppVersionDetails.and.returnValue(of(null));
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
+    routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
       isOnline$: of(true),
     });
+    networkServiceSpy.isOnline.and.returnValue(of(true));
     const freshChatServiceSpy = jasmine.createSpyObj('FreshChatService', ['destroy']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'setOnboardingStatusAsComplete',
@@ -67,8 +112,23 @@ describe('AppComponent', () => {
       selectionMode$: of(false),
       footerCurrentStateIndex$: of(1),
     });
-    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'parseUrl'], {
+      url: '',
+      events: of(new NavigationEnd(1, '/test', '/test')),
+    });
+    // Configure parseUrl to return a mock UrlTree
+    routerSpy.parseUrl.and.returnValue({
+      root: {
+        children: {
+          primary: {
+            segments: [{ path: 'my_dashboard', parameters: {} }],
+          },
+        },
+      },
+      queryParams: { state: 'home' },
+    });
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
+    tasksServiceSpy.getTotalTaskCount.and.returnValue(of(0));
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'tasksPageOpened',
       'footerHomeTabClicked',
@@ -77,10 +137,21 @@ describe('AppComponent', () => {
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', {
+      onSetToken: (callback) => callback(),
+      onLogout: (callback) => callback(),
+    });
+    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    deviceServiceSpy.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+    const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
+    const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
+    const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
 
+    // Configure tracking service with missing methods
+    trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
+    trackingServiceSpy.onSignOut = jasmine.createSpy('onSignOut');
     TestBed.configureTestingModule({
-      declarations: [AppComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [getTranslocoTestingModule(), AppComponent],
       providers: [
         { provide: Platform, useValue: platformSpy },
         { provide: AuthService, useValue: authServiceSpy },
@@ -105,9 +176,23 @@ describe('AppComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
+        { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: DeviceService, useValue: deviceServiceSpy },
+        { provide: GmapsService, useValue: gmapsServiceSpy },
+        { provide: MenuController, useValue: menuControllerSpy },
+        { provide: BackButtonService, useValue: backButtonServiceSpy },
       ],
-      imports: [IonicModule.forRoot()],
-    }).compileComponents();
+    })
+      .overrideComponent(AppComponent, {
+        remove: {
+          imports: [SidemenuComponent, FyConnectionComponent, FooterComponent],
+        },
+        add: {
+          imports: [MockSidemenuComponent, MockFyConnectionComponent, MockFyFooterComponent],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -121,7 +206,190 @@ describe('AppComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
+    gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
+    menuController = TestBed.inject(MenuController) as jasmine.SpyObj<MenuController>;
+    backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
   }));
+
+  describe('ngAfterViewInit', () => {
+    beforeEach(() => {
+      jasmine.clock().install();
+      jasmine.clock().mockDate();
+    });
+
+    afterEach(() => {
+      jasmine.clock().uninstall();
+    });
+
+    it('should initialize after view is ready', async () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+      component.isLoading = true;
+      component.isUserLoggedIn = true;
+      component.isOnline = true;
+
+      // Mock sidemenuRef
+      const sidemenuSpy = jasmine.createSpyObj('SidemenuComponent', ['showSideMenuOnline', 'showSideMenuOffline']);
+      component.sidemenuRef = sidemenuSpy;
+
+      // Mock router events
+      (router.events as any) = of(new NavigationEnd(1, '/test', '/test'));
+
+      // Initialize component
+      component.ngOnInit();
+
+      // Create a promise that resolves when platform is ready
+      let platformReadyResolve: (value: string) => void;
+      const platformReadyPromise = new Promise<string>((resolve) => {
+        platformReadyResolve = resolve;
+      });
+      platformSpy.ready.and.returnValue(platformReadyPromise);
+
+      // Call ngAfterViewInit
+      component.ngAfterViewInit();
+
+      // Resolve platform ready
+      platformReadyResolve('ready');
+      await platformReadyPromise;
+
+      // Fast-forward the setTimeout
+      jasmine.clock().tick(1500);
+
+      // Wait for all promises to resolve
+      await fixture.whenStable();
+
+      // Run change detection
+      fixture.detectChanges();
+
+      // Fast-forward any remaining timers
+      jasmine.clock().tick(1000);
+
+      expect(component.isLoading).toBeFalse();
+    });
+  });
+
+  xdescribe('sidemenu initialization', () => {
+    it('should show online menu when user is logged in and online', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      component.isUserLoggedIn = true;
+      component.isOnline = true;
+
+      // Trigger token set event
+      userEventService.onSetToken.calls.mostRecent().args[0]();
+      jasmine.clock().tick(500);
+
+      expect(component.sidemenuRef.showSideMenuOnline).toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOffline).not.toHaveBeenCalled();
+    });
+
+    it('should show offline menu when user is logged in but offline', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      component.isUserLoggedIn = true;
+      component.isOnline = false;
+
+      // Trigger token set event
+      userEventService.onSetToken.calls.mostRecent().args[0]();
+      jasmine.clock().tick(500);
+
+      expect(component.sidemenuRef.showSideMenuOnline).not.toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOffline).toHaveBeenCalled();
+    });
+
+    it('should not show menu when sidemenuRef is not available', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+
+      component.sidemenuRef = null;
+      component.isUserLoggedIn = true;
+      component.isOnline = true;
+
+      // Trigger token set event
+      userEventService.onSetToken.calls.mostRecent().args[0]();
+      jasmine.clock().tick(500);
+
+      // Should not throw any error
+      expect().nothing();
+    });
+  });
+
+  describe('registerBackButtonAction', () => {
+    let fixture: ComponentFixture<AppComponent>;
+    let component: AppComponent;
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(AppComponent);
+      component = fixture.componentInstance;
+    });
+
+    it('should show app close alert when on sign in page', () => {
+      Object.defineProperty(router, 'url', { get: () => '/auth/sign_in' });
+
+      component.registerBackButtonAction();
+      const callback = (platformSpy.backButton as any).lastCallback;
+      callback();
+
+      expect(backButtonService.showAppCloseAlert).toHaveBeenCalled();
+    });
+
+    it('should navigate back when on switch_org page with enterprise in previous url', () => {
+      Object.defineProperty(router, 'url', { get: () => '/auth/switch_org' });
+      component.previousUrl = '/enterprise/some-page';
+
+      component.registerBackButtonAction();
+      const callback = (platformSpy.backButton as any).lastCallback;
+      callback();
+
+      expect(navController.back).toHaveBeenCalled();
+    });
+
+    it('should navigate to dashboard when on switch_org page without enterprise in previous url', () => {
+      Object.defineProperty(router, 'url', { get: () => '/auth/switch_org' });
+      component.previousUrl = '/some-other-page';
+
+      component.registerBackButtonAction();
+      const callback = (platformSpy.backButton as any).lastCallback;
+      callback();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
+    });
+
+    it('should navigate back when on delegated_accounts page with enterprise in previous url', () => {
+      Object.defineProperty(router, 'url', { get: () => '/auth/delegated_accounts' });
+      component.previousUrl = '/enterprise/some-page';
+
+      component.registerBackButtonAction();
+      const callback = (platformSpy.backButton as any).lastCallback;
+      callback();
+
+      expect(navController.back).toHaveBeenCalled();
+    });
+
+    it('should navigate back for any other page', () => {
+      Object.defineProperty(router, 'url', { get: () => '/some-other-page' });
+
+      component.registerBackButtonAction();
+      const callback = (platformSpy.backButton as any).lastCallback;
+      callback();
+
+      expect(navController.back).toHaveBeenCalled();
+    });
+  });
 
   it('should create the app', async () => {
     const fixture = TestBed.createComponent(AppComponent);
@@ -212,6 +480,17 @@ describe('AppComponent', () => {
     expect(trackingService.footerReportsTabClicked).toHaveBeenCalledTimes(1);
   });
 
+  it('should update isSwitchedToDelegator when switchDelegator() is called', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const component = fixture.debugElement.componentInstance;
+
+    component.switchDelegator(true);
+    expect(component.isSwitchedToDelegator).toBeTrue();
+
+    component.switchDelegator(false);
+    expect(component.isSwitchedToDelegator).toBeFalse();
+  });
+
   it('getShowFooter() should call getTotalTasksCount and handleRouteChanges', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const component = fixture.debugElement.componentInstance;
@@ -291,7 +570,99 @@ describe('AppComponent', () => {
     const component = fixture.debugElement.componentInstance;
     // When not connected, our pipe should return 0.
     component.isConnected$ = of(false);
-    (component as any).getTotalTasksCount();
+    component.getTotalTasksCount();
     expect(component.totalTasksCount).toBe(0);
+  });
+
+  describe('ngOnInit', () => {
+    it('should initialize basic properties and call required methods', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Mock required properties
+      component.isConnected$ = of(true);
+
+      // Setup router events
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalled();
+      expect(component.totalTasksCount).toBe(0);
+      expect(component.setSidenavPostOnboarding).toHaveBeenCalled();
+      expect(component.getShowFooter).toHaveBeenCalled();
+      expect(gmapsService.loadLibrary).toHaveBeenCalled();
+    });
+
+    it('should handle footer selection mode changes', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Mock required properties
+      component.isConnected$ = of(true);
+
+      // Setup router events
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      // Test selection mode subscription
+      footerService.selectionMode$ = of(true);
+
+      component.ngOnInit();
+
+      // Test with selection mode disabled
+      footerService.selectionMode$ = of(false);
+      component.ngOnInit();
+
+      expect(component.showFooter).toBeTrue();
+    });
+
+    it('should set isOnline property based on network status', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'getShowFooter');
+
+      // Mock sidemenuRef to prevent undefined errors
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+
+      // Test with online status
+      component.isConnected$ = of(true);
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      expect(component.isOnline).toBeTrue();
+
+      // Test with offline status
+      component.isConnected$ = of(false);
+      component.ngOnInit();
+
+      expect(component.isOnline).toBeFalse();
+    });
   });
 });

@@ -2,7 +2,9 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
-      <div class="dependent-field-modal__title">Select {{ label }}</div>
+      <div class="dependent-field-modal__title">
+        {{ 'dependentFieldModal.selectLabel' | transloco: { label: label() } }}
+      </div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
@@ -11,62 +13,64 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center">
-    <mat-form-field appearance="none" class="dependent-field-modal__form-field mat-form-field-no-padding">
+    <mat-form-field appearance="outline" class="dependent-field-modal__form-field mat-form-field-no-padding">
       <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
         #searchBar
         [(ngModel)]="value"
         class="dependent-field-modal__search-input smartlook-show"
         matInput
-        placeholder="{{ placeholder || 'Search' }}"
+        [placeholder]="placeholder() || ('dependentFieldModal.search' | transloco)"
       />
-      <mat-icon
-        *ngIf="isLoading"
-        class="dependent-field-modal__autocomplete-loader"
-        svgIcon="loader"
-        matSuffix
-      ></mat-icon>
-      <button
-        (click)="clearValue()"
-        class="dependent-field-modal__clear-button"
-        *ngIf="value && !isLoading"
-        aria-label="Clear"
-        mat-button
-        mat-icon-button
-        matSuffix
-      >
-        <mat-icon>close</mat-icon>
-      </button>
+      @if (isLoading) {
+        <mat-icon class="dependent-field-modal__autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
+      }
+      @if (value && !isLoading) {
+        <button
+          (click)="clearValue()"
+          class="dependent-field-modal__clear-button"
+          [attr.aria-label]="'dependentFieldModal.clear' | transloco"
+          mat-icon-button
+          matSuffix
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
     </mat-form-field>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div class="dependent-field-modal__container" *ngIf="filteredOptions$">
-    <ng-container *ngIf="filteredOptions$ | async as filteredOptions">
-      <div *ngIf="filteredOptions.length === 0">
-        <app-fy-zero-state
-          [header]="'No such ' + label + ' found'"
-          [submessage]="'Search for another ' + label + ' or select one from the list.'"
-          [image]="'../../../../assets/images/zero-states/search.png'"
-          [unscaledImage]="true"
-          [useNewStyling]="true"
-        ></app-fy-zero-state>
-      </div>
-
-      <div *ngIf="filteredOptions.length > 0" class="dependent-field-modal__single-element-block">
-        <div
-          (click)="onElementSelect(filteredListItem)"
-          *ngFor="let filteredListItem of filteredOptions as list"
-          class="dependent-field-modal__list-element"
-          matRipple
-        >
-          <div class="dependent-field-modal__label">
-            <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value"> </app-fy-highlight-text>
+  @if (filteredOptions$) {
+    <div class="dependent-field-modal__container">
+      @if (filteredOptions$ | async; as filteredOptions) {
+        @if (filteredOptions.length === 0) {
+          <div>
+            <app-fy-zero-state
+              [header]="'dependentFieldModal.noResultFound' | transloco: { label: label() }"
+              [submessage]="'dependentFieldModal.searchOrSelect' | transloco: { label: label() }"
+              [image]="'../../../../assets/svg/zero-states/search.svg'"
+              [unscaledImage]="true"
+              [useNewStyling]="true"
+            ></app-fy-zero-state>
           </div>
-          <mat-icon *ngIf="filteredListItem.selected" class="dependent-field-modal__check"> check </mat-icon>
-        </div>
-      </div>
-    </ng-container>
-  </div>
+        }
+        @if (filteredOptions.length > 0) {
+          <div class="dependent-field-modal__single-element-block">
+            @for (filteredListItem of filteredOptions; track filteredListItem) {
+              <div (click)="onElementSelect(filteredListItem)" class="dependent-field-modal__list-element" matRipple>
+                <div class="dependent-field-modal__label">
+                  <app-fy-highlight-text [fullText]="filteredListItem.label" [queryText]="value">
+                  </app-fy-highlight-text>
+                </div>
+                @if (filteredListItem.selected) {
+                  <mat-icon class="dependent-field-modal__check"> check </mat-icon>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+  }
 </ion-content>

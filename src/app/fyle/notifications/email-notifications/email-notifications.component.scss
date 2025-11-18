@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .email-notifications {
   &--container {
@@ -8,10 +8,16 @@
   &--saved-text {
     font-size: 12px;
     font-weight: 500;
-    color: $blue-black;
+    color: colors.$blue-black;
     margin-right: 16px;
     margin-bottom: -6px;
     min-width: 40px;
+  }
+
+  &--end-buttons {
+    min-width: 70px;
+    display: flex;
+    justify-content: flex-end;
   }
 
   &--flex-row {
@@ -22,17 +28,39 @@
     margin: 6px 0;
     font-size: 14px;
     font-weight: 400;
-    color: $blue-black;
+    color: colors.$blue-black;
   }
 
   &--event-name {
-    width: 75vw;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 75%;
+  }
+
+  &--checkbox-col {
+    margin-left: 6px;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: flex-start;
+
+    .email-notifications--checkbox-label {
+      font-weight: 500;
+      white-space: nowrap;
+    }
   }
 }
 
 .table-header {
-  background-color: $off-white;
+  background-color: colors.$off-white;
   margin-bottom: 12px;
-  justify-content: space-between;
   font-weight: 500;
+}
+
+ion-title {
+  font-size: 16px;
+  margin-left: 28px;
+}
+
+.long-title {
+  margin-left: 24px;
 }

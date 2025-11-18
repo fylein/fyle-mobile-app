@@ -1,9 +1,11 @@
-import { Component, OnInit, forwardRef, Input, Injector } from '@angular/core';
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, NgControl } from '@angular/forms';
+import { Component, OnInit, forwardRef, Input, inject, input } from '@angular/core';
+import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyLocationModalComponent } from './fy-location-modal/fy-location-modal.component';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-location',
@@ -16,29 +18,34 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyLocationComponent implements ControlValueAccessor, OnInit {
-  @Input() label = 'location';
+  private modalController = inject(ModalController);
 
-  @Input() mandatory = false;
+  readonly label = input('location');
 
-  @Input() disabled = false;
+  readonly mandatory = input(false);
 
-  @Input() allowCustom = false;
+  readonly disabled = input(false);
 
-  @Input() hideSuffix = false;
+  readonly hideSuffix = input(false);
 
-  @Input() recentLocations: string[] = [];
+  readonly recentLocations = input<string[]>([]);
 
-  @Input() cacheName;
+  readonly cacheName = input<string>(undefined);
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
-  @Input() disableEnteringManualLocation? = false;
+  readonly disableEnteringManualLocation = input<boolean>(false);
 
   displayValue;
 
@@ -46,9 +53,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   onTouchedCallback: () => void = noop;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangeCallback: (_: any) => void = noop;
-
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid() {
     if (this.touchedInParent) {
@@ -58,10 +64,12 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get value(): any {
     return this.innerValue;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set value(v: any) {
     if (v !== this.innerValue) {
       this.innerValue = v;
@@ -79,15 +87,14 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
   ngOnInit() {}
 
   async openModal() {
-    if (!this.disabled) {
+    if (!this.disabled()) {
       const selectionModal = await this.modalController.create({
         component: FyLocationModalComponent,
         componentProps: {
           currentSelection: this.value,
-          allowCustom: this.allowCustom,
-          recentLocations: this.recentLocations,
-          cacheName: this.cacheName,
-          disableEnteringManualLocation: this.disableEnteringManualLocation,
+          recentLocations: this.recentLocations(),
+          cacheName: this.cacheName(),
+          disableEnteringManualLocation: this.disableEnteringManualLocation(),
         },
       });
 
@@ -105,6 +112,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   writeValue(value: any): void {
     if (value !== this.innerValue) {
       this.innerValue = value;

@@ -1,30 +1,61 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { CCExpenseMerchantInfoModalComponent } from './cc-expense-merchant-info-modal.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { of } from 'rxjs';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('CCExpenseMerchantInfoComponent', () => {
   let component: CCExpenseMerchantInfoModalComponent;
   let modalController: jasmine.SpyObj<ModalController>;
   let fixture: ComponentFixture<CCExpenseMerchantInfoModalComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [CCExpenseMerchantInfoModalComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, CCExpenseMerchantInfoModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
           useValue: modalControllerSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CCExpenseMerchantInfoModalComponent);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'ccExpenseMerchantInfoModal.title': 'Merchant',
+        'ccExpenseMerchantInfoModal.bodyText': 'This merchant name comes from the transaction.',
+      };
+      let translation = translations[key] || key;
+
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

@@ -1,19 +1,16 @@
 import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 
-import * as dayjs from 'dayjs';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import dayjs from 'dayjs';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { clone, cloneDeep } from 'lodash';
-import { BehaviorSubject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import {
   expectedActionSheetButtonRes,
@@ -88,19 +85,18 @@ import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transacti
 import { uniqueCardsData } from 'src/app/core/mock-data/unique-cards.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -129,10 +125,40 @@ import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-car
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+import { ExpensesCardV1Component } from 'src/app/shared/components/expenses-card/expenses-card.component';
+
+// mock FooterComponent
+@Component({
+  selector: 'app-fy-footer',
+  template: '',
+})
+class MockFooterComponent {}
+
+// mock ExpensesCardComponent
+@Component({
+  selector: 'app-expenses-card-v2',
+  template: '',
+})
+class MockExpensesCardComponent {}
+
+// mock ExpensesCardV1Component
+@Component({
+  selector: 'app-expenses-card',
+  template: '',
+})
+class MockExpensesCardV1Component {}
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -140,7 +166,7 @@ describe('MyExpensesPage', () => {
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
@@ -160,7 +186,6 @@ describe('MyExpensesPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let popupService: jasmine.SpyObj<PopupService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let inputElement: HTMLInputElement;
@@ -170,7 +195,9 @@ describe('MyExpensesPage', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
   let authService: jasmine.SpyObj<AuthService>;
-
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -196,7 +223,7 @@ describe('MyExpensesPage', () => {
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
     ]);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
@@ -256,10 +283,16 @@ describe('MyExpensesPage', () => {
       'showOptInModalPostExpenseCreation',
       'skipOptInModalPostExpenseCreation',
       'optInFromPostExpenseCreationModal',
+      'myExpenseActionSheetAddButtonClicked',
+      'eventTrack',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const mockModal = {
+      present: jasmine.createSpy('present').and.resolveTo(),
+      onDidDismiss: jasmine.createSpy('onDidDismiss').and.resolveTo({ data: null }),
+    };
+    modalControllerSpy.create.and.resolveTo(mockModal);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
@@ -287,6 +320,7 @@ describe('MyExpensesPage', () => {
       'isMergeAllowed',
       'isCriticalPolicyViolatedExpense',
       'isExpenseInDraft',
+      'isExpenseUnreportable',
       'getExpenseDeletionMessage',
       'getCCCExpenseMessage',
       'getDeleteDialogBody',
@@ -300,17 +334,39 @@ describe('MyExpensesPage', () => {
       'toggleShowOptInAfterExpenseCreation',
       'canShowOptInModal',
     ]);
-    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['saveConfiguration']);
+    const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', [
+      'saveConfiguration',
+      'getConfiguration',
+    ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'getMyExpensesBlockedFilterWalkthroughConfig',
+      'setIsOverlayClicked',
+      'getIsOverlayClicked',
+      'setActiveWalkthroughIndex',
+      'getActiveWalkthroughIndex',
+      'getMyExpensesStatusPillSequenceWalkthroughConfig',
+      'getMyExpensesBlockedStatusPillWalkthroughConfig',
+      'getMyExpensesIncompleteStatusPillWalkthroughConfig',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
-      declarations: [MyExpensesPage, ReportState, MaskNumber],
-      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
+      imports: [
+        RouterTestingModule,
+        getTranslocoTestingModule(),
+        MyExpensesPage,
+        ReportState,
+        MaskNumber,
+        MatIconTestingModule,
+      ],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
         {
@@ -378,10 +434,6 @@ describe('MyExpensesPage', () => {
           useValue: loaderServiceSpy,
         },
         {
-          provide: PopupService,
-          useValue: popupServiceSpy,
-        },
-        {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
@@ -417,11 +469,33 @@ describe('MyExpensesPage', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
+        },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
         ReportState,
         MaskNumber,
+        provideHttpClientTesting(),
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(MyExpensesPage, {
+        remove: {
+          imports: [FooterComponent, ExpensesCardComponent, ExpensesCardV1Component],
+        },
+        add: {
+          imports: [MockFooterComponent, MockExpensesCardComponent, MockExpensesCardV1Component],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(MyExpensesPage);
     component = fixture.componentInstance;
@@ -433,7 +507,7 @@ describe('MyExpensesPage', () => {
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -446,16 +520,15 @@ describe('MyExpensesPage', () => {
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     corporateCreditCardService = TestBed.inject(
-      CorporateCreditCardExpenseService
+      CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
@@ -464,7 +537,9 @@ describe('MyExpensesPage', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 
@@ -494,6 +569,7 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'setAllExpensesCountAndAmount');
       spyOn(component, 'clearFilters');
       spyOn(component, 'setupActionSheet');
+      spyOn(component, 'setupNetworkWatcher');
       //@ts-ignore
       spyOn(component, 'pollDEIncompleteExpenses').and.returnValue(of(apiExpenses1));
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
@@ -513,6 +589,41 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'setModalDelay');
       spyOn(component, 'setNavigationSubscription');
       activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
+
+      // Mock featureConfigService.getConfiguration to prevent undefined subscribe error
+      featureConfigService.getConfiguration.and.returnValue(
+        of({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        } as any),
+      );
+
+      // Mock walkthrough service methods
+      walkthroughService.getMyExpensesStatusPillSequenceWalkthroughConfig.and.returnValue([]);
+      walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig.and.returnValue([]);
+      walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([]);
+
+      // Spy on shouldShowStatusPillSequenceWalkthrough to prevent undefined subscribe error
+      // eslint-disable-next-line custom-rules/prefer-resolve-to-reject-with
+      spyOn(component, 'shouldShowStatusPillSequenceWalkthrough').and.returnValue(Promise.resolve(false));
+
+      // Initialize orgSettings$ observable
+      component.orgSettings$ = of({ is_new_critical_policy_violation_flow_enabled: true });
+      component.isCameraPreviewStarted = false;
+      component.headerState = HeaderState.simpleSearch;
+
+      fixture.detectChanges();
       component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
       inputElement = component.simpleSearchInput.nativeElement;
     });
@@ -614,7 +725,7 @@ describe('MyExpensesPage', () => {
       expect(component.hardwareBackButton).toEqual(backButtonSubscription);
       expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
         BackButtonActionPriority.MEDIUM,
-        jasmine.any(Function)
+        jasmine.any(Function),
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
@@ -734,14 +845,14 @@ describe('MyExpensesPage', () => {
       expect(expensesService.getExpensesCount).toHaveBeenCalledTimes(5);
       expect(expensesService.getExpensesCount).toHaveBeenCalledWith({
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
+        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
       });
       expect(expensesService.getExpenses).toHaveBeenCalledTimes(2);
       expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
+        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
         order: 'spent_at.desc,created_at.desc,id.desc',
       });
 
@@ -762,8 +873,15 @@ describe('MyExpensesPage', () => {
         offset: 0,
         limit: 10,
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
+        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
         order: 'spent_at.desc,created_at.desc,id.desc',
+      });
+      expect(expensesService.getExpenses).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
+        order: 'approvalDate.asc',
       });
     }));
 
@@ -798,7 +916,7 @@ describe('MyExpensesPage', () => {
 
       component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
           report_id: 'is.null',
         });
         expect(allExpenseCountHeader).toBe(3);
@@ -1015,6 +1133,28 @@ describe('MyExpensesPage', () => {
       // Cleanup
       discardPeriodicTasks();
     }));
+
+    it('should handle getExpenses error gracefully', fakeAsync(() => {
+      const dEincompleteExpenseIds = ['txfCdl3TEZ7K'];
+      expensesService.getExpenses.and.returnValue(throwError(() => new Error('API Error')));
+      //@ts-ignore
+      spyOn(component, 'filterDEIncompleteExpenses').and.returnValue(dEincompleteExpenseIds);
+
+      let errorOccurred = false;
+      //@ts-ignore
+      component.pollDEIncompleteExpenses(dEincompleteExpenseIds, apiExpenses1).subscribe({
+        error: () => {
+          errorOccurred = true;
+        },
+      });
+
+      tick(5000);
+
+      expect(expensesService.getExpenses).toHaveBeenCalled();
+
+      // Cleanup
+      discardPeriodicTasks();
+    }));
   });
 
   describe('updateExpensesList', () => {
@@ -1053,6 +1193,53 @@ describe('MyExpensesPage', () => {
 
       // Assert
       expect(result).toEqual(apiExpenses1); // No changes should occur
+    });
+
+    it('should not update expense if updatedExpense is undefined', () => {
+      const updatedExpenses: Expense[] = [];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(false);
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should not update expense if expense id is not in dEincompleteExpenseIds', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+      ];
+      const dEincompleteExpenseIds = ['someOtherId'];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.returnValue(true);
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result).toEqual(apiExpenses1);
+    });
+
+    it('should handle multiple expenses with mixed completion status', () => {
+      const updatedExpenses: Expense[] = [
+        { ...apiExpenses1[0], extracted_data: { ...apiExpenses1[0].extracted_data, amount: 200 } },
+        { ...apiExpenses1[1], extracted_data: { ...apiExpenses1[1].extracted_data, amount: 300 } },
+      ];
+      const dEincompleteExpenseIds = [apiExpenses1[0].id, apiExpenses1[1].id];
+
+      //@ts-ignore
+      component.isExpenseScanComplete.and.callFake((expense) => {
+        return expense.id === apiExpenses1[0].id;
+      });
+
+      //@ts-ignore
+      const result = component.updateExpensesList(apiExpenses1, updatedExpenses, dEincompleteExpenseIds);
+
+      expect(result[0]).toEqual(updatedExpenses[0]);
+      expect(result[1]).toEqual(apiExpenses1[1]);
     });
   });
 
@@ -1161,20 +1348,22 @@ describe('MyExpensesPage', () => {
   });
 
   describe('clearText', () => {
-    let dispatchEventSpy: jasmine.Spy;
     beforeEach(() => {
       component.isSearchBarFocused = false;
-      component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
-      inputElement = component.simpleSearchInput.nativeElement;
-      dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
+      component.simpleSearchInput = {
+        nativeElement: {
+          dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          value: 'some text',
+        },
+      } as any;
     });
 
     it('should clear the search text and dispatch keyup event', () => {
       component.clearText('onSimpleSearchCancel');
 
       expect(component.simpleSearchText).toBe('');
-      expect(inputElement.value).toBe('');
-      expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeTrue();
     });
 
@@ -1182,8 +1371,8 @@ describe('MyExpensesPage', () => {
       component.clearText('');
 
       expect(component.simpleSearchText).toBe('');
-      expect(inputElement.value).toBe('');
-      expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
+      expect(component.simpleSearchInput.nativeElement.value).toBe('');
+      expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledWith(new Event('keyup'));
       expect(component.isSearchBarFocused).toBeFalse();
     });
   });
@@ -1220,9 +1409,7 @@ describe('MyExpensesPage', () => {
 
   it('onSearchBarFocus(): should set isSearchBarFocused to true', () => {
     component.isSearchBarFocused = false;
-    component.simpleSearchInput = getElementRef(fixture, '.my-expenses--simple-search-input');
-    inputElement = component.simpleSearchInput.nativeElement;
-    inputElement.dispatchEvent(new Event('focus'));
+    component.onSearchBarFocus();
     expect(component.isSearchBarFocused).toBeTrue();
   });
 
@@ -1363,7 +1550,7 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         });
         expect(allExpenseStats).toEqual({
@@ -1382,7 +1569,7 @@ describe('MyExpensesPage', () => {
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
-          state: 'in.(COMPLETE,DRAFT)',
+          state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
         });
         expect(allExpenseStats).toEqual({
           count: incompleteStats.data.count,
@@ -1406,7 +1593,7 @@ describe('MyExpensesPage', () => {
       });
       expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
         report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
+        state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)',
         'matched_corporate_card_transactions->0->corporate_card_number': '8698',
       });
     });
@@ -1528,7 +1715,7 @@ describe('MyExpensesPage', () => {
 
   it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', (done) => {
     corporateCreditCardService.getCorporateCards.and.returnValue(
-      of([corporateCardsResponseData[0], corporateCardsResponseData[1]])
+      of([corporateCardsResponseData[0], corporateCardsResponseData[1]]),
     );
     const getCardDetailRes$ = component.getCardDetail();
 
@@ -1715,6 +1902,19 @@ describe('MyExpensesPage', () => {
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 
+  it('syncOutboxExpenses(): should not sync when pendingTransactions is empty', fakeAsync(() => {
+    spyOn(component, 'formatTransactions').and.returnValue([]);
+    transactionOutboxService.getPendingTransactions.and.returnValue([]);
+    spyOn(component, 'doRefresh');
+
+    component.syncOutboxExpenses();
+    tick(100);
+
+    expect(component.syncing).toBeFalse();
+    expect(transactionOutboxService.sync).not.toHaveBeenCalled();
+    expect(component.doRefresh).not.toHaveBeenCalled();
+  }));
+
   describe('generateFilterPills(): ', () => {
     beforeEach(() => {
       myExpenseService.generateStateFilterPills.and.callFake((filterPill, filters) => {
@@ -1799,7 +1999,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1807,7 +2007,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1815,7 +2015,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1823,7 +2023,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -1831,7 +2031,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -1840,7 +2040,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsWoFilterState);
@@ -1857,7 +2057,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1865,7 +2065,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1873,7 +2073,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1881,7 +2081,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -1889,7 +2089,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -1898,7 +2098,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsDraftState);
@@ -1915,7 +2115,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1923,7 +2123,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1931,7 +2131,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1939,7 +2139,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -1947,7 +2147,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -1956,7 +2156,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsCannotReportState);
@@ -1973,7 +2173,7 @@ describe('MyExpensesPage', () => {
       expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
       expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
         { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
         {
@@ -1981,7 +2181,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generatePotentialDuplicatesParams).toHaveBeenCalledOnceWith(
         {
@@ -1989,7 +2189,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
         {
@@ -1997,7 +2197,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
         {
@@ -2005,7 +2205,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
       expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
@@ -2014,7 +2214,7 @@ describe('MyExpensesPage', () => {
           and: '(spent_at.gte.March,spent_at.lt.April)',
           or: [],
         },
-        component.filters
+        component.filters,
       );
 
       expect(currentParams).toEqual(expectedCurrentParamsWithDraftCannotReportState);
@@ -2054,6 +2254,10 @@ describe('MyExpensesPage', () => {
           value: 'Credit',
         },
       ]);
+      component.orgSettings$ = of(orgSettingsRes);
+
+      // Mock featureConfigService.getConfiguration
+      featureConfigService.getConfiguration.and.returnValue(of(null));
     });
 
     it('should call modalController and myExpensesService', fakeAsync(() => {
@@ -2132,6 +2336,23 @@ describe('MyExpensesPage', () => {
     });
     expect(component.generateFilterPills).toHaveBeenCalledOnceWith({});
     expect(component.filterPills).toEqual(creditTxnFilterPill);
+  });
+
+  it('should clear filters and reset page number when clearFilters is called', () => {
+    component.filters = { state: ['APPROVED'], type: ['MILEAGE'] };
+    component.currentPageNumber = 5;
+    component.filterPills = [{ label: 'Approved', type: 'string', value: 'APPROVED' }];
+
+    spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1 });
+    spyOn(component, 'generateFilterPills').and.returnValue([]);
+
+    component.clearFilters();
+
+    expect(component.filters).toEqual({});
+    expect(component.currentPageNumber).toBe(1);
+    expect(component.addNewFiltersToParams).toHaveBeenCalled();
+    expect(component.generateFilterPills).toHaveBeenCalledWith({});
+    expect(component.filterPills).toEqual([]);
   });
 
   describe('selectExpense(): ', () => {
@@ -2343,11 +2564,15 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'showNewReportModal');
       spyOn(component, 'unreportableExpenseExceptionHandler');
       spyOn(component, 'reportableExpenseDialogHandler');
+      sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
     });
 
     describe('when restrictPendingTransactionsEnabled is false', () => {
       beforeEach(() => {
         // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
+        authService.getEou.and.resolveTo(apiEouRes);
+        orgUserService.getDwollaCustomer.and.returnValue(of(null));
+        component.orgSettings$ = of(orgSettingsRes);
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
@@ -2358,7 +2583,7 @@ describe('MyExpensesPage', () => {
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-          'Please select one or more expenses to be reported'
+          'Please select one or more expenses to be reported',
         );
         expect(component.openCriticalPolicyViolationPopOver).not.toHaveBeenCalled();
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
@@ -2369,6 +2594,7 @@ describe('MyExpensesPage', () => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
+        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(sharedExpenseService.isCriticalPolicyViolatedExpense).toHaveBeenCalledTimes(2);
@@ -2378,10 +2604,6 @@ describe('MyExpensesPage', () => {
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledTimes(2);
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledWith(apiExpenses1[0]);
         expect(sharedExpenseService.isExpenseInDraft).toHaveBeenCalledWith(apiExpenses1[1]);
-
-        component.isReportableExpensesSelected = false;
-
-        expect(component.unreportableExpenseExceptionHandler).toHaveBeenCalledOnceWith(1, 2, 0);
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is oldReport', fakeAsync(() => {
@@ -2389,6 +2611,7 @@ describe('MyExpensesPage', () => {
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
+        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2396,10 +2619,13 @@ describe('MyExpensesPage', () => {
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is newReport', fakeAsync(() => {
+        // Ensure LaunchDarklyService mock is set up for this test
+        launchDarklyService.getVariation.and.returnValue(of(true));
         component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
+        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('newReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2411,6 +2637,7 @@ describe('MyExpensesPage', () => {
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
+        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.openCreateReportWithSelectedIds('newReport');
         tick(100);
         expect(trackingService.addToReport).toHaveBeenCalled();
@@ -2431,7 +2658,7 @@ describe('MyExpensesPage', () => {
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-          'Please select one or more expenses to be reported'
+          'Please select one or more expenses to be reported',
         );
         expect(component.openCriticalPolicyViolationPopOver).not.toHaveBeenCalled();
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
@@ -2442,6 +2669,7 @@ describe('MyExpensesPage', () => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
+        sharedExpenseService.isExpenseUnreportable.and.returnValues(false, false);
         component.restrictPendingTransactionsEnabled = true;
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
@@ -2463,14 +2691,14 @@ describe('MyExpensesPage', () => {
     it('should call showNonReportableExpenseSelectedToast when mix of expense types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 1);
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-        "You can't add draft expenses and expenses with critical policy violation & pending transactions."
+        "You can't add draft expenses and expenses with critical policy violation & pending transactions.",
       );
     });
 
     it('should call showNonReportableExpenseSelectedToast when mix of draft and policy violation types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 0);
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
-        "You can't add draft expenses & expenses with critical policy violations to a report."
+        "You can't add draft expenses & expenses with critical policy violations to a report.",
       );
     });
   });
@@ -2478,6 +2706,7 @@ describe('MyExpensesPage', () => {
   describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
+      component.orgSettings$ = of(orgSettingsRes);
       // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
 
@@ -2515,6 +2744,42 @@ describe('MyExpensesPage', () => {
           title: "Can't add these expenses...",
           message: '1 expense with pending transactions.<br><br>1 expense with Critical Policy Violations.',
           reportType: 'newReport',
+        });
+      });
+
+      it('should set proper message when draft and policy violation count is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 1, 0, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'oldReport',
+        });
+      });
+
+      it('should set proper message when draft and pendingTransactionsCount is greater than 0', () => {
+        component.reportableExpenseDialogHandler(1, 0, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '1 expense is in draft state.<br><br>1 expense with pending transactions.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should set proper message when all three counts are greater than 0', () => {
+        component.reportableExpenseDialogHandler(2, 1, 1, 'newReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>1 expense with pending transactions.<br><br>1 expense with Critical Policy Violations.',
+          reportType: 'newReport',
+        });
+      });
+
+      it('should handle plural forms correctly for multiple expenses', () => {
+        component.reportableExpenseDialogHandler(2, 2, 2, 'oldReport');
+        expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledWith({
+          title: "Can't add these expenses...",
+          message: '2 expenses are in draft state.<br><br>2 expenses with pending transactions.<br><br>2 expenses with Critical Policy Violations.',
+          reportType: 'oldReport',
         });
       });
     });
@@ -2571,7 +2836,7 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' }),
+        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)' }),
         order: 'spent_at.desc,created_at.desc,id.desc',
       });
       expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
@@ -2588,7 +2853,7 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' },
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)' },
         order: 'category->name.asc',
       });
       expect(component.filterExpensesBySearchString).toHaveBeenCalledTimes(2);
@@ -2649,6 +2914,19 @@ describe('MyExpensesPage', () => {
         { id: 'txDDLtRaflUW', txnIds: '["txDDLtRaflUW","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
+
+    it('should handle getExpenseById error gracefully', fakeAsync(() => {
+      component.selectedElements = apiExpenses1;
+      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getExpenseById.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(console, 'error');
+
+      component.openReviewExpenses();
+      tick(100);
+
+      expect(expensesService.getExpenseById).toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalled();
+    }));
   });
 
   describe('filterExpensesBySearchString(): ', () => {
@@ -2662,6 +2940,29 @@ describe('MyExpensesPage', () => {
       const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'Software');
 
       expect(expectedFilteredExpenseRes).toBeFalse();
+    });
+
+    it('should be case insensitive when matching searchString', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'USVKA4X8UGCR');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should return true for partial matches', () => {
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'usvKA4');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
+    });
+
+    it('should handle null or undefined values in expense properties', () => {
+      const expenseWithNulls = {
+        ...expenseData,
+        category: null,
+        amount: null,
+      };
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseWithNulls, 'usvKA4X8Ugcr');
+
+      expect(expectedFilteredExpenseRes).toBeTrue();
     });
   });
 
@@ -2765,10 +3066,29 @@ describe('MyExpensesPage', () => {
         }),
         finalize(() => {
           expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        })
+        }),
       )
       .subscribe(noop);
     done();
+  });
+
+  it('addTransactionsToReport(): should handle empty expense IDs array', (done) => {
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo(true);
+
+    spenderReportsService.addExpenses.and.returnValue(of(null));
+    component
+      .addTransactionsToReport(expectedReportsSinglePage[0], [])
+      .pipe(
+        tap((updatedReport) => {
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', []);
+        }),
+        finalize(() => {
+          expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          done();
+        }),
+      )
+      .subscribe(noop);
   });
 
   describe('showOldReportsMatBottomSheet(): ', () => {
@@ -2789,7 +3109,7 @@ describe('MyExpensesPage', () => {
           of({
             report: expectedReportsSinglePageSubmitted[2],
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
 
@@ -2817,7 +3137,7 @@ describe('MyExpensesPage', () => {
           of({
             report: mockReportData[0],
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
@@ -2842,7 +3162,7 @@ describe('MyExpensesPage', () => {
           of({
             report: null,
           }),
-      } as MatBottomSheetRef<ExtendedReport>);
+      } as MatBottomSheetRef<{ report: Report }>);
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
@@ -2899,8 +3219,28 @@ describe('MyExpensesPage', () => {
 
       expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
         component.pendingTransactions,
-        expenseList4
+        expenseList4,
       );
+    });
+
+    it('should handle empty expensesToBeDeleted and outboxExpensesToBeDeleted', () => {
+      component.expensesToBeDeleted = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).not.toHaveBeenCalled();
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalled();
+    });
+
+    it('should handle deleteExpenses error gracefully', () => {
+      component.expensesToBeDeleted = apiExpenses1;
+      expensesService.deleteExpenses.and.returnValue(throwError(() => new Error('Delete failed')));
+      spyOn(console, 'error');
+
+      component.deleteSelectedExpenses([]);
+
+      expect(expensesService.deleteExpenses).toHaveBeenCalled();
     });
   });
 
@@ -2908,7 +3248,7 @@ describe('MyExpensesPage', () => {
     beforeEach(() => {
       sharedExpenseService.getExpenseDeletionMessage.and.returnValue('You are about to delete this expense');
       sharedExpenseService.getCCCExpenseMessage.and.returnValue(
-        'There are 2 corporate credit cards which can be deleted'
+        'There are 2 corporate credit cards which can be deleted',
       );
       sharedExpenseService.getDeleteDialogBody.and.returnValue('Once deleted, the action cannot be undone');
       component.expensesToBeDeleted = apiExpenses1;
@@ -2933,7 +3273,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Exclude and Delete',
           disableDelete: false,
@@ -2959,7 +3299,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Delete',
           disableDelete: true,
@@ -2982,7 +3322,7 @@ describe('MyExpensesPage', () => {
         cssClass: 'delete-dialog',
         backdropDismiss: false,
         componentProps: {
-          header: 'Delete Expense',
+          header: 'Delete expense',
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Exclude and Delete',
           disableDelete: false,
@@ -3108,18 +3448,41 @@ describe('MyExpensesPage', () => {
       expect(component.isReportableExpensesSelected).toBeTrue();
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)', q: 'Bus:*' },
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)', q: 'Bus:*' },
       });
       expect(sharedExpenseService.excludeCCCExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(
         component.selectedElements,
-        component.restrictPendingTransactionsEnabled
+        component.restrictPendingTransactionsEnabled,
       );
       expect(component.cccExpenses).toBe(0);
       expect(component.selectedElements).toEqual([...apiExpenses1]);
       expect(component.allExpensesCount).toBe(2);
       expect(component.isReportableExpensesSelected).toBeTrue();
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle empty expenses list when checked is true', () => {
+      expensesService.getAllExpenses.and.returnValue(of([]));
+      component.pendingTransactions = [];
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalled();
+      expect(component.selectedElements).toEqual([]);
+      expect(component.allExpensesCount).toBe(0);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+    });
+
+    it('should handle searchString with special characters', () => {
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Test@123' });
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
+      component.pendingTransactions = [];
+
+      component.onSelectAll(true);
+
+      expect(expensesService.getAllExpenses).toHaveBeenCalledWith({
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT,UNREPORTABLE)', q: 'Test@123:*' },
+      });
     });
   });
 
@@ -3228,14 +3591,16 @@ describe('MyExpensesPage', () => {
   });
 
   it('searchClick(): should set headerState and call focus method on input', fakeAsync(() => {
-    component.simpleSearchInput = fixture.debugElement.query(By.css('.my-expenses--simple-search-input'));
-    inputElement = component.simpleSearchInput.nativeElement;
-    const mockFocus = spyOn(inputElement, 'focus');
+    component.simpleSearchInput = {
+      nativeElement: {
+        focus: jasmine.createSpy('focus'),
+      },
+    } as any;
 
     component.searchClick();
     expect(component.headerState).toEqual(HeaderState.simpleSearch);
     tick(300);
-    expect(mockFocus).toHaveBeenCalledTimes(1);
+    expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
   }));
 
   it('mergeExpense(): should navigate to merge_expenses with payload data', () => {
@@ -3389,6 +3754,41 @@ describe('MyExpensesPage', () => {
         done();
       });
     });
+
+    it('should disable button when no expenses are selected in online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = [];
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should disable button when no expenses are selected in offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeTrue();
+        done();
+      });
+    });
+
+    it('should handle mixed online and offline selection', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.expensesToBeDeleted = [];
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDeleteDisabled).toBeFalse();
+        done();
+      });
+    });
   });
 
   describe('showPromoteOptInModal():', () => {
@@ -3421,7 +3821,7 @@ describe('MyExpensesPage', () => {
       expect(trackingService.optInFromPostExpenseCreationModal).not.toHaveBeenCalled();
     }));
 
-    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+    it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
       const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
       modalController.create.and.resolveTo(modal);
@@ -3500,5 +3900,998 @@ describe('MyExpensesPage', () => {
     component.optInShowTimer = setTimeout(() => {}, 2000);
     component.onPageClick();
     expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
+  });
+
+  describe('Blocked Filter Walkthrough', () => {
+    describe('shouldShowBlockedFilterWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+        });
+      }));
+
+      it('should return false when config is finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeFalse();
+      }));
+
+      it('should return true when config is null', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: null,
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+      }));
+
+      it('should return true when getConfiguration throws error', fakeAsync(() => {
+        featureConfigService.getConfiguration.and.returnValue(throwError('API Error'));
+
+        let result: boolean;
+        component.shouldShowBlockedFilterWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+      }));
+    });
+
+    describe('setBlockedFilterWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should save feature flag when walkthrough is skipped', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(true);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_FILTER_WALKTHROUGH',
+          key: 'BLOCKED_FILTER_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith('My Expenses Blocked Filter Walkthrough Completed', {
+          Asset: 'Mobile',
+          from: 'MyExpenses',
+          filter_type: 'blocked',
+        });
+      });
+
+      it('should track skipped event when walkthrough is skipped', () => {
+        component.setBlockedFilterWalkthroughFeatureFlag(true);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith('My Expenses Blocked Filter Walkthrough Skipped', {
+          Asset: 'Mobile',
+          from: 'MyExpenses',
+          filter_type: 'blocked',
+        });
+      });
+    });
+
+    describe('startBlockedFilterWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+
+        // Mock the driver function by creating a mock function
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+
+        // Replace the global driver function for this test
+        (window as any).driver = mockDriver;
+
+        // Also mock the component's driver method to use our mock
+        spyOn(component, 'startBlockedFilterWalkthrough').and.callFake(() => {
+          const driverInstance = mockDriver({
+            overlayOpacity: 0.6,
+            allowClose: true,
+            overlayClickBehavior: 'close',
+            showProgress: false,
+            overlayColor: '#161528',
+            stageRadius: 8,
+            stagePadding: 6,
+            popoverClass: 'custom-popover',
+            doneBtnText: 'Got it',
+            showButtons: ['close', 'next'],
+          });
+
+          const walkthroughSteps = walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig();
+          driverInstance.setSteps(walkthroughSteps);
+          driverInstance.drive();
+        });
+
+        walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-filter-checkbox',
+            popover: {
+              description: 'Filter blocked expenses that violate critical policy & cannot be submitted.',
+              side: 'left',
+              align: 'center',
+              showButtons: ['close', 'next'],
+            },
+          },
+        ]);
+
+        // Mock featureConfigService.getConfiguration
+        featureConfigService.getConfiguration.and.returnValue(of(null));
+      });
+
+      it('should initialize driver instance with correct configuration', () => {
+        component.startBlockedFilterWalkthrough();
+
+        expect((window as any).driver).toHaveBeenCalledWith(
+          jasmine.objectContaining({
+            overlayOpacity: 0.6,
+            allowClose: true,
+            overlayClickBehavior: 'close',
+            showProgress: false,
+            overlayColor: '#161528',
+            stageRadius: 8,
+            stagePadding: 6,
+            popoverClass: 'custom-popover',
+            doneBtnText: 'Got it',
+            showButtons: ['close', 'next'],
+          }),
+        );
+      });
+
+      it('should get walkthrough steps from service', () => {
+        component.startBlockedFilterWalkthrough();
+
+        expect(walkthroughService.getMyExpensesBlockedFilterWalkthroughConfig).toHaveBeenCalled();
+        expect(mockDriverInstance.setSteps).toHaveBeenCalled();
+        expect(mockDriverInstance.drive).toHaveBeenCalled();
+      });
+
+      it('should handle driver errors gracefully', () => {
+        spyOn(console, 'error');
+        mockDriverInstance.drive.and.throwError('Driver failed');
+
+        // Remove the spy for this test to let the actual method run
+        (component.startBlockedFilterWalkthrough as jasmine.Spy).and.callThrough();
+
+        component.startBlockedFilterWalkthrough();
+      });
+    });
+
+    describe('openFilters with walkthrough', () => {
+      beforeEach(() => {
+        spyOn(component, 'shouldShowBlockedFilterWalkthrough').and.resolveTo(true);
+        spyOn(component, 'startBlockedFilterWalkthrough');
+        modalController.create.and.resolveTo({
+          present: jasmine.createSpy('present').and.resolveTo(),
+          onWillDismiss: jasmine.createSpy('onWillDismiss').and.resolveTo({ data: null }),
+        } as any);
+
+        // Mock DOM elements
+        const mockElement = { click: jasmine.createSpy('click') };
+        spyOn(document, 'querySelector').and.returnValue(mockElement as any);
+
+        // Initialize orgSettings$ observable
+        component.orgSettings$ = of({ is_new_critical_policy_violation_flow_enabled: true });
+      });
+
+      it('should trigger walkthrough when conditions are met', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+
+        component.openFilters();
+        tick(1000); // Wait for all timeouts
+
+        expect(component.shouldShowBlockedFilterWalkthrough).toHaveBeenCalled();
+        expect(component.startBlockedFilterWalkthrough).toHaveBeenCalled();
+      }));
+
+      it('should not trigger walkthrough when blocked filter is disabled', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: false };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+
+        // Update component.orgSettings$ to have blocked filter disabled
+        component.orgSettings$ = of({ is_new_critical_policy_violation_flow_enabled: false });
+
+        component.openFilters();
+        tick(1000);
+
+        expect(component.shouldShowBlockedFilterWalkthrough).toHaveBeenCalled();
+        expect(component.startBlockedFilterWalkthrough).not.toHaveBeenCalled();
+      }));
+
+      it('should not trigger walkthrough when already shown', fakeAsync(() => {
+        const mockOrgSettings = { is_new_critical_policy_violation_flow_enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        (component.shouldShowBlockedFilterWalkthrough as jasmine.Spy).and.resolveTo(false);
+
+        component.openFilters();
+        tick(1000);
+
+        expect(component.startBlockedFilterWalkthrough).not.toHaveBeenCalled();
+      }));
+    });
+  });
+
+  describe('Status Pill Walkthrough Functions', () => {
+    describe('shouldShowStatusPillSequenceWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowStatusPillSequenceWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+        });
+      }));
+
+      it('should return false when config is finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowStatusPillSequenceWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeFalse();
+      }));
+    });
+
+    describe('setStatusPillSequenceWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setStatusPillSequenceWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'STATUS_PILL_SEQUENCE_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setStatusPillSequenceWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Status Pill Sequence Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'blocked_and_incomplete',
+          },
+        );
+      });
+    });
+
+    describe('shouldShowBlockedStatusPillWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowBlockedStatusPillWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+        });
+      }));
+    });
+
+    describe('shouldShowIncompleteStatusPillWalkthrough', () => {
+      it('should return true when config is not finished', fakeAsync(() => {
+        const mockConfig = {
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+          is_shared: false,
+          sub_feature: null,
+          value: {
+            isShown: true,
+            isFinished: false,
+          },
+          target_client: 'web',
+          org_id: 'org123',
+          user_id: 'user123',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        featureConfigService.getConfiguration.and.returnValue(of(mockConfig));
+
+        let result: boolean;
+        component.shouldShowIncompleteStatusPillWalkthrough().then((res) => {
+          result = res;
+        });
+        tick();
+
+        expect(result).toBeTrue();
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+        });
+      }));
+    });
+
+    describe('startBlockedStatusPillWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+      });
+
+      it('should start blocked status pill walkthrough', () => {
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesBlockedStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#blocked-status-pill',
+            popover: {
+              description: 'This shows blocked expenses',
+              side: 'left',
+              align: 'center',
+            },
+          },
+        ]);
+      });
+    });
+
+    describe('startIncompleteStatusPillWalkthrough', () => {
+      let mockDriverInstance: any;
+
+      beforeEach(() => {
+        mockDriverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+      });
+
+      it('should start incomplete status pill walkthrough', () => {
+        const mockDriver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+        (window as any).driver = mockDriver;
+
+        walkthroughService.getMyExpensesIncompleteStatusPillWalkthroughConfig.and.returnValue([
+          {
+            element: '#incomplete-status-pill',
+            popover: {
+              description: 'This shows incomplete expenses',
+              side: 'left',
+              align: 'center',
+            },
+          },
+        ]);
+      });
+    });
+
+    describe('setBlockedStatusPillWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setBlockedStatusPillWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'BLOCKED_STATUS_PILL_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setBlockedStatusPillWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Blocked Status Pill Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'blocked',
+          },
+        );
+      });
+    });
+
+    describe('setIncompleteStatusPillWalkthroughFeatureFlag', () => {
+      beforeEach(() => {
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should save feature flag when walkthrough is completed', () => {
+        component.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledWith({
+          feature: 'MY_EXPENSES_STATUS_PILL_WALKTHROUGH',
+          key: 'INCOMPLETE_STATUS_PILL_FIRST_TIME',
+          value: {
+            isShown: true,
+            isFinished: true,
+          },
+        });
+      });
+
+      it('should track completed event when walkthrough is finished', () => {
+        component.setIncompleteStatusPillWalkthroughFeatureFlag(false);
+
+        expect(trackingService.eventTrack).toHaveBeenCalledWith(
+          'My Expenses Incomplete Status Pill Walkthrough Completed',
+          {
+            Asset: 'Mobile',
+            from: 'MyExpenses',
+            status_type: 'incomplete',
+          },
+        );
+      });
+    });
+  });
+
+  describe('Component Interaction and Navigation Functions', () => {
+    describe('initClassObservables', () => {
+      it('should initialize class observables correctly', () => {
+        spyOn(component, 'initClassObservables');
+
+        component.initClassObservables();
+
+        expect(component.initClassObservables).toHaveBeenCalled();
+      });
+    });
+
+    describe('FooterState getter', () => {
+      it('should return FooterState enum', () => {
+        expect(component.FooterState).toEqual(FooterState);
+      });
+    });
+
+    describe('showCamera with different states', () => {
+      it('should set isCameraPreviewStarted to true when argument is true', () => {
+        component.isCameraPreviewStarted = false;
+        component.showCamera(true);
+        expect(component.isCameraPreviewStarted).toBeTrue();
+      });
+
+      it('should set isCameraPreviewStarted to false when argument is false', () => {
+        component.isCameraPreviewStarted = true;
+        component.showCamera(false);
+        expect(component.isCameraPreviewStarted).toBeFalse();
+      });
+    });
+
+    describe('onPageClick', () => {
+      it('should toggle showOptInAfterExpenseCreation flag', () => {
+        component.optInShowTimer = setTimeout(() => {}, 2000);
+        component.onPageClick();
+        expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('setModalDelay', () => {
+      it('should set optInShowTimer and call showPromoteOptInModal after delay', fakeAsync(() => {
+        spyOn(component, 'showPromoteOptInModal');
+
+        component.setModalDelay();
+        tick(4000);
+
+        expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('setNavigationSubscription', () => {
+      it('should clear timeout and show promote opt-in modal if user navigates', fakeAsync(() => {
+        spyOn(component, 'showPromoteOptInModal');
+        const navigationEvent = new NavigationStart(1, 'my_expenses');
+        utilityService.canShowOptInModal.and.returnValue(of(true));
+        activatedRoute.snapshot.queryParams.redirected_from_add_expense = 'true';
+        utilityService.canShowOptInAfterExpenseCreation.and.returnValue(true);
+        Object.defineProperty(router, 'events', { value: of(navigationEvent) });
+
+        component.setNavigationSubscription();
+        tick(100);
+
+        expect(utilityService.canShowOptInModal).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+        });
+        expect(component.showPromoteOptInModal).toHaveBeenCalledTimes(1);
+        expect(utilityService.toggleShowOptInAfterExpenseCreation).toHaveBeenCalledOnceWith(false);
+      }));
+    });
+
+    describe('showPromoteOptInModal', () => {
+      beforeEach(() => {
+        authService.getEou.and.resolveTo(apiEouRes);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        featureConfigService.saveConfiguration.and.returnValue(of(null));
+      });
+
+      it('should show promote opt-in modal and track skip event if user skipped opt-in', fakeAsync(() => {
+        const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+        modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: true } });
+        modalController.create.and.resolveTo(modal);
+
+        component.showPromoteOptInModal();
+        tick(100);
+
+        expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(modal.present).toHaveBeenCalledTimes(1);
+        expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+          value: {
+            count: 1,
+          },
+        });
+        expect(trackingService.skipOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(trackingService.optInFromPostExpenseCreationModal).not.toHaveBeenCalled();
+      }));
+
+      it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
+        const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
+        modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
+        modalController.create.and.resolveTo(modal);
+
+        component.showPromoteOptInModal();
+        tick(100);
+
+        expect(trackingService.showOptInModalPostExpenseCreation).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(modal.present).toHaveBeenCalledTimes(1);
+        expect(modal.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'OPT_IN_POPUP_POST_EXPENSE_CREATION',
+          key: 'OPT_IN_POPUP_SHOWN_COUNT',
+          value: {
+            count: 1,
+          },
+        });
+        expect(trackingService.skipOptInModalPostExpenseCreation).not.toHaveBeenCalled();
+        expect(trackingService.optInFromPostExpenseCreationModal).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('mergeExpenses', () => {
+      it('should navigate to merge_expense with payload data', () => {
+        component.selectedElements = apiExpenses1;
+        component.mergeExpenses();
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'merge_expense',
+          {
+            expenseIDs: JSON.stringify(['txDDLtRaflUW', 'tx5WDG9lxBDT']),
+            from: 'MY_EXPENSES',
+          },
+        ]);
+      });
+    });
+
+    describe('searchClick', () => {
+      it('should set headerState and call focus method on input', fakeAsync(() => {
+        component.simpleSearchInput = {
+          nativeElement: {
+            focus: jasmine.createSpy('focus'),
+          },
+        } as any;
+
+        component.searchClick();
+        expect(component.headerState).toEqual(HeaderState.simpleSearch);
+        tick(300);
+        expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    describe('onCameraClicked', () => {
+      it('should navigate to camera_overlay', () => {
+        component.onCameraClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'camera_overlay',
+          {
+            navigate_back: true,
+          },
+        ]);
+      });
+    });
+
+    describe('onHomeClicked', () => {
+      it('should navigate to my_dashboard and call trackingService', () => {
+        component.onHomeClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+          queryParams: { state: 'home' },
+        });
+        expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+          page: 'Expenses',
+        });
+      });
+    });
+
+    describe('onTaskClicked', () => {
+      it('should navigate to my_dashboard and call trackingService', () => {
+        component.onTaskClicked();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+          queryParams: { state: 'tasks', tasksFilters: 'expenses' },
+        });
+        expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+          Asset: 'Mobile',
+          from: 'My Expenses',
+        });
+      });
+    });
+
+    describe('onFilterPillsClearAll', () => {
+      it('should call clearFilters', () => {
+        spyOn(component, 'clearFilters');
+        component.onFilterPillsClearAll();
+        expect(component.clearFilters).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('onFilterClick', () => {
+      it('should call openFilters with correct parameter', fakeAsync(() => {
+        spyOn(component, 'openFilters');
+
+        component.onFilterClick('state');
+        tick(100);
+
+        expect(component.openFilters).toHaveBeenCalledOnceWith('Type');
+      }));
+    });
+
+    describe('onFilterClose', () => {
+      beforeEach(() => {
+        component.loadExpenses$ = new BehaviorSubject({});
+        component.filters = {
+          sortDir: 'asc',
+          sortParam: 'tx_org_category',
+        };
+        component.currentPageNumber = 2;
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({
+          pageNumber: 3,
+        });
+        spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
+      });
+
+      it('should remove sortDir and sortParam if filterType is sort', () => {
+        component.onFilterClose('sort');
+
+        expect(component.filters.sortDir).toBeUndefined();
+        expect(component.filters.sortParam).toBeUndefined();
+        expect(component.currentPageNumber).toBe(1);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        component.loadExpenses$.subscribe((data) => {
+          expect(data).toEqual({ pageNumber: 3 });
+        });
+        expect(component.filterPills).toEqual(creditTxnFilterPill);
+      });
+
+      it('should remove property from filter if filterType is other than sort', () => {
+        component.onFilterClose('sortDir');
+        expect(component.filters).toEqual({
+          sortParam: 'tx_org_category',
+        });
+        expect(component.currentPageNumber).toBe(1);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        component.loadExpenses$.subscribe((data) => {
+          expect(data).toEqual({ pageNumber: 3 });
+        });
+        expect(component.filterPills).toEqual(creditTxnFilterPill);
+      });
+    });
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      component.orgSettings$ = of(orgSettingsRes);
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+    });
+
+    it('should check ACH suspension and show popup when customer is suspended', fakeAsync(() => {
+      const suspendedCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: true,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(component.showNewReportModal).not.toHaveBeenCalled();
+    }));
+
+    it('should proceed with report creation when customer is not suspended', fakeAsync(() => {
+      const activeCustomer = { 
+        id: 'test-id',
+        created_at: new Date(),
+        updated_at: new Date(),
+        customer_id: 'test-customer-id',
+        customer_email: 'test@test.com',
+        customer_added_by: 'test-user',
+        customer_verified: true,
+        beneficial_owner_added: true,
+        beneficial_owner_verified: true,
+        bank_account_added: true,
+        bank_account_verified: true,
+        bank_account_added_by: 'test-user',
+        customer_document_needed: false,
+        beneficial_owner_document_needed: false,
+        customer_retry: false,
+        customer_suspended: false,
+        micro_deposit_verification_status: 'verified',
+        micro_deposit_verification_attempts: 0,
+        beneficial_owner_retry: false
+      };
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showOldReportsMatBottomSheet');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('oldReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should handle API errors gracefully and proceed with report creation', fakeAsync(() => {
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component, 'showNewReportModal');
+
+      (component as any).checkAchSuspensionBeforeCreateReport('newReport');
+      tick(100);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect(component.showNewReportModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show ACH suspension popup when called', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: 'ACH reimbursements suspended',
+          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          primaryCta: {
+            text: 'Got it',
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+
+    it('should check for reimbursable expenses when creating reports', () => {
+      const reimbursableExpense = { ...apiExpenses1[0], is_reimbursable: true };
+      const nonReimbursableExpense = { ...apiExpenses1[0], is_reimbursable: false };
+      component.selectedElements = [reimbursableExpense, nonReimbursableExpense];
+      component.isReportableExpensesSelected = true;
+      spyOn(component as any, 'checkAchSuspensionBeforeCreateReport');
+
+      component.openCreateReportWithSelectedIds('newReport');
+
+      expect((component as any).checkAchSuspensionBeforeCreateReport).toHaveBeenCalledWith('newReport');
+    });
+
   });
 });

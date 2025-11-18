@@ -1,25 +1,34 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { IonContent, IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-verify',
   templateUrl: './verify.page.html',
   styleUrls: ['./verify.page.scss'],
+  imports: [
+    IonContent,
+    IonIcon
+  ],
 })
 export class VerifyPage implements OnInit {
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private routerAuthService: RouterAuthService,
-    private authService: AuthService,
-    private router: Router,
-    private trackingService: TrackingService,
-    private userEventService: UserEventService
-  ) {}
+  private activatedRoute = inject(ActivatedRoute);
+
+  private routerAuthService = inject(RouterAuthService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private trackingService = inject(TrackingService);
+
+  private userEventService = inject(UserEventService);
 
   ngOnInit(): void {
     const verificationCode = this.activatedRoute.snapshot.params.verification_code as string;
@@ -30,7 +39,7 @@ export class VerifyPage implements OnInit {
         tap((eou) => {
           this.trackingService.emailVerified();
           this.trackingService.onSignin(eou.us.id);
-        })
+        }),
       )
       .subscribe({
         next: () => this.router.navigate(['/', 'auth', 'switch_org', { invite_link: true }]),

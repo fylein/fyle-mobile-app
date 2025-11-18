@@ -1,4 +1,4 @@
-@import '../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 
 .spender-onboarding-container {
   height: 100%;
@@ -9,7 +9,7 @@
 }
 
 .spender-onboarding {
-  background: $border-info-lighter;
+  background: colors.$background;
   height: 100%;
   padding-top: 20px;
   display: flex;
@@ -38,8 +38,8 @@
   &__step-tracker {
     padding: 24px 20px;
     border-radius: 32px 32px 0px 0px;
-    border: 1px solid $border-info-lighter;
-    background: $pure-white;
+    border: 1px solid colors.$border-info-lighter;
+    background: colors.$pure-white;
     box-shadow: -14px -6px 24px 0px #00000008;
     height: 100%;
     display: flex;
@@ -61,7 +61,7 @@
     display: flex;
     gap: 12px;
     align-items: flex-start;
-    color: $dark-grey;
+    color: colors.$dark-grey;
     line-height: 1.4;
     padding: 0 24px;
     margin: 12px 0 32px 0;
@@ -84,12 +84,12 @@
   }
 
   &__menubutton {
-    color: $pure-black;
+    color: colors.$pure-black;
   }
 
   &__title {
     line-height: 1.3;
-    color: $pure-black;
+    color: colors.$pure-black;
   }
 
   &__zero-state {
@@ -100,7 +100,7 @@
   }
 
   &__skip-cta {
-    color: $blue-black;
+    color: colors.$brand-primary;
     text-align: center;
     font-size: 14px;
     font-style: normal;
@@ -136,19 +136,19 @@
   &__redirection-loader {
     &__icon {
       @include loader;
-      fill: $brand-primary;
+      fill: colors.$brand-primary;
       height: 40px;
       width: 40px;
     }
 
     &__text {
       margin-top: 8px;
-      color: $black;
+      color: colors.$black;
     }
   }
 
   &__header-text {
-    color: $black;
+    color: colors.$black;
     font-size: 24px;
     font-style: normal;
     font-weight: 600;
@@ -158,7 +158,7 @@
   }
 
   &__description-text {
-    color: $black;
+    color: colors.$black;
     font-size: 14px;
     font-style: normal;
     line-height: 1.4;

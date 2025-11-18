@@ -4,11 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { NavController } from '@ionic/angular';
-import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarRef as MatSnackBarRef,
-} from '@angular/material/legacy-snack-bar';
+import { NavController } from '@ionic/angular/standalone';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -16,8 +13,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
-import { expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { BehaviorSubject, Observable, Subscription, of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   optionsData10,
   optionsData11,
@@ -59,9 +55,9 @@ import {
   mergeExpenseFormData4,
   mergeExpenseFormData5,
 } from 'src/app/core/mock-data/merge-expense-form-data.data';
-import { dependentCustomFields } from 'src/app/core/mock-data/expense-field.data';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses3, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
 export function TestCases2(getTestBed) {
   return describe('test cases set 2', () => {
@@ -100,7 +96,7 @@ export function TestCases2(getTestBed) {
       formBuilder = TestBed.inject(UntypedFormBuilder);
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       component.fg = formBuilder.group({
-        target_txn_id: [, Validators.required],
+        target_expense_id: [, Validators.required],
         genericFields: [],
         categoryDependent: [],
         custom_inputs: [],
@@ -110,19 +106,19 @@ export function TestCases2(getTestBed) {
     describe('onExpenseChanged(): ', () => {
       beforeEach(() => {
         component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
-        component.expenses = cloneDeep(expenseList2);
+        component.expenses = cloneDeep(apiExpenses3);
         mergeExpensesService.getFieldValueOnChange.and.returnValues(
-          'tx3nHShG60zq',
+          apiExpenses3[1].id,
           new Date('2023-03-13T11:30:00.000Z'),
-          'PERSONAL_ACCOUNT',
+          'PERSONAL_CASH_ACCOUNT',
           '3943',
           false,
           207484,
           'Nilesh As Vendor',
-          'tgXEJA6YUoZ1',
+          'tgFDWBpJL3vy',
           0.01,
           '213',
-          'Outing'
+          'Outing',
         );
       });
 
@@ -143,40 +139,40 @@ export function TestCases2(getTestBed) {
       });
 
       it('should update receipts_from to undefined if tx_file_ids is empty', () => {
-        component.expenses[1].tx_file_ids = [];
+        component.expenses[1].file_ids = [];
         component.onExpenseChanged(1);
         expect(component.fg.controls.genericFields.value.receipts_from).toBeUndefined();
       });
 
       it('should set receipts_from to null if touchedGenericFields includes receipts_from', () => {
         component.touchedGenericFields = ['receipts_from'];
-        component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
+        component.expenses[1].file_ids = ['fiGLwwPtYD8X'];
         component.onExpenseChanged(1);
         expect(component.fg.controls.genericFields.value.receipts_from).toBeNull();
       });
 
       it('should set receipts_from to tx_id if tx_file_ids is not empty and touchedGenericFields is undefined', () => {
-        component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
+        component.expenses[1].file_ids = ['fiGLwwPtYD8X'];
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.receipts_from).toEqual('tx3nHShG60zq');
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(apiExpenses3[1].id);
       });
 
       it('should set receipts_from to tx_id if tx_file_ids is not empty and receipts_from field is not touched in the form', () => {
-        component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
+        component.expenses[1].file_ids = ['fiGLwwPtYD8X'];
         component.touchedGenericFields = ['dateOfSpend', 'paymentMode'];
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.receipts_from).toEqual('tx3nHShG60zq');
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(apiExpenses3[1].id);
       });
 
       it('should call getFieldValueOnChange for updating amount with correct arguments', () => {
         component.touchedGenericFields = ['amount'];
         component.genericFieldsForm.patchValue({ amount: 99 });
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.amount).toEqual('tx3nHShG60zq');
+        expect(component.fg.controls.genericFields.value.amount).toEqual(apiExpenses3[1].id);
         const amountCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(0);
         expect(amountCall[0]).toEqual(optionsData3);
         expect(amountCall[1]).toBeTrue();
-        expect(amountCall[2]).toEqual('tx3nHShG60zq');
+        expect(amountCall[2]).toEqual(apiExpenses3[1].id);
         expect(amountCall[3]).toEqual(99);
       });
 
@@ -188,20 +184,20 @@ export function TestCases2(getTestBed) {
         const dateOfSpendCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(1);
         expect(dateOfSpendCall[0]).toEqual(optionsData6);
         expect(dateOfSpendCall[1]).toBeFalse();
-        expect(dateOfSpendCall[2]).toEqual(new Date('2021-07-29T06:30:00.000Z'));
+        expect(dateOfSpendCall[2]).toEqual(apiExpenses3[1].spent_at);
         expect(dateOfSpendCall[3]).toEqual(new Date('2023-03-13T11:30:00.000Z'));
       });
 
       it('should call getFieldValueOnChange for updating paymentMode with correct arguments', () => {
         component.touchedGenericFields = ['paymentMode'];
-        component.genericFieldsForm.patchValue({ paymentMode: 'PERSONAL_ACCOUNT' });
+        component.genericFieldsForm.patchValue({ paymentMode: 'PERSONAL_CASH_ACCOUNT' });
         component.onExpenseChanged(-1);
-        expect(component.fg.controls.genericFields.value.paymentMode).toEqual('PERSONAL_ACCOUNT');
+        expect(component.fg.controls.genericFields.value.paymentMode).toEqual('PERSONAL_CASH_ACCOUNT');
         const paymentModeCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(2);
         expect(paymentModeCall[0]).toEqual(optionsData7);
         expect(paymentModeCall[1]).toBeTrue();
         expect(paymentModeCall[2]).toBeUndefined();
-        expect(paymentModeCall[3]).toEqual('PERSONAL_ACCOUNT');
+        expect(paymentModeCall[3]).toEqual('PERSONAL_CASH_ACCOUNT');
       });
 
       it('should call getFieldValueOnChange for updating project with correct arguments', () => {
@@ -236,7 +232,7 @@ export function TestCases2(getTestBed) {
         const categoryCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(5);
         expect(categoryCall[0]).toEqual(optionsData10);
         expect(categoryCall[1]).toBeTrue();
-        expect(categoryCall[2]).toEqual(207484);
+        expect(categoryCall[2]).toEqual(283900);
         expect(categoryCall[3]).toEqual(213);
       });
 
@@ -248,7 +244,7 @@ export function TestCases2(getTestBed) {
         const vendorCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(6);
         expect(vendorCall[0]).toEqual(optionsData8);
         expect(vendorCall[1]).toBeFalse();
-        expect(vendorCall[2]).toEqual('ramdev baba');
+        expect(vendorCall[2]).toEqual(apiExpenses3[1].merchant);
         expect(vendorCall[3]).toEqual('VENDOR_1');
       });
 
@@ -256,7 +252,7 @@ export function TestCases2(getTestBed) {
         component.touchedGenericFields = ['tax_group'];
         component.genericFieldsForm.patchValue({ tax_group: 'TAX_GROUP_1' });
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.tax_group).toEqual('tgXEJA6YUoZ1');
+        expect(component.fg.controls.genericFields.value.tax_group).toEqual(apiExpenses3[1].tax_group_id);
         const taxGroupCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(7);
         expect(taxGroupCall[0]).toEqual(optionsData11);
         expect(taxGroupCall[1]).toBeTrue();
@@ -285,7 +281,7 @@ export function TestCases2(getTestBed) {
         const costCenterCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
         expect(costCenterCall[0]).toEqual(optionsData13);
         expect(costCenterCall[1]).toBeTrue();
-        expect(costCenterCall[2]).toEqual(12488);
+        expect(costCenterCall[2]).toEqual(apiExpenses3[1].cost_center_id);
         expect(costCenterCall[3]).toEqual('COST_CENTER_1');
       });
 
@@ -297,7 +293,7 @@ export function TestCases2(getTestBed) {
         const customFieldsCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(10);
         expect(customFieldsCall[0]).toEqual(optionsData14);
         expect(customFieldsCall[1]).toBeTrue();
-        expect(customFieldsCall[2]).toEqual('Others');
+        expect(customFieldsCall[2]).toEqual(apiExpenses3[1].purpose);
         expect(customFieldsCall[3]).toEqual('PURPOSE_1');
       });
     });
@@ -324,7 +320,7 @@ export function TestCases2(getTestBed) {
           null,
           'AC',
           null,
-          null
+          null,
         );
       });
 
@@ -384,13 +380,13 @@ export function TestCases2(getTestBed) {
     describe('mergeExpense(): ', () => {
       beforeEach(() => {
         component.fg = formBuilder.group({
-          target_txn_id: 'txBphgnCHHeO',
+          target_expense_id: apiExpenses3[1].id,
           genericFields: [],
           categoryDependent: [],
           custom_inputs: [],
         });
         spyOn(component.fg, 'markAllAsTouched');
-        component.expenses = cloneDeep(expenseList2);
+        component.expenses = cloneDeep(apiExpenses3);
         component.projectDependentFieldsMapping$ = of(projectDependentFieldsMappingData1);
         component.costCenterDependentFieldsMapping$ = of(CostCenterDependentFieldsMappingData1);
         expensesService.mergeExpenses.and.returnValue(of(expenseData));
@@ -408,8 +404,8 @@ export function TestCases2(getTestBed) {
       it('should call expensesService.mergeExpenses once', () => {
         component.mergeExpense();
         expect(expensesService.mergeExpenses).toHaveBeenCalledOnceWith({
-          source_expense_ids: ['tx3nHShG60zq'],
-          target_expense_id: 'txBphgnCHHeO',
+          source_expense_ids: [apiExpenses3[0].id],
+          target_expense_id: apiExpenses3[1].id,
           target_expense_fields: generatedFormPropertiesData1,
         });
         expect(component.generateFromFg).toHaveBeenCalledOnceWith({
@@ -466,8 +462,8 @@ export function TestCases2(getTestBed) {
 
     describe('generateFromFg(): ', () => {
       beforeEach(() => {
-        const mockExpense = cloneDeep(expenseList2);
-        mockExpense[1].source_account_type = 'CORPORATE_CARD';
+        const mockExpense = cloneDeep(apiExpenses3);
+        mockExpense[1].source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
         component.expenses = cloneDeep(mockExpense);
         component.fg = formBuilder.group(mergeExpenseFormData1);
       });
@@ -499,16 +495,16 @@ export function TestCases2(getTestBed) {
       });
 
       it('should return generated form properties with source_account_id, currency and amount as undefined if sourceExpense and amountExpense are undefined', () => {
-        component.expenses = cloneDeep(expenseList2);
+        component.expenses = cloneDeep(apiExpenses3);
         component.fg.patchValue(mergeExpenseFormData5);
         const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
         expect(generatedFormProperties).toEqual(generatedFormPropertiesData4);
       });
 
       it('should return generated form properties with ccce_group_id if tx_corporate_credit_card_expense_group_id is present in expense', () => {
-        const mockExpense = cloneDeep(expenseList2);
-        mockExpense[1].tx_corporate_credit_card_expense_group_id = 'ae593zqtepw';
-        mockExpense[1].source_account_type = 'CORPORATE_CARD';
+        const mockExpense = cloneDeep(apiExpenses3);
+        mockExpense[1].matched_corporate_card_transaction_ids = ['ae593zqtepw'];
+        mockExpense[1].source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
         component.expenses = cloneDeep(mockExpense);
         const generatedFormProperties = component.generateFromFg(CostCenterDependentFieldsMappingData1);
         expect(generatedFormProperties).toEqual({ ...generatedFormPropertiesData2 });

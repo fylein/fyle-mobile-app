@@ -1,10 +1,18 @@
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { Component, ElementRef, OnDestroy, QueryList, ViewChildren } from '@angular/core';
-import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, OnDestroy, inject, viewChildren } from '@angular/core';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonToolbar, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
 import { isEmpty, isNumber } from 'lodash';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
 import {
   catchError,
@@ -21,7 +29,7 @@ import { CategoriesService } from 'src/app/core/services/categories.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -30,7 +38,7 @@ import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
@@ -65,14 +73,90 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
 import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
+import { MatIcon } from '@angular/material/icon';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { NgClass, AsyncPipe, SlicePipe } from '@angular/common';
+import { FormatDateDirective } from '../../shared/directive/format-date.directive';
+import { FySelectProjectComponent } from '../../shared/components/fy-select-project/fy-select-project.component';
+import { FySelectComponent } from '../../shared/components/fy-select/fy-select.component';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 
 @Component({
   selector: 'app-split-expense',
   templateUrl: './split-expense.page.html',
   styleUrls: ['./split-expense.page.scss'],
+  imports: [
+    AsyncPipe,
+    ExactCurrencyPipe,
+    FormButtonValidationDirective,
+    FormatDateDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    FySelectComponent,
+    FySelectProjectComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    ReactiveFormsModule,
+    SlicePipe
+  ],
 })
 export class SplitExpensePage implements OnDestroy {
-  @ViewChildren('splitElement') splitElements!: QueryList<ElementRef>;
+  private activatedRoute = inject(ActivatedRoute);
+
+  private formBuilder = inject(UntypedFormBuilder);
+
+  private categoriesService = inject(CategoriesService);
+
+  private dateService = inject(DateService);
+
+  private splitExpenseService = inject(SplitExpenseService);
+
+  private currencyService = inject(CurrencyService);
+
+  private navController = inject(NavController);
+
+  private router = inject(Router);
+
+  private transactionsOutboxService = inject(TransactionsOutboxService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private trackingService = inject(TrackingService);
+
+  private policyService = inject(PolicyService);
+
+  private modalController = inject(ModalController);
+
+  private popoverController = inject(PopoverController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private costCentersService = inject(CostCentersService);
+
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private dependentFieldsService = inject(DependentFieldsService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private projectsService = inject(ProjectsService);
+
+  private timezoneService = inject(TimezoneService);
+
+  private expensesService = inject(ExpensesService);
+
+  readonly splitElements = viewChildren<ElementRef>('splitElement');
 
   splitExpensesFormArray = new UntypedFormArray([]);
 
@@ -95,6 +179,8 @@ export class SplitExpensePage implements OnDestroy {
   totalSplitAmount: number;
 
   remainingAmount: number;
+
+  homeCurrency: string;
 
   categories$: Observable<OrgCategoryListItem[]>;
 
@@ -148,33 +234,6 @@ export class SplitExpensePage implements OnDestroy {
 
   private splitExpenseData: Subscription;
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private formBuilder: UntypedFormBuilder,
-    private categoriesService: CategoriesService,
-    private dateService: DateService,
-    private splitExpenseService: SplitExpenseService,
-    private currencyService: CurrencyService,
-    private navController: NavController,
-    private router: Router,
-    private transactionsOutboxService: TransactionsOutboxService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private trackingService: TrackingService,
-    private policyService: PolicyService,
-    private modalController: ModalController,
-    private popoverController: PopoverController,
-    private modalProperties: ModalPropertiesService,
-    private costCentersService: CostCentersService,
-    private platformEmployeeSettingsService: PlatformEmployeeSettingsService,
-    private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService,
-    private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService,
-    private timezoneService: TimezoneService,
-    private expensesService: ExpensesService
-  ) {}
-
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -203,7 +262,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -240,7 +299,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -256,7 +315,7 @@ export class SplitExpensePage implements OnDestroy {
   getTotalSplitAmount(): void {
     if ((this.splitExpensesFormArray.value as SplitExpense[]).length > 1) {
       const amounts = (this.splitExpensesFormArray.value as SplitExpense[]).map(
-        (obj: { amount: number }) => obj.amount
+        (obj: { amount: number }) => obj.amount,
       );
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
@@ -283,23 +342,23 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setTransactionDate(splitExpenseValue: SplitExpense, offset: string): Date {
-    let txnDate: Date;
+    let spentAtDate: Date;
 
-    if (splitExpenseValue.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
-    } else if (this.transaction.txn_dt) {
-      txnDate = this.dateService.getUTCDate(new Date(this.transaction.txn_dt));
+    if (splitExpenseValue.spent_at) {
+      spentAtDate = this.dateService.getUTCDate(new Date(splitExpenseValue.spent_at));
+    } else if (this.transaction.spent_at) {
+      spentAtDate = this.dateService.getUTCDate(new Date(this.transaction.spent_at));
     } else {
-      txnDate = this.dateService.getUTCDate(new Date());
+      spentAtDate = this.dateService.getUTCDate(new Date());
     }
 
-    txnDate.setHours(12);
-    txnDate.setMinutes(0);
-    txnDate.setSeconds(0);
-    txnDate.setMilliseconds(0);
-    txnDate = this.timezoneService.convertToUtc(txnDate, offset);
+    spentAtDate.setHours(12);
+    spentAtDate.setMinutes(0);
+    spentAtDate.setSeconds(0);
+    spentAtDate.setMilliseconds(0);
+    spentAtDate = this.timezoneService.convertToUtc(spentAtDate, offset);
 
-    return txnDate;
+    return spentAtDate;
   }
 
   correctDates(transaction: Transaction, offset: string): void {
@@ -344,7 +403,7 @@ export class SplitExpensePage implements OnDestroy {
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties?.includes(customProperty)
+            (customProperty) => !dependentCustomProperties?.includes(customProperty),
           );
         }
 
@@ -352,7 +411,7 @@ export class SplitExpensePage implements OnDestroy {
 
         return of({
           ...this.transaction,
-          org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
+          category_id: splitExpenseValue.category && splitExpenseValue.category.id,
           project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
           cost_center_id: splitExpenseValue.cost_center && splitExpenseValue.cost_center.id,
           currency: splitExpenseValue.currency,
@@ -360,13 +419,13 @@ export class SplitExpensePage implements OnDestroy {
           source: 'MOBILE',
           billable: this.setUpSplitExpenseBillable(splitExpenseValue),
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          txn_dt: this.setTransactionDate(splitExpenseValue, offset),
+          spent_at: this.setTransactionDate(splitExpenseValue, offset),
           custom_properties: this.timezoneService.convertAllDatesToProperLocale(
             txnCustomProperties,
-            offset
+            offset,
           ) as TxnCustomProperties[],
         });
-      })
+      }),
     );
   }
 
@@ -396,7 +455,7 @@ export class SplitExpensePage implements OnDestroy {
         map((files) => {
           this.fileObjs = files;
           return this.fileObjs;
-        })
+        }),
       );
     } else {
       return this.getAttachedFiles(this.transaction.id);
@@ -412,19 +471,18 @@ export class SplitExpensePage implements OnDestroy {
   setSplitExpenseValuesBasedOnProject(
     splitTxn: Transaction,
     project: ProjectV2,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.project_id = project.project_id;
     splitTxn.project_name = project.project_name;
-    splitTxn.org_category_id = null;
+    splitTxn.category_id = null;
     splitTxn.org_category = null;
     if (
-      this.transaction.org_category_id &&
+      this.transaction.category_id &&
       (!isProjectCategoryRestrictionsEnabled ||
-        (project.project_org_category_ids &&
-          project.project_org_category_ids.includes(this.transaction.org_category_id)))
+        (project.project_org_category_ids && project.project_org_category_ids.includes(this.transaction.category_id)))
     ) {
-      splitTxn.org_category_id = this.transaction.org_category_id;
+      splitTxn.category_id = this.transaction.category_id;
       splitTxn.org_category = this.transaction.org_category;
     }
   }
@@ -433,7 +491,7 @@ export class SplitExpensePage implements OnDestroy {
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     expenseDetails: Record<string, ExpenseField | ProjectV2>,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     const project: ProjectV2 = expenseDetails.project as ProjectV2;
     const costCenter: ExpenseField = expenseDetails.costCenter as ExpenseField;
@@ -441,7 +499,7 @@ export class SplitExpensePage implements OnDestroy {
     if (splitFormValue.project?.project_id) {
       this.setSplitExpenseValuesBasedOnProject(splitTxn, project, isProjectCategoryRestrictionsEnabled);
     } else if (splitFormValue.category?.id) {
-      splitTxn.org_category_id = splitFormValue.category.id;
+      splitTxn.category_id = splitFormValue.category.id;
       splitTxn.org_category = splitFormValue.category.name;
       splitTxn.project_id = null;
       splitTxn.project_name = null;
@@ -465,14 +523,14 @@ export class SplitExpensePage implements OnDestroy {
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     expenseDetails: Record<string, ExpenseField | ProjectV2>,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
-    if (this.transaction.project_id || this.transaction.org_category_id) {
+    if (this.transaction.project_id || this.transaction.category_id) {
       this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, expenseDetails, isProjectCategoryRestrictionsEnabled);
     } else {
       //if no project or category id exists in source txn, set them from splitExpense object
-      splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
+      splitTxn.category_id = splitFormValue.category?.id || this.transaction.category_id;
       splitTxn.project_id = splitFormValue.project?.id || this.transaction.project_id;
     }
   }
@@ -480,7 +538,7 @@ export class SplitExpensePage implements OnDestroy {
   setupCategoryAndProject(
     splitTxn: Transaction,
     splitFormValue: SplitExpense,
-    isProjectCategoryRestrictionsEnabled: boolean
+    isProjectCategoryRestrictionsEnabled: boolean,
   ): void {
     const expenseDetails: Record<string, ExpenseField | ProjectV2> = {
       costCenter: this.txnFields.cost_center_id,
@@ -498,7 +556,7 @@ export class SplitExpensePage implements OnDestroy {
           splitFormValue,
           splitTxn,
           expenseDetails,
-          isProjectCategoryRestrictionsEnabled
+          isProjectCategoryRestrictionsEnabled,
         );
       } else if (
         (splitFormValue.project?.project_id && !splitFormValue.project.project_org_category_ids) ||
@@ -514,7 +572,7 @@ export class SplitExpensePage implements OnDestroy {
           splitFormValue,
           splitTxn,
           expenseDetails,
-          isProjectCategoryRestrictionsEnabled
+          isProjectCategoryRestrictionsEnabled,
         );
       }
     }
@@ -526,7 +584,8 @@ export class SplitExpensePage implements OnDestroy {
         this.transaction,
         this.totalSplitAmount,
         splitExpenses,
-        this.expenseFields
+        this.expenseFields,
+        this.homeCurrency,
       ),
     };
 
@@ -538,7 +597,7 @@ export class SplitExpensePage implements OnDestroy {
         }
         this.splitExpenseTxn = txns;
         return of(this.splitExpenseTxn);
-      })
+      }),
     );
   }
 
@@ -588,7 +647,7 @@ export class SplitExpensePage implements OnDestroy {
 
   transformMandatoryFieldsData(
     etxns: Transaction[],
-    mandatoryFields: Partial<SplitExpenseMissingFields>
+    mandatoryFields: Partial<SplitExpenseMissingFields>,
   ): { [id: number]: Partial<TransformedSplitExpenseMissingFields> } {
     const mandatoryFieldsData: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = {};
     for (const [index, etxn] of etxns.entries()) {
@@ -617,14 +676,14 @@ export class SplitExpensePage implements OnDestroy {
       map((expense: PlatformExpense) => {
         this.fileObjs = expense.files;
         return this.fileObjs;
-      })
+      }),
     );
   }
 
   async showSplitExpensePolicyViolationsAndMissingFields(
     splitEtxns: Transaction[],
     policyViolations: { [id: number]: PolicyViolation },
-    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }
+    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> },
   ): Promise<SplitExpenseViolationsPopup> {
     const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
 
@@ -637,7 +696,7 @@ export class SplitExpensePage implements OnDestroy {
       filteredMissingFieldsViolations =
         this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
       hasMissingFields = Object.values(filteredMissingFieldsViolations).some(
-        (field: FilteredMissingFieldsViolations) => field?.isMissingFields
+        (field: FilteredMissingFieldsViolations) => field?.isMissingFields,
       );
     }
 
@@ -692,7 +751,7 @@ export class SplitExpensePage implements OnDestroy {
     for (const txn of splitEtxns) {
       delete txn.id;
 
-      const categoryId = txn.org_category_id || this.unspecifiedCategory?.id;
+      const categoryId = txn.category_id || this.unspecifiedCategory?.id;
 
       if (txn.custom_properties?.length > 0 && this.expenseFields?.length > 0) {
         txn.custom_properties = txn.custom_properties.filter((customProperty) => {
@@ -727,13 +786,13 @@ export class SplitExpensePage implements OnDestroy {
               this.showSplitExpensePolicyViolationsAndMissingFields(
                 splitEtxns,
                 formattedViolations,
-                formattedMandatoryFields
-              )
+                formattedMandatoryFields,
+              ),
             );
           }
 
           return of({ action: 'continue', comments: null });
-        })
+        }),
       );
   }
 
@@ -757,7 +816,7 @@ export class SplitExpensePage implements OnDestroy {
           this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
           return throwError(errResponse);
-        })
+        }),
       )
       .subscribe((txns) => {
         const splitTrackingProps = this.getSplitExpensePoperties();
@@ -774,7 +833,7 @@ export class SplitExpensePage implements OnDestroy {
                 this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
                 this.router.navigate(['/', 'enterprise', 'my_expenses']);
                 return throwError(err);
-              })
+              }),
             )
             .subscribe(() => {
               this.openReviewSplitExpenseModal(txns.data);
@@ -789,13 +848,13 @@ export class SplitExpensePage implements OnDestroy {
   correctTotalSplitAmount(): void {
     const totalSplitAmount = this.formattedSplitExpense.reduce(
       (prev, cur) => parseFloat((prev + cur.amount).toPrecision(15)),
-      0
+      0,
     );
 
     if (this.transaction.amount !== totalSplitAmount) {
       const difference = parseFloat((this.transaction.amount - totalSplitAmount).toFixed(15));
       this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount = parseFloat(
-        (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15)
+        (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15),
       );
     }
   }
@@ -844,7 +903,7 @@ export class SplitExpensePage implements OnDestroy {
             }
             return defaultValue;
           },
-          true
+          true,
         );
 
         if (!canCreateNegativeExpense) {
@@ -858,7 +917,7 @@ export class SplitExpensePage implements OnDestroy {
 
         this.normalizeSplitAmount();
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue)
+          this.generateSplitEtxnFromFg(splitExpenseValue),
         );
 
         forkJoin({
@@ -881,7 +940,7 @@ export class SplitExpensePage implements OnDestroy {
                 this.formattedSplitExpense,
                 this.transaction,
                 fileIds,
-                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
+                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory },
               );
 
               this.saveSplitExpenseLoading = false;
@@ -895,7 +954,7 @@ export class SplitExpensePage implements OnDestroy {
             finalize(() => {
               const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
-            })
+            }),
           )
           .subscribe((response) => {
             if (response && response.action === 'continue') {
@@ -917,7 +976,7 @@ export class SplitExpensePage implements OnDestroy {
     const invalidIndex = formArray.controls.findIndex((formGroup) => formGroup.invalid);
 
     if (invalidIndex !== -1) {
-      const invalidElement = this.splitElements.toArray()[invalidIndex]?.nativeElement as HTMLElement;
+      const invalidElement = this.splitElements()[invalidIndex]?.nativeElement as HTMLElement;
 
       if (invalidElement instanceof HTMLElement) {
         invalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -946,7 +1005,7 @@ export class SplitExpensePage implements OnDestroy {
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
-      this.activatedRoute.snapshot.params.selectedCCCTransaction as string
+      this.activatedRoute.snapshot.params.selectedCCCTransaction as string,
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
@@ -959,8 +1018,8 @@ export class SplitExpensePage implements OnDestroy {
     this.isProjectCategoryRestrictionsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction
-      )
+          orgSettings.advanced_projects.allowed && orgSettings.advanced_projects.enable_category_restriction,
+      ),
     );
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
@@ -975,17 +1034,17 @@ export class SplitExpensePage implements OnDestroy {
                   this.projectsService.getAllowedOrgCategoryIds(
                     project,
                     activeCategories,
-                    isProjectCategoryRestrictionsEnabled
-                  )
-                )
+                    isProjectCategoryRestrictionsEnabled,
+                  ),
+                ),
               );
             }
             return of(activeCategories);
           }),
           tap((categories) => this.updateCategoryMandatoryStatus(categories)),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        )
-      )
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+        ),
+      ),
     );
     this.getCategoryList();
     let parentFieldId: number;
@@ -998,9 +1057,9 @@ export class SplitExpensePage implements OnDestroy {
       () => !!parentFieldId,
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
         this.transaction.custom_properties,
-        parentFieldId
+        parentFieldId,
       ),
-      of(null)
+      of(null),
     );
     if (this.splitConfig.costCenter.is_visible) {
       this.addCostCenterIdToTxnFields();
@@ -1016,22 +1075,22 @@ export class SplitExpensePage implements OnDestroy {
           costCenters.map((costCenter) => ({
             label: costCenter.name,
             value: costCenter,
-          }))
-        )
+          })),
+        ),
       );
     }
     this.isCorporateCardsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
-      )
+          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled,
+      ),
     );
     this.getUnspecifiedCategory();
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
-      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
+      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled),
     );
   }
 
@@ -1067,6 +1126,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setValuesForCCC(currencyObj: CurrencyObj, homeCurrency: string, isCorporateCardsEnabled: boolean): void {
+    this.homeCurrency = homeCurrency;
     this.setAmountAndCurrency(currencyObj, homeCurrency);
 
     let amount1 = this.amount > 0.0001 || isCorporateCardsEnabled ? this.amount * 0.6 : null; // 60% split
@@ -1168,7 +1228,7 @@ export class SplitExpensePage implements OnDestroy {
         ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
           Partial<ProjectV2> | null,
           OrgCategory[],
-          boolean
+          boolean,
         ]) => {
           if (!project?.project_id) {
             return this.formatCategories(activeCategories);
@@ -1183,14 +1243,14 @@ export class SplitExpensePage implements OnDestroy {
                   activeCategories,
                   isProjectCategoryRestrictionsEnabled,
                   showProjectMappedCategories,
-                  services
-                )
+                  services,
+                ),
               ),
-              switchMap((categories) => this.formatCategories(categories))
+              switchMap((categories) => this.formatCategories(categories)),
             );
-        }
+        },
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1200,7 +1260,7 @@ export class SplitExpensePage implements OnDestroy {
     activeCategories: OrgCategory[],
     isProjectCategoryRestrictionsEnabled: boolean,
     showProjectMappedCategories: boolean,
-    services: { projectsService: ProjectsService }
+    services: { projectsService: ProjectsService },
   ): Observable<OrgCategory[]> {
     if (!showProjectMappedCategories && !isProjectCategoryRestrictionsEnabled) {
       return of(activeCategories);
@@ -1213,9 +1273,9 @@ export class SplitExpensePage implements OnDestroy {
           services.projectsService.getAllowedOrgCategoryIds(
             projectDetails,
             activeCategories,
-            isProjectCategoryRestrictionsEnabled
-          )
-        )
+            isProjectCategoryRestrictionsEnabled,
+          ),
+        ),
       );
   }
 
@@ -1276,18 +1336,18 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   // eslint-disable-next-line complexity
-  add(amount?: number, currency?: string, percentage?: number, txnDt?: string | Date | dayjs.Dayjs): void {
-    if (!txnDt) {
-      const dateOfTxn = this.transaction?.txn_dt;
+  add(amount?: number, currency?: string, percentage?: number, spentAt?: string | Date | dayjs.Dayjs): void {
+    if (!spentAt) {
+      const dateOfTxn = this.transaction?.spent_at;
       const today = new Date();
-      txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
-      txnDt = dayjs(txnDt).format('YYYY-MM-DD');
+      spentAt = dateOfTxn ? new Date(dateOfTxn) : today;
+      spentAt = dayjs(spentAt).format('YYYY-MM-DD');
     }
     const fg = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
       percentage: [percentage],
-      txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
+      spent_at: [spentAt, Validators.compose([Validators.required, this.customDateValidator])],
     });
 
     const isFirstSplit = this.splitExpensesFormArray.length === 0;
@@ -1297,8 +1357,8 @@ export class SplitExpensePage implements OnDestroy {
         'category',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.category.value : '',
-          this.splitConfig.category.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.category.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
     if (this.splitConfig.project.is_visible) {
@@ -1306,8 +1366,8 @@ export class SplitExpensePage implements OnDestroy {
         'project',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.project.value : '',
-          this.splitConfig.project.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.project.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
     if (this.splitConfig.costCenter.is_visible) {
@@ -1315,15 +1375,15 @@ export class SplitExpensePage implements OnDestroy {
         'cost_center',
         this.formBuilder.control(
           isFirstSplit ? this.splitConfig.costCenter.value : '',
-          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null
-        )
+          this.splitConfig.costCenter.is_mandatory ? [Validators.required] : null,
+        ),
       );
     }
 
     if (this.txnFields.purpose) {
       fg.addControl(
         'purpose',
-        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null)
+        this.formBuilder.control('', this.txnFields.purpose.is_mandatory ? [Validators.required] : null),
       );
     }
 
@@ -1340,7 +1400,7 @@ export class SplitExpensePage implements OnDestroy {
 
   scrollToLastElement(): void {
     const newIndex = this.splitExpensesFormArray.length - 1;
-    const newSplitElement = this.splitElements.toArray()[newIndex]?.nativeElement as HTMLElement;
+    const newSplitElement = this.splitElements()[newIndex]?.nativeElement as HTMLElement;
 
     if (newSplitElement instanceof HTMLElement) {
       newSplitElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1386,7 +1446,7 @@ export class SplitExpensePage implements OnDestroy {
 
       const percentage = Math.min(
         100,
-        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage)
+        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage),
       );
 
       const rawAmount = (this.amount * percentage) / 100;
@@ -1397,7 +1457,7 @@ export class SplitExpensePage implements OnDestroy {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -1538,7 +1598,7 @@ export class SplitExpensePage implements OnDestroy {
     evenAmount: number,
     evenPercentage: number,
     lastSplitAmount: number,
-    lastSplitPercentage: number
+    lastSplitPercentage: number,
   ): void {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
@@ -1552,7 +1612,7 @@ export class SplitExpensePage implements OnDestroy {
         },
         {
           emitEvent: false,
-        }
+        },
       );
     });
   }

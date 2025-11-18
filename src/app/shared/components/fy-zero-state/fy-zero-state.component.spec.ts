@@ -1,40 +1,46 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FyZeroStateComponent } from './fy-zero-state.component';
+import { of } from 'rxjs';
 
 describe('FyZeroStateComponent', () => {
   let component: FyZeroStateComponent;
   let fixture: ComponentFixture<FyZeroStateComponent>;
-
+  let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [FyZeroStateComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ TranslocoModule, FyZeroStateComponent],
+      providers: [{ provide: TranslocoService, useValue: translocoServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(FyZeroStateComponent);
     component = fixture.componentInstance;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'fyZeroState.altText': 'zero',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should click on the link', () => {
-    component.link = 'http://a_link';
-    fixture.detectChanges();
-    const linkSpy = spyOn(component.linkClicked, 'emit');
-    const linkButton = getElementBySelector(fixture, 'button') as HTMLElement;
-    click(linkButton);
-    expect(linkSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('onLinkClick(): should emit link event', () => {
-    const linkSpy = spyOn(component.linkClicked, 'emit');
-    component.onLinkClick(Event);
-    expect(linkSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should check if message icon is displayed', () => {

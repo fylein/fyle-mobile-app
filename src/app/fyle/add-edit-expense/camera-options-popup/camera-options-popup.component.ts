@@ -1,28 +1,39 @@
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+import { PopoverController } from '@ionic/angular/standalone';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { finalize, from, map, raceWith, switchMap, timer } from 'rxjs';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatRipple } from '@angular/material/core';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-camera-options-popup',
   templateUrl: './camera-options-popup.component.html',
   styleUrls: ['./camera-options-popup.component.scss'],
+  imports: [MatRipple, MatIcon, TranslocoPipe],
 })
 export class CameraOptionsPopupComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  private fileService = inject(FileService);
+
+  private trackingService = inject(TrackingService);
+
+  private loaderService = inject(LoaderService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mode: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
-
-  constructor(
-    private popoverController: PopoverController,
-    private fileService: FileService,
-    private trackingService: TrackingService,
-    private loaderService: LoaderService
-  ) {}
 
   ngOnInit(): void {
     return;
@@ -42,8 +53,12 @@ export class CameraOptionsPopupComponent implements OnInit {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
-        switchMap(() => from(this.loaderService.showLoader('Please wait...', 5000))),
-        switchMap(() => fileRead$) // switch to fileRead$ after showing loader
+        switchMap(() =>
+          from(
+            this.loaderService.showLoader(this.translocoService.translate('cameraOptionsPopup.loaderMessage'), 5000),
+          ),
+        ),
+        switchMap(() => fileRead$), // switch to fileRead$ after showing loader
       );
 
       // Use race to show loader only if fileRead$ takes more than 300ms.
@@ -57,7 +72,7 @@ export class CameraOptionsPopupComponent implements OnInit {
               actionSource: 'gallery_upload',
             });
           }),
-          finalize(() => this.loaderService.hideLoader())
+          finalize(() => this.loaderService.hideLoader()),
         )
         .subscribe();
     } else {
@@ -89,15 +104,19 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
+    const title: string = this.translocoService.translate('cameraOptionsPopup.sizeLimitExceededTitle');
+    const message: string = this.translocoService.translate('cameraOptionsPopup.sizeLimitExceededMessage', {
+      maxFileSize: (maxFileSize / (1024 * 1024)).toFixed(0),
+    });
+    const okText: string = this.translocoService.translate('cameraOptionsPopup.ok');
+
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Size limit exceeded',
-        message: `The uploaded file is greater than ${(maxFileSize / (1024 * 1024)).toFixed(
-          0
-        )}MB in size. Please reduce the file size and try again.`,
+        title,
+        message,
         primaryCta: {
-          text: 'OK',
+          text: okText,
         },
       },
       cssClass: 'pop-up-in-center',

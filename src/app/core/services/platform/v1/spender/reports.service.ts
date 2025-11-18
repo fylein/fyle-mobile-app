@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, Subject, range } from 'rxjs';
 import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -17,6 +17,8 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ReportPurpose } from 'src/app/core/models/report-purpose.model';
 import { ExportPayload } from 'src/app/core/models/platform/export-payload.model';
+import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
+import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -24,16 +26,19 @@ const reportsCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class SpenderReportsService {
-  constructor(
-    @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private userEventService: UserEventService,
-    private transactionService: TransactionService
-  ) {
+  constructor() {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
   }
+
+  private paginationSize: number = inject(PAGINATION_SIZE);
+
+  private transactionService: TransactionService = inject(TransactionService);
+
+  private spenderPlatformV1ApiService: SpenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private userEventService: UserEventService = inject(UserEventService);
 
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
@@ -57,7 +62,7 @@ export class SpenderReportsService {
         return this.spenderPlatformV1ApiService
           .post<Report>('/reports/add_expenses', payload)
           .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
-      })
+      }),
     );
   }
 
@@ -75,7 +80,7 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload).pipe(
       tap(() => {
         this.clearTransactionCache();
-      })
+      }),
     );
   }
 
@@ -92,7 +97,7 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload).pipe(
       tap(() => {
         this.clearTransactionCache();
-      })
+      }),
     );
   }
 
@@ -102,7 +107,7 @@ export class SpenderReportsService {
   createDraft(data: CreateDraftParams): Observable<Report> {
     return this.spenderPlatformV1ApiService.post<PlatformApiPayload<Report>>('/reports', data).pipe(
       tap(() => this.clearTransactionCache()),
-      map((res: PlatformApiPayload<Report>) => res.data)
+      map((res: PlatformApiPayload<Report>) => res.data),
     );
   }
 
@@ -124,6 +129,9 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data.purpose));
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: expensesCacheBuster$,
+  })
   delete(id: string): Observable<void> {
     return this.spenderPlatformV1ApiService.post<void>('/reports/delete/bulk', { data: [{ id }] });
   }
@@ -163,7 +171,7 @@ export class SpenderReportsService {
 
         return this.getReportsByParams(params);
       }),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
+      reduce((acc, curr) => acc.concat(curr.data), [] as Report[]),
     );
   }
 
@@ -198,6 +206,17 @@ export class SpenderReportsService {
     };
     return this.spenderPlatformV1ApiService
       .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', queryParams)
+      .pipe(map((res) => res.data));
+  }
+
+  getGroupedReportsStats(): Observable<GroupedReportStats[]> {
+    const queryParams = {
+      data: {
+        query_params: 'group_by_state=eq.true',
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<{ data: GroupedReportStats[] }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }

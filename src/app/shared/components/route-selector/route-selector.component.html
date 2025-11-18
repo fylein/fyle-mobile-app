@@ -1,25 +1,27 @@
 <div [formGroup]="form">
   <div>
-    <ng-container *ngIf="mileageLocations.controls.length > 0; else routeEmptyInput">
+    @if (mileageLocations.controls.length > 0) {
       <div class="route-selector--internal-block">
         <div class="route-selector--label-content">
-          Route
-          <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory"> * </span>
+          {{ 'routeSelector.routeLabel' | transloco }}
+          @if (mileageConfig.location_mandatory) {
+            <span class="route-selector--mandatory"> * </span>
+          }
         </div>
       </div>
       <div class="timeline--timeline">
         <ng-container>
-          <ng-container *ngIf="mileageLocations.controls[0]">
+          @if (mileageLocations.controls[0]) {
             <div
               class="timeline--timeline-item timeline--timeline-item__first"
               [ngClass]="{
                 'timeline--timeline-item__invalid':
-                  mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid
+                  mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid,
               }"
             >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__first">
                 <app-fy-location
-                  [label]="'Start'"
+                  [label]="'routeSelector.startLabel' | transloco"
                   class="route-selector--input"
                   [formControl]="mileageLocations.controls[0]"
                   [mandatory]="mileageConfig.location_mandatory"
@@ -30,37 +32,37 @@
                   [validInParent]="mileageLocations.controls[0].valid"
                 >
                 </app-fy-location>
-                <div
-                  *ngIf="mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid"
-                  class="timeline--error timeline--error__first"
-                >
-                  Please select location
-                </div>
+                @if (mileageLocations.controls[0].touched && !mileageLocations.controls[0].valid) {
+                  <div class="timeline--error timeline--error__first">
+                    {{ 'routeSelector.selectLocationError' | transloco }}
+                  </div>
+                }
               </div>
             </div>
-          </ng-container>
-          <div
-            class="timeline--timeline-item timeline--timeline-item__text-content timeline--timeline-item__internal-item timeline--timeline-item__middle"
-            *ngIf="mileageLocations.controls.length > 2"
-          >
-            <div class="timeline--timeline-item-internal">{{ mileageLocations.controls.length - 2 }} Stop</div>
-          </div>
-          <ng-container
-            *ngIf="
-              mileageLocations.controls.length > 1 && mileageLocations.controls[mileageLocations.controls.length - 1]
-            "
-          >
+          }
+          @if (mileageLocations.controls.length > 2) {
+            <div
+              class="timeline--timeline-item timeline--timeline-item__text-content timeline--timeline-item__internal-item timeline--timeline-item__middle"
+            >
+              <div class="timeline--timeline-item-internal">
+                {{ mileageLocations.controls.length - 2 }} {{ 'routeSelector.intermediateStop' | transloco }}
+              </div>
+            </div>
+          }
+          @if (
+            mileageLocations.controls.length > 1 && mileageLocations.controls[mileageLocations.controls.length - 1]
+          ) {
             <div
               class="timeline--timeline-item timeline--timeline-item__last"
               [ngClass]="{
                 'timeline--timeline-item__invalid':
                   mileageLocations.controls[mileageLocations.controls.length - 1].touched &&
-                  !mileageLocations.controls[mileageLocations.controls.length - 1].valid
+                  !mileageLocations.controls[mileageLocations.controls.length - 1].valid,
               }"
             >
               <div class="timeline--timeline-item-internal timeline--timeline-item-internal__last">
                 <app-fy-location
-                  [label]="'Stop'"
+                  [label]="'routeSelector.stopLabel' | transloco"
                   class="route-selector--input"
                   [formControl]="mileageLocations.controls[mileageLocations.controls.length - 1]"
                   (click)="openModal()"
@@ -72,39 +74,38 @@
                 >
                 </app-fy-location>
               </div>
-              <div
-                *ngIf="
-                  mileageLocations.controls[mileageLocations.controls.length - 1].touched &&
-                  !mileageLocations.controls[mileageLocations.controls.length - 1].valid
-                "
-                class="timeline--error timeline--error__last"
-              >
-                Please select location
-              </div>
+              @if (
+                mileageLocations.controls[mileageLocations.controls.length - 1].touched &&
+                !mileageLocations.controls[mileageLocations.controls.length - 1].valid
+              ) {
+                <div class="timeline--error timeline--error__last">
+                  {{ 'routeSelector.selectLocationError' | transloco }}
+                </div>
+              }
             </div>
-          </ng-container>
+          }
         </ng-container>
       </div>
-    </ng-container>
-
-    <ng-template #routeEmptyInput>
+    } @else {
       <div class="route-selector--internal-block">
         <label class="route-selector--label">
           <div class="route-selector--label-content">
-            Route
-            <span *ngIf="mileageConfig.location_mandatory" class="route-selector--mandatory"> * </span>
+            {{ 'routeSelector.routeLabel' | transloco }}
+            @if (mileageConfig.location_mandatory) {
+              <span class="route-selector--mandatory"> * </span>
+            }
           </div>
           <div
             class="route-selector--input-container"
             [ngClass]="{
               'route-selector--input-invalid':
-                form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid
+                form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid,
             }"
           >
             <input
               class="route-selector--input smartlook-show"
               type="text"
-              [placeholder]="'Enter route'"
+              [placeholder]="'routeSelector.enterRoute' | transloco"
               (click)="openModal()"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
               [disabled]="form.controls.mileageLocations.disabled"
@@ -118,59 +119,55 @@
           </div>
         </label>
       </div>
-      <div
-        *ngIf="form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid"
-        class="route-selector--error"
-      >
-        Please select location
-      </div>
-    </ng-template>
+      @if (form.controls.mileageLocations.touched && !form.controls.mileageLocations.valid) {
+        <div class="route-selector--error">
+          {{ 'routeSelector.selectLocationError' | transloco }}
+        </div>
+      }
+    }
   </div>
 
-  <div
-    class="route-selector--internal-block"
-    *ngIf="mileageLocations.controls.length < 3"
-    [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }"
-  >
-    <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
-      <span class="route-selector--checkbox"> Round trip </span>
-    </mat-checkbox>
-  </div>
+  @if (mileageLocations.controls.length < 3) {
+    <div class="route-selector--internal-block" [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }">
+      <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
+        <span class="route-selector--checkbox"> {{ 'routeSelector.roundTripLabel' | transloco }} </span>
+      </mat-checkbox>
+    </div>
+  }
 
   <ng-content></ng-content>
 
-  <ng-container *ngIf="txnFields?.distance">
+  @if (txnFields?.distance) {
     <div
       class="route-selector--text route-selector--internal-distance-block"
       [ngClass]="{ 'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid }"
     >
       <div class="route-selector--text-label">
-        Distance
-        <ng-container *ngIf="unit; else defaultDistanceUnit">
+        {{ 'routeSelector.distanceLabel' | transloco }}
+        @if (unit) {
           <span class="route-selector--text-label__unit"> ({{ unit | titlecase }})</span>
-        </ng-container>
-
-        <ng-template #defaultDistanceUnit>
+        } @else {
           <span class="route-selector--text-label__unit"> ({{ mileageConfig.unit | titlecase }})</span>
-        </ng-template>
-        <div class="route-selector--mandatory" *ngIf="isDistanceMandatory">*</div>
+        }
+        @if (isDistanceMandatory()) {
+          <div class="route-selector--mandatory">*</div>
+        }
       </div>
       <app-fy-number
-        [disabled]="isAmountDisabled"
+        [disabled]="isAmountDisabled()"
         [min]="0"
         [isDistance]="true"
         formControlName="distance"
-        placeholder="Enter distance"
+        [placeholder]="'routeSelector.enterDistance' | transloco"
       >
       </app-fy-number>
     </div>
-    <div
-      *ngIf="
-        form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
-      "
-      class="route-selector--error route-selector--text-error"
-    >
-      Please enter valid distance
-    </div>
-  </ng-container>
+    @if (
+      form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
+    ) {
+      <div class="route-selector--error route-selector--text-error">
+        {{ 'routeSelector.invalidDistance' | transloco }}
+      </div>
+    }
+  }
 </div>

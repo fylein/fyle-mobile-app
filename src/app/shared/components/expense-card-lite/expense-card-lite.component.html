@@ -1,17 +1,18 @@
 <div class="expenses-card--body">
   <div class="d-flex">
-    <ng-container *ngIf="!isReceiptPresent">
+    @if (!isReceiptPresent) {
       <div class="expenses-card--receipt-container">
         <ion-icon
           class="expenses-card--receipt-icon expenses-card--receipt-icon__pdf"
           [src]="'assets/svg/attachment-none.svg'"
         ></ion-icon>
       </div>
-    </ng-container>
-
-    <div *ngIf="isReceiptPresent" class="expenses-card--receipt-image-container expenses-card--with-image">
-      <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
-    </div>
+    }
+    @if (isReceiptPresent) {
+      <div class="expenses-card--receipt-image-container expenses-card--with-image">
+        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
+      </div>
+    }
 
     <!-- Dashed Divider -->
     <div class="expenses-card--vertical-dotted-border"></div>
@@ -20,7 +21,10 @@
       <div class="expenses-card--category-vendor-project-container">
         <div class="d-flex expenses-card--category-icon-container">
           <div class="expenses-card--category">
-            {{ expense.purpose }} <ng-container *ngIf="!expense.purpose"> Unspecified </ng-container>
+            {{ expense.purpose }}
+            @if (!expense.purpose) {
+              {{ 'expenseCardLite.unspecified' | transloco }}
+            }
           </div>
         </div>
 
@@ -29,7 +33,7 @@
         </div>
 
         <div class="expenses-card--date">
-          {{ expense.spent_at | date : 'MMM dd, YYYY' }}
+          {{ expense.spent_at | date: 'MMM dd, yyyy' }}
         </div>
 
         <div class="d-flex">

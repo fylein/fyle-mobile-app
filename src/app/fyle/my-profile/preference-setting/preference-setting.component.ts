@@ -1,61 +1,41 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { SelectCurrencyComponent } from '../select-currency/select-currency.component';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { Currency } from 'src/app/core/models/currency.model';
+import { Component, Input, output } from '@angular/core';
+import { EventData } from './event-data.model';
+import { FormsModule } from '@angular/forms';
+import { IonToggle } from '@ionic/angular/standalone';
 
-type EventData = {
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  isEnabled: boolean;
-  selectedCurrency?: Currency;
-};
 @Component({
   selector: 'app-preference-setting',
   templateUrl: './preference-setting.component.html',
   styleUrls: ['./preference-setting.component.scss'],
+  imports: [
+    FormsModule,
+    IonToggle
+  ],
 })
-export class PreferenceSettingComponent implements OnInit {
+export class PreferenceSettingComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() content: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() key: EventData['key'];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() defaultCurrency: string;
 
-  @Output() preferenceChanged = new EventEmitter<EventData>();
+  readonly preferenceChanged = output<EventData>();
 
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
-
-  ngOnInit(): void {}
-
-  onChange() {
+  onChange(): void {
     this.preferenceChanged.emit({ key: this.key, isEnabled: this.isEnabled });
-  }
-
-  async openCurrencyModal() {
-    const modal = await this.modalController.create({
-      component: SelectCurrencyComponent,
-      componentProps: {
-        currentSelection: this.defaultCurrency,
-      },
-      mode: 'ios',
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss();
-
-    if (data && data.selectedCurrency) {
-      this.defaultCurrency = data.selectedCurrency.shortCode;
-      this.preferenceChanged.emit({
-        key: this.key,
-        isEnabled: this.isEnabled,
-        selectedCurrency: data.selectedCurrency,
-      });
-    }
   }
 }

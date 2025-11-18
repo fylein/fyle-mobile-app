@@ -1,23 +1,36 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input, inject, output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
+import { IonIcon } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
+  imports: [
+    IonIcon
+  ],
 })
 export class InfoCardComponent {
+  private clipboardService = inject(ClipboardService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() content: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() contentToCopy: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() toastMessageContent: string;
 
-  @Output() copiedText = new EventEmitter<string>();
-
-  constructor(private clipboardService: ClipboardService) {}
+  readonly copiedText = output<string>();
 
   async copyToClipboard(contentToCopy: string) {
     await this.clipboardService.writeString(contentToCopy);

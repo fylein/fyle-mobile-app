@@ -1,8 +1,19 @@
-import { Component, ElementRef, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
-import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
+import {
+  Component,
+  ElementRef,
+  forwardRef,
+  Injector,
+  Input,
+  OnChanges,
+  OnInit,
+  TemplateRef,
+  inject,
+  input,
+} from '@angular/core';
+import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -10,6 +21,9 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -22,31 +36,56 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private injector = inject(Injector);
+
+  private popoverController = inject(PopoverController);
+
+  private platformReportService = inject(SpenderReportsService);
+
+  private trackingService = inject(TrackingService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: { label: string; value: Report }[] = [];
 
-  @Input() disabled = false;
+  readonly disabled = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label = '';
 
-  @Input() mandatory = false;
+  readonly mandatory = input(false);
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() showNullOption = true;
 
-  @Input() cacheName = '';
+  readonly cacheName = input('');
 
-  @Input() customInput = false;
+  readonly customInput = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() subheader = 'All';
 
-  @Input() enableSearch = false;
+  readonly enableSearch = input(false);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
+  readonly isNewReportsFlowEnabled = input(false);
 
   displayValue: string;
 
@@ -57,15 +96,6 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
   private onTouchedCallback: () => void = noop;
 
   private onChangeCallback: (_: Report) => void = noop;
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private injector: Injector,
-    private popoverController: PopoverController,
-    private platformReportService: SpenderReportsService,
-    private trackingService: TrackingService
-  ) {}
 
   get valid(): boolean {
     if (this.ngControl.touched) {
@@ -89,13 +119,16 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
+    if (this.subheader === 'All') {
+      this.subheader = this.translocoService.translate('fyAddToReport.all');
+    }
   }
 
   ngOnChanges(): void {
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.autoSubmissionReportName) {
       this.showNullOption = false;
-      this.label = 'Expense Report';
+      this.label = this.translocoService.translate('fyAddToReport.expenseReport');
     }
   }
 
@@ -105,14 +138,14 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
       componentProps: {
         options: this.options,
         currentSelection: this.value,
-        selectionElement: this.selectionElement,
+        selectionElement: this.selectionElement(),
         showNullOption: this.showNullOption,
-        cacheName: this.cacheName,
-        customInput: this.customInput,
+        cacheName: this.cacheName(),
+        customInput: this.customInput(),
         subheader: this.subheader,
-        enableSearch: this.enableSearch,
+        enableSearch: this.enableSearch(),
         autoSubmissionReportName: this.autoSubmissionReportName,
-        isNewReportsFlowEnabled: this.isNewReportsFlowEnabled,
+        isNewReportsFlowEnabled: this.isNewReportsFlowEnabled(),
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -129,13 +162,17 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     if (data && data.createDraftReport) {
       const reportTitle = await this.platformReportService.suggestPurpose([]).toPromise();
 
+      const title = this.translocoService.translate('fyAddToReport.newDraftReport');
+      const ctaText = this.translocoService.translate('fyAddToReport.save');
+      const inputLabel = this.translocoService.translate('fyAddToReport.reportName');
+
       const draftReportPopover = await this.popoverController.create({
         component: FyInputPopoverComponent,
         componentProps: {
-          title: 'New Draft Report',
-          ctaText: 'Save',
+          title,
+          ctaText,
           inputValue: reportTitle,
-          inputLabel: 'Report Name',
+          inputLabel,
           isRequired: true,
         },
         cssClass: 'fy-dialog-popover',
@@ -159,15 +196,17 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
               this.platformReportService
                 .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
                 .pipe(
-                  map((reports) => reports
+                  map((reports) =>
+                    reports
                       .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
-                      .map((report) => ({ label: report.purpose, value: report }))),
+                      .map((report) => ({ label: report.purpose, value: report })),
+                  ),
                   tap((options) => {
                     this.options = options;
                     this.value = this.options.find((option) => newReport.id === option.value.id)?.value;
-                  })
-                )
-            )
+                  }),
+                ),
+            ),
           )
           .subscribe(noop);
         this.trackingService.createDraftReportFromExpense();

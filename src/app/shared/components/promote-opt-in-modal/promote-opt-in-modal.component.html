@@ -1,23 +1,20 @@
 <ion-content class="promote-opt-in-modal">
   <div class="promote-opt-in-modal__skip">
-    <span class="promote-opt-in-modal__skip--text" (click)="skip()">Skip</span>
+    <span class="promote-opt-in-modal__skip--text" (click)="skip()">{{ 'promoteOptInModal.skip' | transloco }}</span>
   </div>
   <div (click)="optInClick()">
     <div class="promote-opt-in-modal__demo-container">
       <img
         class="promote-opt-in-modal__demo"
         src="../../../../assets/images/promote-opt-in.gif"
-        alt="Opt in to text receipts"
+        [alt]="'promoteOptInModal.altOptInGif' | transloco"
       />
     </div>
     <div class="content-center promote-opt-in-modal__try-ai-text-container">
-      <mat-icon class="fy-icon" svgIcon="sparkle"></mat-icon>
-      <span class="promote-opt-in-modal__try-ai-text"> Try AI </span>
+      <mat-icon class="fy-icon" svgIcon="ai-icon"></mat-icon>
+      <span class="promote-opt-in-modal__try-ai-text">{{ 'promoteOptInModal.tryAI' | transloco }}</span>
     </div>
-    <div class="promote-opt-in-modal__description">
-      Text receipts for <span class="promote-opt-in-modal__instant-text-decoration">instant</span>
-      <span class="promote-opt-in-modal__underline"></span> expense submission
-    </div>
+    <div class="promote-opt-in-modal__description" [innerHTML]="'promoteOptInModal.description' | transloco"></div>
     <div class="content-center">
       <button class="promote-opt-in-modal__opt-in-btn">
         <mat-icon class="fy-icon promote-opt-in-modal__arrow-icon" svgIcon="arrow-tail-right"></mat-icon>

@@ -12,7 +12,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -29,8 +29,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
@@ -79,7 +79,7 @@ export function TestCases5(getTestBed) {
     let tokenService: jasmine.SpyObj<TokenService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
@@ -120,13 +120,13 @@ export function TestCases5(getTestBed) {
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
@@ -181,7 +181,6 @@ export function TestCases5(getTestBed) {
       });
 
       it('should add expense and reload current route if form and payment mode is valid', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.saveAndNewExpense();
         expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM);
         expect(component.editExpense).not.toHaveBeenCalled();
@@ -190,7 +189,6 @@ export function TestCases5(getTestBed) {
       });
 
       it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'edit';
         component.saveAndNewExpense();
         expect(component.addExpense).not.toHaveBeenCalled();
@@ -200,16 +198,13 @@ export function TestCases5(getTestBed) {
       });
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
-        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
+        setMockFormValidity(false);
         component.saveAndNewExpense();
         expect(component.addExpense).not.toHaveBeenCalled();
         expect(component.editExpense).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
-        expect(component.invalidPaymentMode).toBeTrue();
-        tick(3000);
-        expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
 
@@ -360,7 +355,7 @@ export function TestCases5(getTestBed) {
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
+            'rpFE5X1Pqi9P',
           )
           .componentProps.deleteMethod();
         expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
@@ -373,7 +368,7 @@ export function TestCases5(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false,
-            'tx5n59fvxk4z'
+            'tx5n59fvxk4z',
           )
           .componentProps.deleteMethod();
         expect(expensesService.deleteExpenses).toHaveBeenCalledOnceWith(['tx5n59fvxk4z']);
@@ -414,15 +409,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
-          )
+            'rpFE5X1Pqi9P',
+          ),
         );
       }));
 
@@ -452,15 +447,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined
-          )
+            undefined,
+          ),
         );
       }));
 
@@ -495,22 +490,22 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined
+          undefined,
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined
-          )
+            undefined,
+          ),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
 
@@ -540,15 +535,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P'
+          'rpFE5X1Pqi9P',
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P'
-          )
+            'rpFE5X1Pqi9P',
+          ),
         );
         expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
       }));

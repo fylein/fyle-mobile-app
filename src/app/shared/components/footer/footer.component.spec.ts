@@ -1,6 +1,4 @@
 import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import { MatIconModule } from '@angular/material/icon';
 import { Router } from '@angular/router';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FooterComponent } from './footer.component';
@@ -9,8 +7,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ConnectionMessageStatus } from '../fy-connection/connection-status.enum';
 import { FooterState } from './footer-state.enum';
 import { of } from 'rxjs';
-import { MatRippleModule } from '@angular/material/core';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('FooterComponent', () => {
   let footerComponent: FooterComponent;
@@ -18,7 +16,6 @@ describe('FooterComponent', () => {
   let networkServiceSpy: jasmine.SpyObj<NetworkService>;
   let trackingServiceSpy: jasmine.SpyObj<TrackingService>;
   let routerSpy: jasmine.SpyObj<Router>;
-
   beforeEach(waitForAsync(() => {
     networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'getConnectionStatus']);
 
@@ -26,8 +23,11 @@ describe('FooterComponent', () => {
     routerSpy = jasmine.createSpyObj('Router', ['url']);
 
     TestBed.configureTestingModule({
-      declarations: [FooterComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatRippleModule],
+      imports: [
+        MatIconTestingModule,
+        getTranslocoTestingModule(),
+        FooterComponent,
+      ],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },

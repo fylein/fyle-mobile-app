@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map, switchMap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { Cacheable } from 'ts-cacheable';
@@ -12,6 +12,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { CustomInput } from '../models/custom-input.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 const customInputssCacheBuster$ = new Subject<void>();
 
@@ -19,13 +20,17 @@ const customInputssCacheBuster$ = new Subject<void>();
   providedIn: 'root',
 })
 export class CustomInputsService {
-  constructor(
-    private decimalPipe: DecimalPipe,
-    private datePipe: DatePipe,
-    private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private expenseFieldsService: ExpenseFieldsService
-  ) {}
+  private decimalPipe = inject(DecimalPipe);
+
+  private datePipe = inject(DatePipe);
+
+  private authService = inject(AuthService);
+
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private translocoService = inject(TranslocoService);
 
   @Cacheable({
     cacheBusterObserver: customInputssCacheBuster$,
@@ -39,18 +44,18 @@ export class CustomInputsService {
             is_custom: 'eq.true',
             ...(active !== undefined && { is_enabled: `eq.${active}` }), // Only add is_enabled if active is specified
           },
-        })
+        }),
       ),
-      map((res) => this.expenseFieldsService.transformFrom(res.data))
+      map((res) => this.expenseFieldsService.transformFrom(res.data)),
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}): ExpenseField[] {
+  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | number): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
-          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
-          : true
+          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === Number(orgCategoryId))
+          : true,
       )
       .sort();
   }
@@ -63,7 +68,7 @@ export class CustomInputsService {
     return 0;
   }
 
-  fillCustomProperties(orgCategoryId: number, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
+  fillCustomProperties(orgCategoryId: string, customProperties: Partial<CustomInput>[]): Observable<CustomField[]> {
     return this.getAll().pipe(
       // Call getAll without any arguments
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
@@ -78,7 +83,9 @@ export class CustomInputsService {
         // Iterate through custom inputs and process each one
         for (const customInput of customInputs) {
           const fieldName =
-            customInput.is_enabled === false ? `${customInput.field_name} (Deleted)` : customInput.field_name;
+            customInput.is_enabled === false
+              ? `${customInput.field_name}${this.translocoService.translate('services.customInputs.deletedSuffix')}`
+              : customInput.field_name;
 
           // Initialize the property object
           const property = {
@@ -117,7 +124,7 @@ export class CustomInputsService {
           }
         }
         return filledCustomProperties;
-      })
+      }),
     );
   }
 
@@ -180,7 +187,7 @@ export class CustomInputsService {
       map((allCustomInputs) =>
         allCustomInputs.map((customInput) => {
           const customProperty = etxn.tx_custom_properties.find(
-            (txCustomProperty) => txCustomProperty.name === customInput.field_name
+            (txCustomProperty) => txCustomProperty.name === customInput.field_name,
           );
           return {
             id: customInput.id,
@@ -190,13 +197,15 @@ export class CustomInputsService {
             displayValue: customProperty?.value || '-',
             mandatory: customInput.is_mandatory,
           };
-        })
-      )
+        }),
+      ),
     );
   }
 
   private formatBooleanCustomProperty(customProperty: CustomField): string {
-    return customProperty.value ? 'Yes' : 'No';
+    return customProperty.value
+      ? this.translocoService.translate('services.customInputs.yes')
+      : this.translocoService.translate('services.customInputs.no');
   }
 
   private formatDateCustomProperty(customProperty: CustomField): string {

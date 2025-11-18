@@ -1,4 +1,4 @@
-@import '../../../../theme/colors.scss';
+@use '../../../../theme/colors.scss';
 
 .approver {
   &--card {
@@ -31,7 +31,7 @@
 
   &--icon {
     margin-bottom: -2px;
-    color: $brand-primary-light;
+    color: colors.$brand-primary;
     height: 18px;
     width: 18px;
   }

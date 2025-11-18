@@ -1,25 +1,63 @@
+@use '../../../../theme/colors.scss';
+
 .toast-message {
   &--container {
     justify-content: space-between;
     align-items: center;
+    border-radius: 4px;
+
+    &.type-success {
+      border: 1px solid colors.$green-500;
+    }
+
+    &.type-failure {
+      border: 1px solid colors.$negative-400;
+    }
+
+    &.type-information {
+      border: 1px solid colors.$navy-500;
+    }
+
+    .icon-container {
+      padding: 14px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &.type-success {
+        background-color: colors.$green-500;
+      }
+
+      &.type-failure {
+        background-color: colors.$negative-400;
+      }
+
+      &.type-information {
+        background-color: colors.$navy-500;
+      }
+
+    }
+  }
+
+  &--body {
+    padding: 12px 16px;
   }
 
   &--left-icon {
-    font-size: 20px;
-    margin-right: 10px;
-    height: 18px;
-    width: 18px;
-    flex-shrink: 0;
+    height: 16px;
+    width: 16px;
   }
 
   &--redirection {
-    margin-left: 19px;
-    margin-right: 20px;
+    color: colors.$brand-primary;
+    margin-right: 8px;
     white-space: nowrap;
     font-weight: 500;
   }
 
   &--right-icon {
     font-size: 20px;
+    margin-top: 6px;
+    margin-right: 8px;
   }
 }

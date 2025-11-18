@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -9,12 +9,12 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { finalize, of, tap } from 'rxjs';
-import { cloneDeep, noop } from 'lodash';
+import { finalize, of } from 'rxjs';
+import { cloneDeep } from 'lodash';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
@@ -22,14 +22,13 @@ import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-repo
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import {
   expectedReportsSinglePage,
   expectedReportsSinglePageFiltered,
-  expectedReportsSinglePageSubmitted,
   expectedReportsSinglePageSubmittedWithApproval,
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
@@ -53,17 +52,16 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
-
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
@@ -98,7 +96,7 @@ export function TestCases3(getTestBed) {
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
+          }),
         )
         .subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -264,6 +262,7 @@ export function TestCases3(getTestBed) {
             icon: 'check-square-fill',
             showCloseButton: true,
             message,
+            messageType: 'success' as const,
           },
           duration: 3000,
         };
@@ -288,6 +287,7 @@ export function TestCases3(getTestBed) {
             icon: 'warning-fill',
             showCloseButton: true,
             message,
+            messageType: 'failure' as const,
           },
           duration: 3000,
         };
@@ -320,7 +320,7 @@ export function TestCases3(getTestBed) {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
       expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
-        commuteDetailsResponseData.data[0]
+        commuteDetailsResponseData.data[0],
       );
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));

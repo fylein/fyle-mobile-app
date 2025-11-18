@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { FileObject } from '../models/file-obj.model';
 import { PolicyViolation } from '../models/policy-violation.model';
@@ -21,33 +21,37 @@ import { ExpenseCommentService } from './platform/v1/spender/expense-comment.ser
 import { ExpenseComment } from '../models/expense-comment.model';
 import { UntypedFormArray, AbstractControl } from '@angular/forms';
 import { fallbackCurrencies } from '../mock-data/fallback-currency-data';
+import { map } from 'rxjs/operators';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SplitExpenseService {
-  defaultPolicyViolationMessage = 'No policy violation explanation provided';
+  private policyService = inject(PolicyService);
 
-  prependPolicyViolationMessage = 'Policy violation explanation: ';
+  private categoriesService = inject(CategoriesService);
 
-  constructor(
-    private policyService: PolicyService,
-    private categoriesService: CategoriesService,
-    private utilityService: UtilityService,
-    private expensesService: ExpensesService,
-    private expenseCommentService: ExpenseCommentService
-  ) {}
+  private utilityService = inject(UtilityService);
+
+  private expensesService = inject(ExpensesService);
+
+  private expenseCommentService = inject(ExpenseCommentService);
+
+  private translocoService = inject(TranslocoService);
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
     return category?.displayName;
   }
 
+  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   createSplitTxns(
     sourceTxn: Transaction,
     totalSplitAmount: number,
     splitExpenses: Transaction[],
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
+    homeCurrency: string,
   ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
@@ -67,7 +71,8 @@ export class SplitExpenseService {
       splitGroupAmount,
       splitGroupId,
       splitExpenses.length,
-      expenseFields
+      expenseFields,
+      homeCurrency,
     );
   }
 
@@ -75,9 +80,9 @@ export class SplitExpenseService {
     splitExpense: Transaction,
     sourceTxn: Transaction,
     customPropertyId: number,
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
   ): boolean {
-    const categoryId = splitExpense.org_category_id || sourceTxn?.org_category_id;
+    const categoryId = splitExpense.category_id || sourceTxn?.category_id;
     if (categoryId && expenseFields?.length > 0) {
       const customField = expenseFields.find((field) => field.id === customPropertyId);
       return customField?.org_category_ids?.includes(categoryId);
@@ -107,7 +112,8 @@ export class SplitExpenseService {
     splitGroupAmount: number,
     splitGroupId: string,
     totalSplitExpensesCount: number,
-    expenseFields: ExpenseField[]
+    expenseFields: ExpenseField[],
+    homeCurrency: string,
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
@@ -118,7 +124,8 @@ export class SplitExpenseService {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
 
         transaction.orig_amount = splitExpense.amount;
-        transaction.amount = parseFloat((splitExpense.amount * exchangeRate).toFixed(3));
+        const precision = this.getCurrencyPrecision(homeCurrency);
+        transaction.amount = this.roundToPrecision(splitExpense.amount * exchangeRate, precision);
       } else {
         transaction.amount = splitExpense.amount;
       }
@@ -129,11 +136,11 @@ export class SplitExpenseService {
       transaction.id = null;
       transaction.source = transaction.source || 'MOBILE_SPLIT';
 
-      transaction.txn_dt = splitExpense.txn_dt || sourceTxn.txn_dt;
-      transaction.txn_dt = new Date(transaction.txn_dt);
+      transaction.spent_at = splitExpense.spent_at || sourceTxn.spent_at;
+      transaction.spent_at = new Date(transaction.spent_at);
       transaction.project_id = splitExpense.project_id || sourceTxn.project_id;
       transaction.cost_center_id = splitExpense.cost_center_id || sourceTxn.cost_center_id;
-      transaction.org_category_id = splitExpense.org_category_id || sourceTxn.org_category_id;
+      transaction.category_id = splitExpense.category_id || sourceTxn.category_id;
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
       transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
       transaction.custom_properties = splitExpense.custom_properties || sourceTxn.custom_properties;
@@ -145,14 +152,16 @@ export class SplitExpenseService {
       txnsObservables.push(of(transaction));
     });
 
-    return forkJoin(txnsObservables);
+    return forkJoin(txnsObservables).pipe(
+      map((transactions) => this.normalizeForeignCurrencySplitAmounts(sourceTxn, transactions, homeCurrency)),
+    );
   }
 
   setupSplitExpensePurpose(
     transaction: Transaction,
     splitGroupId: string,
     index: number,
-    totalSplitExpensesCount: number
+    totalSplitExpensesCount: number,
   ): void {
     if (transaction.purpose) {
       let splitIndex = 1;
@@ -178,7 +187,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<SplitExpensePolicy> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -219,15 +228,15 @@ export class SplitExpenseService {
     splitTxns: Transaction[],
     transaction: Transaction,
     fileIds: string[],
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): SplitPayload {
     const platformSplitObject: SplitPayload = {
       id: transaction.id,
       splits: this.transformSplitArray(splitTxns, reportAndCategoryParams.unspecifiedCategory),
       // Platform will throw error if category_id is null in form, therefore adding unspecified category
-      category_id: transaction.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
+      category_id: transaction.category_id || reportAndCategoryParams.unspecifiedCategory?.id,
       source: transaction.source,
-      spent_at: transaction.txn_dt,
+      spent_at: transaction.spent_at,
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       travel_classes: [],
       locations: transaction.locations,
@@ -262,8 +271,8 @@ export class SplitExpenseService {
 
     for (const splitEtxn of splitEtxns) {
       const splitObject = {
-        spent_at: splitEtxn.txn_dt,
-        category_id: splitEtxn.org_category_id || unspecifiedCategory?.id,
+        spent_at: splitEtxn.spent_at,
+        category_id: splitEtxn.category_id || unspecifiedCategory?.id,
         project_id: splitEtxn.project_id,
         cost_center_id: splitEtxn.cost_center_id,
         purpose: splitEtxn.purpose,
@@ -282,7 +291,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<Partial<SplitExpenseMissingFields>> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -299,14 +308,14 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
     const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportAndCategoryParams);
     const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(
       splitEtxns,
       fileObjs,
       originalTxn,
-      reportAndCategoryParams
+      reportAndCategoryParams,
     );
 
     return forkJoin({ policyViolations: splitPolicyChecks$, missingFields: splitMissingFieldsCheck$ });
@@ -397,7 +406,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
   ): Observable<{ data: Transaction[] }> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -410,8 +419,8 @@ export class SplitExpenseService {
       expense_id: txnId,
       comment:
         comments[index] !== ''
-          ? this.prependPolicyViolationMessage + comments[index]
-          : this.defaultPolicyViolationMessage,
+          ? this.translocoService.translate('services.splitExpense.policyViolationExplanationPrefix') + comments[index]
+          : this.translocoService.translate('services.splitExpense.noPolicyViolationExplanation'),
       notify: true,
     }));
 
@@ -484,5 +493,31 @@ export class SplitExpenseService {
   private setSplitValues(control: AbstractControl, amount: number, total: number): void {
     const percentage = total !== 0 ? this.roundToPrecision((Math.abs(amount) / Math.abs(total)) * 100, 3) : 0;
     control.patchValue({ amount, percentage }, { emitEvent: false });
+  }
+
+  private normalizeForeignCurrencySplitAmounts(
+    sourceTxn: Transaction,
+    transactionsPayload: Transaction[],
+    homeCurrency: string,
+  ): Transaction[] {
+    if (!sourceTxn.orig_currency || transactionsPayload.length === 0) {
+      return transactionsPayload;
+    }
+
+    const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
+    const homeCurrencyPrecision = this.getCurrencyPrecision(homeCurrency);
+    const threshold = this.getThresholdTolerance(homeCurrencyPrecision);
+
+    const totalExpectedAmount = this.roundToPrecision(sourceTxn.orig_amount * exchangeRate, homeCurrencyPrecision);
+    const totalSplitAmount = transactionsPayload.reduce((sum, txn) => sum + txn.amount, 0);
+
+    const difference = this.roundToPrecision(totalExpectedAmount - totalSplitAmount, homeCurrencyPrecision + 1);
+
+    if (Math.abs(difference) >= threshold) {
+      const lastTransaction = transactionsPayload[transactionsPayload.length - 1];
+      lastTransaction.amount = this.roundToPrecision(lastTransaction.amount + difference, homeCurrencyPrecision);
+    }
+
+    return transactionsPayload;
   }
 }

@@ -1,32 +1,23 @@
-@import '../../../theme/colors';
+@use '../../../theme/colors.scss';
+@use 'sass:map';
 
 .dashboard {
   &--title {
     padding: 18px 0 18px 12px;
-    color: $black;
+    color: colors.$black;
   }
 
   &--toolbar {
-    border-bottom: 1px solid $grey-lightest;
+    border-bottom: 1px solid colors.$grey-lightest;
   }
 
-  &--opt-in-gradient {
-    background: linear-gradient(80deg, rgb(236 245 255 / 21%) 54.75%, rgb(255 237 252 / 30%) 86.07%);
-  }
-
+  // requred for page navigation as the page contents are shown/hidden dynamically
   &--background-container {
     position: absolute;
     top: 0;
     width: 100%;
     height: 100%;
-    background: $white;
-  }
-
-  &--background {
-    background: url('../../../assets/images/dashboard-bg.png') no-repeat center;
-    background-size: cover;
-    width: 100%;
-    height: 170px;
+    background: colors.$white;
   }
 
   &--body {
@@ -35,7 +26,7 @@
   }
 
   &--tabs {
-    .mat-tab-header {
+    .mat-mdc-tab-header {
       display: none;
     }
   }
@@ -44,7 +35,69 @@
     padding: 8px 16px 4px 16px;
     font-size: 18px;
     font-weight: 500;
-    color: $black-light;
+    color: colors.$black-light;
+  }
+
+  &--pending-tasks-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid colors.$lighter-grey;
+    margin: 14px 16px 0 16px;
+    background-color: colors.$pure-white;
+  }
+
+  &--pending-tasks-stat-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  &--pending-tasks-stat-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &--pending-tasks-stat-icon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+  }
+
+  &--pending-tasks-stat-icon-pill {
+    position: absolute;
+    background-color: colors.$stat-badge-blue;
+    color: colors.$pure-white;
+    line-height: 8px;
+    top: -6px;
+    margin-left: 10px;
+    font-size: 75%;
+    font-weight: 700;
+    text-align: center;
+    padding: 4px;
+    border-radius: 20px;
+    white-space: nowrap;
+    min-width: 16px;
+  }
+
+  &--pending-tasks-stat-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: colors.$black-light;
+  }
+
+  &--pending-tasks-stat-arrow-button {
+    display: flex;
+    position: relative;
+    color: colors.$black-light;
   }
 
   &--handwave {
@@ -94,16 +147,34 @@
   }
 
   &--title {
-    --color: #{$black-2};
+    --color: #{colors.$black-2};
   }
 
   &--action-shortcut-icon {
     font-size: 24px;
   }
 
+  &--action-shortcut-plus-icon {
+    height: 20px;
+    width: 20px;
+  }
+
+  &--action-shortcut-container {
+    padding: 20px;
+  }
+
   &--action-shortcut {
     padding-right: 12px;
     padding-top: 2px;
+    display: flex;
+    align-items: center;
+    color: colors.$brand-primary;
+    font-size: 14px;
+    font-weight: 500;
+    gap: 4px;
+    border-radius: 32px;
+    padding: 8px 16px;
+    border: 2px solid colors.$brand-primary;
 
     &--skeleton-icon {
       margin-right: 12px;

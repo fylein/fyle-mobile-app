@@ -1,5 +1,5 @@
-@import '../../../../theme/colors.scss';
-@import '../../../../theme/timeline.scss';
+@use '../../../../theme/colors.scss';
+@use '../../../../theme/timeline.scss';
 
 .route-selector {
   &--label {
@@ -13,7 +13,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
   }
@@ -23,30 +23,30 @@
     align-items: center;
     justify-content: space-between;
     padding: 6px 0;
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
   }
 
   &--input {
     font-size: 14px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     border: none;
     width: 100%;
     padding: 0;
   }
 
   &--input-invalid {
-    border-bottom: 1px solid $red;
+    border-bottom: 1px solid colors.$negative-500;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
     font-size: 14px;
     font-weight: 400;
   }
 
   &--icon {
-    color: $grey-light;
+    color: colors.$grey-light;
     height: 12px;
     width: 12px;
   }
@@ -62,7 +62,7 @@
     margin-bottom: 12px;
 
     &__invalid {
-      border-color: $red;
+      border-color: colors.$negative-500;
     }
   }
 
@@ -72,10 +72,10 @@
   }
 
   &--text {
-    border-bottom: 1px solid $grey-lighter;
+    border-bottom: 1px solid colors.$grey-lighter;
 
     &__invalid {
-      border-bottom: 1px solid $red;
+      border-bottom: 1px solid colors.$negative-500;
     }
   }
 
@@ -84,7 +84,7 @@
     max-width: 90%;
     min-width: 120px;
     font-size: 12px;
-    color: $black-light;
+    color: colors.$black-light;
     line-height: 16px;
     white-space: nowrap;
     font-weight: 400;
@@ -101,7 +101,7 @@
     font-weight: 400;
     height: 18px;
     line-height: 18px;
-    color: $blue-black;
+    color: colors.$blue-black;
     width: 100%;
     padding: 0;
     margin: 6px 0;
@@ -109,12 +109,12 @@
 
   &--checkbox {
     font-size: 14px;
-    color: $blue-black;
+    color: colors.$blue-black;
     font-weight: 400;
   }
 
   &--mandatory {
-    color: $brand-primary;
+    color: colors.$negative-500;
     display: inline-block;
     font-size: 14px;
     font-weight: 400;
@@ -125,7 +125,7 @@
   }
 
   &--error {
-    color: $red;
+    color: colors.$negative-500;
     line-height: 16px;
     margin-top: -8px;
     font-size: 12px;

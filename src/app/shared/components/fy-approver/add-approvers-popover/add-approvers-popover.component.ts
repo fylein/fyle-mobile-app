@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { ModalController, PopoverController } from '@ionic/angular';
+import { Component, Input, inject } from '@angular/core';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { switchMap, finalize, concatMap, reduce } from 'rxjs/operators';
 import { from } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -10,18 +10,58 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Approver } from './models/approver.model';
 import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatChip } from '@angular/material/chips';
+import { FyAlertInfoComponent } from '../../fy-alert-info/fy-alert-info.component';
 @Component({
   selector: 'app-add-approvers-popover',
   templateUrl: './add-approvers-popover.component.html',
   styleUrls: ['./add-approvers-popover.component.scss'],
+  imports: [
+    FormsModule,
+    FyAlertInfoComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatChip,
+    MatIcon,
+    TranslocoPipe
+  ],
 })
 export class AddApproversPopoverComponent {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private popoverController = inject(PopoverController);
+
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private loaderService = inject(LoaderService);
+
+  private approverReportsService = inject(ApproverReportsService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() approverEmailsList: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() id: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() ownerEmail: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() type: string;
 
   selectedApproversList: Approver[] = [];
@@ -29,15 +69,6 @@ export class AddApproversPopoverComponent {
   displayValue: string;
 
   confirmationMessage = '';
-
-  constructor(
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private popoverController: PopoverController,
-    private advanceRequestService: AdvanceRequestService,
-    private loaderService: LoaderService,
-    private approverReportsService: ApproverReportsService
-  ) {}
 
   async openModal(): Promise<void> {
     const approversListModal = await this.modalController.create({
@@ -87,7 +118,7 @@ export class AddApproversPopoverComponent {
             return (acc as Report[]).concat(curr as Report);
           }
         }, []),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(() => {
         this.popoverController.dismiss({ reload: true });

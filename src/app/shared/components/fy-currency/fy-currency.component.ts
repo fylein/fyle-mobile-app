@@ -1,8 +1,15 @@
-import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, OnInit, forwardRef, Input, SimpleChanges, OnChanges, inject, input, effect } from '@angular/core';
 
-import { NG_VALUE_ACCESSOR, ControlValueAccessor, UntypedFormBuilder, UntypedFormGroup } from '@angular/forms';
+import {
+  NG_VALUE_ACCESSOR,
+  ControlValueAccessor,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { noop, of, from } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyCurrencyChooseCurrencyComponent } from './fy-currency-choose-currency/fy-currency-choose-currency.component';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate/fy-currency-exchange-rate.component';
 import { isEqual } from 'lodash';
@@ -12,6 +19,11 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ParsedResponse } from 'src/app/core/models/parsed_response.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { CurrencyAmountFormValues } from 'src/app/core/models/currency-amount-form-values.model';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass, DecimalPipe, CurrencyPipe } from '@angular/common';
+import { FyNumberComponent } from '../fy-number/fy-number.component';
+import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 
 @Component({
   selector: 'app-currency',
@@ -24,21 +36,58 @@ import { CurrencyAmountFormValues } from 'src/app/core/models/currency-amount-fo
       multi: true,
     },
   ],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    MatIcon,
+    NgClass,
+    FyNumberComponent,
+    DecimalPipe,
+    CurrencyPipe,
+    TranslocoPipe,
+    FyCurrencyPipe,
+  ],
 })
 export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChanges {
+  private fb = inject(UntypedFormBuilder);
+
+  private modalController = inject(ModalController);
+
+  private currencyService = inject(CurrencyService);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() txnDt: Date;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() homeCurrency: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() recentlyUsed: { label: string; value: string }[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expanded: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent = true;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoCodedData: ParsedResponse;
+
+  readonly disabled = input<boolean>(false);
 
   currencyAutoCodeMessage = '';
 
@@ -50,16 +99,26 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
 
   innerValue: CurrencyObj;
 
+  constructor() {
+    this.fg = this.fb.group({
+      currency: [], // currency which is currently shown
+      amount: [], // amount which is currently shown
+      homeCurrencyAmount: [], // Amount converted to home currency
+    });
+
+    effect(() => {
+      const isDisabled = this.disabled();
+      if (isDisabled) {
+        this.fg.disable();
+      } else if (this.fg.disabled) {
+        this.fg.enable();
+      }
+    });
+  }
+
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (_: CurrencyObj) => void = noop;
-
-  constructor(
-    private fb: UntypedFormBuilder,
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private modalProperties: ModalPropertiesService
-  ) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {
@@ -84,12 +143,6 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
   }
 
   ngOnInit(): void {
-    this.fg = this.fb.group({
-      currency: [], // currency which is currently shown
-      amount: [], // amount which is currently shown
-      homeCurrencyAmount: [], // Amount converted to home currency
-    });
-
     this.fg.valueChanges
       .pipe(
         switchMap((formValue: CurrencyAmountFormValues) => {
@@ -100,7 +153,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           } else {
             return of({ formValue, exchangeRate: null });
           }
-        })
+        }),
       )
       .subscribe(({ formValue, exchangeRate }: { formValue: CurrencyAmountFormValues; exchangeRate: number }) => {
         if (exchangeRate) {
@@ -161,8 +214,8 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
         this.currencyService.getExchangeRate(
           (this.fg.value as CurrencyAmountFormValues).currency,
           this.homeCurrency,
-          this.txnDt || new Date()
-        )
+          this.txnDt || new Date(),
+        ),
       )
         .pipe()
         .subscribe((newExchangeRate) => {
@@ -185,8 +238,10 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
     const isCurrencyAutoCoded = currency && currency === formCurrency;
     const isAmountAutoCoded = amount && amount === formAmount;
 
-    this.currencyAutoCodeMessage = isCurrencyAutoCoded ? 'Currency is auto coded.' : '';
-    this.amountAutoCodeMessage = isAmountAutoCoded ? 'Amount is auto coded.' : '';
+    this.currencyAutoCodeMessage = isCurrencyAutoCoded
+      ? this.translocoService.translate('fyCurrency.currencyAutoCoded')
+      : '';
+    this.amountAutoCodeMessage = isAmountAutoCoded ? this.translocoService.translate('fyCurrency.amountAutoCoded') : '';
   }
 
   convertInnerValueToFormValue(innerVal: CurrencyObj): CurrencyAmountFormValues {
@@ -269,7 +324,7 @@ export class FyCurrencyComponent implements ControlValueAccessor, OnInit, OnChan
           },
           {
             emitEvent: false,
-          }
+          },
         );
 
         this.value = {

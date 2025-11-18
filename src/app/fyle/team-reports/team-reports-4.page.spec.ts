@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -7,10 +7,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import {
@@ -37,7 +36,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases4(getTestBed) {
-  return describe('test cases set 3', () => {
+  return describe('test cases set 4', () => {
     let component: TeamReportsPage;
     let fixture: ComponentFixture<TeamReportsPage>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -47,13 +46,10 @@ export function TestCases4(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-    let inputElement: HTMLInputElement;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let authService: jasmine.SpyObj<AuthService>;
-
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TeamReportsPage);
@@ -64,11 +60,10 @@ export function TestCases4(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
       component.eou$ = of(apiEouRes);
     }));

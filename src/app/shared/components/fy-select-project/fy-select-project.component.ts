@@ -1,11 +1,14 @@
-import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, Output, EventEmitter } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, forwardRef, Input, OnDestroy, TemplateRef, ElementRef, inject, input, output } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { noop } from 'rxjs';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
+import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -18,31 +21,50 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
       multi: true,
     },
   ],
+  imports: [NgClass, FormsModule, MatIcon, TranslocoPipe],
 })
 export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy {
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() mandatory = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() label: string;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
-  @Input() cacheName: string;
+  readonly cacheName = input<string>(undefined);
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
-  @Input() categoryIds: string[];
+  readonly categoryIds = input<string[]>(undefined);
 
-  @Input() defaultValue = false;
+  readonly defaultValue = input(false);
 
-  @Input() recentlyUsed: ProjectOption[];
+  readonly recentlyUsed = input<ProjectOption[]>(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() touchedInParent: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() validInParent: boolean;
 
-  @Input() isProjectCategoryRestrictionsEnabled: boolean;
+  readonly isProjectCategoryRestrictionsEnabled = input<boolean>(undefined);
 
-  @Output() valueChange = new EventEmitter<ProjectV2>();
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  readonly isSelectedProjectDisabled = input<boolean>(undefined);
+
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  readonly selectedDisabledProject = input<ProjectV2>(undefined);
+
+  readonly valueChange = output<ProjectV2>();
 
   displayValue: string;
 
@@ -51,8 +73,6 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
   onTouchedCallback: () => void = noop;
 
   onChangeCallback: (value: ProjectV2) => void = noop;
-
-  constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
   get valid(): boolean {
     if (this.touchedInParent) {
@@ -90,13 +110,15 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
       component: FyProjectSelectModalComponent,
       componentProps: {
         currentSelection: this.value,
-        cacheName: this.cacheName,
-        selectionElement: this.selectionElement,
-        categoryIds: this.categoryIds,
-        defaultValue: this.defaultValue,
-        recentlyUsed: this.recentlyUsed,
+        cacheName: this.cacheName(),
+        selectionElement: this.selectionElement(),
+        categoryIds: this.categoryIds(),
+        defaultValue: this.defaultValue(),
+        recentlyUsed: this.recentlyUsed(),
         label: this.label,
-        isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled,
+        isProjectCategoryRestrictionsEnabled: this.isProjectCategoryRestrictionsEnabled(),
+        isSelectedProjectDisabled: this.isSelectedProjectDisabled(),
+        selectedDisabledProject: this.selectedDisabledProject(),
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

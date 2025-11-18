@@ -1,27 +1,29 @@
-import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
+import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, of } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, ModalController, PopoverController, SegmentCustomEvent } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, NgFor, NgClass, AsyncPipe, LowerCasePipe, TitleCasePipe, DatePipe } from '@angular/common';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { cloneDeep, isNumber } from 'lodash';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -30,6 +32,7 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
@@ -37,22 +40,114 @@ import { ReportPermissions } from 'src/app/core/models/report-permissions.model'
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-approver/show-all-approvers-popover/show-all-approvers-popover.component';
 import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
-import * as Sentry from '@sentry/angular-ivy';
+import * as Sentry from '@sentry/angular';
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
-
+import { MatIconButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { AuditHistoryComponent } from '../../shared/components/comments-history/audit-history/audit-history.component';
+import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
+import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
+import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
   styleUrls: ['./my-view-report.page.scss'],
+  imports: [
+    AsyncPipe,
+    AuditHistoryComponent,
+    DatePipe,
+    DateWithTimezonePipe,
+    EllipsisPipe,
+    ExactCurrencyPipe,
+    ExpensesCardComponent,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyLoadingScreenComponent,
+    FyZeroStateComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonFooter,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonSegment,
+    IonSegmentButton,
+    IonSkeletonText,
+    IonSpinner,
+    IonTitle,
+    IonToolbar,
+    LowerCasePipe,
+    MatIcon,
+    MatIconButton,
+    MatInput,
+    NgClass,
+    NgFor,
+    ReportStatePipe,
+    RouterLink,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe
+  ],
 })
 export class MyViewReportPage {
+  private activatedRoute = inject(ActivatedRoute);
+
+  private reportService = inject(ReportService);
+
+  private expensesService = inject(ExpensesService);
+
+  private authService = inject(AuthService);
+
+  private router = inject(Router);
+
+  private popoverController = inject(PopoverController);
+
+  private modalController = inject(ModalController);
+
+  private modalProperties = inject(ModalPropertiesService);
+
+  private networkService = inject(NetworkService);
+
+  private trackingService = inject(TrackingService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private statusService = inject(StatusService);
+
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private platformHandlerService = inject(PlatformHandlerService);
+
+  private spenderReportsService = inject(SpenderReportsService);
+
+  private dateWithTimezonePipe = inject(DateWithTimezonePipe);
+
+  private translocoService = inject(TranslocoService);
+
+  private orgUserService = inject(OrgUserService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the query. This prevents migration.
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
-  @ViewChild(IonContent, { static: false }) content: IonContent;
+  readonly content = viewChild(IonContent);
 
   report$: Observable<Report>;
 
@@ -120,36 +215,61 @@ export class MyViewReportPage {
 
   submitReportLoader = false;
 
+  isLoading = true;
+
   showViewApproverModal = false;
 
   approvals: ReportApprovals[];
 
   approverToShow: ReportApprovals;
 
-  constructor(
-    private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
-    private expensesService: ExpensesService,
-    private authService: AuthService,
-    private loaderService: LoaderService,
-    private router: Router,
-    private popoverController: PopoverController,
-    private modalController: ModalController,
-    private modalProperties: ModalPropertiesService,
-    private networkService: NetworkService,
-    private trackingService: TrackingService,
-    private matSnackBar: MatSnackBar,
-    private snackbarProperties: SnackbarPropertiesService,
-    private statusService: StatusService,
-    private orgSettingsService: OrgSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService,
-    private dateWithTimezonePipe: DateWithTimezonePipe
-  ) {}
-
   get Segment(): typeof ReportPageSegment {
     return ReportPageSegment;
+  }
+
+  private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
+    this.eou$
+      .pipe(
+        take(1),
+        switchMap((eou) =>
+          this.orgSettingsService.get().pipe(
+            switchMap((orgSettings) => {
+              if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
+                return of(false);
+              }
+              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+                catchError(() => of(false)),
+              );
+            }),
+          ),
+        ),
+      )
+      .subscribe((isSuspended) => {
+        if (isSuspended) {
+          this.showAchSuspensionPopup();
+        } else {
+          this.performAddExpenses(selectedExpenseIds);
+        }
+      });
+  }
+
+  private performAddExpenses(selectedExpenseIds: string[]): void {
+    this.isExpensesLoading = true;
+    this.spenderReportsService.addExpenses(this.reportId, selectedExpenseIds).subscribe({
+      next: () => {
+        this.loadReportDetails$.next();
+        this.loadReportTxns$.next();
+        this.trackingService.addToExistingReport();
+        this.unreportedExpenses = this.unreportedExpenses.filter(
+          (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id),
+        );
+        this.isExpensesLoading = false;
+      },
+      error: () => {
+        this.isExpensesLoading = false;
+      },
+    });
   }
 
   setupNetworkWatcher(): void {
@@ -157,7 +277,7 @@ export class MyViewReportPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.isConnected$.subscribe((isOnline) => {
@@ -208,7 +328,7 @@ export class MyViewReportPage {
       this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 
       this.systemComments = this.estatuses.filter(
-        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id,
       );
 
       this.type =
@@ -219,7 +339,7 @@ export class MyViewReportPage {
       this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
 
       this.userComments = this.estatuses.filter(
-        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id),
       );
 
       this.userComments.sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
@@ -238,11 +358,11 @@ export class MyViewReportPage {
 
   setupApproverToShow(report: Report): void {
     const filteredApprover = this.approvals.filter(
-      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id
+      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id,
     );
     const highestRankApprover = this.approvals.reduce(
       (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
-      this.approvals[0]
+      this.approvals[0],
     );
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
@@ -253,26 +373,31 @@ export class MyViewReportPage {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.segmentValue = ReportPageSegment.EXPENSES;
+    this.isLoading = true;
 
     this.report$ = this.loadReportDetails$.pipe(
-      map(() => from(this.loaderService.showLoader())),
       switchMap(() =>
-        this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.spenderReportsService.getReportById(this.reportId).pipe(
+          finalize(() => {
+            this.isLoading = false;
+          }),
+        ),
       ),
       map((report) => {
         this.setupComments(report);
         this.approvals = report?.approvals;
         // filtering out disabled approvals from my view report page
-        this.approvals = report?.approvals?.filter((approval) =>
-          [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
-        );
+        this.approvals =
+          report?.approvals?.filter((approval) =>
+            [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
+          ) || [];
         if (this.showViewApproverModal) {
           this.approvals.sort((a, b) => a.approver_order - b.approver_order);
           this.setupApproverToShow(report);
         }
         return report;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
     this.eou$ = from(this.authService.getEou());
 
@@ -290,9 +415,9 @@ export class MyViewReportPage {
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
       switchMap(() =>
-        this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
+        this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false))),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     const permissions$: Observable<ReportPermissions> = this.spenderReportsService
@@ -320,7 +445,7 @@ export class MyViewReportPage {
           (orgSetting) =>
             orgSetting &&
             orgSetting.corporate_credit_card_settings?.enabled &&
-            orgSetting.pending_cct_expense_restriction?.enabled
+            orgSetting.pending_cct_expense_restriction?.enabled,
         ),
         switchMap((filterPendingTxn: boolean) =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
@@ -335,19 +460,19 @@ export class MyViewReportPage {
                 });
               }
               return expenses;
-            })
-          )
+            }),
+          ),
         ),
         map((expenses) => cloneDeep(expenses)),
         map((expenses: Expense[]) => {
           this.unreportedExpenses = expenses;
-        })
+        }),
       )
       .subscribe(noop);
 
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
+      map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) })),
     );
 
     orgSettings$.subscribe((orgSettings) => {
@@ -360,7 +485,7 @@ export class MyViewReportPage {
       BackButtonActionPriority.MEDIUM,
       () => {
         this.router.navigate(['/', 'enterprise', 'my_reports']);
-      }
+      },
     );
   }
 
@@ -405,7 +530,7 @@ export class MyViewReportPage {
         switchMap((report) => {
           report.purpose = reportName;
           return this.reportService.updateReportPurpose(report);
-        })
+        }),
       )
       .subscribe(() => {
         this.loadReportDetails$.next();
@@ -431,8 +556,8 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
-        )
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>,
+        ),
       )
       .subscribe((editReportNamePopoverDetails) => {
         const newReportName =
@@ -465,7 +590,7 @@ export class MyViewReportPage {
       cssClass: 'pop-up-in-center',
       backdropDismiss: false,
       componentProps: {
-        header: 'Delete Report',
+        header: 'Delete report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
           report.state === ReportState.DRAFT && report.num_expenses === 0
@@ -573,8 +698,9 @@ export class MyViewReportPage {
               id: expense.id,
               navigate_back: true,
               remove_from_report: report.num_expenses > 1,
+              rp_id: this.reportId,
             },
-          ])
+          ]),
         );
       } else {
         this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
@@ -634,6 +760,24 @@ export class MyViewReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
+  async showAchSuspensionPopup(): Promise<void> {
+    const achSuspensionPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('dashboard.achSuspendedTitle'),
+        message: this.translocoService.translate<string>('dashboard.achSuspendedMessage'),
+        primaryCta: {
+          text: this.translocoService.translate('dashboard.achSuspendedButton'),
+          action: 'confirm',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await achSuspensionPopover.present();
+    this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
+  }
+
   segmentChanged(event: SegmentCustomEvent): void {
     if (isNumber(event?.detail?.value)) {
       this.segmentValue = event.detail.value;
@@ -654,7 +798,7 @@ export class MyViewReportPage {
         .subscribe(() => {
           this.loadReportDetails$.next();
           setTimeout(() => {
-            this.content.scrollToBottom(500);
+            this.content().scrollToBottom(500);
           }, 500);
         });
     }
@@ -680,8 +824,8 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
-        )
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>,
+        ),
       )
       .subscribe((addExpensesToReportModalDetails) => {
         const selectedExpenseIds = addExpensesToReportModalDetails?.data?.selectedExpenseIds;
@@ -692,14 +836,18 @@ export class MyViewReportPage {
   }
 
   addExpensesToReport(selectedExpenseIds: string[]): void {
-    this.isExpensesLoading = true;
-    this.spenderReportsService.addExpenses(this.reportId, selectedExpenseIds).subscribe(() => {
-      this.loadReportDetails$.next();
-      this.loadReportTxns$.next();
-      this.trackingService.addToExistingReport();
-      this.unreportedExpenses = this.unreportedExpenses.filter(
-        (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id)
-      );
-    });
+    // Check if any selected expenses are reimbursable
+    const selectedExpenses = this.unreportedExpenses.filter(expense => 
+      selectedExpenseIds.includes(expense.id)
+    );
+    const hasReimbursableExpenses = selectedExpenses.some(expense => expense.is_reimbursable);
+    
+    if (hasReimbursableExpenses) {
+      // Check ACH suspension before adding reimbursable expenses
+      this.checkAchSuspensionBeforeAdd(selectedExpenseIds);
+    } else {
+      // No reimbursable expenses, proceed directly
+      this.performAddExpenses(selectedExpenseIds);
+    }
   }
 }

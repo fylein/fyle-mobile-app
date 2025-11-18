@@ -10,81 +10,91 @@
 </ion-header>
 
 <ion-content class="notifications--content-container">
-  <div class="notifications--container">
-    <div
-      class="notifications--card"
-      matRipple
-      *ngIf="expenseNotificationsConfig?.notifications?.length > 0"
-      (click)="openNotificationModal(expenseNotificationsConfig)"
-    >
-      <div class="notifications--card--title">{{ expenseNotificationsConfig.title }}</div>
-      <ion-icon
-        class="notifications--navigate-icon"
-        src="../../../assets/svg/arrow-right.svg"
-        slot="icon-only"
-      ></ion-icon>
+  @if (isInitialLoading) {
+    <div class="notifications--skeleton-wrapper">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <ion-skeleton-text animated class="notifications--skeleton-card"></ion-skeleton-text>
+      }
     </div>
-
-    <div
-      class="notifications--card"
-      matRipple
-      *ngIf="expenseReportNotificationsConfig?.notifications?.length > 0"
-      (click)="openNotificationModal(expenseReportNotificationsConfig)"
-    >
-      <div class="notifications--card--title">{{ expenseReportNotificationsConfig.title }}</div>
-      <ion-icon
-        class="notifications--navigate-icon"
-        src="../../../assets/svg/arrow-right.svg"
-        slot="icon-only"
-      ></ion-icon>
-    </div>
-
-    <div
-      class="notifications--card"
-      matRipple
-      *ngIf="isAdvancesEnabled && advanceNotificationsConfig?.notifications?.length > 0"
-      (click)="openNotificationModal(advanceNotificationsConfig)"
-    >
-      <div class="notifications--card--title">{{ advanceNotificationsConfig.title }}</div>
-      <ion-icon
-        class="notifications--navigate-icon"
-        src="../../../assets/svg/arrow-right.svg"
-        slot="icon-only"
-      ></ion-icon>
-    </div>
-
-    <div *ngIf="isDelegateePresent$ | async">
-      <div class="notifications--preferences-container">
-        <div class="notifications--preferences-container--title">Notification preferences</div>
-        <div class="notifications--preferences-container--description">
-          Select the option for which you'd like to receive notifications
+  } @else {
+    @if (isNotificationsDisabled) {
+      <div class="notifications--zero-state-container" data-testid="zero-state">
+        <img class="notifications--zero-state-img" src="../../../../assets/images/zero-states/notifications.png" />
+        <div class="notifications--zero-state-subheading">
+          <div>Your admin has disabled</div>
+          <div>notifications for your organization.</div>
+          <div>Contact them for any queries.</div>
         </div>
       </div>
-      <div class="notifications--preferences-form">
-        <div
-          class="notifications--preferences-form--radio-button"
-          mode="md"
-          *ngFor="let option of delegateNotificationOptions"
-          button
-          (click)="selectPreference(option.value)"
-        >
-          <ng-container *ngIf="selectedPreference === option.value; else uncheckedRadioBtn">
+    }
+    @if (!isNotificationsDisabled) {
+      <div class="notifications--container">
+        @if (expenseNotificationsConfig?.notifications?.length > 0) {
+          <div class="notifications--card" matRipple (click)="openNotificationModal(expenseNotificationsConfig)">
+            <div class="notifications--card--title">{{ expenseNotificationsConfig.title }}</div>
             <ion-icon
-              class="notifications--radio"
-              size="medium"
-              src="../../../assets/svg/radio-circle-fill.svg"
+              class="notifications--navigate-icon"
+              src="../../../assets/svg/arrow-right.svg"
+              slot="icon-only"
             ></ion-icon>
-          </ng-container>
-          <ng-template #uncheckedRadioBtn>
+          </div>
+        }
+        @if (expenseReportNotificationsConfig?.notifications?.length > 0) {
+          <div class="notifications--card" matRipple (click)="openNotificationModal(expenseReportNotificationsConfig)">
+            <div class="notifications--card--title">{{ expenseReportNotificationsConfig.title }}</div>
             <ion-icon
-              class="notifications--radio"
-              size="medium"
-              src="../../../assets/svg/radio-circle-outline.svg"
+              class="notifications--navigate-icon"
+              src="../../../assets/svg/arrow-right.svg"
+              slot="icon-only"
             ></ion-icon>
-          </ng-template>
-          {{ option.label }}
-        </div>
+          </div>
+        }
+        @if (isAdvancesEnabled && advanceNotificationsConfig?.notifications?.length > 0) {
+          <div class="notifications--card" matRipple (click)="openNotificationModal(advanceNotificationsConfig)">
+            <div class="notifications--card--title">{{ advanceNotificationsConfig.title }}</div>
+            <ion-icon
+              class="notifications--navigate-icon"
+              src="../../../assets/svg/arrow-right.svg"
+              slot="icon-only"
+            ></ion-icon>
+          </div>
+        }
+        @if (isDelegateePresent$ | async) {
+          <div>
+            <div class="notifications--preferences-container">
+              <div class="notifications--preferences-container--title">Notification preferences</div>
+              <div class="notifications--preferences-container--description">
+                Select the option for which you'd like to receive notifications
+              </div>
+            </div>
+            <div class="notifications--preferences-form">
+              @for (option of delegateNotificationOptions; track option) {
+                <div
+                  class="notifications--preferences-form--radio-button"
+                  mode="md"
+                  button
+                  (click)="selectPreference(option.value)"
+                >
+                  @if (selectedPreference === option.value) {
+                    <ion-icon
+                      class="notifications--radio"
+                      size="medium"
+                      src="../../../assets/svg/radio-circle-fill.svg"
+                    ></ion-icon>
+                  } @else {
+                    <ion-icon
+                      class="notifications--radio"
+                      size="medium"
+                      src="../../../assets/svg/radio-circle-outline.svg"
+                    ></ion-icon>
+                  }
+                  {{ option.label }}
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
-    </div>
-  </div>
+    }
+  }
 </ion-content>

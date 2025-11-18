@@ -1,9 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { DataTransformService } from './data-transform.service';
-import { ApiService } from './api.service';
 import { cloneDeep } from 'lodash';
-import { ExtendedAccount } from '../models/extended-account.model';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { Cacheable } from 'ts-cacheable';
 import { AccountOption } from '../models/account-option.model';
@@ -12,70 +9,69 @@ import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { OrgSettings } from '../models/org-settings.model';
-import { FlattenedAccount } from '../models/flattened-account.model';
+import { PlatformAccount } from '../models/platform-account.model';
 import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountsService {
-  constructor(
-    private apiService: ApiService,
-    private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe
-  ) {}
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private fyCurrencyPipe = inject(FyCurrencyPipe);
+
+  private translocoService = inject(TranslocoService);
+
+  private readonly accountDisplayNameMapping: Record<string, string> = {
+    PERSONAL_CASH_ACCOUNT: 'services.accounts.personalCardCash',
+    PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'services.accounts.corporateCard',
+    PERSONAL_ADVANCE_ACCOUNT: 'services.accounts.advanceWallet',
+    COMPANY_ACCOUNT: 'services.accounts.paidByCompany',
+  };
 
   @Cacheable()
-  getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.apiService.get<FlattenedAccount[]>('/eaccounts/').pipe(
-      map((accountsRaw: FlattenedAccount[]) => {
-        const accounts: ExtendedAccount[] = [];
-
-        accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten<ExtendedAccount, FlattenedAccount>(accountRaw);
-          accounts.push(account);
-        });
-
-        return accounts;
-      })
-    );
+  getMyAccounts(): Observable<PlatformAccount[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformAccount[]>>('/accounts')
+      .pipe(map((response: PlatformApiResponse<PlatformAccount[]>) => response.data));
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   getPaymentModesWithAdvanceWallets(
-    accounts: ExtendedAccount[],
+    accounts: PlatformAccount[],
     advanceWallets: AdvanceWallet[],
     allowedPaymentModes: string[],
     config: {
       etxn: Partial<UnflattenedTransaction>;
       expenseType: ExpenseType;
-    }
+    },
   ): AccountOption[] {
     const { etxn, expenseType } = config;
     const isMileageOrPerDiemExpense = [ExpenseType.MILEAGE, ExpenseType.PER_DIEM].includes(expenseType);
-    const userAccounts = accounts.filter((account) =>
-      [AccountType.PERSONAL, AccountType.CCC].includes(account.acc.type)
-    );
+    const userAccounts = accounts.filter((account) => [AccountType.PERSONAL, AccountType.CCC].includes(account.type));
 
     const allowedAccounts = this.getAllowedAccountsWithAdvanceWallets(
       userAccounts,
       allowedPaymentModes,
       etxn,
-      isMileageOrPerDiemExpense
+      isMileageOrPerDiemExpense,
     );
 
     let allowedAdvanceWallets: AdvanceWallet[] = [];
-    if (allowedPaymentModes.includes('PERSONAL_ADVANCE_ACCOUNT')) {
+    if (allowedPaymentModes.includes(AccountType.ADVANCE)) {
       allowedAdvanceWallets = advanceWallets.filter(
         (advanceWallet) =>
           (etxn?.tx?.advance_wallet_id && etxn.tx.advance_wallet_id === advanceWallet.id) ||
-          advanceWallet.balance_amount > 0
+          advanceWallet.balance_amount > 0,
       );
     }
 
     const formattedAccounts = allowedAccounts.map((account) => ({
-      label: account.acc.displayName,
+      label: account.displayName,
       value: account,
     }));
 
@@ -93,15 +89,15 @@ export class AccountsService {
   }
 
   // Filter user accounts by allowed payment modes and return an observable of allowed accounts
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
+
   getPaymentModes(
-    accounts: ExtendedAccount[],
+    accounts: PlatformAccount[],
     allowedPaymentModes: string[],
     config: {
       etxn: Partial<UnflattenedTransaction>;
       orgSettings: OrgSettings;
       expenseType: ExpenseType;
-    }
+    },
   ): AccountOption[] {
     const { etxn, orgSettings, expenseType } = config;
     const isAdvanceEnabled = orgSettings.advances.enabled || orgSettings.advance_requests.enabled;
@@ -115,29 +111,29 @@ export class AccountsService {
       allowedPaymentModes,
       isMultipleAdvanceEnabled,
       etxn,
-      isMileageOrPerDiemExpense
+      isMileageOrPerDiemExpense,
     );
 
     return allowedAccounts.map((account) => ({
-      label: account.acc.displayName,
+      label: account.displayName,
       value: account,
     }));
   }
 
-  getAccountTypeFromPaymentMode(paymentMode: ExtendedAccount | AdvanceWallet): AccountType {
+  getAccountTypeFromPaymentMode(paymentMode: PlatformAccount | AdvanceWallet): AccountType {
     if (
-      (paymentMode as ExtendedAccount).acc.type === AccountType.PERSONAL &&
-      !(paymentMode as ExtendedAccount).acc.isReimbursable
+      (paymentMode as PlatformAccount).type === AccountType.PERSONAL &&
+      !(paymentMode as PlatformAccount).isReimbursable
     ) {
       return AccountType.COMPANY;
     }
-    return (paymentMode as ExtendedAccount).acc.type;
+    return (paymentMode as PlatformAccount).type;
   }
 
   getEtxnSelectedPaymentMode(
     etxn: Partial<UnflattenedTransaction>,
-    paymentModes: AccountOption[]
-  ): ExtendedAccount | AdvanceWallet {
+    paymentModes: AccountOption[],
+  ): PlatformAccount | AdvanceWallet {
     if (etxn.tx.source_account_id) {
       return paymentModes
         .map((res) => res.value)
@@ -152,184 +148,161 @@ export class AccountsService {
 
   // Add display name and isReimbursable properties to account object
   setAccountProperties(
-    account: ExtendedAccount,
+    account: PlatformAccount,
     paymentMode: string,
-    isMultipleAdvanceEnabled: boolean
-  ): ExtendedAccount {
-    const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
-    };
-
+    isMultipleAdvanceEnabled?: boolean,
+  ): PlatformAccount {
     const accountCopy = cloneDeep(account);
     if (accountCopy) {
-      accountCopy.acc.displayName =
-        paymentMode === AccountType.ADVANCE
-          ? this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled)
-          : accountDisplayNameMapping[paymentMode];
-      accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
+      if (paymentMode === AccountType.PERSONAL) {
+        accountCopy.isReimbursable = true;
+        accountCopy.displayName = this.translocoService.translate('services.accounts.personalCardCash');
+      } else if (paymentMode === AccountType.COMPANY) {
+        accountCopy.isReimbursable = false;
+        accountCopy.displayName = this.translocoService.translate('services.accounts.paidByCompany');
+      } else if (account.type === AccountType.CCC) {
+        accountCopy.isReimbursable = false;
+        accountCopy.displayName = this.translocoService.translate('services.accounts.corporateCard');
+      } else if (account.type === AccountType.ADVANCE) {
+        accountCopy.isReimbursable = false;
+        accountCopy.displayName = this.getAdvanceAccountDisplayName(accountCopy, isMultipleAdvanceEnabled);
+      } else {
+        accountCopy.isReimbursable = false;
+        accountCopy.displayName = account.type;
+      }
     }
-
-    return accountCopy;
-  }
-
-  // Add display name and isReimbursable properties to account object
-  setAccountPropertiesWithoutAdvances(account: ExtendedAccount, paymentMode: string): ExtendedAccount {
-    const accountDisplayNameMapping: Record<string, string> = {
-      PERSONAL_ACCOUNT: 'Personal Card/Cash',
-      COMPANY_ACCOUNT: 'Paid by Company',
-      PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
-    };
-
-    const accountCopy = cloneDeep(account);
-    if (accountCopy) {
-      accountCopy.acc.displayName = accountDisplayNameMapping[paymentMode];
-      accountCopy.acc.isReimbursable = paymentMode === AccountType.PERSONAL;
-    }
-
     return accountCopy;
   }
 
   getAdvanceWalletDisplayName(advanceWallet: AdvanceWallet): string {
-    return (
-      'Advance Wallet (Balance: ' +
-      this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency) +
-      ')'
-    );
+    return this.translocoService.translate('services.accounts.advanceWalletDisplayName', {
+      balance: this.fyCurrencyPipe.transform(advanceWallet.balance_amount, advanceWallet.currency),
+    });
   }
 
-  getAdvanceAccountDisplayName(account: ExtendedAccount, isMultipleAdvanceEnabled: boolean): string {
+  getAdvanceAccountDisplayName(account: PlatformAccount, isMultipleAdvanceEnabled: boolean): string {
     let accountCurrency = account.currency;
-    let accountBalance = account.acc.tentative_balance_amount;
-    if (isMultipleAdvanceEnabled && account.orig?.amount) {
-      accountCurrency = account.orig.currency;
-      accountBalance =
-        (account.acc.tentative_balance_amount * account.orig.amount) / account.acc.current_balance_amount;
+    let accountBalance = account.tentative_balance_amount;
+    if (isMultipleAdvanceEnabled && account.current_balance_amount) {
+      accountCurrency = account.currency;
+      accountBalance = account.tentative_balance_amount;
     }
-    return 'Advance (Balance: ' + this.fyCurrencyPipe.transform(accountBalance, accountCurrency) + ')';
+    return this.translocoService.translate('services.accounts.advanceAccountDisplayName', {
+      balance: this.fyCurrencyPipe.transform(accountBalance, accountCurrency),
+    });
   }
 
-  filterAccountsWithSufficientBalance(accounts: ExtendedAccount[], isAdvanceEnabled: boolean): ExtendedAccount[] {
+  filterAccountsWithSufficientBalance(accounts: PlatformAccount[], isAdvanceEnabled: boolean): PlatformAccount[] {
     return accounts.filter(
       (account) =>
+        account &&
         // Personal Account and CCC account are considered to always have sufficient funds
-        (isAdvanceEnabled && account.acc.tentative_balance_amount > 0) ||
-        [AccountType.PERSONAL, AccountType.CCC].indexOf(account.acc.type) > -1
+        ((isAdvanceEnabled && account.tentative_balance_amount > 0) ||
+          [AccountType.PERSONAL, AccountType.CCC].indexOf(account.type) > -1),
     );
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccounts(
-    allAccounts: ExtendedAccount[],
+    allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     isMultipleAdvanceEnabled: boolean,
     etxn?: Partial<UnflattenedTransaction>,
-    isMileageOrPerDiemExpense = false
-  ): ExtendedAccount[] {
-    //Mileage and per diem expenses cannot have PCCC as a payment mode
-    if (isMileageOrPerDiemExpense) {
-      allowedPaymentModes = allowedPaymentModes.filter((allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC);
-    }
+    isMileageOrPerDiemExpense = false,
+  ): PlatformAccount[] {
+    const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
-    //PERSONAL_ACCOUNT should always be present for mileage/per-diem or in case backend does not return any payment mode
-    if (
-      !allowedPaymentModes.length ||
-      (isMileageOrPerDiemExpense && !allowedPaymentModes.includes(AccountType.PERSONAL))
-    ) {
-      allowedPaymentModes = [AccountType.PERSONAL, ...allowedPaymentModes];
-    }
-
-    //Add current expense account to allowedPaymentModes if it is not present
-    if (etxn?.source?.account_id) {
-      let paymentModeOfExpense = etxn.source.account_type;
-      if (etxn.source.account_type === AccountType.PERSONAL && etxn.tx.skip_reimbursement) {
-        paymentModeOfExpense = AccountType.COMPANY;
-      }
-      if (!allowedPaymentModes.includes(paymentModeOfExpense)) {
-        allowedPaymentModes = [paymentModeOfExpense, ...allowedPaymentModes];
-      }
-    }
-
-    return allowedPaymentModes
-      .map((allowedPaymentMode) => {
-        const accountsForPaymentMode = allAccounts.filter((account) => {
-          if (allowedPaymentMode === AccountType.COMPANY) {
-            return account.acc.type === AccountType.PERSONAL;
-          }
-          return account.acc.type === allowedPaymentMode;
-        });
-
-        //There can be multiple accounts of type PERSONAL_ADVANCE_ACCOUNT
-        const accountsWithRenamedProperties = accountsForPaymentMode.map((accountForPaymentMode) =>
-          this.setAccountProperties(accountForPaymentMode, allowedPaymentMode, isMultipleAdvanceEnabled)
-        );
-        return accountsWithRenamedProperties;
-      })
-      .reduce((allowedAccounts, accountsForPaymentMode) => [...allowedAccounts, ...accountsForPaymentMode]);
+    return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes, isMultipleAdvanceEnabled);
   }
 
-  // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedAccountsWithAdvanceWallets(
-    allAccounts: ExtendedAccount[],
+    allAccounts: PlatformAccount[],
     allowedPaymentModes: string[],
     etxn?: Partial<UnflattenedTransaction>,
-    isMileageOrPerDiemExpense = false
-  ): ExtendedAccount[] {
-    //Mileage and per diem expenses cannot have PCCC as a payment mode
-    if (isMileageOrPerDiemExpense) {
-      allowedPaymentModes = allowedPaymentModes.filter((allowedPaymentMode) => allowedPaymentMode !== AccountType.CCC);
-    }
+    isMileageOrPerDiemExpense = false,
+  ): PlatformAccount[] {
+    const filteredPaymentModes = this.handlePaymentModeFiltering(allowedPaymentModes, isMileageOrPerDiemExpense, etxn);
 
-    //PERSONAL_ACCOUNT should always be present for mileage/per-diem or in case backend does not return any payment mode
-    if (
-      !allowedPaymentModes.length ||
-      (isMileageOrPerDiemExpense && !allowedPaymentModes.includes(AccountType.PERSONAL))
-    ) {
-      allowedPaymentModes = [AccountType.PERSONAL, ...allowedPaymentModes];
-    }
-
-    //Add current expense account to allowedPaymentModes if it is not present
-    if (etxn?.source?.account_id && !etxn?.tx?.advance_wallet_id) {
-      let paymentModeOfExpense = etxn.source.account_type;
-      if (etxn.source.account_type === AccountType.PERSONAL && etxn.tx.skip_reimbursement) {
-        paymentModeOfExpense = AccountType.COMPANY;
-      }
-      if (!allowedPaymentModes.includes(paymentModeOfExpense)) {
-        allowedPaymentModes = [paymentModeOfExpense, ...allowedPaymentModes];
-      }
-    }
-
-    return allowedPaymentModes
-      .map((allowedPaymentMode) => {
-        const accountsForPaymentMode = allAccounts.filter((account) => {
-          if (allowedPaymentMode === AccountType.COMPANY) {
-            return account.acc.type === AccountType.PERSONAL;
-          }
-          return account.acc.type === allowedPaymentMode;
-        });
-
-        const accountsWithRenamedProperties = accountsForPaymentMode.map((accountForPaymentMode) =>
-          this.setAccountPropertiesWithoutAdvances(accountForPaymentMode, allowedPaymentMode)
-        );
-        return accountsWithRenamedProperties;
-      })
-      .reduce((allowedAccounts, accountsForPaymentMode) => [...allowedAccounts, ...accountsForPaymentMode]);
+    return this.processAccountsByPaymentMode(allAccounts, filteredPaymentModes);
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
   checkIfEtxnHasSamePaymentMode(
     etxn: Partial<UnflattenedTransaction>,
-    paymentMode: ExtendedAccount | AdvanceWallet
+    paymentMode: PlatformAccount | AdvanceWallet,
   ): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL && !etxn.tx.advance_wallet_id) {
       return (
-        (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id &&
-        (paymentMode as ExtendedAccount).acc.isReimbursable !== etxn.tx.skip_reimbursement
+        (paymentMode as PlatformAccount).id === etxn.tx.source_account_id &&
+        (paymentMode as PlatformAccount).isReimbursable !== etxn.tx.skip_reimbursement
       );
     } else if (etxn.tx.id && etxn.tx.advance_wallet_id) {
       return (paymentMode as AdvanceWallet).id === etxn.tx.advance_wallet_id;
     }
-    return (paymentMode as ExtendedAccount).acc.id === etxn.tx.source_account_id;
+    return (paymentMode as PlatformAccount).id === etxn.tx.source_account_id;
+  }
+
+  private handlePaymentModeFiltering(
+    allowedPaymentModes: string[],
+    isMileageOrPerDiemExpense: boolean,
+    etxn?: Partial<UnflattenedTransaction>,
+  ): string[] {
+    let updatedModes = [...allowedPaymentModes];
+
+    // Mileage and per diem expenses cannot have PCCC as a payment mode
+    if (isMileageOrPerDiemExpense) {
+      updatedModes = updatedModes.filter((mode) => mode !== AccountType.CCC);
+      // Only add PERSONAL_CASH_ACCOUNT as fallback if both PERSONAL and COMPANY are not present for mileage and per diem expenses
+      if (!updatedModes.includes(AccountType.PERSONAL) && !updatedModes.includes(AccountType.COMPANY)) {
+        updatedModes.push(AccountType.PERSONAL);
+      }
+    }
+
+    // Add current expense account to allowedPaymentModes if it's not present
+    if (etxn?.source?.account_id && !etxn?.tx?.advance_wallet_id) {
+      let paymentModeOfExpense = etxn.source.account_type;
+      if (etxn.source.account_type === AccountType.PERSONAL && etxn.tx.skip_reimbursement) {
+        paymentModeOfExpense = AccountType.COMPANY;
+      }
+      if (!updatedModes.includes(paymentModeOfExpense)) {
+        updatedModes.push(paymentModeOfExpense);
+      }
+    }
+
+    return updatedModes;
+  }
+
+  private processAccountsByPaymentMode(
+    allAccounts: PlatformAccount[],
+    allowedPaymentModes: string[],
+    isMultipleAdvanceEnabled?: boolean,
+  ): PlatformAccount[] {
+    const isOnlyCCCAllowed = allowedPaymentModes.length === 1 && allowedPaymentModes[0] === AccountType.CCC;
+
+    return allowedPaymentModes
+      .map((allowedPaymentMode) => {
+        let accountsForPaymentMode: PlatformAccount[] = [];
+
+        if (allowedPaymentMode === AccountType.PERSONAL && !isOnlyCCCAllowed) {
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === AccountType.PERSONAL)
+            .map((account) => this.setAccountProperties(account, AccountType.PERSONAL));
+        } else if (allowedPaymentMode === AccountType.COMPANY && !isOnlyCCCAllowed) {
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === AccountType.PERSONAL)
+            .map((account) => this.setAccountProperties(account, AccountType.COMPANY));
+        } else if (allowedPaymentMode === AccountType.CCC) {
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === AccountType.CCC)
+            .map((account) => this.setAccountProperties(account, AccountType.CCC));
+        } else {
+          accountsForPaymentMode = allAccounts
+            .filter((account) => account.type === allowedPaymentMode)
+            .map((account) => this.setAccountProperties(account, allowedPaymentMode, isMultipleAdvanceEnabled));
+        }
+
+        return accountsForPaymentMode;
+      })
+      .reduce((acc, curr) => [...acc, ...curr], []);
   }
 }

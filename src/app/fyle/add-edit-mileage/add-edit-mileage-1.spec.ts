@@ -1,10 +1,16 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import {
+  ActionSheetController,
+  ModalController,
+  NavController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
@@ -45,12 +51,11 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { MileageService } from 'src/app/core/services/mileage.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
@@ -68,20 +73,15 @@ import {
   multiplePaymentModesData,
   multiplePaymentModesWithoutAdvData,
   orgSettingsData,
-  advanceWallet1Data,
-  paymentModesWithAdvanceWalletsResData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
-import { extendedAccountData1 } from 'src/app/core/mock-data/extended-account.data';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -110,7 +110,6 @@ export function TestCases1(getTestBed) {
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
     let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
@@ -120,7 +119,7 @@ export function TestCases1(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
     let actionSheetController: jasmine.SpyObj<ActionSheetController>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let sanitizer: jasmine.SpyObj<DomSanitizer>;
     let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -135,7 +134,6 @@ export function TestCases1(getTestBed) {
     let mileageService: jasmine.SpyObj<MileageService>;
     let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
     let locationService: jasmine.SpyObj<LocationService>;
-    let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -166,21 +164,20 @@ export function TestCases1(getTestBed) {
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       sanitizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
       personalCardsService = TestBed.inject(PersonalCardsService) as jasmine.SpyObj<PersonalCardsService>;
       matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -190,7 +187,7 @@ export function TestCases1(getTestBed) {
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       platformEmployeeSettingsService = TestBed.inject(
-        PlatformEmployeeSettingsService
+        PlatformEmployeeSettingsService,
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -198,7 +195,6 @@ export function TestCases1(getTestBed) {
       mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
       locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
       spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
-      advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
 
       component.fg = formBuilder.group({
         mileage_rate_name: [],
@@ -261,7 +257,7 @@ export function TestCases1(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id
+        activatedRoute.snapshot.params.id,
       );
     });
 
@@ -558,7 +554,7 @@ export function TestCases1(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -698,7 +694,7 @@ export function TestCases1(getTestBed) {
             removeMileageFromReport: true,
             id: 'txyeiYbLDSOy',
             reportId: 'rpFE5X1Pqi9P',
-          })
+          }),
         );
       }));
 
@@ -739,14 +735,14 @@ export function TestCases1(getTestBed) {
           removeMileageFromReport: undefined,
         });
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }),
         );
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           transformedExpenseData,
           component.reviewList,
-          +component.activeIndex
+          +component.activeIndex,
         );
       }));
 
@@ -788,7 +784,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
 
@@ -830,7 +826,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          })
+          }),
         );
       }));
     });
@@ -972,162 +968,12 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    describe('checkAdvanceAccountAndBalance():', () => {
-      it('should return false if account is not present', () => {
-        const result = component.checkAdvanceAccountAndBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if account is of type advance', () => {
-        const result = component.checkAdvanceAccountAndBalance(multiplePaymentModesData[2]);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('checkAdvanceWalletsWithSufficientBalance():', () => {
-      it('should return false if advance wallet is not present', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(null);
-
-        expect(result).toBeFalse();
-      });
-
-      it('should return true if advance wallet has balance', () => {
-        const result = component.checkAdvanceWalletsWithSufficientBalance(advanceWallet1Data);
-
-        expect(result).toBeTrue();
-      });
-    });
-
-    describe('setupBalanceFlag():', () => {
-      it('should setup balance available flag', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false in advance balance if payment mode is not personal', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[1]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when account changes to null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(null));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeFalse();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(null);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return false when orgSettings is null', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
-        orgSettingsService.get.and.returnValue(of(null));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-
-      it('should return true for advance wallets', fakeAsync(() => {
-        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesWithoutAdvData));
-        advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-        orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-        component.setupBalanceFlag();
-        tick(500);
-
-        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
-          expect(res).toBeTrue();
-          expect(accountsService.getEMyAccounts).toHaveBeenCalledOnceWith();
-          expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledOnceWith();
-          expect(orgSettingsService.get).toHaveBeenCalledOnceWith();
-        });
-        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
-        fixture.detectChanges();
-
-        tick(500);
-      }));
-    });
-
-    it('getPaymentModes(): should get payment modes with advance wallets if advance wallets are enabled', (done) => {
-      component.etxn$ = of(unflattenedTxnData);
-      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of(advanceWallet1Data));
-      orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithAdvanceWallet));
-      platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsWithAdvanceWallet.payment_mode_settings.allowed_payment_modes)
-      );
-      paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-        of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
-      );
-      accountsService.getPaymentModesWithAdvanceWallets.and.returnValue(paymentModesWithAdvanceWalletsResData);
-
-      component.getPaymentModes().subscribe((res) => {
-        expect(res).toEqual(paymentModesWithAdvanceWalletsResData);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
-        expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-
     it('should get payment modes in case org settings are not present', (done) => {
       component.etxn$ = of(unflattenedTxnData);
-      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+      accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(null));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -1135,8 +981,7 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(accountOptionData1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
@@ -1145,11 +990,10 @@ export function TestCases1(getTestBed) {
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
-      accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
-      advanceWalletsService.getAllAdvanceWallets.and.returnValue(of([]));
+      accountsService.getMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       platformEmployeeSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes)
+        of(employeeSettingsData.payment_mode_settings.allowed_payment_modes),
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -1165,15 +1009,14 @@ export function TestCases1(getTestBed) {
 
       component.getPaymentModes().subscribe((res) => {
         expect(res).toEqual(accountOptionData1);
-        expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
-        expect(advanceWalletsService.getAllAdvanceWallets).toHaveBeenCalledTimes(1);
+        expect(accountsService.getMyAccounts).toHaveBeenCalledTimes(1);
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(platformEmployeeSettingsService.getAllowedPaymentModes).toHaveBeenCalledTimes(1);
         expect(paymentModesService.checkIfPaymentModeConfigurationsIsEnabled).toHaveBeenCalledTimes(1);
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           multiplePaymentModesData,
           employeeSettingsData.payment_mode_settings.allowed_payment_modes,
-          config
+          config,
         );
         done();
       });
@@ -1236,7 +1079,7 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData3] },
           })
           .subscribe((res) => {
-            expect(res).toEqual(12.43);
+            expect(res).toEqual(12.42);
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
             done();
           });

@@ -1,10 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-import {
-  MatLegacySnackBarModule as MatSnackBarModule,
-  MatLegacySnackBarRef as MatSnackBarRef,
-  MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA,
-} from '@angular/material/legacy-snack-bar';
+import { MatSnackBarModule, MatSnackBarRef, MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from './toast-message.component';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
@@ -19,8 +14,7 @@ describe('ToastMessageComponent', () => {
     snackbarRefSpy = jasmine.createSpyObj('MatSnackBarRef', ['dismiss', 'dismissWithAction']);
 
     TestBed.configureTestingModule({
-      declarations: [ToastMessageComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatSnackBarModule, MatIconTestingModule],
+      imports: [ MatIconModule, MatSnackBarModule, MatIconTestingModule, ToastMessageComponent],
       providers: [
         { provide: MAT_SNACK_BAR_DATA, useValue: {} },
         { provide: MatSnackBarRef, useValue: snackbarRefSpy },
@@ -43,6 +37,7 @@ describe('ToastMessageComponent', () => {
       message: 'Test message',
       redirectionText: null,
       showCloseButton: false,
+      messageType: 'success',
     };
     fixture.detectChanges();
     const element = getElementBySelector(fixture, '.toast-message--body');
@@ -62,6 +57,7 @@ describe('ToastMessageComponent', () => {
       message: '',
       redirectionText: 'Go to home',
       showCloseButton: false,
+      messageType: 'success',
     };
     fixture.detectChanges();
 
@@ -77,6 +73,7 @@ describe('ToastMessageComponent', () => {
       message: '',
       redirectionText: '',
       showCloseButton: true,
+      messageType: 'success',
     };
     fixture.detectChanges();
 

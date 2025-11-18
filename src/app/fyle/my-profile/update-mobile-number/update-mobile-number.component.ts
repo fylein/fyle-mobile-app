@@ -1,27 +1,56 @@
-import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Component, OnInit, Input, ElementRef, AfterViewInit, inject, input, viewChild } from '@angular/core';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { finalize, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
 
 @Component({
   selector: 'app-update-mobile-number',
   templateUrl: './update-mobile-number.component.html',
   styleUrls: ['./update-mobile-number.component.scss'],
+  imports: [
+    FormButtonValidationDirective,
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    NgClass,
+    TranslocoPipe
+  ],
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
-  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
+  private popoverController = inject(PopoverController);
 
-  @Input() title: string;
+  private authService = inject(AuthService);
 
-  @Input() ctaText: string;
+  private orgUserService = inject(OrgUserService);
 
-  @Input() inputLabel: string;
+  private translocoService = inject(TranslocoService);
 
+  readonly inputEl = viewChild<ElementRef<HTMLInputElement>>('input');
+
+  readonly title = input<string>(undefined);
+
+  readonly ctaText = input<string>(undefined);
+
+  readonly inputLabel = input<string>(undefined);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() extendedOrgUser: ExtendedOrgUser;
 
-  @Input() placeholder: string;
+  readonly placeholder = input<string>(undefined);
 
   inputValue: string;
 
@@ -29,18 +58,12 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   updatingMobileNumber = false;
 
-  constructor(
-    private popoverController: PopoverController,
-    private authService: AuthService,
-    private orgUserService: OrgUserService
-  ) {}
-
   ngOnInit(): void {
     this.inputValue = this.extendedOrgUser.ou.mobile || '';
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.inputEl.nativeElement.focus(), 400);
+    setTimeout(() => this.inputEl().nativeElement.focus(), 400);
   }
 
   closePopover(): void {
@@ -49,9 +72,9 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
 
   validateInput(): void {
     if (!this.inputValue?.length) {
-      this.error = 'Enter mobile number';
+      this.error = this.translocoService.translate('updateMobileNumber.errorEnterNumber');
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
-      this.error = 'Enter mobile number with country code';
+      this.error = this.translocoService.translate('updateMobileNumber.errorEnterNumberWithCountryCode');
     }
   }
 
@@ -76,7 +99,7 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
           .postOrgUser(updatedOrgUserDetails)
           .pipe(
             switchMap(() => this.authService.refreshEou()),
-            finalize(() => (this.updatingMobileNumber = false))
+            finalize(() => (this.updatingMobileNumber = false)),
           )
           .subscribe({
             complete: () => this.popoverController.dismiss({ action: 'SUCCESS' }),

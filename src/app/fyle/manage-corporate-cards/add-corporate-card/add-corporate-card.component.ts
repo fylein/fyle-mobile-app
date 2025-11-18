@@ -1,27 +1,84 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { AbstractControl, UntypedFormControl, ValidationErrors } from '@angular/forms';
+import { Component, OnInit, Input, inject } from '@angular/core';
+import {
+  AbstractControl,
+  UntypedFormControl,
+  ValidationErrors,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { IonAccordion, IonAccordionGroup, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, PopoverController } from '@ionic/angular/standalone';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
+import { MatIcon } from '@angular/material/icon';
+import { NgClass } from '@angular/common';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { AutofocusDirective } from '../../../shared/directive/autofocus.directive';
+import { FyAlertInfoComponent } from '../../../shared/components/fy-alert-info/fy-alert-info.component';
+import { FormButtonValidationDirective } from '../../../shared/directive/form-button-validation.directive';
+import { ArrayToCommaListPipe } from '../../../shared/pipes/array-to-comma-list.pipe';
 
 @Component({
   selector: 'app-add-corporate-card',
   templateUrl: './add-corporate-card.component.html',
   styleUrls: ['./add-corporate-card.component.scss'],
+  imports: [
+    ArrayToCommaListPipe,
+    AutofocusDirective,
+    FormButtonValidationDirective,
+    FormsModule,
+    FyAlertInfoComponent,
+    IonAccordion,
+    IonAccordionGroup,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    NgClass,
+    NgxMaskDirective,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
+  providers: [provideNgxMask()]
 })
 export class AddCorporateCardComponent implements OnInit {
+  private popoverController = inject(PopoverController);
+
+  private realTimeFeedService = inject(RealTimeFeedService);
+
+  private trackingService = inject(TrackingService);
+
+  private router = inject(Router);
+
+  private translocoService = inject(TranslocoService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isVisaRTFEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isMastercardRTFEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() isYodleeEnabled: boolean;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() card: PlatformCorporateCard;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() cardType: CardNetworkType;
 
   cardForm: UntypedFormControl;
@@ -35,13 +92,6 @@ export class AddCorporateCardComponent implements OnInit {
   isEnrollingCard: boolean;
 
   cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
-
-  constructor(
-    private popoverController: PopoverController,
-    private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService,
-    private router: Router
-  ) {}
 
   ngOnInit(): void {
     this.cardForm = new UntypedFormControl('', [
@@ -88,7 +138,7 @@ export class AddCorporateCardComponent implements OnInit {
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        })
+        }),
       )
       .subscribe((res) => {
         if (res) {
@@ -178,7 +228,8 @@ export class AddCorporateCardComponent implements OnInit {
   }
 
   private handleEnrollmentFailures(error: Error): void {
-    this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+    this.enrollmentFailureMessage =
+      error.message || this.translocoService.translate('addCorporateCard.enrollmentFailure');
     this.cardForm.setErrors({ enrollmentError: true });
 
     this.trackEnrollmentErrors();

@@ -1,5 +1,5 @@
 import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
@@ -9,7 +9,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -23,11 +23,9 @@ import {
   taskFiltersParams2,
   taskFiltersParams3,
 } from 'src/app/core/mock-data/task-filters.data';
-import { before, cloneDeep } from 'lodash';
-import { TaskFilters } from 'src/app/core/models/task-filters.model';
+import { cloneDeep } from 'lodash';
 import { taskFiltersPills } from 'src/app/core/mock-data/filter-pills.data';
 import { taskSelectedFiltersData } from 'src/app/core/mock-data/selected-filters.data';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { taskModalControllerParams, taskModalControllerParams2 } from 'src/app/core/mock-data/modal-controller.data';
 import {
   taskCtaData,
@@ -42,7 +40,7 @@ import {
   taskCtaData8,
   taskCtaData9,
 } from 'src/app/core/mock-data/task-cta.data';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases1(getTestBed) {
@@ -63,8 +61,7 @@ export function TestCases1(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -83,7 +80,7 @@ export function TestCases1(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     }));
 
     it('should create', () => {

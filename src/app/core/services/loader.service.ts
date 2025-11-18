@@ -1,16 +1,20 @@
-import { Injectable } from '@angular/core';
-import { LoadingController } from '@ionic/angular';
+import { Injectable, inject } from '@angular/core';
+import { LoadingController } from '@ionic/angular/standalone';
 import { noop } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoaderService {
-  constructor(private loadingController: LoadingController) {}
+  private loadingController = inject(LoadingController);
 
-  async showLoader(message = 'Please wait...', duration = 1000, customLoaderUrl?: string): Promise<void> {
+  private translocoService = inject(TranslocoService);
+
+  async showLoader(message?: string, duration = 1000, customLoaderUrl?: string): Promise<void> {
+    const loadingMessage = message || this.translocoService.translate('services.loader.pleaseWait');
     const loading = await this.loadingController.create({
-      message,
+      message: loadingMessage,
       duration,
       spinner: customLoaderUrl ? null : 'crescent',
       cssClass: customLoaderUrl ? 'custom-loading' : 'intermediate-loader',
@@ -20,7 +24,7 @@ export class LoaderService {
       loading.message = `
         <div class="custom-loading">
           <img src="${customLoaderUrl}" class="custom-loading-gif"/>
-          <span>${message}</span>
+          <span>${loadingMessage}</span>
         </div>
       `;
     }

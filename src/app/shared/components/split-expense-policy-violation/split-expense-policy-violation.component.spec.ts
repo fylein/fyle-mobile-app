@@ -1,31 +1,38 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ModalController } from '@ionic/angular/standalone';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { SplitExpensePolicyViolationComponent } from './split-expense-policy-violation.component';
-import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import {
   filteredSplitPolicyViolationsData,
   filteredSplitPolicyViolationsData2,
 } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CurrencyPipe } from '@angular/common';
 
 describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let comments: UntypedFormArray;
-
   beforeEach(waitForAsync(() => {
+    const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
-      declarations: [SplitExpensePolicyViolationComponent],
-      imports: [IonicModule.forRoot(), ReactiveFormsModule],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      imports: [getTranslocoTestingModule(), SplitExpensePolicyViolationComponent,
+        MatIconTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
+        },
+        {
+          provide: CurrencyPipe,
+          useValue: currencyPipeSpy,
         },
       ],
     }).compileComponents();

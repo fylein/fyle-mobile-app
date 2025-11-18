@@ -1,4 +1,4 @@
-import { AfterViewChecked, ChangeDetectorRef, Component } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { Params, Router } from '@angular/router';
@@ -13,8 +13,16 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
-import { TitleCasePipe } from '@angular/common';
+import { TitleCasePipe, AsyncPipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
+import { FyFilterPillsComponent } from '../../shared/components/fy-filter-pills/fy-filter-pills.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { TeamAdvCardComponent } from './team-adv-card/team-adv-card.component';
+import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher, IonRefresherContent, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+
 
 // eslint-disable-next-line
 type Filters = Partial<{
@@ -26,8 +34,45 @@ type Filters = Partial<{
   selector: 'app-team-advance',
   templateUrl: './team-advance.page.html',
   styleUrls: ['./team-advance.page.scss'],
+  imports: [
+    AsyncPipe,
+    FooterComponent,
+    FyFilterPillsComponent,
+    FyLoadingScreenComponent,
+    FyMenuIconComponent,
+    FyZeroStateComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+    IonRefresher,
+    IonRefresherContent,
+    IonTitle,
+    IonToolbar,
+    TeamAdvCardComponent
+  ],
 })
 export class TeamAdvancePage implements AfterViewChecked {
+  private advanceRequestService = inject(AdvanceRequestService);
+
+  private tasksService = inject(TasksService);
+
+  private trackingService = inject(TrackingService);
+
+  private cdRef = inject(ChangeDetectorRef);
+
+  private router = inject(Router);
+
+  private filtersHelperService = inject(FiltersHelperService);
+
+  private expenseFieldsService = inject(ExpenseFieldsService);
+
+  private titleCasePipe = inject(TitleCasePipe);
+
   teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
   loadData$: BehaviorSubject<{
@@ -60,17 +105,6 @@ export class TeamAdvancePage implements AfterViewChecked {
 
   isLoadingDataInInfiniteScroll = false;
 
-  constructor(
-    private advanceRequestService: AdvanceRequestService,
-    private tasksService: TasksService,
-    private trackingService: TrackingService,
-    private cdRef: ChangeDetectorRef,
-    private router: Router,
-    private filtersHelperService: FiltersHelperService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private titleCasePipe: TitleCasePipe
-  ) {}
-
   ionViewWillEnter(): void {
     this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
@@ -100,7 +134,7 @@ export class TeamAdvancePage implements AfterViewChecked {
         return acc.concat(curr);
       }, [] as ExtendedAdvanceRequest[]),
       shareReplay(1),
-      finalize(() => (this.isLoading = false))
+      finalize(() => (this.isLoading = false)),
     );
 
     this.count$ = this.loadData$.pipe(
@@ -109,19 +143,19 @@ export class TeamAdvancePage implements AfterViewChecked {
           state,
           sortParam,
           sortDir,
-        })
+        }),
       ),
       shareReplay(1),
-      finalize(() => (this.isLoading = false))
+      finalize(() => (this.isLoading = false)),
     );
 
     this.isInfiniteScrollRequired$ = this.teamAdvancerequests$.pipe(
       switchMap((teamAdvancerequests) =>
         this.count$.pipe(
           take(1),
-          map((count) => count > teamAdvancerequests.length)
-        )
-      )
+          map((count) => count > teamAdvancerequests.length),
+        ),
+      ),
     );
 
     this.loadData$.subscribe(noop);
@@ -217,7 +251,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     const filters = await this.filtersHelperService.openFilterModal(
       this.filters,
       filterOptions,
-      activeFilterInitialName
+      activeFilterInitialName,
     );
 
     if (filters) {

@@ -8,6 +8,7 @@ import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { employeeSettingsData, employeeSettingsData2 } from 'src/app/core/mock-data/employee-settings.data';
 import { costCentersData, costCentersData2 } from 'src/app/core/mock-data/cost-centers.data';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 describe('PlatformEmployeeSettingsService', () => {
   let service: PlatformEmployeeSettingsService;
@@ -47,17 +48,18 @@ describe('PlatformEmployeeSettingsService', () => {
     const testEmployeeId = 'test-employee-id';
 
     it('should return employee settings when data exists', (done) => {
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData],
+        data: [mutableEmployeeSettings],
       };
 
       approverService.get.and.returnValue(of(mockResponse));
 
-      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData);
+      service.getByEmployeeId('employee123').subscribe((result) => {
+        expect(result).toEqual(mutableEmployeeSettings);
         expect(approverService.get).toHaveBeenCalledTimes(1);
         expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
-          params: { employee_id: testEmployeeId },
+          params: { employee_id: 'employee123' },
         });
         done();
       });
@@ -81,14 +83,16 @@ describe('PlatformEmployeeSettingsService', () => {
     });
 
     it('should return first employee settings when multiple exist', (done) => {
+      const mutableEmployeeSettings1 = JSON.parse(JSON.stringify(employeeSettingsData));
+      const mutableEmployeeSettings2 = JSON.parse(JSON.stringify(employeeSettingsData2));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData, employeeSettingsData2],
+        data: [mutableEmployeeSettings1, mutableEmployeeSettings2],
       };
 
       approverService.get.and.returnValue(of(mockResponse));
 
       service.getByEmployeeId(testEmployeeId).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData);
+        expect(result).toEqual(mutableEmployeeSettings1);
         expect(approverService.get).toHaveBeenCalledTimes(1);
         expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
           params: { employee_id: testEmployeeId },
@@ -99,17 +103,62 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should handle different employee IDs', (done) => {
       const differentEmployeeId = 'different-employee-id';
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData2));
       const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData2],
+        data: [mutableEmployeeSettings],
       };
 
       approverService.get.and.returnValue(of(mockResponse));
 
       service.getByEmployeeId(differentEmployeeId).subscribe((result) => {
-        expect(result).toEqual(employeeSettingsData2);
+        expect(result).toEqual(mutableEmployeeSettings);
         expect(approverService.get).toHaveBeenCalledTimes(1);
         expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
           params: { employee_id: differentEmployeeId },
+        });
+        done();
+      });
+    });
+
+    it('should handle employee settings without payment_mode_settings', (done) => {
+      const employeeSettingsWithoutPaymentModes = {
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        payment_mode_settings: undefined,
+      };
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [employeeSettingsWithoutPaymentModes],
+      };
+
+      approverService.get.and.returnValue(of(mockResponse));
+
+      service.getByEmployeeId('employee123').subscribe((result) => {
+        expect(result.payment_mode_settings).toBeUndefined();
+        expect(approverService.get).toHaveBeenCalledTimes(1);
+        expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
+          params: { employee_id: 'employee123' },
+        });
+        done();
+      });
+    });
+
+    it('should handle employee settings with empty allowed_payment_modes', (done) => {
+      const employeeSettingsWithEmptyPaymentModes = {
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        payment_mode_settings: {
+          allowed_payment_modes: [],
+        },
+      };
+      const mockResponse: PlatformApiResponse<EmployeeSettings[]> = {
+        data: [employeeSettingsWithEmptyPaymentModes],
+      };
+
+      approverService.get.and.returnValue(of(mockResponse));
+
+      service.getByEmployeeId(testEmployeeId).subscribe((result) => {
+        expect(result.payment_mode_settings.allowed_payment_modes).toEqual([]);
+        expect(approverService.get).toHaveBeenCalledTimes(1);
+        expect(approverService.get).toHaveBeenCalledWith('/employee_settings', {
+          params: { employee_id: testEmployeeId },
         });
         done();
       });
@@ -120,16 +169,17 @@ describe('PlatformEmployeeSettingsService', () => {
     const testEmployeeId = 'test-employee-id';
 
     it('should return filtered cost centers when employee has cost center IDs', (done) => {
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData));
       const mockEmployeeSettingsResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData],
+        data: [mutableEmployeeSettings],
       };
 
       approverService.get.and.returnValue(of(mockEmployeeSettingsResponse));
       costCentersService.getAllActive.and.returnValue(of(costCentersData));
 
-      // Filter cost centers based on employee settings cost_center_ids
+      // Filter cost centers based on employee settings cost_center_ids (service converts costCenter.id to string)
       const expectedCostCenters = costCentersData.filter((costCenter) =>
-        employeeSettingsData.cost_center_ids.includes(costCenter.id)
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString()),
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
@@ -146,7 +196,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should return empty array when employee has no cost center IDs', (done) => {
       const employeeSettingsWithoutCostCenters = {
-        ...employeeSettingsData,
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
         cost_center_ids: [],
       };
 
@@ -189,7 +239,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should return empty array when employee settings has null cost center IDs', (done) => {
       const employeeSettingsWithNullCostCenters = {
-        ...employeeSettingsData,
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
         cost_center_ids: null,
       };
 
@@ -213,8 +263,8 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should filter cost centers correctly when some IDs match', (done) => {
       const employeeSettingsWithSpecificCostCenters = {
-        ...employeeSettingsData,
-        cost_center_ids: [2411, 2428], // Only these two IDs from costCentersData
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
+        cost_center_ids: ['2411', '2428'], // Only these two IDs from costCentersData (as strings)
       };
 
       const mockEmployeeSettingsResponse: PlatformApiResponse<EmployeeSettings[]> = {
@@ -224,7 +274,9 @@ describe('PlatformEmployeeSettingsService', () => {
       approverService.get.and.returnValue(of(mockEmployeeSettingsResponse));
       costCentersService.getAllActive.and.returnValue(of(costCentersData));
 
-      const expectedCostCenters = costCentersData.filter((costCenter) => [2411, 2428].includes(costCenter.id));
+      const expectedCostCenters = costCentersData.filter((costCenter) =>
+        ['2411', '2428'].includes(costCenter.id.toString()),
+      );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
         expect(result).toEqual(expectedCostCenters);
@@ -240,15 +292,16 @@ describe('PlatformEmployeeSettingsService', () => {
     });
 
     it('should handle different cost centers data', (done) => {
+      const mutableEmployeeSettings = JSON.parse(JSON.stringify(employeeSettingsData2));
       const mockEmployeeSettingsResponse: PlatformApiResponse<EmployeeSettings[]> = {
-        data: [employeeSettingsData2],
+        data: [mutableEmployeeSettings],
       };
 
       approverService.get.and.returnValue(of(mockEmployeeSettingsResponse));
       costCentersService.getAllActive.and.returnValue(of(costCentersData2));
 
       const expectedCostCenters = costCentersData2.filter((costCenter) =>
-        employeeSettingsData2.cost_center_ids.includes(costCenter.id)
+        mutableEmployeeSettings.cost_center_ids.includes(costCenter.id.toString()),
       );
 
       service.getAllowedCostCentersByEmployeeId(testEmployeeId).subscribe((result) => {
@@ -265,7 +318,7 @@ describe('PlatformEmployeeSettingsService', () => {
 
     it('should handle employee settings with undefined cost center IDs', (done) => {
       const employeeSettingsWithUndefinedCostCenters = {
-        ...employeeSettingsData,
+        ...JSON.parse(JSON.stringify(employeeSettingsData)),
         cost_center_ids: undefined,
       };
 

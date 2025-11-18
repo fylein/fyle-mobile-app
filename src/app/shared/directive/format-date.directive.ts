@@ -1,13 +1,16 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
-import { Directive, ElementRef, OnInit, HostListener, Renderer2 } from '@angular/core';
-import * as dayjs from 'dayjs';
+import { Directive, ElementRef, HostListener, Renderer2, inject, AfterViewInit } from '@angular/core';
+import dayjs from 'dayjs';
+import { TranslocoService } from '@jsverse/transloco';
 
-@Directive({
-  selector: '[appFormatDate]',
-})
-export class FormatDateDirective implements OnInit {
-  constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
+@Directive({ selector: '[appFormatDate]' })
+export class FormatDateDirective implements AfterViewInit {
+  private elementRef = inject(ElementRef);
+
+  private renderer = inject(Renderer2);
+
+  private translocoService = inject(TranslocoService);
 
   get selectedElement(): HTMLElement & { name?: string } {
     return this.elementRef?.nativeElement as HTMLElement & { name?: string };
@@ -25,15 +28,23 @@ export class FormatDateDirective implements OnInit {
       } else {
         this.renderer.addClass(this.selectedElement, 'date-input__placeholder');
         if (this.selectedElement.name) {
-          this.selectedElement.setAttribute('data-date', 'Select ' + this.selectedElement.name);
+          this.selectedElement.setAttribute(
+            'data-date',
+            this.translocoService.translate('directives.formatDate.selectNamePlaceholder', {
+              name: this.selectedElement.name,
+            }),
+          );
         } else {
-          this.selectedElement.setAttribute('data-date', 'Select date');
+          this.selectedElement.setAttribute(
+            'data-date',
+            this.translocoService.translate('directives.formatDate.selectDatePlaceholder'),
+          );
         }
       }
     }
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     const initalValue = this.elementRef.nativeElement as HTMLInputElement;
     this.modifyDisplayValue(initalValue.value);
   }

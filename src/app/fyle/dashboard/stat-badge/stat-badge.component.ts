@@ -1,29 +1,61 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, output } from '@angular/core';
 import { ReportStates } from './report-states.enum';
+import { MatRipple } from '@angular/material/core';
+import { NgClass } from '@angular/common';
+import { HumanizeCurrencyPipe } from '../../../shared/pipes/humanize-currency.pipe';
+import { ExactCurrencyPipe } from '../../../shared/pipes/exact-currency.pipe';
+import { IonCol, IonGrid, IonRow, IonSkeletonText } from '@ionic/angular/standalone';
+
 
 @Component({
   selector: 'app-stat-badge',
   templateUrl: './stat-badge.component.html',
   styleUrls: ['./stat-badge.component.scss'],
+  imports: [
+    ExactCurrencyPipe,
+    HumanizeCurrencyPipe,
+    IonCol,
+    IonGrid,
+    IonRow,
+    IonSkeletonText,
+    MatRipple,
+    NgClass
+  ],
 })
 export class StatBadgeComponent {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() reportState: ReportStates;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() name: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() count = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() value = 0;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currency: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currencySymbol: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() loading = false;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() expenseState: string;
 
-  @Output() badgeClicked = new EventEmitter();
+  readonly badgeClicked = output<ReportStates | string>();
 
   screenWidth: number = window.innerWidth;
 

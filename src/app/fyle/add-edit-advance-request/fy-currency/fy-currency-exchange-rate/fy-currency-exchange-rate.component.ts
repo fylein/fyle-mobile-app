@@ -1,7 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component, OnInit, Input, inject } from '@angular/core';
+import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import {
   switchMap,
@@ -14,33 +14,60 @@ import {
   map,
 } from 'rxjs/operators';
 import { from } from 'rxjs';
+import { FyNumberComponent } from '../../../../shared/components/fy-number/fy-number.component';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { addIcons } from 'ionicons';
+import { closeOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-fy-currency-exchange-rate',
   templateUrl: './fy-currency-exchange-rate.component.html',
   styleUrls: ['./fy-currency-exchange-rate.component.scss'],
+  imports: [
+    FormsModule,
+    FyNumberComponent,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonIcon,
+    IonTitle,
+    IonToolbar,
+    ReactiveFormsModule,
+    TranslocoPipe
+  ],
 })
 export class FyCurrencyExchangeRateComponent implements OnInit {
-  @Input() amount;
+  private modalController = inject(ModalController);
 
-  @Input() currentCurrency;
+  private currencyService = inject(CurrencyService);
 
-  @Input() newCurrency;
+  private formBuilder = inject(UntypedFormBuilder);
 
-  @Input() txnDt;
+  private loaderService = inject(LoaderService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() amount!: number;
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() currentCurrency!: string;
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() newCurrency!: string;
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() txnDt!: Date;
 
   fg: UntypedFormGroup;
 
-  constructor(
-    private modalController: ModalController,
-    private currencyService: CurrencyService,
-    private formBuilder: UntypedFormBuilder,
-    private loaderService: LoaderService
-  ) {}
-
-  toFixed(num, fixed) {
+  toFixed(num: number, fixed: number): string {
     const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?');
-    return num.toString().match(re)[0];
+    return num.toString().match(re)?.[0] || '0';
   }
 
   ngOnInit() {
@@ -53,9 +80,9 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
-          this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date())
+          this.currencyService.getExchangeRate(this.newCurrency, this.currentCurrency, this.txnDt || new Date()),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((exchangeRate) => {
         this.fg.setValue({
@@ -63,7 +90,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           exchangeRate,
           homeCurrencyAmount: this.currencyService.getAmountWithCurrencyFraction(
             exchangeRate * this.amount,
-            this.currentCurrency
+            this.currentCurrency,
           ),
         });
       });
@@ -102,7 +129,7 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
           this.toFixed(+this.fg.controls.homeCurrencyAmount.value / +this.fg.controls.newCurrencyAmount.value, 7),
           {
             emitEvent: false,
-          }
+          },
         );
       }
     });
@@ -117,5 +144,10 @@ export class FyCurrencyExchangeRateComponent implements OnInit {
 
   onDoneClick() {
     this.modalController.dismiss();
+  }
+
+  constructor() {
+    addIcons({ closeOutline });
+    addIcons({ closeOutline });
   }
 }

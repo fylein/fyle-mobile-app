@@ -35,6 +35,28 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[
           state: 'APPROVAL_PENDING',
         },
       ],
+      comments: [
+        {
+          id: 'st72VKetVkek',
+          comment: 'Approver ajain@fyle.in added by SYSTEM',
+          created_at: new Date('2025-04-28T10:27:40.776503+00:00'),
+          creator_type: 'SYSTEM',
+          creator_user: null,
+          creator_user_id: null,
+        },
+        {
+          id: 'stIIp14dChOt',
+          comment: 'Advance request submitted by John Doe',
+          created_at: new Date('2025-06-17T09:32:14.186Z'),
+          creator_type: 'USER',
+          creator_user: {
+            id: 'uswjwgnwwgo',
+            email: 'john.doe@example.com',
+            full_name: 'John Doe',
+          },
+          creator_user_id: 'uswjwgnwwgo',
+        },
+      ],
       org_id: 'orwruogwnngg',
       created_at: new Date('2020-06-01T13:14:54.804+00:00'),
       updated_at: new Date('2020-06-11T13:14:55.201598+00:00'),
@@ -76,6 +98,9 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[
           id: 'usJZ9bgfNB5n',
         },
         user_id: 'usJZ9bgfNB5n',
+        mobile: '+1234567890',
+        is_mobile_verified: true,
+        sms_opt_out_source: null,
       },
       last_approved_at: new Date('2020-06-14T13:14:55.201598+00:00'),
       custom_fields: [

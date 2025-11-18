@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -17,6 +18,7 @@ import {
 } from 'src/app/core/mock-data/virtual-select-option.data';
 import { cloneDeep } from 'lodash';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
@@ -25,15 +27,22 @@ describe('VirtualSelectModalComponent', () => {
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
   let inputElement: HTMLInputElement;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [VirtualSelectModalComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [TranslocoModule, VirtualSelectModalComponent,
+        MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
@@ -47,6 +56,10 @@ describe('VirtualSelectModalComponent', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -55,9 +68,27 @@ describe('VirtualSelectModalComponent', () => {
     component = fixture.componentInstance;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService
+      RecentLocalStorageItemsService,
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'virtualSelectModal.searchPlaceholder': 'Search',
+        'virtualSelectModal.clearLabel': 'Clear',
+        'virtualSelectModal.noResultsHeader': 'No such {{label}} found',
+        'virtualSelectModal.noResultsSubmessage': 'Search for another {{label}} or select one from the list.',
+        'virtualSelectModal.saveButton': 'Save',
+        'virtualSelectModal.noneOption': 'None',
+      };
+      let translation = translations[key] || key;
+      if (params) {
+        Object.keys(params).forEach((key) => {
+          translation = translation.replace(`{{${key}}}`, params[key]);
+        });
+      }
+      return translation;
+    });
     component.enableSearch = true;
     component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
   }));
@@ -102,7 +133,7 @@ describe('VirtualSelectModalComponent', () => {
       spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(virtualSelectOptionData5));
       utilityService.searchArrayStream.and.returnValues(
         () => of(virtualSelectOptionData5),
-        () => of([virtualSelectOptionData5[1]])
+        () => of([virtualSelectOptionData5[1]]),
       );
       component.ngAfterViewInit();
       inputElement.value = '';

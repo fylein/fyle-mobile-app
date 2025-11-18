@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { Component, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Params, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
@@ -9,35 +9,74 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { DismissDialogComponent } from '../dashboard/tasks/dismiss-dialog/dismiss-dialog.component';
-import { PopoverController } from '@ionic/angular';
+import {
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
+import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
+import { CurrencyPipe } from '@angular/common';
+import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
+import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-potential-duplicates',
   templateUrl: './potential-duplicates.page.html',
   styleUrls: ['./potential-duplicates.page.scss'],
+  imports: [
+    CurrencyPipe,
+    ExpensesCardComponent,
+    FyCurrencyPipe,
+    FyLoadingScreenComponent,
+    IonBackButton,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonFooter,
+    IonHeader,
+    IonSkeletonText,
+    IonTitle,
+    IonToolbar,
+    FyAlertInfoComponent,
+    TranslocoModule,
+  ],
 })
 export class PotentialDuplicatesPage {
+  private expensesService = inject(ExpensesService);
+
+  private router = inject(Router);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private trackingService = inject(TrackingService);
+
+  private popoverController = inject(PopoverController);
+
   duplicateSets$: Observable<Expense[][]>;
 
   loadData$ = new BehaviorSubject<void>(null);
 
   selectedSet = 0;
 
-  duplicateSetData: string[][];
+  duplicateSetData: string[][] = [];
 
-  duplicateExpenses: Expense[][];
+  duplicateExpenses: Expense[][] = [];
+
+  isMileageSet = false;
 
   isLoading = true;
-
-  constructor(
-    private expensesService: ExpensesService,
-    private router: Router,
-    private snackbarProperties: SnackbarPropertiesService,
-    private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService,
-    private popoverController: PopoverController
-  ) {}
 
   ionViewWillEnter(): void {
     this.selectedSet = 0;
@@ -68,19 +107,22 @@ export class PotentialDuplicatesPage {
                 map((expenses) => {
                   const expensesArray = expenses as [];
                   return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray),
                   );
-                })
+                }),
               );
           }),
           finalize(() => {
             this.isLoading = false;
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
+      this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
+        (expense) => expense.category.system_category === 'Mileage',
+      );
     });
   }
 
@@ -92,16 +134,22 @@ export class PotentialDuplicatesPage {
 
   addExpenseDetailsToDuplicateSets(duplicateSet: string[], expensesArray: Expense[]): Expense[] {
     return duplicateSet.map(
-      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.id)]
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.id)],
     );
   }
 
   next(): void {
     this.selectedSet++;
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
+      (expense) => expense.category.system_category === 'Mileage',
+    );
   }
 
   prev(): void {
     this.selectedSet--;
+    this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
+      (expense) => expense.category.system_category === 'Mileage',
+    );
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
@@ -129,10 +177,10 @@ export class PotentialDuplicatesPage {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
-        (expId) => expId !== expense.id
+        (expId) => expId !== expense.id,
       );
       this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
-        (exp) => exp.id !== expense.id
+        (exp) => exp.id !== expense.id,
       );
     }
   }
@@ -162,6 +210,9 @@ export class PotentialDuplicatesPage {
       this.loadData$.next();
       this.duplicateSets$.subscribe((duplicateExpenses) => {
         this.duplicateExpenses = duplicateExpenses;
+        this.isMileageSet = this.duplicateExpenses[this.selectedSet]?.some(
+          (expense) => expense.category.system_category === 'Mileage',
+        );
       });
     }
   }

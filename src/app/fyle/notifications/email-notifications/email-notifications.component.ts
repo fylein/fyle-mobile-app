@@ -1,25 +1,49 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
+import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { MatIcon } from '@angular/material/icon';
+import { MatCheckbox } from '@angular/material/checkbox';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
   styleUrls: ['./email-notifications.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatCheckbox,
+    MatIcon
+  ],
 })
 export class EmailNotificationsComponent implements OnInit {
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() notifications: NotificationEventItem[];
 
-  @Input() orgUserSettings: OrgUserSettings;
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() employeeSettings: EmployeeSettings;
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
+
+  isLongTitle = false;
 
   isIos = false;
 
@@ -31,7 +55,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   private modalController = inject(ModalController);
 
-  private orgUserSettingsService = inject(OrgUserSettingsService);
+  private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
 
   private trackingService = inject(TrackingService);
 
@@ -42,7 +66,7 @@ export class EmailNotificationsComponent implements OnInit {
   closeModal(): void {
     // saveText === 'Saved' implies the user has made changes
     const data = {
-      orgUserSettingsUpdated: this.saveText === 'Saved',
+      employeeSettingsUpdated: this.saveText === 'Saved',
     };
     this.modalController.dismiss(data);
   }
@@ -60,14 +84,8 @@ export class EmailNotificationsComponent implements OnInit {
   }
 
   toggleNotification(updatedNotification: NotificationEventItem): void {
-    const updatedNotifications = this.notifications.map((notification) =>
-      notification.eventEnum === updatedNotification.eventEnum
-        ? { ...notification, email: updatedNotification.email }
-        : notification
-    );
-    this.notifications = updatedNotifications;
+    updatedNotification.email = !updatedNotification.email;
     this.updateSelectAll();
-
     this.updateNotificationSettings();
   }
 
@@ -76,7 +94,7 @@ export class EmailNotificationsComponent implements OnInit {
 
     // Keep events unsubscribed from other notification types
     const otherUnsubscribedEvents = this.unsubscribedEventsByUser.filter(
-      (event) => !currentEventTypes.has(event as NotificationEventsEnum)
+      (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
     // Add events that are currently unsubscribed in this modal
@@ -86,27 +104,28 @@ export class EmailNotificationsComponent implements OnInit {
 
     const updatedUnsubscribedEventsByUser = [...otherUnsubscribedEvents, ...currentlyUnsubscribedEvents];
 
-    this.orgUserSettings.notification_settings.email.unsubscribed_events = updatedUnsubscribedEventsByUser;
-    this.updateOrgUserSettings();
+    this.employeeSettings.notification_settings.email_unsubscribed_events = updatedUnsubscribedEventsByUser;
+    this.updateEmployeeSettings();
 
     this.trackingService.eventTrack('Email notifications updated from mobile app', {
       unsubscribedEvents: updatedUnsubscribedEventsByUser,
     });
   }
 
-  updateOrgUserSettings(): void {
+  updateEmployeeSettings(): void {
     this.updateSaveText('Saving...');
-    this.orgUserSettingsService
-      .post(this.orgUserSettings)
+    this.platformEmployeeSettingsService
+      .post(this.employeeSettings)
       .pipe(
-        tap(() => this.orgUserSettingsService.clearOrgUserSettings()),
-        finalize(() => this.updateSaveText('Saved'))
+        tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
+        finalize(() => this.updateSaveText('Saved')),
       )
       .subscribe();
   }
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
+    this.isLongTitle = this.title.length > 25;
     this.updateSelectAll();
   }
 }

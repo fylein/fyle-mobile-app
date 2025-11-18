@@ -1,65 +1,105 @@
-<div class="dashboard--background-container">
-  <div class="dashboard--background"></div>
-</div>
+<div class="dashboard--background-container"></div>
 
-<ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
-  <ion-toolbar class="dashboard--toolbar">
-    <ion-buttons slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-title class="dashboard--title" mode="md"> Tasks </ion-title>
-    <ion-buttons slot="end">
-      <ion-button>
-        <ion-button class="tasks--header-btn" (click)="openFilters()">
-          <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-            <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
-          </ng-container>
-          <ng-template #noFilterAppliedIcon>
-            <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
-          </ng-template>
+@if (currentStateIndex === 1) {
+  <ion-header class="tasks--header" mode="md" translucent="true">
+    <ion-toolbar class="dashboard--toolbar">
+      <ion-buttons slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+      <ion-title class="dashboard--title" mode="md"> Tasks </ion-title>
+      <ion-buttons slot="end">
+        <ion-button>
+          <ion-button class="tasks--header-btn" (click)="openFilters()">
+            @if (filterPills?.length) {
+              <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+            } @else {
+              <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+            }
+          </ion-button>
         </ion-button>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
-  <ion-toolbar class="stats--toolbar" [ngClass]="{'dashboard--opt-in-gradient': canShowOptInBanner$ | async}">
-    <ion-buttons slot="start">
-      <app-fy-menu-icon></app-fy-menu-icon>
-    </ion-buttons>
-    <ion-title class="stats--title" mode="md"> Home </ion-title>
-    <ion-buttons slot="end" *ngIf="isConnected$ | async">
-      <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
-        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-          <mat-icon svgIcon="plus-square"></mat-icon>
-        </div>
-      </ng-container>
-      <ng-template #actionLoader>
-        <div class="stats--action-shortcut--skeleton-icon">
-          <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
-        </div>
-      </ng-template>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+}
+@if (!(currentStateIndex === 1)) {
+  <ion-header mode="md" class="dashboard--header">
+    <ion-toolbar class="stats--toolbar" [ngClass]="{ 'dashboard--opt-in-gradient': canShowOptInBanner$ | async }">
+      <ion-buttons slot="start">
+        <app-fy-menu-icon></app-fy-menu-icon>
+      </ion-buttons>
+      <ion-title class="stats--title" mode="md"> Home </ion-title>
+      @if (isConnected$ | async) {
+        <ion-buttons class="stats--action-shortcut-container" slot="end">
+          @if ((orgSettings$ | async) && (specialCategories$ | async)) {
+            <div class="stats--action-shortcut" id="dashboard-add-expense-button" (click)="openAddExpenseActionSheet()">
+              <mat-icon class="stats--action-shortcut-plus-icon" svgIcon="plus-square"></mat-icon>
+              <span>Add expense</span>
+            </div>
+          } @else {
+            <div class="stats--action-shortcut--skeleton-icon">
+              <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+            </div>
+          }
+        </ion-buttons>
+      }
+    </ion-toolbar>
+  </ion-header>
+}
 
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
+      @if (isConnected$ | async) {
+        @if (!(isUserFromINCluster$ | async)) {
+          @if (eou$ | async; as eou) {
+            @if ((canShowOptInBanner$ | async) || (canShowEmailOptInBanner$ | async)) {
+              @if (swiperConfig) {
+                <swiper #optInSwiper class="opt-in-banners__swiper" [config]="swiperConfig">
+                  @if (canShowOptInBanner$ | async) {
+                    <ng-template swiperSlide>
+                      <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
+                      </app-dashboard-opt-in>
+                    </ng-template>
+                  }
+                  @if (canShowEmailOptInBanner$ | async) {
+                    <ng-template swiperSlide>
+                      <app-dashboard-email-opt-in (toggleEmailOptInBanner)="toggleEmailOptInBanner($event)">
+                      </app-dashboard-email-opt-in>
+                    </ng-template>
+                  }
+                </swiper>
+              }
+            }
+          }
+        }
+      }
       <div class="dashboard--greetings-text smartlook-hide">
         Hi there, {{ userName }}! <span class="dashboard--handwave">👋</span>
       </div>
-      <ng-container *ngIf="isConnected$ | async">
-        <ng-container *ngIf="!(isUserFromINCluster$ | async)">
-          <ng-container *ngIf="eou$ | async as eou">
-            <ng-container *ngIf="canShowOptInBanner$ | async">
-              <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
-              </app-dashboard-opt-in>
-            </ng-container>
-          </ng-container>
-        </ng-container>
-      </ng-container>
+      @if (taskCount > 0) {
+        <div (click)="onPendingTasksStatClick()" class="dashboard--pending-tasks-stat">
+          <div class="dashboard--pending-tasks-stat-container">
+            <div class="dashboard--pending-tasks-stat-content">
+              <div class="dashboard--pending-tasks-stat-icon">
+                <mat-icon class="dashboard--pending-tasks-stat-icon-icon" svgIcon="bell-outline"></mat-icon>
+                @if (taskCount > 0) {
+                  <div class="dashboard--pending-tasks-stat-icon-pill">{{ taskCount }}</div>
+                }
+              </div>
+              <div class="dashboard--pending-tasks-stat-text">
+                @if (taskCount === 1) {
+                  <span>{{ 'dashboard.pendingTask' | transloco: { count: taskCount } }}</span>
+                } @else {
+                  <span>{{ 'dashboard.pendingTasks' | transloco: { count: taskCount } }}</span>
+                }
+              </div>
+            </div>
+            <div class="dashboard--pending-tasks-stat-arrow-button">
+              <mat-icon svgIcon="arrow-right"></mat-icon>
+            </div>
+          </div>
+        </div>
+      }
       <app-stats></app-stats>
       <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
     </mat-tab>
@@ -68,13 +108,3 @@
     </mat-tab>
   </mat-tab-group>
 </ion-content>
-
-<ion-footer>
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
-    [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
-  ></app-fy-footer>
-</ion-footer>

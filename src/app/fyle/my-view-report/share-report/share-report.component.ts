@@ -1,17 +1,32 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { AfterViewInit, Component, ElementRef, OnInit, inject, viewChild } from '@angular/core';
+import { IonButton, IonButtons, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import { MatIcon } from '@angular/material/icon';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-share-report',
   templateUrl: './share-report.component.html',
   styleUrls: ['./share-report.component.scss'],
+  imports: [
+    FormsModule,
+    IonButton,
+    IonButtons,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatInput,
+    TranslocoPipe
+  ],
 })
 export class ShareReportComponent implements OnInit, AfterViewInit {
-  @ViewChild('simpleEmailInput') simpleEmailInput: ElementRef;
+  private modalController = inject(ModalController);
+
+  readonly simpleEmailInput = viewChild<ElementRef>('simpleEmailInput');
 
   email = '';
-
-  constructor(private modalController: ModalController) {}
 
   async cancel() {
     await this.modalController.dismiss();
@@ -19,6 +34,8 @@ export class ShareReportComponent implements OnInit, AfterViewInit {
 
   shareReport(emailInput) {
     if (!(emailInput.value.trim().length > 0) || emailInput.invalid) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      emailInput.control?.setErrors({ invalidAfterSubmit: true });
       return;
     }
 
@@ -34,7 +51,7 @@ export class ShareReportComponent implements OnInit, AfterViewInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
-    const emailInputField = this.simpleEmailInput.nativeElement as HTMLInputElement;
+    const emailInputField = this.simpleEmailInput().nativeElement as HTMLInputElement;
     setTimeout(() => {
       emailInputField.focus();
     }, 600);

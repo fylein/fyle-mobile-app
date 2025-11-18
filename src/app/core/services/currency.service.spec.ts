@@ -7,7 +7,7 @@ import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { apiAllCurrencies } from '../mock-data/currency.data';
 import { of } from 'rxjs';
 import { orgData1 } from '../mock-data/org.data';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 describe('CurrencyService', () => {
   let currencyService: CurrencyService;
@@ -82,7 +82,7 @@ describe('CurrencyService', () => {
       platformCommonApiService.get.and.returnValue(
         of({
           data: { exchange_rate: 82.708499 },
-        })
+        }),
       );
 
       const txnID = 'tx6Oe6FaYDZl';
@@ -105,7 +105,7 @@ describe('CurrencyService', () => {
       platformCommonApiService.get.and.returnValue(
         of({
           data: { exchange_rate: 82.708499 },
-        })
+        }),
       );
 
       currencyService.getExchangeRate('USD', 'INR').subscribe((res) => {

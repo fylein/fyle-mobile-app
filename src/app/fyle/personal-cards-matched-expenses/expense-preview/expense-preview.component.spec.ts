@@ -1,11 +1,9 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule, ModalController, Platform } from '@ionic/angular';
+import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import {
-  MatLegacySnackBar as MatSnackBar,
-  MatLegacySnackBarModule as MatSnackBarModule,
-} from '@angular/material/legacy-snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensePreviewComponent } from './expense-preview.component';
@@ -28,6 +26,7 @@ describe('ExpensePreviewComponent', () => {
   let platform: jasmine.SpyObj<Platform>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -38,10 +37,24 @@ describe('ExpensePreviewComponent', () => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['oldExpensematchedFromPersonalCard']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
-
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
+      config: {
+        reRenderOnLangChange: true,
+      },
+      langChanges$: of('en'),
+      _loadDependencies: () => Promise.resolve(),
+    });
     TestBed.configureTestingModule({
-      declarations: [ExpensePreviewComponent, ExpensePreviewShimmerComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, FormsModule, MatSnackBarModule],
+      imports: [
+        
+        MatIconModule,
+        MatIconTestingModule,
+        FormsModule,
+        MatSnackBarModule,
+        TranslocoModule,
+        ExpensePreviewComponent,
+        ExpensePreviewShimmerComponent,
+      ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
@@ -51,6 +64,7 @@ describe('ExpensePreviewComponent', () => {
         { provide: Platform, useValue: platformSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
 
@@ -62,7 +76,39 @@ describe('ExpensePreviewComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    translocoService.translate.and.callFake((key: any, params?: any) => {
+      const translations: { [key: string]: string } = {
+        'expensePreview.confirmMatchingExpense': 'Confirm matching expense',
+        'expensePreview.viewMatchingExpense': 'View matching expense',
+        'expensePreview.expenseNumber': 'Expense number',
+        'expensePreview.amount': 'Amount',
+        'expensePreview.createdDate': 'Created date',
+        'expensePreview.spentDate': 'Spent date',
+        'expensePreview.merchant': 'Merchant',
+        'expensePreview.category': 'Category',
+        'expensePreview.cardEndingIn': 'Card ending in...',
+        'expensePreview.receipt': 'Receipt',
+        'expensePreview.notAttached': 'Not attached',
+        'expensePreview.attached': 'Attached',
+        'expensePreview.cancel': 'Cancel',
+        'expensePreview.matching': 'matching',
+        'expensePreview.confirmMatch': 'Confirm match',
+        'expensePreview.edit': 'Edit',
+        'expensePreview.successfullyMatched': 'Successfully matched the expense.',
+      };
+      let translation = translations[key] || key;
 
+      // Handle parameter interpolation
+      if (params && typeof translation === 'string') {
+        Object.keys(params).forEach((paramKey) => {
+          const placeholder = `{{${paramKey}}}`;
+          translation = translation.replace(placeholder, params[paramKey]);
+        });
+      }
+
+      return translation;
+    });
     fixture = TestBed.createComponent(ExpensePreviewComponent);
     component = fixture.componentInstance;
     component.expenseId = 'txOJVaaPxo9O';

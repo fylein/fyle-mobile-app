@@ -2,7 +2,7 @@
   <ion-refresher-content></ion-refresher-content>
 </ion-refresher>
 <div class="task-list">
-  <ng-container *ngIf="filterPills?.length">
+  @if (filterPills?.length) {
     <div class="task-list--filter-pills-container">
       <app-fy-filter-pills
         class="task-list--filter-pills"
@@ -13,10 +13,10 @@
       >
       </app-fy-filter-pills>
     </div>
-  </ng-container>
-  <ng-container *ngIf="isConnected$ | async">
-    <ng-container *ngIf="tasks$ | async as tasks; else loader">
-      <ng-container *ngIf="showReportAutoSubmissionInfoCard">
+  }
+  @if (isConnected$ | async) {
+    @if (tasks$ | async; as tasks) {
+      @if (showReportAutoSubmissionInfoCard) {
         <div [ngClass]="{ 'task-card': tasks.length }">
           <div class="task-card__container" [ngClass]="{ 'task-card__container--divider': tasks.length }">
             <app-auto-submission-info-card
@@ -25,82 +25,85 @@
             ></app-auto-submission-info-card>
           </div>
         </div>
-      </ng-container>
-      <ng-container *ngIf="tasks.length > 0; else zeroState">
-        <ng-container *ngFor="let task of tasks">
+      }
+      @if (tasks.length > 0) {
+        @for (task of tasks; track task) {
           <app-tasks-card
             [task]="task"
             [autoSubmissionReportDate]="autoSubmissionReportDate$ | async"
             (ctaClicked)="onTaskClicked($event, task)"
             (infoCardClicked)="autoSubmissionInfoCardClicked(false)"
           ></app-tasks-card>
-        </ng-container>
-      </ng-container>
-      <ng-template #zeroState>
+        }
+      } @else {
         <ion-grid class="tasks--container" [ngClass]="{ 'tasks--zero-state': showReportAutoSubmissionInfoCard }">
           <ion-row class="tasks--container-row">
             <ion-col size="12" class="ion-align-self-center">
-              <app-fy-zero-state
-                *ngIf="!filterPills?.length"
-                [useNewStyling]="true"
-                image="../../../../assets/images/zero-states/tasks.png"
-                message="You have no tasks right now"
-              ></app-fy-zero-state>
-              <app-fy-zero-state
-                *ngIf="filterPills?.length"
-                [unscaledImage]="true"
-                [useNewStyling]="true"
-                image="../../../../assets/images/zero-states/tasks.png"
-                message="You have no tasks"
-                submessage="matching the applied filters"
-              ></app-fy-zero-state>
+              @if (!filterPills?.length) {
+                <app-fy-zero-state
+                  [useNewStyling]="true"
+                  image="../../../../assets/svg/zero-states/tasks.svg"
+                  [message]="'tasks.noTasks' | transloco"
+                ></app-fy-zero-state>
+              }
+              @if (filterPills?.length) {
+                <app-fy-zero-state
+                  [unscaledImage]="true"
+                  [useNewStyling]="true"
+                  image="../../../../assets/svg/zero-states/tasks.svg"
+                  [message]="'tasks.noTasksFiltered' | transloco"
+                  [submessage]="'tasks.matchingFilters' | transloco"
+                ></app-fy-zero-state>
+              }
             </ion-col>
           </ion-row>
         </ion-grid>
-      </ng-template>
-    </ng-container>
-  </ng-container>
-
-  <ng-template #loader>
-    <div class="task-skeleton" *ngFor="let skele of [1, 2, 3]">
-      <div class="task-skeleton--card">
-        <ion-grid>
-          <ion-row>
-            <ion-col size="1" class="task-skeleton--icon-col">
+      }
+    } @else {
+      @for (skele of [1, 2, 3]; track skele) {
+        <div class="task-skeleton">
+          <div class="task-skeleton--card">
+            <ion-grid>
               <ion-row>
-                <ion-col class="task-skeleton--icon-col">
-                  <ion-skeleton-text animated class="task-skeleton--icon"></ion-skeleton-text>
+                <ion-col size="1" class="task-skeleton--icon-col">
+                  <ion-row>
+                    <ion-col class="task-skeleton--icon-col">
+                      <ion-skeleton-text animated class="task-skeleton--icon"></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                </ion-col>
+                <ion-col size="11">
+                  <ion-row class="ion-justify-content-between">
+                    <ion-col size="3" class="task-skeleton--count">
+                      <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
+                    </ion-col>
+                    <ion-col size="5" class="ion-text-end task-skeleton--amount">
+                      <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col class="task-skeleton--header">
+                      <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col class="task-skeleton--subheader">
+                      <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row class="ion-justify-content-between">
+                    @for (cta of [1, 2]; track cta) {
+                      <ion-col size="6" class="task-skeleton--cta">
+                        <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
+                      </ion-col>
+                    }
+                  </ion-row>
                 </ion-col>
               </ion-row>
-            </ion-col>
-            <ion-col size="11">
-              <ion-row class="ion-justify-content-between">
-                <ion-col size="3" class="task-skeleton--count">
-                  <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
-                </ion-col>
-                <ion-col size="5" class="ion-text-end task-skeleton--amount">
-                  <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col class="task-skeleton--header">
-                  <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
-                </ion-col>
-              </ion-row>
-              <ion-row>
-                <ion-col class="task-skeleton--subheader">
-                  <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
-                </ion-col>
-              </ion-row>
-              <ion-row class="ion-justify-content-between">
-                <ion-col size="6" *ngFor="let cta of [1, 2]" class="task-skeleton--cta">
-                  <ion-skeleton-text class="task-skeleton-text" animated></ion-skeleton-text>
-                </ion-col>
-              </ion-row>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </div>
-    </div>
-  </ng-template>
+            </ion-grid>
+          </div>
+        </div>
+      }
+    }
+  }
 </div>

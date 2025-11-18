@@ -3,13 +3,15 @@
     <span data-testid="label">
       {{ label }}
     </span>
-    <span *ngIf="mandatory" class="fy-select-vendor--mandatory"> * </span>
+    @if (mandatory()) {
+      <span class="fy-select-vendor--mandatory"> * </span>
+    }
   </div>
   <div class="fy-select-vendor--input-container" [ngClass]="{ 'fy-select-vendor--input-invalid': !valid }">
     <input
       class="fy-select-vendor--input smartlook-show"
       type="text"
-      [placeholder]="placeholder || 'Select ' + label"
+      [placeholder]="placeholder() || ('fySelectVendor.select' | transloco) + ' ' + label"
       [ngModel]="displayValue"
       (blur)="onBlur()"
       (click)="openModal()"

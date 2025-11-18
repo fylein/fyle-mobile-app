@@ -1,5 +1,5 @@
 import { ComponentFixture, waitForAsync } from '@angular/core/testing';
-import { ModalController } from '@ionic/angular';
+import { ModalController } from '@ionic/angular/standalone';
 
 import { TeamReportsPage } from './team-reports.page';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -7,10 +7,9 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -24,7 +23,7 @@ import {
   teamReportsQueryParams3,
 } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
@@ -39,14 +38,14 @@ export function TestCases2(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
-    let popupService: jasmine.SpyObj<PopupService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let tasksService: jasmine.SpyObj<TasksService>;
-    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
     let inputElement: HTMLInputElement;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
+
       fixture = TestBed.createComponent(TeamReportsPage);
       component = fixture.componentInstance;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -55,11 +54,10 @@ export function TestCases2(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
-      popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       component.eou$ = of(apiEouRes);
     }));
 
@@ -305,35 +303,37 @@ export function TestCases2(getTestBed) {
     });
 
     describe('clearText(): ', () => {
+      beforeEach(() => {
+        component.simpleSearchInput = {
+          nativeElement: {
+            value: 'some text',
+            dispatchEvent: jasmine.createSpy('dispatchEvent'),
+          },
+        } as any;
+      });
       it('should clear the search text, input value, dispatch keyup event, and update search bar focus', () => {
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        inputElement = component.simpleSearchInput.nativeElement;
-        const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
         component.simpleSearchText = 'some text';
-        inputElement.value = 'some text';
+        component.simpleSearchInput.nativeElement.value = 'some text';
         component.isSearchBarFocused = true;
 
         component.clearText('');
 
         expect(component.simpleSearchText).toEqual('');
-        expect(inputElement.value).toEqual('');
-        expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeTrue();
       });
 
       it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
-        component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        inputElement = component.simpleSearchInput.nativeElement;
-        const dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
         component.simpleSearchText = 'some text';
-        inputElement.value = 'some text';
+        component.simpleSearchInput.nativeElement.value = 'some text';
         component.isSearchBarFocused = true;
 
         component.clearText('onSimpleSearchCancel');
 
         expect(component.simpleSearchText).toEqual('');
-        expect(inputElement.value).toEqual('');
-        expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
+        expect(component.simpleSearchInput.nativeElement.value).toEqual('');
+        expect(component.simpleSearchInput.nativeElement.dispatchEvent).toHaveBeenCalledOnceWith(new Event('keyup'));
         expect(component.isSearchBarFocused).toBeFalse();
       });
     });

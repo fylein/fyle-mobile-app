@@ -1,61 +1,91 @@
 import {
   Component,
   OnInit,
-  ViewChild,
   ElementRef,
   AfterViewInit,
   Input,
   ChangeDetectorRef,
   TemplateRef,
+  inject,
+  input,
 } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
-import { getCurrencySymbol } from '@angular/common';
+import { getCurrencySymbol, TitleCasePipe } from '@angular/common';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Option } from 'src/app/core/models/option.model';
+import { MatIcon } from '@angular/material/icon';
+import { MatRipple } from '@angular/material/core';
+import { TranslocoPipe } from '@jsverse/transloco';
+import { HumanizeCurrencyPipe } from '../../../pipes/humanize-currency.pipe';
+import { ReportState } from '../../../pipes/report-state.pipe';
+import { SnakeCaseToSpaceCase } from '../../../pipes/snake-case-to-space-case.pipe';
 
 @Component({
   selector: 'app-add-to-report-modal',
   templateUrl: './fy-add-to-report-modal.component.html',
   styleUrls: ['./fy-add-to-report-modal.component.scss'],
+  imports: [
+    HumanizeCurrencyPipe,
+    IonButton,
+    IonButtons,
+    IonCol,
+    IonContent,
+    IonGrid,
+    IonHeader,
+    IonIcon,
+    IonRow,
+    IonTitle,
+    IonToolbar,
+    MatIcon,
+    MatRipple,
+    ReportState,
+    SnakeCaseToSpaceCase,
+    TitleCasePipe,
+    TranslocoPipe
+  ],
 })
 export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  private modalController = inject(ModalController);
 
+  private cdr = inject(ChangeDetectorRef);
+
+  private currencyService = inject(CurrencyService);
+
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() options: Option[] = [];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() currentSelection: Report;
 
-  @Input() selectionElement: TemplateRef<ElementRef>;
+  readonly selectionElement = input<TemplateRef<ElementRef>>(undefined);
 
-  @Input() showNullOption = true;
+  readonly showNullOption = input(true);
 
-  @Input() cacheName;
+  readonly cacheName = input(undefined);
 
-  @Input() customInput = false;
+  readonly customInput = input(false);
 
-  @Input() subheader;
+  readonly subheader = input(undefined);
 
-  @Input() enableSearch;
+  readonly enableSearch = input(undefined);
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportName: string;
 
-  @Input() isNewReportsFlowEnabled = false;
+  readonly isNewReportsFlowEnabled = input(false);
 
   reportCurrencySymbol: string;
-
-  constructor(
-    private modalController: ModalController,
-    private cdr: ChangeDetectorRef,
-    private currencyService: CurrencyService
-  ) {}
 
   ngOnInit() {
     if (this.currentSelection) {
       this.options = this.options
         .map((option) =>
-          isEqual(option.value, this.currentSelection) ? { ...option, selected: true } : { ...option, selected: false }
+          isEqual(option.value, this.currentSelection) ? { ...option, selected: true } : { ...option, selected: false },
         )
         .sort((a, b) => (a.selected === b.selected ? 0 : a.selected ? -1 : 1));
     }

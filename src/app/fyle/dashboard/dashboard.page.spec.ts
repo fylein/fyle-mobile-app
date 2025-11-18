@@ -1,19 +1,18 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ActionSheetController, IonicModule, ModalController, NavController, Platform } from '@ionic/angular';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync, flush } from '@angular/core/testing';
+import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 
 import { DashboardPage } from './dashboard.page';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { Component, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state.enum';
-import { Subject, Subscription, of } from 'rxjs';
+import { Subject, Subscription, of, throwError } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
@@ -31,17 +30,58 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { FeatureConfigService } from 'src/app/core/services/platform/v1/spender/feature-config.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { suspendedDwollaCustomer, activeDwollaCustomer } from 'src/app/core/mock-data/dwolla-customer.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { featureConfigOptInData } from 'src/app/core/mock-data/feature-config.data';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { featureConfigOptInData, featureConfigEmailOptInData } from 'src/app/core/mock-data/feature-config.data';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import {
   featureConfigWalkthroughFinishData,
   featureConfigWalkthroughStartData,
 } from 'src/app/core/mock-data/feature-config.data';
+import { FeatureConfig } from 'src/app/core/models/feature-config.model';
 import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { DriveStep } from 'driver.js';
+import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { CardStatsComponent } from './card-stats/card-stats.component';
+import { StatsComponent } from './stats/stats.component';
+import { TasksComponent } from './tasks/tasks.component';
+import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-menu-icon.component';
+import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
+import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
+
+// mocks
+@Component({
+  selector: 'app-card-stats',
+})
+class MockCardStatsComponent {}
+@Component({
+  selector: 'app-stats',
+})
+class MockStatsComponent {}
+@Component({
+  selector: 'app-tasks',
+})
+class MockTasksComponent {}
+
+@Component({
+  selector: 'app-dashboard-email-opt-in',
+})
+class MockDashboardEmailOptInComponent {}
+@Component({
+  selector: 'app-dashboard-opt-in',
+})
+class MockDashboardOptInComponent {}
+@Component({
+  selector: 'app-fy-menu-icon',
+})
+class MockFyMenuIconComponent {}
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -53,8 +93,7 @@ describe('DashboardPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let actionSheetController: jasmine.SpyObj<ActionSheetController>;
   let tasksService: jasmine.SpyObj<TasksService>;
-  let smartlookService: jasmine.SpyObj<SmartlookService>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
@@ -67,7 +106,10 @@ describe('DashboardPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let footerService: jasmine.SpyObj<FooterService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
-
+  let walkthroughService: jasmine.SpyObj<WalkthroughService>;
+  let orgUserService: jasmine.SpyObj<OrgUserService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -82,12 +124,15 @@ describe('DashboardPage', () => {
       'optInFromPostPostCardAdditionInDashboard',
       'optedInFromDashboardBanner',
       'skipOptInFromDashboardBanner',
+      'optedInFromDashboardEmailOptInBanner',
+      'skipOptInFromDashboardEmailOptInBanner',
       'eventTrack',
+      'showToastMessage',
+      'dashboardPendingTasksNotificationClicked',
     ]);
     const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
-    const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
@@ -105,6 +150,7 @@ describe('DashboardPage', () => {
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex'], {
@@ -112,9 +158,18 @@ describe('DashboardPage', () => {
     });
 
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['setTimezone']);
+    const walkthroughServiceSpy = jasmine.createSpyObj('WalkthroughService', [
+      'getNavBarWalkthroughConfig',
+      'setIsOverlayClicked',
+      'setActiveWalkthroughIndex',
+      'getActiveWalkthroughIndex',
+      'getIsOverlayClicked',
+      'getDashboardAddExpenseWalkthroughConfig',
+    ]);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     TestBed.configureTestingModule({
-      declarations: [DashboardPage],
-      imports: [IonicModule.forRoot()],
+      imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
@@ -122,8 +177,7 @@ describe('DashboardPage', () => {
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: ActionSheetController, useValue: actionSheetControllerSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
-        { provide: SmartlookService, useValue: smartlookServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: PlatformOrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
@@ -145,6 +199,7 @@ describe('DashboardPage', () => {
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy },
         {
           provide: MatSnackBar,
           useValue: matSnackBarSpy,
@@ -158,9 +213,44 @@ describe('DashboardPage', () => {
           provide: TimezoneService,
           useValue: timezoneServiceSpy,
         },
+        {
+          provide: WalkthroughService,
+          useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: OrgUserService,
+          useValue: orgUserServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    })
+      .overrideComponent(DashboardPage, {
+        remove: {
+          imports: [
+            CardStatsComponent,
+            StatsComponent,
+            TasksComponent,
+            DashboardEmailOptInComponent,
+            DashboardOptInComponent,
+            FyMenuIconComponent,
+          ],
+        },
+        add: {
+          imports: [
+            MockCardStatsComponent,
+            MockStatsComponent,
+            MockTasksComponent,
+            MockDashboardEmailOptInComponent,
+            MockDashboardOptInComponent,
+            MockFyMenuIconComponent,
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
@@ -171,10 +261,9 @@ describe('DashboardPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
-    smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
     platformEmployeeSettingsService = TestBed.inject(
-      PlatformEmployeeSettingsService
+      PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
@@ -188,6 +277,10 @@ describe('DashboardPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     footerService = TestBed.inject(FooterService) as jasmine.SpyObj<FooterService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
+    walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
+    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     fixture.detectChanges();
   }));
 
@@ -292,16 +385,18 @@ describe('DashboardPage', () => {
       component.isConnected$ = of(true);
       authService.getEou.and.resolveTo(apiEouRes);
       utilityService.isUserFromINCluster.and.resolveTo(false);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
       spyOn(component, 'setShowOptInBanner');
+      spyOn(component, 'setShowEmailOptInBanner');
+      spyOn(component, 'setSwiperConfig');
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
       featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
-    it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
+    it('should call setupNetworkWatcher, registerBackButtonAction once', () => {
       component.ionViewWillEnter();
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.registerBackButtonAction).toHaveBeenCalledTimes(1);
-      expect(smartlookService.init).toHaveBeenCalledTimes(1);
     });
 
     it('should set currentStateIndex to 1 if queryParams.state is tasks', () => {
@@ -390,14 +485,18 @@ describe('DashboardPage', () => {
         expect(res).toBeFalse();
       });
       expect(component.setShowOptInBanner).toHaveBeenCalledTimes(1);
+      expect(component.setShowEmailOptInBanner).toHaveBeenCalledTimes(1);
     });
 
-    it('should start navbar walkthrough', fakeAsync(() => {
-      component.eou$ = of(apiEouRes);
-      featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
+    it('should call setSwiperConfig with delay after setting up banner observables', fakeAsync(() => {
+      // Ensure LaunchDarklyService mock is set up for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
       component.ionViewWillEnter();
-      tick(1000);
-      expect(component.startTour).toHaveBeenCalledTimes(1);
+
+      // Fast-forward the setTimeout for setSwiperConfig
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -438,7 +537,7 @@ describe('DashboardPage', () => {
     component.registerBackButtonAction();
     expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
       BackButtonActionPriority.LOW,
-      backButtonActionHandlerSpy
+      backButtonActionHandlerSpy,
     );
   });
 
@@ -483,6 +582,92 @@ describe('DashboardPage', () => {
     });
     expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
       page: 'Dashboard',
+    });
+  });
+
+  describe('showInfoToastMessage():', () => {
+    let matSnackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let snackbarPropertiesSpy: jasmine.SpyObj<SnackbarPropertiesService>;
+
+    beforeEach(() => {
+      matSnackBarSpy = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+      snackbarPropertiesSpy = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    });
+
+    it('should open toast message with correct configuration and track event', () => {
+      const testMessage = 'Test info message';
+      const mockSnackbarConfig = {
+        duration: 3000,
+        data: {
+          icon: 'information',
+          showCloseButton: false,
+          message: testMessage,
+        },
+      };
+
+      snackbarPropertiesSpy.setSnackbarProperties.and.returnValue(mockSnackbarConfig as any);
+
+      component.showInfoToastMessage(testMessage);
+
+      expect(snackbarPropertiesSpy.setSnackbarProperties).toHaveBeenCalledOnceWith('information', {
+        message: testMessage,
+      });
+      expect(matSnackBarSpy.openFromComponent).toHaveBeenCalledWith(
+        jasmine.any(Function),
+        jasmine.objectContaining({
+          panelClass: 'msb-info',
+        }),
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: testMessage });
+    });
+
+    it('should handle empty message correctly', () => {
+      const emptyMessage = '';
+      const mockSnackbarConfig = {
+        duration: 3000,
+        data: {
+          icon: 'information',
+          showCloseButton: false,
+          message: emptyMessage,
+        },
+      };
+
+      snackbarPropertiesSpy.setSnackbarProperties.and.returnValue(mockSnackbarConfig as any);
+
+      component.showInfoToastMessage(emptyMessage);
+
+      expect(snackbarPropertiesSpy.setSnackbarProperties).toHaveBeenCalledOnceWith('information', {
+        message: emptyMessage,
+      });
+      expect(matSnackBarSpy.openFromComponent).toHaveBeenCalledTimes(1);
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: emptyMessage });
+    });
+  });
+
+  describe('onPendingTasksStatClick():', () => {
+    it('should set currentStateIndex to 1, navigate to tasks state and track event', () => {
+      component.onPendingTasksStatClick();
+
+      expect(component.currentStateIndex).toEqual(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([], {
+        relativeTo: activatedRoute,
+        queryParams: { state: 'tasks' },
+      });
+      expect(trackingService.dashboardPendingTasksNotificationClicked).toHaveBeenCalledOnceWith({
+        Asset: 'Mobile',
+        from: 'Dashboard',
+      });
+    });
+
+    it('should update state before navigation', () => {
+      // Setup: Ensure currentStateIndex starts at 0
+      component.currentStateIndex = 0;
+
+      component.onPendingTasksStatClick();
+
+      // Verify state is updated before navigation call
+      expect(component.currentStateIndex).toEqual(1);
+      expect(router.navigate).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -630,7 +815,7 @@ describe('DashboardPage', () => {
       expect(component.tasksComponent.doRefresh).not.toHaveBeenCalled();
     }));
 
-    it('should show promote opt-in modal and track opt-in event if user opted in', fakeAsync(() => {
+    it('should show promote opt-in modal and track opt-in event if user opted-in', fakeAsync(() => {
       const modal = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modal.onDidDismiss.and.resolveTo({ data: { skipOptIn: false } });
       modalController.create.and.resolveTo(modal);
@@ -724,58 +909,61 @@ describe('DashboardPage', () => {
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
     });
 
-    it('should set canShowOptInBanner to false if user is verified', () => {
+    it('should set canShowOptInBanner to false if user is verified', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = true;
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if user currency is not USD or CAD', () => {
+    it('should set canShowOptInBanner to false if user currency is not USD or CAD', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
-      mockEou.org.currency = 'INR';
+      mockEou.org.currency = 'USD';
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if user mobile number does not start with +1', () => {
+    it('should set canShowOptInBanner to false if user mobile number does not start with +1', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+911234567890';
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to false if feature config value is greater than 0', () => {
+    it('should set canShowOptInBanner to false if feature config value is greater than 0', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
@@ -785,18 +973,19 @@ describe('DashboardPage', () => {
       mockFeatureConfig.value.count = 1;
       featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeFalse();
+        done();
       });
     });
 
-    it('should set canShowOptInBanner to true if feature config data is null', () => {
+    it('should set canShowOptInBanner to true if feature config data is null', (done) => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
@@ -805,14 +994,15 @@ describe('DashboardPage', () => {
 
       component.eou$ = of(mockEou);
 
-      component.setShowOptInBanner();
+      const result$ = component.setShowOptInBanner();
 
-      component.canShowOptInBanner$.subscribe((res) => {
+      result$.subscribe((res) => {
         expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
           feature: 'DASHBOARD_OPT_IN_BANNER',
           key: 'OPT_IN_BANNER_SHOWN',
         });
         expect(res).toBeTrue();
+        done();
       });
     });
   });
@@ -839,7 +1029,7 @@ describe('DashboardPage', () => {
       });
     });
 
-    it('should refresh eou and track opt in event if user opted in', () => {
+    it('should refresh eou and track opt-in event if user opted-in', () => {
       component.toggleOptInBanner({ isOptedIn: true });
 
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
@@ -847,7 +1037,7 @@ describe('DashboardPage', () => {
       expect(component.tasksComponent.doRefresh).toHaveBeenCalledTimes(1);
     });
 
-    it('should not refresh eou and track skip opt in event if user skipped opt in', () => {
+    it('should not refresh eou and track skip opt-in event if user skipped opt-in', () => {
       component.toggleOptInBanner({ isOptedIn: false });
 
       expect(authService.refreshEou).not.toHaveBeenCalled();
@@ -863,9 +1053,82 @@ describe('DashboardPage', () => {
     });
   });
 
+  describe('setShowEmailOptInBanner():', () => {
+    beforeEach(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(featureConfigEmailOptInData));
+    });
+
+    it('should set canShowEmailOptInBanner to false if feature config value is true', (done) => {
+      const mockFeatureConfig = cloneDeep(featureConfigEmailOptInData);
+      mockFeatureConfig.value = true;
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+
+      const result$ = component.setShowEmailOptInBanner();
+
+      result$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeFalse();
+        done();
+      });
+    });
+
+    it('should set canShowEmailOptInBanner to true if feature config data is null', (done) => {
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+
+      const result$ = component.setShowEmailOptInBanner();
+
+      result$.subscribe((res) => {
+        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        });
+        expect(res).toBeTrue();
+        done();
+      });
+    });
+  });
+
+  describe('toggleEmailOptInBanner():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should set canShowEmailOptInBanner$ to false and save feature config value as true', () => {
+      component.toggleEmailOptInBanner({ optedIn: true });
+
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+        key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        value: true,
+      });
+
+      component.canShowEmailOptInBanner$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+    });
+
+    it('should track opt-in event if user opted-in', () => {
+      component.toggleEmailOptInBanner({ optedIn: true });
+
+      expect(trackingService.optedInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+      expect(trackingService.skipOptInFromDashboardEmailOptInBanner).not.toHaveBeenCalled();
+    });
+
+    it('should track skip opt-in event if user skipped opt-in', () => {
+      component.toggleEmailOptInBanner({ optedIn: false });
+
+      expect(trackingService.skipOptInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+      expect(trackingService.optedInFromDashboardEmailOptInBanner).not.toHaveBeenCalled();
+    });
+  });
+
   it('should set the config when the navbar walkthrough is finished', fakeAsync(() => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughStartData));
     featureConfigService.saveConfiguration.and.returnValue(of(null));
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.setNavbarWalkthroughFeatureConfigFlag(false);
     tick();
 
@@ -883,6 +1146,7 @@ describe('DashboardPage', () => {
     featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
     component.eou$ = of(apiEouRes);
     spyOn(component, 'startTour');
+    spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.showNavbarWalkthrough(true);
     tick();
 
@@ -893,4 +1157,619 @@ describe('DashboardPage', () => {
 
     expect(component.startTour).not.toHaveBeenCalled();
   }));
+
+  describe('setSwiperConfig():', () => {
+    it('should set default swiper config when observables are not ready', () => {
+      // Setup: Ensure observables are undefined
+      component.canShowOptInBanner$ = undefined as any;
+      component.canShowEmailOptInBanner$ = undefined as any;
+
+      component.setSwiperConfig();
+
+      // Verify default config is set
+      expect(component.swiperConfig).toEqual({
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: false,
+      });
+    });
+
+    let mockSwiper: any;
+
+    beforeEach(() => {
+      mockSwiper = {
+        loopDestroy: jasmine.createSpy('loopDestroy'),
+        loopCreate: jasmine.createSpy('loopCreate'),
+        pagination: {
+          destroy: jasmine.createSpy('destroy'),
+        },
+        autoplay: {
+          start: jasmine.createSpy('start'),
+          stop: jasmine.createSpy('stop'),
+        },
+        params: {},
+        update: jasmine.createSpy('update'),
+      };
+
+      // Mock the swiperInstance getter
+      Object.defineProperty(component, 'swiperInstance', {
+        get: () => mockSwiper,
+      });
+    });
+
+    it('should configure swiper with autoplay and loop when both banners are available', fakeAsync(() => {
+      // Setup: Both banners should be shown
+      component.canShowOptInBanner$ = of(true);
+      component.canShowEmailOptInBanner$ = of(true);
+
+      component.setSwiperConfig();
+      tick();
+
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toEqual({
+        delay: 4000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: false,
+      });
+      expect(mockSwiper.update).toHaveBeenCalled();
+    }));
+
+    it('should configure swiper without autoplay and loop when only one banner is available', fakeAsync(() => {
+      // Setup: Only one banner should be shown
+      component.canShowOptInBanner$ = of(true);
+      component.canShowEmailOptInBanner$ = of(false);
+
+      component.setSwiperConfig();
+      tick();
+
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).not.toHaveBeenCalled();
+      expect(mockSwiper.autoplay.stop).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).not.toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toBeFalse();
+      expect(mockSwiper.pagination.destroy).toHaveBeenCalled();
+      expect(mockSwiper.update).toHaveBeenCalled();
+    }));
+
+    it('should configure swiper without autoplay and loop when no banners are available', fakeAsync(() => {
+      // Setup: No banners should be shown
+      component.canShowOptInBanner$ = of(false);
+      component.canShowEmailOptInBanner$ = of(false);
+
+      component.setSwiperConfig();
+      tick();
+
+      // Verify swiper instance is configured correctly
+      expect(mockSwiper.loopDestroy).toHaveBeenCalled();
+      expect(mockSwiper.loopCreate).not.toHaveBeenCalled();
+      expect(mockSwiper.autoplay.stop).toHaveBeenCalled();
+      expect(mockSwiper.autoplay.start).not.toHaveBeenCalled();
+      expect(mockSwiper.params.autoplay).toBeFalse();
+      expect(mockSwiper.pagination.destroy).toHaveBeenCalled();
+      expect(mockSwiper.update).toHaveBeenCalled();
+    }));
+  });
+
+  describe('toggleOptInBanner() - Updated functionality:', () => {
+    beforeEach(() => {
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['doRefresh']);
+      component.tasksComponent = tasksComponentSpy;
+      spyOn(component, 'setSwiperConfig');
+    });
+
+    it('should call setSwiperConfig after dismissing opt-in banner', fakeAsync(() => {
+      component.toggleOptInBanner({ isOptedIn: true });
+
+      // Fast-forward the setTimeout
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'DASHBOARD_OPT_IN_BANNER',
+        key: 'OPT_IN_BANNER_SHOWN',
+        value: true,
+      });
+    }));
+
+    it('should call setSwiperConfig after skipping opt-in banner', fakeAsync(() => {
+      component.toggleOptInBanner({ isOptedIn: false });
+
+      // Fast-forward the setTimeout
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
+      expect(trackingService.skipOptInFromDashboardBanner).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('toggleEmailOptInBanner() - Updated functionality:', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+      spyOn(component, 'setSwiperConfig');
+    });
+
+    it('should call setSwiperConfig after dismissing email opt-in banner', fakeAsync(() => {
+      component.toggleEmailOptInBanner({ optedIn: true });
+
+      // Fast-forward the setTimeout
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+        key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+        value: true,
+      });
+      expect(trackingService.optedInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call setSwiperConfig after skipping email opt-in banner', fakeAsync(() => {
+      component.toggleEmailOptInBanner({ optedIn: false });
+
+      // Fast-forward the setTimeout
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
+      expect(trackingService.skipOptInFromDashboardEmailOptInBanner).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('hideOptInDashboardBanner() - Updated functionality:', () => {
+    beforeEach(() => {
+      spyOn(component, 'setSwiperConfig');
+    });
+
+    it('should call setSwiperConfig when hiding opt-in dashboard banner', fakeAsync(() => {
+      component.hideOptInDashboardBanner();
+
+      // Fast-forward the setTimeout
+      tick(100);
+
+      expect(component.setSwiperConfig).toHaveBeenCalledTimes(1);
+
+      component.canShowOptInBanner$.subscribe((res) => {
+        expect(res).toBeFalse();
+      });
+    }));
+  });
+
+  describe('startTour():', () => {
+    let mockDriverInstance: any;
+    let mockNavbarWalkthroughSteps: any[];
+
+    beforeEach(() => {
+      mockNavbarWalkthroughSteps = [
+        {
+          element: '#footer-walkthrough',
+          popover: {
+            description: 'Test description',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ];
+
+      mockDriverInstance = {
+        setSteps: jasmine.createSpy('setSteps'),
+        drive: jasmine.createSpy('drive'),
+        destroy: jasmine.createSpy('destroy'),
+        getActiveIndex: jasmine.createSpy('getActiveIndex').and.returnValue(0),
+        moveNext: jasmine.createSpy('moveNext'),
+      };
+
+      // Mock the driver function by creating a global mock
+      (window as any).driver = jasmine.createSpy('driver').and.returnValue(mockDriverInstance);
+      walkthroughService.getNavBarWalkthroughConfig.and.returnValue(mockNavbarWalkthroughSteps);
+      walkthroughService.getActiveWalkthroughIndex.and.returnValue(0);
+      walkthroughService.getIsOverlayClicked.and.returnValue(false);
+      spyOn(component, 'setNavbarWalkthroughFeatureConfigFlag').and.stub();
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with correct parameter', () => {
+      component.startTour(false);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(false);
+    });
+
+    it('should call walkthroughService.getNavBarWalkthroughConfig with true for approver', () => {
+      component.startTour(true);
+
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(walkthroughService.getNavBarWalkthroughConfig).toHaveBeenCalledWith(true);
+    });
+  });
+
+  describe('swiperInstance:', () => {
+    it('should return undefined when swiperComponent is not available', () => {
+      // Mock swiperComponent to return undefined
+      const swiperInstance = component['swiperInstance'];
+      expect(swiperInstance).toBeUndefined();
+    });
+  });
+
+  describe('startNavbarWalkthrough():', () => {
+    beforeEach(() => {
+      spyOn(component, 'showNavbarWalkthrough');
+    });
+
+    it('should call showNavbarWalkthrough with true when user is approver and primary', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = ['APPROVER'];
+      mockEou.ou.is_primary = true;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(true);
+    });
+
+    it('should call showNavbarWalkthrough with false when user is not approver', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = [];
+      mockEou.ou.is_primary = true;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(false);
+    });
+
+    it('should call showNavbarWalkthrough with false when user is not primary', () => {
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.roles = ['APPROVER'];
+      mockEou.ou.is_primary = false;
+
+      // @ts-ignore - accessing private method for testing
+      component.startNavbarWalkthrough(mockEou);
+
+      expect(component.showNavbarWalkthrough).toHaveBeenCalledOnceWith(false);
+    });
+  });
+
+  describe('startDashboardAddExpenseWalkthrough():', () => {
+    let mockDriverInstance: any;
+    let mockDashboardAddExpenseWalkthroughSteps: any[];
+
+    beforeEach(() => {
+      mockDashboardAddExpenseWalkthroughSteps = [
+        {
+          element: '#add-expense-button',
+          popover: {
+            description: 'Add your first expense',
+            side: 'top',
+            align: 'center',
+          },
+        },
+      ];
+
+      mockDriverInstance = {
+        setSteps: jasmine.createSpy('setSteps'),
+        drive: jasmine.createSpy('drive'),
+        destroy: jasmine.createSpy('destroy'),
+      };
+
+      walkthroughService.getDashboardAddExpenseWalkthroughConfig.and.returnValue(mockDashboardAddExpenseWalkthroughSteps);
+    });
+
+    it('should initialize driver instance and call drive', () => {
+      spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
+      
+      // Spy on the component method and provide a fake implementation
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+        const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+          this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+        const driverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+        this.dashboardAddExpenseWalkthroughDriverInstance = driverInstance;
+        driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+        driverInstance.drive();
+      });
+
+      component.startDashboardAddExpenseWalkthrough();
+
+      expect(walkthroughService.getDashboardAddExpenseWalkthroughConfig).toHaveBeenCalledTimes(1);
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance).toBeTruthy();
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance.setSteps).toHaveBeenCalledOnceWith(mockDashboardAddExpenseWalkthroughSteps);
+      expect(component.dashboardAddExpenseWalkthroughDriverInstance.drive).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call setDashboardAddExpenseWalkthroughFeatureConfigFlag when walkthrough is destroyed', () => {
+      let onDestroyedCallback: () => void;
+      spyOn(component, 'setDashboardAddExpenseWalkthroughFeatureConfigFlag');
+      
+      // Spy on the component method and capture the onDestroyed callback
+      spyOn(component, 'startDashboardAddExpenseWalkthrough').and.callFake(function(this: any) {
+        const dashboardAddExpenseWalkthroughSteps: DriveStep[] =
+          this.walkthroughService.getDashboardAddExpenseWalkthroughConfig();
+        const driverConfig = {
+          overlayOpacity: 0.5,
+          allowClose: true,
+          overlayClickBehavior: 'close',
+          showProgress: false,
+          overlayColor: '#161528',
+          stageRadius: 6,
+          stagePadding: 4,
+          popoverClass: 'custom-popover',
+          doneBtnText: 'Ok',
+          showButtons: ['close', 'next'],
+          onDestroyed: () => {
+            this.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+          },
+        };
+        onDestroyedCallback = driverConfig.onDestroyed;
+        const driverInstance = {
+          setSteps: jasmine.createSpy('setSteps'),
+          drive: jasmine.createSpy('drive'),
+          destroy: jasmine.createSpy('destroy'),
+        };
+        this.dashboardAddExpenseWalkthroughDriverInstance = driverInstance;
+        driverInstance.setSteps(dashboardAddExpenseWalkthroughSteps);
+        driverInstance.drive();
+      });
+
+      component.startDashboardAddExpenseWalkthrough();
+      
+      if (onDestroyedCallback) {
+        onDestroyedCallback();
+      }
+      
+      expect(component.setDashboardAddExpenseWalkthroughFeatureConfigFlag).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('setDashboardAddExpenseWalkthroughFeatureConfigFlag():', () => {
+    beforeEach(() => {
+      featureConfigService.saveConfiguration.and.returnValue(of(null));
+    });
+
+    it('should save feature config with correct parameters', () => {
+      component.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledOnceWith({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_ADD_EXPENSE',
+        value: {
+          isShown: true,
+          isFinished: true,
+        },
+      });
+    });
+
+    it('should track walkthrough completed event', () => {
+      component.setDashboardAddExpenseWalkthroughFeatureConfigFlag();
+
+      expect(trackingService.eventTrack).toHaveBeenCalledOnceWith(
+        'Dashboard Add Expense Walkthrough Completed',
+        {
+          Asset: 'Mobile',
+          from: 'Dashboard',
+        },
+      );
+    });
+  });
+
+  describe('showDashboardAddExpenseWalkthrough():', () => {
+    beforeEach(() => {
+      featureConfigService.getConfiguration.and.returnValue(of(null));
+      spyOn(component, 'startDashboardAddExpenseWalkthrough');
+    });
+
+    it('should not show walkthrough when navbar walkthrough is not complete or over', fakeAsync(() => {
+      component.isWalkthroughComplete = false;
+      component.isWalkThroughOver = false;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).not.toHaveBeenCalled();
+    }));
+
+    it('should show walkthrough when navbar walkthrough is complete', fakeAsync(() => {
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = false;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show walkthrough when navbar walkthrough is over', fakeAsync(() => {
+      component.isWalkthroughComplete = false;
+      component.isWalkThroughOver = true;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not show walkthrough if already finished', fakeAsync(() => {
+      const mockFeatureConfig: FeatureConfig<{ isShown: boolean; isFinished: boolean }> = {
+        org_id: 'org123',
+        user_id: 'user123',
+        created_at: '2023-01-01T00:00:00.000Z',
+        updated_at: '2023-01-01T00:00:00.000Z',
+        target_client: 'WEBAPP',
+        feature: 'WALKTHROUGH',
+        sub_feature: null,
+        key: 'DASHBOARD_ADD_EXPENSE',
+        value: { isShown: true, isFinished: true },
+        is_shared: false,
+      };
+      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = true;
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(component.startDashboardAddExpenseWalkthrough).not.toHaveBeenCalled();
+    }));
+
+    it('should clear existing timer before setting new timer', fakeAsync(() => {
+      component.isWalkthroughComplete = true;
+      component.isWalkThroughOver = true;
+      component.dashboardAddExpenseWalkthroughTimer = setTimeout(() => {}, 10000);
+      spyOn(window, 'clearTimeout');
+
+      component.showDashboardAddExpenseWalkthrough();
+      tick(1000);
+
+      expect(window.clearTimeout).toHaveBeenCalled();
+      expect(component.startDashboardAddExpenseWalkthrough).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('ACH Suspension Functionality:', () => {
+    beforeEach(() => {
+      // Clear session storage to ensure clean state
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+      
+      // Reset component observables to avoid affecting other tests
+      component.eou$ = of(apiEouRes);
+      component.orgSettings$ = of(orgSettingsRes);
+      orgUserService.getDwollaCustomer.and.returnValue(of(null));
+    });
+
+    afterEach(() => {
+      // Clean up any global state that might affect other tests
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+    });
+
+    it('should show ACH suspension popup when customer is suspended', fakeAsync(() => {
+      orgUserService.getDwollaCustomer.and.returnValue(of(suspendedDwollaCustomer));
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      component.checkAchSuspension();
+      
+      // Flush all pending async operations
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: jasmine.any(String),
+          message: jasmine.any(String),
+          primaryCta: {
+            text: jasmine.any(String),
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    }));
+
+    it('should not show popup when customer is not suspended', fakeAsync(() => {
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      orgUserService.getDwollaCustomer.and.returnValue(of(activeDwollaCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not allow ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: false, enabled: true } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not check ACH when org settings do not enable ACH', fakeAsync(() => {
+      const orgSettingsWithoutAch = { ...orgSettingsRes, ach_settings: { allowed: true, enabled: false } };
+      component.orgSettings$ = of(orgSettingsWithoutAch);
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should not show popup when dialog was already shown in session', fakeAsync(() => {
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.setItem(dialogShownKey, 'true');
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+    it('should handle API errors gracefully and not show popup', fakeAsync(() => {
+      // Clear session storage to ensure clean state
+      const dialogShownKey = `ach_suspension_dialog_shown_${apiEouRes.ou.id}`;
+      sessionStorage.removeItem(dialogShownKey);
+      
+      // Ensure LaunchDarkly flag is enabled for this test
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      orgUserService.getDwollaCustomer.and.returnValue(throwError(() => new Error('API Error')));
+      spyOn(component, 'showAchSuspensionPopup');
+
+      component.checkAchSuspension();
+      
+      flush();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+    }));
+
+
+    it('should show ACH suspension popup with correct translations', async () => {
+      const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(mockPopover);
+
+      await component.showAchSuspensionPopup();
+
+      expect(popoverController.create).toHaveBeenCalledWith({
+        component: jasmine.any(Function),
+        componentProps: {
+          title: jasmine.any(String),
+          message: jasmine.any(String),
+          primaryCta: {
+            text: jasmine.any(String),
+            action: 'confirm',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+      expect(mockPopover.present).toHaveBeenCalledTimes(1);
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('ACH Reimbursements Suspended Popup Shown');
+    });
+  });
 });

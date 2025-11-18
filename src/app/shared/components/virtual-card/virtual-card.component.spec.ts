@@ -1,12 +1,12 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
-
 import { VirtualCardComponent } from './virtual-card.component';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
-import { click, getElementBySelector } from 'src/app/core/dom-helpers';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
+import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { PopoverController } from '@ionic/angular/standalone';
 
 describe('VirtualCardComponent', () => {
   let component: VirtualCardComponent;
@@ -19,13 +19,14 @@ describe('VirtualCardComponent', () => {
     const clipboardServiceSpy = jasmine.createSpyObj('ClipboardService', ['writeString']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     TestBed.configureTestingModule({
-      declarations: [VirtualCardComponent],
-      imports: [IonicModule.forRoot()],
+      imports: [ getTranslocoTestingModule(), VirtualCardComponent],
       providers: [
         { provide: ClipboardService, useValue: clipboardServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
+        { provide: PopoverController, useValue: popoverControllerSpy }
       ],
     }).compileComponents();
 
@@ -66,9 +67,10 @@ describe('VirtualCardComponent', () => {
     const message = 'Copied Successfully!';
     const successToastProperties = {
       data: {
-        icon: 'check-circle-outline',
+        icon: 'success-toast-icon',
         showCloseButton: true,
         message,
+        messageType: 'success' as const,
       },
       duration: 3000,
     };
@@ -84,7 +86,6 @@ describe('VirtualCardComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'check-circle-outline'
     );
   });
 

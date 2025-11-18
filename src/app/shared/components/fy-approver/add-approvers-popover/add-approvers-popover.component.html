@@ -5,14 +5,14 @@
         <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="add-approvers-popover--toolbar__title"> Add approvers </ion-title>
+    <ion-title class="add-approvers-popover--toolbar__title"> {{ 'addApproversPopover.title' | transloco }} </ion-title>
     <ion-buttons slot="end">
       <ion-button
         class="add-approvers-popover--toolbar__btn-save"
         [disabled]="!(selectedApproversList.length && confirmationMessage.trim().length)"
         (click)="saveUpdatedApproversList()"
       >
-        Save
+        {{ 'addApproversPopover.save' | transloco }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -22,24 +22,23 @@
   <div class="add-approvers-popover--content">
     <label class="add-approvers-popover--label">
       <div class="add-approvers-popover--label__content">
-        <span> Approver(s) to be added </span>
+        <span> {{ 'addApproversPopover.approversToBeAdded' | transloco }} </span>
         <span class="add-approvers-popover--label__mandatory"> * </span>
       </div>
       <div class="add-approvers-popover--input-container">
         <input
           class="add-approvers-popover--input-container__input smartlook-show"
           type="text"
-          [placeholder]="'Select approvers'"
+          [placeholder]="'addApproversPopover.selectApprovers' | transloco"
           [ngModel]="displayValue"
           (click)="openModal()"
           readonly
         />
-        <mat-chip
-          *ngIf="selectedApproversList && selectedApproversList.length > 3"
-          class="add-approvers-popover--input-container__chip"
-        >
-          +{{ selectedApproversList.length - 3 }} more
-        </mat-chip>
+        @if (selectedApproversList && selectedApproversList.length > 3) {
+          <mat-chip class="add-approvers-popover--input-container__chip">
+            {{ 'addApproversPopover.moreApprovers' | transloco: { count: selectedApproversList.length - 3 } }}
+          </mat-chip>
+        }
         <mat-icon class="add-approvers-popover--input-container__icon" svgIcon="arrow-down"></mat-icon>
       </div>
     </label>
@@ -47,13 +46,13 @@
     <div class="add-approvers-popover--content__div">
       <label class="add-approvers-popover--label">
         <div class="add-approvers-popover--label__content">
-          <span> Reason for adding approver(s) </span>
+          <span> {{ 'addApproversPopover.reasonForAdding' | transloco }} </span>
           <span class="add-approvers-popover--label__mandatory"> * </span>
         </div>
         <div class="add-approvers-popover--message-box-container">
           <textarea
             class="add-approvers-popover--message-box-container__textarea"
-            placeholder="Type your reason here"
+            [placeholder]="'addApproversPopover.typeYourReason' | transloco"
             [(ngModel)]="confirmationMessage"
           ></textarea>
         </div>
@@ -61,12 +60,7 @@
     </div>
 
     <div>
-      <app-fy-alert-info
-        [message]="
-          'You are adding additional approver(s) to the report. The report will go the them at the end and include all the expenses.'
-        "
-        [type]="'information'"
-      >
+      <app-fy-alert-info [message]="'addApproversPopover.infoMessage' | transloco" [type]="'information'">
       </app-fy-alert-info>
     </div>
   </div>

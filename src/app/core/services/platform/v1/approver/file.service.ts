@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { PlatformFilePostRequestPayload } from 'src/app/core/models/platform/platform-file-post-request-payload.model';
@@ -10,7 +10,7 @@ import { ApproverPlatformApiService } from '../../../approver-platform-api.servi
   providedIn: 'root',
 })
 export class ApproverFileService {
-  constructor(private approverPlatformApiService: ApproverPlatformApiService) {}
+  private approverPlatformApiService = inject(ApproverPlatformApiService);
 
   createFile(payload: PlatformFilePostRequestPayload): Observable<PlatformFile> {
     return this.approverPlatformApiService
@@ -19,8 +19,9 @@ export class ApproverFileService {
   }
 
   createFilesBulk(payload: PlatformFilePostRequestPayload[]): Observable<PlatformFile[]> {
+    const data = { data: payload };
     return this.approverPlatformApiService
-      .post<PlatformApiResponse<PlatformFile[]>>('/files/bulk', payload)
+      .post<PlatformApiResponse<PlatformFile[]>>('/files/bulk', data)
       .pipe(map((response) => response.data));
   }
 
@@ -42,7 +43,27 @@ export class ApproverFileService {
       .pipe(map((response) => response.data));
   }
 
-  downloadFile(id: string): Observable<{}> {
+  downloadFile(id: string): Observable<void> {
     return this.approverPlatformApiService.get('/files/download?id=' + id);
+  }
+
+  deleteFilesBulk(fileIds: string[]): Observable<void> {
+    const data = fileIds.map((id) => ({ id }));
+    const payload = { data };
+    return this.approverPlatformApiService.post('/files/delete/bulk', payload);
+  }
+
+  attachToAdvance(advanceRequestId: string, fileIds: string[], userId: string): Observable<void> {
+    const payload = {
+      data: [
+        {
+          id: advanceRequestId,
+          file_ids: fileIds,
+          user_id: userId,
+        },
+      ],
+    };
+
+    return this.approverPlatformApiService.post<void>('/advance_requests/attach_files/bulk', payload);
   }
 }

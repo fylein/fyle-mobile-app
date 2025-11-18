@@ -1,14 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { CropReceiptComponent } from './crop-receipt.component';
-import { ModalController, Platform } from '@ionic/angular';
-import { MatIconModule } from '@angular/material/icon';
+import { ModalController, Platform } from '@ionic/angular/standalone';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { ImageCropperComponent } from 'ngx-image-cropper';
+import { ImageCropperComponent, ImageCropperModule } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
-import { HammerModule } from '@angular/platform-browser';
-import { Component, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 
 describe('CropReceiptComponent', () => {
@@ -19,15 +16,13 @@ describe('CropReceiptComponent', () => {
   let platform: Platform;
 
   @Component({
-    // eslint-disable-next-line @angular-eslint/component-selector
     selector: 'image-cropper',
     template: '',
-    providers: [{ provide: ImageCropperComponent, useClass: ImageCropperStubComponent }],
   })
   class ImageCropperStubComponent {
-    @Input() imageBase64;
+    readonly imageBase64 = input(undefined);
 
-    @Input() maintainAspectRatio;
+    readonly maintainAspectRatio = input(undefined);
 
     crop() {
       return {
@@ -41,8 +36,10 @@ describe('CropReceiptComponent', () => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
-      declarations: [CropReceiptComponent, ImageCropperStubComponent],
-      imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, HammerModule],
+      imports: [
+        MatIconTestingModule,
+        CropReceiptComponent,
+      ],
       providers: [
         Platform,
         {
@@ -54,6 +51,9 @@ describe('CropReceiptComponent', () => {
           useValue: loaderServiceSpy,
         },
       ],
+    }).overrideComponent(CropReceiptComponent, {
+      remove: {imports: [ImageCropperModule]},
+      add: {imports: [ImageCropperStubComponent]}
     }).compileComponents();
     fixture = TestBed.createComponent(CropReceiptComponent);
     component = fixture.componentInstance;
@@ -75,10 +75,10 @@ describe('CropReceiptComponent', () => {
 
   it('cropReceipt', () => {
     modalController.dismiss.and.callThrough();
-    spyOn(component.imageCropper, 'crop').and.callThrough();
+    spyOn(component.imageCropper(), 'crop').and.callThrough();
 
     component.cropReceipt();
-    expect(component.imageCropper.crop).toHaveBeenCalledTimes(1);
+    expect(component.imageCropper().crop).toHaveBeenCalledTimes(1);
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
       base64ImageWithSource: component.base64ImageWithSource,
     });
