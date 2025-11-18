@@ -2,7 +2,7 @@
   <div class="expenses-card--date" [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }">
     @if ({ isConnected: isConnected$ | async }; as data) {
       @if (expense().id && data.isConnected) {
-        {{ expense().spent_at || expense().created_at | dateFormat }}
+        {{ expense().spent_at || expense().created_at | date }}
       } @else {
         {{ 'expensesCard.offlineExpenses' | transloco }}
       }
@@ -191,17 +191,14 @@
               <!-- Amount & Exchange rate -->
               <div class="expenses-card--currency-amount-exchange-rate-container">
                 <div class="expenses-card--currency-amount-container">
-                  <span class="expenses-card--currency">
-                    {{ (expense().currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
-                  </span>
                   <span class="expenses-card--amount">
                     @if (expense().currency) {
                       {{
-                        { value: expense().amount, currencyCode: expense().currency, skipSymbol: true } | exactCurrency
+                        { value: expense().amount, currencyCode: expense().currency } | exactCurrency
                       }}
                     }
                     @if (!expense().currency) {
-                      {{ { value: expense().amount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency }}
+                      {{ { value: expense().amount, currencyCode: homeCurrency } | exactCurrency }}
                     }
                   </span>
                   @if (showPaymentModeIcon) {
@@ -238,17 +235,14 @@
               <!-- Amount & Exchange rate -->
               <div class="expenses-card--currency-amount-exchange-rate-container">
                 <div class="expenses-card--currency-amount-container">
-                  <span class="expenses-card--currency">
-                    {{ (expense().currency | currencySymbol: 'wide') || (homeCurrency | currencySymbol: 'wide') }}
-                  </span>
                   <span class="expenses-card--amount">
                     @if (expense().currency) {
                       {{
-                        { value: expense().amount, currencyCode: expense().currency, skipSymbol: true } | exactCurrency
+                        { value: expense().amount, currencyCode: expense().currency } | exactCurrency
                       }}
                     }
                     @if (!expense().currency) {
-                      {{ { value: expense().amount, currencyCode: homeCurrency, skipSymbol: true } | exactCurrency }}
+                      {{ { value: expense().amount, currencyCode: homeCurrency } | exactCurrency }}
                     }
                   </span>
                   @if (showPaymentModeIcon) {

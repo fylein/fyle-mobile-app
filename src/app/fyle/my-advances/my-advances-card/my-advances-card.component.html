@@ -1,6 +1,6 @@
 @if (!showDate) {
   <div class="advance-card--date">
-    {{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}
+    {{ advanceRequest.created_at | date }}
   </div>
 }
 
@@ -23,13 +23,11 @@
 
         <!-- Amount -->
         <div class="advance-card--amount-block">
-          <span class="advance-card--currency">{{ currencySymbol }}</span>
           <span class="advance-card--amount">
             {{
               {
                 value: advanceRequest.orig_amount || advanceRequest.amount || 0,
-                currencyCode: advanceRequest.currency,
-                skipSymbol: true,
+                currencyCode: advanceRequest.currency
               } | exactCurrency
             }}
           </span>
@@ -41,7 +39,7 @@
             <div>
               <span
                 >{{ 'myAdvancesCard.approvedDate' | transloco }}
-                {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span
+                {{ advanceRequest.areq_approved_at | date }}</span
               >
             </div>
           }
