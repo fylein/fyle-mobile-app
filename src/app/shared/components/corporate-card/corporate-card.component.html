@@ -44,9 +44,7 @@
         card.data_feed_source === dataFeedSourceTypes.YODLEE || card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
       ) {
         <span class="corporate-card__feed-label">{{ 'corporateCard.lastSynced' | transloco }}</span>
-        <span class="corporate-card__feed-value" data-testid="feed-info">{{
-          card.last_synced_at | date: 'MMM dd, yyyy'
-        }}</span>
+        <span class="corporate-card__feed-value" data-testid="feed-info">{{ card.last_synced_at | date }}</span>
       }
       @if (
         (card.data_feed_source === dataFeedSourceTypes.STATEMENT_UPLOAD && !isCardConnectedToRTF) ||

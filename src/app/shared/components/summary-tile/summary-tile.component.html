@@ -64,7 +64,7 @@
             <div class="summary-tile--approver-state-section">
               @if (ap.state === 'APPROVAL_DONE') {
                 <div class="summary-tile--approver-state-section__date">
-                  <span>{{ ap.updated_at | date: 'MMM dd, yyyy' }}</span>
+                  <span>{{ ap.updated_at | date }}</span>
                 </div>
               }
               <div

@@ -3,9 +3,11 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { MatIcon } from '@angular/material/icon';
-import { NgClass, KeyValuePipe } from '@angular/common';
+import { NgClass, KeyValuePipe, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { StatusesDiffComponent } from './statuses-diff/statuses-diff.component';
 import { DateWithTimezonePipe } from '../../../pipes/date-with-timezone.pipe';
+import { FORMAT_PREFERENCES } from 'src/app/constants';
+import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
 
 @Component({
   selector: 'app-audit-history',
@@ -18,11 +20,17 @@ export class AuditHistoryComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
+  private datePipeOptions = inject(DATE_PIPE_DEFAULT_OPTIONS);
+
+  private formatPreferences = inject<FormatPreferences>(FORMAT_PREFERENCES);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() estatuses: ExtendedStatus[];
 
   projectFieldName: string;
+
+  dateTimeFormat: string;
 
   // TODO - replace forEach with find
   getAndUpdateProjectName(): void {
@@ -90,6 +98,8 @@ export class AuditHistoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.projectFieldName = this.translocoService.translate('auditHistory.defaultProjectFieldName');
+    this.dateTimeFormat = `${this.datePipeOptions.dateFormat} ${this.formatPreferences.timeFormat}`;
+
     this.hasDetails();
     this.setReimbursable();
     this.getAndUpdateProjectName();

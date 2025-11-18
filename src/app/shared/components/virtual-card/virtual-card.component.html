@@ -67,7 +67,7 @@
     </div>
     <div>
       <div class="virtual-card__card-fields__label-text">{{ 'virtualCard.expiry' | transloco }}</div>
-      <div class="virtual-card__card-fields__value-text">{{ expiry() | date: 'MM/yy' }}</div>
+      <div class="virtual-card__card-fields__value-text">{{ expiry() | date }}</div>
     </div>
     @if (availableAmount !== undefined) {
       <div class="virtual-card__vertical-divider"></div>

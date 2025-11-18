@@ -231,7 +231,7 @@
                   </ion-col>
                   <ion-col class="view-expense--content-container">
                     <div class="view-expense--label">Created date</div>
-                    <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, yyyy' }}</div>
+                    <div class="view-expense--value">{{ expense.created_at | date }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -252,14 +252,12 @@
                       <div class="d-flex">
                         <div class="view-expense--label">Spend date</div>
                         @if (
-                          expense.extracted_data &&
-                          (expense.spent_at | date: 'MMM dd, yyyy') ===
-                            (expense.extracted_data.date | date: 'MMM dd, yyyy')
+                          expense.extracted_data && (expense.spent_at | date) === (expense.extracted_data.date | date)
                         ) {
                           <ion-icon class="view-expense--sparkle-icon" src="../../../assets/svg/sparkle.svg"></ion-icon>
                         }
                       </div>
-                      <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, yyyy' }}</div>
+                      <div class="view-expense--value">{{ expense.spent_at | date }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -500,7 +498,7 @@
                         </ion-col>
                         <ion-col class="view-expense--content-container">
                           <div class="view-expense--label">Onward date</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
+                          <div class="view-expense--value">{{ expense.started_at | date }}</div>
                         </ion-col>
                       </ion-row>
                     </ion-grid>
@@ -519,7 +517,7 @@
                           </ion-col>
                           <ion-col class="view-expense--content-container">
                             <div class="view-expense--label">Return date</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
+                            <div class="view-expense--value">{{ expense.ended_at | date }}</div>
                           </ion-col>
                         </ion-row>
                       </ion-grid>
@@ -631,7 +629,7 @@
                         </ion-col>
                         <ion-col class="view-expense--content-container">
                           <div class="view-expense--label">Check in</div>
-                          <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, yyyy' }}</div>
+                          <div class="view-expense--value">{{ expense.started_at | date }}</div>
                         </ion-col>
                       </ion-row>
                     </ion-grid>
@@ -650,7 +648,7 @@
                           </ion-col>
                           <ion-col class="view-expense--content-container">
                             <div class="view-expense--label">Check out</div>
-                            <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, yyyy' }}</div>
+                            <div class="view-expense--value">{{ expense.ended_at | date }}</div>
                           </ion-col>
                         </ion-row>
                       </ion-grid>

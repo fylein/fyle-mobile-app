@@ -209,9 +209,7 @@ export class CustomInputsService {
   }
 
   private formatDateCustomProperty(customProperty: CustomField): string {
-    return customProperty.value
-      ? this.datePipe.transform(<string | number | Date>customProperty.value, 'MMM dd, yyyy')
-      : '-';
+    return customProperty.value ? this.datePipe.transform(<string | number | Date>customProperty.value) : '-';
   }
 
   private formatMultiselectCustomProperty(customProperty: CustomField): string {

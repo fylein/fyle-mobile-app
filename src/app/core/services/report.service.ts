@@ -100,7 +100,7 @@ export class ReportService {
         const nextReportAutoSubmissionDate = reportAutoSubmissionDetails.data?.next_at;
         if (nextReportAutoSubmissionDate) {
           return this.translocoService.translate('services.report.automaticSubmissionOnDate', {
-            date: this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d'),
+            date: this.datePipe.transform(nextReportAutoSubmissionDate),
           });
         }
         return null;
