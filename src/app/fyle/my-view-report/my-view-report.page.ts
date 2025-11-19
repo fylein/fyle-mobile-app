@@ -258,8 +258,8 @@ export class MyViewReportPage {
               if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
                 return of(false);
               }
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+              return this.orgUserService.getDwollaCustomer().pipe(
+                map((dwollaCustomer) => dwollaCustomer?.is_customer_suspended || false),
                 catchError(() => of(false)),
               );
             }),

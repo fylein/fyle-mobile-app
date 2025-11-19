@@ -3,7 +3,23 @@ import { Component, ElementRef, EventEmitter, OnInit, ViewChild, inject } from '
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationStart, Params, Router } from '@angular/router';
-import { ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonIcon, IonInfiniteScroll, IonInfiniteScrollContent, IonItem, IonRefresher, IonRefresherContent, IonSkeletonText, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
+import {
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+  IonItem,
+  IonRefresher,
+  IonRefresherContent,
+  IonSkeletonText,
+  ModalController,
+  NavController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { cloneDeep, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
@@ -141,7 +157,7 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
     MatPrefix,
     MatSuffix,
     NgClass,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class MyExpensesPage implements OnInit {
@@ -655,11 +671,11 @@ export class MyExpensesPage implements OnInit {
         this.syncOutboxExpenses();
       }
     });
-    
+
     const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
-    
+
     this.homeCurrency$ = getHomeCurrency$;
-    
+
     getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
@@ -1452,8 +1468,8 @@ export class MyExpensesPage implements OnInit {
         );
       } else {
         // Check if any selected expenses are reimbursable before proceeding
-        const hasReimbursableExpenses = selectedElements.some(expense => expense.is_reimbursable);
-        
+        const hasReimbursableExpenses = selectedElements.some((expense) => expense.is_reimbursable);
+
         if (hasReimbursableExpenses) {
           // Check ACH suspension before creating report with reimbursable expenses
           this.checkAchSuspensionBeforeCreateReport(reportType);
@@ -2127,8 +2143,8 @@ export class MyExpensesPage implements OnInit {
               if (!orgSettings?.ach_settings?.allowed || !orgSettings?.ach_settings?.enabled) {
                 return of(false);
               }
-              return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
-                map((dwollaCustomer) => dwollaCustomer?.customer_suspended || false),
+              return this.orgUserService.getDwollaCustomer().pipe(
+                map((dwollaCustomer) => dwollaCustomer?.is_customer_suspended || false),
                 catchError(() => of(false)),
               );
             }),

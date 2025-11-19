@@ -931,7 +931,7 @@ export class DashboardPage {
     this.trackingService.eventTrack('ACH Reimbursements Suspended Popup Shown');
   }
 
-  async showRebrandingPopup(): Promise<OverlayEventDetail<{value: string}>> {
+  async showRebrandingPopup(): Promise<OverlayEventDetail<{ value: string }>> {
     const rebrandingPopover = await this.popoverController.create({
       component: RebrandingPopupComponent,
       cssClass: 'pop-up-in-center',
@@ -1057,9 +1057,9 @@ export class DashboardPage {
             return of(null);
           }
 
-          return this.orgUserService.getDwollaCustomer(eou.ou.id).pipe(
+          return this.orgUserService.getDwollaCustomer().pipe(
             map((dwollaCustomer) => {
-              if (dwollaCustomer?.customer_suspended) {
+              if (dwollaCustomer?.is_customer_suspended) {
                 sessionStorage.setItem(dialogShownKey, 'true');
                 this.showAchSuspensionPopup();
               }
