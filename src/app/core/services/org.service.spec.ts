@@ -104,18 +104,6 @@ describe('OrgService', () => {
     });
   });
 
-  it('updateOrg(): should update org', (done) => {
-    apiService.post.and.returnValue(of(orgData1[0]));
-    spyOn(globalCacheBusterNotifier, 'next');
-
-    orgService.updateOrg(orgData1[0]).subscribe((res) => {
-      expect(res).toEqual(orgData1[0]);
-      expect(globalCacheBusterNotifier.next).toHaveBeenCalledBefore(apiService.post);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/orgs', orgData1[0]);
-      done();
-    });
-  });
-
   it('switchOrg(): should switch org', (done) => {
     const orgId = 'orNVthTo2Zyo';
     apiService.post.and.returnValue(of(apiEouRes));
@@ -151,21 +139,6 @@ describe('OrgService', () => {
         expect(apiService.get).toHaveBeenCalledOnceWith('/currency/ip');
         done();
       });
-    });
-  });
-
-  it('setCurrencyBasedOnIp(): should set currency based on ip', (done) => {
-    spyOn(orgService, 'suggestOrgCurrency').and.returnValue(of(currencyIpData.currency));
-    const mockOrgData = cloneDeep(orgData1[0]);
-    spyOn(orgService, 'getCurrentOrg').and.returnValue(of(mockOrgData));
-    spyOn(orgService, 'updateOrg').and.returnValue(of(mockOrgData));
-
-    orgService.setCurrencyBasedOnIp().subscribe((res) => {
-      expect(res).toEqual(mockOrgData);
-      expect(orgService.suggestOrgCurrency).toHaveBeenCalledTimes(1);
-      expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
-      expect(orgService.updateOrg).toHaveBeenCalledOnceWith(mockOrgData);
-      done();
     });
   });
 });

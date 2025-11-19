@@ -1108,7 +1108,6 @@ describe('MyViewReportPage', () => {
 
   describe('ACH Suspension Functionality:', () => {
     beforeEach(() => {
-      launchDarklyService.getVariation.and.returnValue(of(true)); // Enable ach_improvement flag
     });
 
     it('should show ACH suspension popup when called', async () => {
@@ -1161,21 +1160,5 @@ describe('MyViewReportPage', () => {
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     });
 
-    it('should not check ACH when LaunchDarkly flag is disabled', fakeAsync(() => {
-      // Setup required observables
-      component.eou$ = of(apiEouRes);
-      orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      launchDarklyService.getVariation.and.returnValue(of(false)); // Disable ach_improvement flag
-      spyOn(component, 'showAchSuspensionPopup');
-      spyOn(component as any, 'performAddExpenses');
-
-      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
-      tick(100);
-
-      expect(launchDarklyService.getVariation).toHaveBeenCalledWith('ach_improvement', false);
-      expect(orgUserService.getDwollaCustomer).not.toHaveBeenCalled();
-      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
-      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
-    }));
   });
 });
