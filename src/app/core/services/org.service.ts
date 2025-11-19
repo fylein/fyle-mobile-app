@@ -51,24 +51,6 @@ export class OrgService {
     );
   }
 
-  updateOrg(org: Org): Observable<Org> {
-    globalCacheBusterNotifier.next();
-    return this.apiService.post('/orgs', org);
-  }
-
-  setCurrencyBasedOnIp(): Observable<Org> {
-    const currency$ = this.suggestOrgCurrency();
-    const currentOrg$ = this.getCurrentOrg();
-
-    return forkJoin([currency$, currentOrg$]).pipe(
-      switchMap((aggregatedResults) => {
-        const [currency, org] = aggregatedResults;
-        org.currency = currency;
-        return this.updateOrg(org);
-      }),
-    );
-  }
-
   switchOrg(orgId: string): Observable<ExtendedOrgUser> {
     // busting global cache
     globalCacheBusterNotifier.next();

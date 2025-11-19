@@ -234,7 +234,7 @@ export class ExpenseFieldsService {
     const expenseFieldsCopy = cloneDeep(expenseFields);
     return expenseFieldsCopy.map((field) => {
       if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
-        field.default_value = field.default_value === 'true';
+        field.default_value = field.default_value === 'true' || field.default_value === true;
       }
       return field;
     });
