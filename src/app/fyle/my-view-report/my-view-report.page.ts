@@ -28,7 +28,7 @@ import {
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -120,6 +120,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     RouterLink,
     SnakeCaseToSpaceCase,
     TitleCasePipe,
+    TranslocoPipe,
   ],
 })
 export class MyViewReportPage {
@@ -650,7 +651,36 @@ export class MyViewReportPage {
       });
   }
 
-  submitReport(): void {
+  async submitReport(): Promise<void> {
+    const submitReportModal = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: this.translocoService.translate<string>('myViewReport.submitReportTitle'),
+        message: this.translocoService.translate<string>('myViewReport.submitReportMessage'),
+        leftAlign: true,
+        primaryCta: {
+          text: this.translocoService.translate('myViewReport.submitReportConfirm'),
+          action: 'submit',
+          type: 'primary',
+        },
+        secondaryCta: {
+          text: this.translocoService.translate('myViewReport.submitReportCancel'),
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await submitReportModal.present();
+
+    const { data } = (await submitReportModal.onWillDismiss()) as { data: { action: string } };
+
+    if (data && data.action === 'submit') {
+      this.performSubmitReport();
+    }
+  }
+
+  private performSubmitReport(): void {
     this.submitReportLoader = true;
     this.spenderReportsService
       .submit(this.reportId)

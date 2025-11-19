@@ -682,7 +682,7 @@ describe('MyViewReportPage', () => {
     });
   });
 
-  it('submitReport(): should submit report', () => {
+  it('submitReport(): should submit report', fakeAsync(() => {
     component.segmentValue = ReportPageSegment.EXPENSES;
     component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
     fixture.detectChanges();
@@ -696,13 +696,39 @@ describe('MyViewReportPage', () => {
       },
       duration: 3000,
     };
+
+    const submitReportPopoverSpy = jasmine.createSpyObj('submitReportPopover', ['present', 'onWillDismiss']);
+    submitReportPopoverSpy.present.and.resolveTo();
+    submitReportPopoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'submit' } });
+    popoverController.create.and.resolveTo(submitReportPopoverSpy);
+
     spenderReportsService.submit.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
     const submitButton = getElementBySelector(fixture, '.fy-footer-cta--primary') as HTMLElement;
     click(submitButton);
+    tick();
 
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: jasmine.any(Function),
+      componentProps: {
+        title: 'Submit the expense report',
+        message:
+          'The expense report will be sent to your approver for review. You will be notified once they have taken action on it.<br/><br/>Do you want to continue?',
+        leftAlign: true,
+        primaryCta: {
+          text: 'Yes, submit',
+          action: 'submit',
+          type: 'primary',
+        },
+        secondaryCta: {
+          text: 'No, go back',
+          action: 'cancel',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
     expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -715,7 +741,7 @@ describe('MyViewReportPage', () => {
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Report submitted successfully.',
     });
-  });
+  }));
 
   describe('goToTransaction():', () => {
     beforeEach(() => {
@@ -1094,7 +1120,8 @@ describe('MyViewReportPage', () => {
         component: jasmine.any(Function),
         componentProps: {
           title: 'ACH reimbursements suspended',
-          message: 'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
+          message:
+            'ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.',
           primaryCta: {
             text: 'Got it',
             action: 'confirm',

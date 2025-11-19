@@ -960,6 +960,13 @@
     "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
     "achSuspendedButton": "Got it"
   },
+  "myViewReport": {
+    "submitReportTitle": "Submit the expense report",
+    "submitReportMessage": "The expense report will be sent to your approver for review. You will be notified once they have taken action on it.<br/><br/>Do you want to continue?",
+    "submitReportConfirm": "Yes, submit",
+    "submitReportCancel": "No, go back",
+    "addExpense": "Add expense"
+  },
   "viewDependentFields": {
     "unspecified": "Unspecified",
     "costCenterCode": "Cost center code"
