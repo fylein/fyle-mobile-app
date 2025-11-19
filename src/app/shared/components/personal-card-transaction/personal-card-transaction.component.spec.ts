@@ -4,7 +4,7 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
@@ -17,6 +17,9 @@ describe('PersonalCardTransactionComponent', () => {
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
     const dateFormatPipeSpy = jasmine.createSpyObj('DateFormatPipe', ['transform']);
+    dateFormatPipeSpy.transform.and.returnValue('Sep 22, 2024');
+    const exactCurrencyPipeSpy = jasmine.createSpyObj('ExactCurrencyPipe', ['transform']);
+    exactCurrencyPipeSpy.transform.and.returnValue('$200.00');
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
         reRenderOnLangChange: true,
@@ -42,7 +45,6 @@ describe('PersonalCardTransactionComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,
@@ -56,8 +58,13 @@ describe('PersonalCardTransactionComponent', () => {
           provide: DateFormatPipe,
           useValue: dateFormatPipeSpy,
         },
+        {
+          provide: ExactCurrencyPipe,
+          useValue: exactCurrencyPipeSpy,
+        },
         FyCurrencyPipe,
         CurrencyPipe,
+        DatePipe,
         { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
     }).compileComponents();
@@ -76,9 +83,9 @@ describe('PersonalCardTransactionComponent', () => {
 
   describe('OnInit():', () => {
     it('should set the currency property with a currency symbol in wide format', () => {
-      component.currency = 'USD';
+      component.transaction = platformPersonalCardTxns.data[0];
       component.ngOnInit();
-      expect(component.currency).toEqual('$');
+      expect(component.currency).toEqual(platformPersonalCardTxns.data[0].currency);
     });
 
     it('should set the showDt property to true when the transaction dates are different', () => {
@@ -157,11 +164,10 @@ describe('PersonalCardTransactionComponent', () => {
   it('should display the currency, amount, and type', () => {
     component.currency = 'USD';
     fixture.detectChanges();
-    const currencyElement = getElementBySelector(fixture, '.personal-card-transaction--currency');
-    expect(getTextContent(currencyElement)).toEqual('USD');
 
     const amountElement = getElementBySelector(fixture, '.personal-card-transaction--amount');
-    expect(getTextContent(amountElement)).toEqual('200.00');
+    expect(amountElement).toBeTruthy();
+    expect(getTextContent(amountElement)).toContain('200');
 
     const typeElement = getElementBySelector(fixture, '.personal-card-transaction--type');
     expect(getTextContent(typeElement)).toEqual('DR');

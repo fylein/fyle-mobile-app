@@ -124,7 +124,7 @@ describe('ReportService', () => {
       spyOn(reportService, 'getReportAutoSubmissionDetails').and.returnValue(of(apiReportAutoSubmissionDetails));
 
       reportService.getAutoSubmissionReportName().subscribe((res) => {
-        expect(res).toEqual('(Automatic Submission On Feb 1)');
+        expect(res).toEqual('(Automatic Submission On Feb 1, 2023)');
         expect(reportService.getReportAutoSubmissionDetails).toHaveBeenCalledTimes(1);
         done();
       });

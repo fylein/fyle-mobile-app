@@ -69,8 +69,8 @@ import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
   imports: [
     AsyncPipe,
     CurrencyPipe,
-    DatePipe,
     CurrencySymbolPipe,
+    DatePipe,
     DateFormatPipe,
     ExactCurrencyPipe,
     ExpenseState,

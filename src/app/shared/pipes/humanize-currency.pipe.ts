@@ -33,7 +33,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
 
     if (amount === 0) {
       // Show plain 0 (no decimals)
-      return this.fyCurrencyPipe.transform('0', currencyCode, skipSymbol ? '' : 'symbol', '1.0-0')!;
+      return this.fyCurrencyPipe.transform('0', currencyCode, skipSymbol ? '' : 'symbol', '1.0-0');
     }
 
     // Compute humanized exponent and scaled value
@@ -71,10 +71,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
       }
     }
 
-    const needsSpace =
-      !!currencyToken &&
-      !!currencyCode &&
-      currencyToken.toUpperCase() === currencyCode.toUpperCase();
+    const needsSpace = !!currencyToken && !!currencyCode && currencyToken.toUpperCase() === currencyCode.toUpperCase();
 
     const composed =
       currencyToken && placement === 'after'
