@@ -19,9 +19,28 @@ export class StatusesDiffComponent implements OnInit {
 
   isValueList: boolean;
 
+  displayValue: string;
+
   constructor() {}
 
   ngOnInit() {
     this.isValueList = this.value instanceof Array;
+    if (!this.isValueList) {
+      this.displayValue = this.formatValue(this.value);
+    }
+  }
+
+  private formatValue(value: any): string {
+    if (value === null || value === undefined) {
+      return '-';
+    }
+
+    // Handle location objects with display property
+    if (typeof value === 'object' && value !== null && !Array.isArray(value) && value.display) {
+      return value.display;
+    }
+
+    // For primitives, return as string
+    return String(value);
   }
 }
