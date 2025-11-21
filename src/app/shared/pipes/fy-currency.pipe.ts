@@ -1,6 +1,7 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { FORMAT_PREFERENCES } from 'src/app/constants';
 import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
+import currency from 'currency.js';
 
 /**
  * This pipe is a superset of the default CurrencyPipe provided by Angular
@@ -19,96 +20,59 @@ export class FyCurrencyPipe implements PipeTransform {
     digitsInfo?: string,
     locale?: string,
   ): string {
-    const placement = this.formatPreferences?.currencyFormat?.placement ?? 'before';
-    const thousandSeparator = this.formatPreferences?.currencyFormat?.thousandSeparator ?? ',';
-    const decimalSeparator = this.formatPreferences?.currencyFormat?.decimalSeparator ?? '.';
-
     const numericValue = typeof value === 'string' ? Number(value) : value;
     if (numericValue == null || Number.isNaN(numericValue)) {
       return '';
     }
 
-    // Determine fraction digits
-    let minFractionDigits: number | undefined;
-    let maxFractionDigits: number | undefined;
+    const placement = this.formatPreferences?.currencyFormat?.placement ?? 'before';
+    const thousandSeparator = this.formatPreferences?.currencyFormat?.thousandSeparator ?? ',';
+    const decimalSeparator = this.formatPreferences?.currencyFormat?.decimalSeparator ?? '.';
+
+    // Determine precision from digitsInfo or currency defaults
+    let precision = 2;
+
     if (digitsInfo) {
       const match = /^(\d+)\.(\d+)-(\d+)$/.exec(digitsInfo);
       if (match) {
-        // const minIntegerDigits = Number(match[1]); // not used
-        minFractionDigits = Number(match[2]);
-        maxFractionDigits = Number(match[3]);
+        // match[2] = minFractionDigits, match[3] = maxFractionDigits
+        precision = Number(match[3]);
       }
-    }
-
-    if (minFractionDigits == null || maxFractionDigits == null) {
+    } else if (numericValue === 0) {
+      // Special-case zero when digitsInfo not explicitly provided: avoid decimals
+      precision = 0;
+    } else if (currencyCode) {
       const nf = new Intl.NumberFormat(locale || 'en-US', {
         style: 'currency',
-        currency: currencyCode || 'USD',
+        currency: currencyCode,
       });
       const resolved = nf.resolvedOptions();
-      minFractionDigits = resolved.minimumFractionDigits ?? 2;
-      maxFractionDigits = resolved.maximumFractionDigits ?? (minFractionDigits as number);
-    }
-
-    // Special-case zero when digitsInfo not explicitly provided: avoid decimals
-    if (!digitsInfo && numericValue === 0) {
-      minFractionDigits = 0;
-      maxFractionDigits = 0;
-    }
-
-    const absVal = Math.abs(numericValue);
-
-    // Build number core, then replace separators
-    const decimalFormatter = new Intl.NumberFormat(locale || 'en-US', {
-      style: 'decimal',
-      useGrouping: true,
-      minimumFractionDigits: minFractionDigits,
-      maximumFractionDigits: maxFractionDigits,
-    });
-    const parts = decimalFormatter.formatToParts(absVal);
-    let numberCore = '';
-    for (const p of parts) {
-      switch (p.type) {
-        case 'integer':
-        case 'fraction':
-          numberCore += p.value;
-          break;
-        case 'group':
-          numberCore += thousandSeparator;
-          break;
-        case 'decimal':
-          numberCore += decimalSeparator;
-          break;
-        default:
-          break;
-      }
+      precision = resolved.maximumFractionDigits ?? resolved.minimumFractionDigits ?? precision;
     }
 
     // Determine token based on display
-    const currencyDisplayStyle: 'symbol' | 'code' =
-      display === 'code' || display === false ? 'code' : 'symbol';
+    const currencyDisplayStyle: 'symbol' | 'code' = display === 'code' || display === false ? 'code' : 'symbol';
     let currencyToken = '';
     if (currencyCode) {
       const currencyFormatter = new Intl.NumberFormat(locale || 'en-US', {
         style: 'currency',
         currency: currencyCode,
         currencyDisplay: currencyDisplayStyle, // 'symbol-narrow' treated as 'symbol'
-        minimumFractionDigits: minFractionDigits,
-        maximumFractionDigits: maxFractionDigits,
       });
       const tokenParts = currencyFormatter.formatToParts(1);
       const currencyPart = tokenParts.find((p) => p.type === 'currency');
       currencyToken = currencyPart?.value || currencyCode;
     }
 
-    const sign = numericValue < 0 ? '-' : '';
-    const needsSpace =
-      !!currencyToken &&
-      !!currencyCode &&
-      currencyToken.toUpperCase() === currencyCode.toUpperCase();
-    if (placement === 'after') {
-      return `${sign}${numberCore}${currencyToken ? (needsSpace ? ' ' : '') + currencyToken : ''}`;
-    }
-    return `${sign}${currencyToken ? currencyToken + (needsSpace ? ' ' : '') : ''}${numberCore}`;
+    const needsSpace = currencyDisplayStyle === 'code';
+    const pattern = placement === 'after' ? (needsSpace ? '# !' : '#!') : needsSpace ? '! #' : '!#';
+
+    return currency(numericValue, {
+      symbol: currencyToken,
+      separator: thousandSeparator,
+      decimal: decimalSeparator,
+      pattern,
+      precision,
+    }).format();
   }
 }
