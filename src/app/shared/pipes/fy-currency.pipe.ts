@@ -65,7 +65,7 @@ export class FyCurrencyPipe implements PipeTransform {
       currencyToken = currencyPart?.value || currencyCode;
     }
 
-    const needsSpace = currencyDisplayStyle === 'code';
+    const needsSpace = !!currencyToken && !!currencyCode && currencyToken.toUpperCase() === currencyCode.toUpperCase();
     const pattern = placement === 'after' ? (needsSpace ? '# !' : '#!') : needsSpace ? '! #' : '!#';
 
     return currency(numericValue, {
