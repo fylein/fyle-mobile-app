@@ -7,6 +7,9 @@ import { RouterAuthService } from './router-auth.service';
 import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { of } from 'rxjs';
 import { getFormatPreferenceProviders } from '../testing/format-preference-providers.utils';
+import { FORMAT_PREFERENCES } from 'src/app/constants';
+import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 
 describe('ConfigService', () => {
   let configService: ConfigService;
@@ -15,6 +18,8 @@ describe('ConfigService', () => {
   let secureStorageService: jasmine.SpyObj<SecureStorageService>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let orgSettingsService: jasmine.SpyObj<PlatformOrgSettingsService>;
+  let formatPreferences: FormatPreferences;
+  let datePipeOptions: { dateFormat: string };
 
   beforeEach(() => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
@@ -39,6 +44,8 @@ describe('ConfigService', () => {
     secureStorageService = TestBed.inject(SecureStorageService) as jasmine.SpyObj<SecureStorageService>;
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
+    formatPreferences = TestBed.inject(FORMAT_PREFERENCES) as FormatPreferences;
+    datePipeOptions = TestBed.inject(DATE_PIPE_DEFAULT_OPTIONS) as { dateFormat: string };
   });
 
   it('should be created', () => {
@@ -89,6 +96,32 @@ describe('ConfigService', () => {
       await configService.loadConfigurationData();
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('should update format preferences and date options from regional settings', async () => {
+      const clusterDomain = 'https://staging.fyle.tech';
+      tokenService.getClusterDomain.and.resolveTo(clusterDomain);
+      orgSettingsService.get.and.returnValue(
+        of({
+          regional_settings: {
+            time_format: 'H:mm',
+            date_format: 'dd/MM/yyyy',
+            currency_format: {
+              decimal_separator: ',',
+              thousand_separator: '.',
+              symbol_position: 'after',
+            },
+          },
+        }),
+      );
+
+      await configService.loadConfigurationData();
+
+      expect(formatPreferences.timeFormat).toBe('H:mm');
+      expect(formatPreferences.currencyFormat.placement).toBe('after');
+      expect(formatPreferences.currencyFormat.decimalSeparator).toBe(',');
+      expect(formatPreferences.currencyFormat.thousandSeparator).toBe('.');
+      expect(datePipeOptions.dateFormat).toBe('dd/MM/yyyy');
     });
   });
 });
