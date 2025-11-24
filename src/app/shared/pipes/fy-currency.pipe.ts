@@ -65,14 +65,24 @@ export class FyCurrencyPipe implements PipeTransform {
       currencyToken = currencyPart?.value || currencyCode;
     }
 
-    const needsSpace = currencyDisplayStyle === 'code';
+    const needsSpace = !!currencyToken && !!currencyCode && currencyToken.toUpperCase() === currencyCode.toUpperCase();
+
     const pattern = placement === 'after' ? (needsSpace ? '# !' : '#!') : needsSpace ? '! #' : '!#';
+    const negativePattern =
+      placement === 'after'
+        ? needsSpace
+          ? '-# !' // e.g. -5.000 OMR
+          : '-#!' // e.g. -$5.00
+        : needsSpace
+          ? '-! #' // e.g. -OMR 5.000
+          : '-!#'; // e.g. -$5.00
 
     return currency(numericValue, {
       symbol: currencyToken,
       separator: thousandSeparator,
       decimal: decimalSeparator,
       pattern,
+      negativePattern,
       precision,
     }).format();
   }
