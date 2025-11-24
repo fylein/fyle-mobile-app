@@ -46,7 +46,7 @@ export class HumanizeCurrencyPipe implements PipeTransform {
 
     // Format numeric part only (no currency token)
     const digitsInfo = fraction ? `1.${fraction}-${fraction}` : undefined;
-    const numberOnly = this.fyCurrencyPipe.transform(scaled.toString(), undefined, '', digitsInfo) ?? '';
+    const numberOnly = this.fyCurrencyPipe.transform(scaled.toString(), currencyCode, '', digitsInfo) ?? '';
 
     // Append suffix tight to number (e.g., 104.03K)
     const numberWithSuffix = `${numberOnly}${si[Math.min(exp, si.length - 1)]}`;
