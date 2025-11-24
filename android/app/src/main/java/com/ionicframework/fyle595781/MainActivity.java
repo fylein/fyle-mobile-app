@@ -21,10 +21,10 @@ public class MainActivity extends BridgeActivity {
     RootCheck rootCheck = new RootCheck(this);
     Boolean isDeviceRooted = rootCheck.rootBeerCheck();
 
-    if (isDeviceRooted) {
-      // Show a Toast message and close the app
-      Toast.makeText(this, "This application can't run on Rooted android phone", Toast.LENGTH_LONG).show();
-      finish();
-    }
+    // if (isDeviceRooted) {
+    //   // Show a Toast message and close the app
+    //   Toast.makeText(this, "This application can't run on Rooted android phone", Toast.LENGTH_LONG).show();
+    //   finish();
+    // }
   }
 }
