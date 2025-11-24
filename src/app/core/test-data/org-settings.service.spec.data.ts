@@ -453,6 +453,17 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
   pending_cct_expense_restriction: { enabled: true, allowed: true },
   simplified_multi_stage_approvals: { enabled: true, allowed: true },
   is_new_critical_policy_violation_flow_enabled: false,
+  regional_settings: {
+    allowed: true,
+    enabled: true,
+    time_format: 'h:mm a',
+    date_format: 'MMM dd, yyyy',
+    currency_format: {
+      decimal_separator: '.',
+      thousand_separator: ',',
+      symbol_position: 'before',
+    },
+  },
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
@@ -899,6 +910,17 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     allowed: true,
   },
   is_new_critical_policy_violation_flow_enabled: false,
+  regional_settings: {
+    allowed: true,
+    enabled: true,
+    time_format: 'h:mm a',
+    date_format: 'MMM dd, yyyy',
+    currency_format: {
+      decimal_separator: '.',
+      thousand_separator: ',',
+      symbol_position: 'before',
+    },
+  },
 });
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
