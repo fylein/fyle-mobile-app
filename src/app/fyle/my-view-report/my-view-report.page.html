@@ -459,16 +459,9 @@
     <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
       <div class="view-reports--cta-container">
         @if (unreportedExpenses) {
-          <div class="view-reports--add-expenses-container">
-            <div class="view-reports--add-expenses-container__icon_container">
-              <mat-icon
-                (click)="showAddExpensesToReportModal()"
-                class="view-reports--add-expenses-container__icon"
-                svgIcon="plus-square"
-              >
-              </mat-icon>
-            </div>
-          </div>
+          <button class="btn-outline-secondary" (click)="showAddExpensesToReportModal()">
+            <div>{{ 'myViewReport.addExpense' | transloco }}</div>
+          </button>
         }
         @if (canResubmitReport$ | async) {
           <ion-button
@@ -484,7 +477,7 @@
         }
         @if ((report$ | async)?.state === 'DRAFT' && (report$ | async)?.num_expenses !== 0) {
           <ion-button
-            class="fy-footer-cta fy-footer-cta--primary"
+            class="fy-footer-cta fy-footer-cta--primary btn-primary"
             [disabled]="submitReportLoader"
             appFormButtonValidation
             [loadingText]="'Submitting'"

@@ -19,6 +19,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { EmployeeResponse } from '../models/employee-response.model';
 import { DwollaCustomer } from '../models/dwolla-customer.model';
+import { DateService } from './platform/v1/shared/date.service';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -39,6 +40,8 @@ export class OrgUserService {
   private trackingService = inject(TrackingService);
 
   private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private dateService = inject(DateService);
 
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
@@ -120,7 +123,9 @@ export class OrgUserService {
     return accessToken && !!accessToken.proxy_org_user_id;
   }
 
-  getDwollaCustomer(orgUserId: string): Observable<DwollaCustomer | null> {
-    return this.apiService.get(`/orgusers/${orgUserId}/dwolla_customers`);
+  getDwollaCustomer(): Observable<DwollaCustomer | null> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<DwollaCustomer>>(`/dwolla_customers`)
+      .pipe(map((response) => this.dateService.fixDates(response.data)));
   }
 }

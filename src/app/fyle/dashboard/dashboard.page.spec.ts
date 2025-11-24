@@ -1671,7 +1671,7 @@ describe('DashboardPage', () => {
       // Flush all pending async operations
       flush();
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith();
       expect(popoverController.create).toHaveBeenCalledWith({
         component: jasmine.any(Function),
         componentProps: {
@@ -1697,7 +1697,7 @@ describe('DashboardPage', () => {
 
       flush();
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
 
@@ -1754,7 +1754,7 @@ describe('DashboardPage', () => {
 
       flush();
 
-      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith(apiEouRes.ou.id);
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledWith();
       expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
     }));
 

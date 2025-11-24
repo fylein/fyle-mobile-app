@@ -52,7 +52,7 @@
         @if ((reviewList?.length || mode === 'edit') && !isCccExpense && etxn$ | async; as etxn) {
           @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
             <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-              <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+              <ion-icon [src]="'../../../assets/svg/dismiss.svg'" slot="icon-only"></ion-icon>
             </ion-button>
           }
         }
