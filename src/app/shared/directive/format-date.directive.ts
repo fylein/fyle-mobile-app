@@ -1,7 +1,7 @@
 // @Link:  https://stackoverflow.com/a/31162426
 
 import { Directive, ElementRef, HostListener, Renderer2, inject, AfterViewInit } from '@angular/core';
-import dayjs from 'dayjs';
+import { DatePipe } from '@angular/common';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Directive({ selector: '[appFormatDate]' })
@@ -11,6 +11,8 @@ export class FormatDateDirective implements AfterViewInit {
   private renderer = inject(Renderer2);
 
   private translocoService = inject(TranslocoService);
+
+  private datePipe = inject(DatePipe);
 
   get selectedElement(): HTMLElement & { name?: string } {
     return this.elementRef?.nativeElement as HTMLElement & { name?: string };
@@ -24,7 +26,8 @@ export class FormatDateDirective implements AfterViewInit {
     if (this.elementRef && this.selectedElement) {
       if (value) {
         this.renderer.removeClass(this.selectedElement, 'date-input__placeholder');
-        this.selectedElement.setAttribute('data-date', dayjs(value).format('MMM DD, YYYY'));
+        const formatted = this.datePipe.transform(value) || '';
+        this.selectedElement.setAttribute('data-date', formatted);
       } else {
         this.renderer.addClass(this.selectedElement, 'date-input__placeholder');
         if (this.selectedElement.name) {

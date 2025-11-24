@@ -144,9 +144,7 @@
                   <div class="view-reports--amount ion-text-nowrap">
                     <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
                     <span class="view-reports--purpose-amount-block__amount">
-                      {{
-                        { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency
-                      }}
+                      {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
                     </span>
                   </div>
                 </ion-col>
@@ -167,13 +165,11 @@
                           }}
                         </span>
                         @if (report.state === 'DRAFT') {
-                          <span class="view-reports--submitted-date__date">{{
-                            report.created_at | date: 'MMM dd, yyyy'
-                          }}</span>
+                          <span class="view-reports--submitted-date__date">{{ report.created_at | date }}</span>
                         }
                         @if (report.state !== 'DRAFT') {
                           <span class="view-reports--submitted-date__date">{{
-                            report.last_resubmitted_at || report.last_submitted_at | date: 'MMM dd, yyyy'
+                            report.last_resubmitted_at || report.last_submitted_at | date
                           }}</span>
                         }
                       </div>
@@ -372,7 +368,7 @@
                             <ion-row>
                               <ion-col size="12">
                                 <div class="view-comment--comment-timestamp">
-                                  {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                                  {{ estatus.created_at | dateWithTimezone: 'onlyTime' }}
                                 </div>
                               </ion-col>
                             </ion-row>
@@ -412,7 +408,7 @@
                             <ion-row>
                               <ion-col size="12">
                                 <div class="view-comment--comment-timestamp">
-                                  {{ estatus.created_at | dateWithTimezone: 'h:mm a' }}
+                                  {{ estatus.created_at | dateWithTimezone: 'onlyTime' }}
                                 </div>
                               </ion-col>
                             </ion-row>

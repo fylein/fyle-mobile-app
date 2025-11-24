@@ -20,7 +20,7 @@ export const draftExpenseTaskSample = deepFreeze({
 
 export const draftExpenseTaskSample2 = deepFreeze({
   hideAmount: true,
-  amount: '76234.47',
+  amount: '₹76234.47',
   count: 339,
   header: 'Complete 339 expenses',
   subheader: 'Fill in missing details for incomplete expenses',
@@ -49,7 +49,7 @@ export const potentailDuplicateTaskSample = deepFreeze({
 
 export const teamReportTaskSample = deepFreeze({
   hideAmount: true,
-  amount: '5177243929.65',
+  amount: '₹5177243929.65',
   count: 2,
   header: "Approve team's 2 reports",
   subheader: 'Approve pending reports from your team.',
@@ -64,7 +64,7 @@ export const teamReportTaskSample = deepFreeze({
 
 export const sentBackReportTaskSample = deepFreeze({
   hideAmount: true,
-  amount: '4500.00',
+  amount: '₹4500.00',
   count: 2,
   header: 'Review sent back reports',
   subheader: 'Fix issues in your reports to resubmit.',
@@ -79,7 +79,7 @@ export const sentBackReportTaskSample = deepFreeze({
 
 export const sentBackReportTaskSingularSample = deepFreeze({
   hideAmount: true,
-  amount: '4500.00',
+  amount: '₹4500.00',
   count: 1,
   header: 'Review sent back report',
   subheader: 'Fix issues in your report to resubmit.',
@@ -109,7 +109,7 @@ export const unreportedExpenseTaskSample = deepFreeze({
 
 export const unreportedExpenseTaskSample2 = deepFreeze({
   hideAmount: true,
-  amount: '30.00',
+  amount: '₹30.00',
   count: 3,
   header: 'Add 3 expenses to report',
   subheader: 'Add complete expenses to a report and submit.',
@@ -124,7 +124,7 @@ export const unreportedExpenseTaskSample2 = deepFreeze({
 
 export const unsubmittedReportTaskSample = deepFreeze({
   hideAmount: true,
-  amount: '93165.91',
+  amount: '₹93165.91',
   count: 2,
   header: 'Submit 2 expense reports',
   subheader: 'Submit reports for approval.',
@@ -139,7 +139,7 @@ export const unsubmittedReportTaskSample = deepFreeze({
 
 export const sentBackAdvanceTaskSample = deepFreeze({
   hideAmount: true,
-  amount: '123370000.00',
+  amount: '₹123370000.00',
   count: 5,
   header: 'Review sent back advances',
   subheader: 'Fix issues in your advances to resubmit.',

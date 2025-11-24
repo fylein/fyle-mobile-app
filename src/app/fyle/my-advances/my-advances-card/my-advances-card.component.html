@@ -1,6 +1,6 @@
 @if (!showDate) {
   <div class="advance-card--date">
-    {{ advanceRequest.created_at | date: 'MMM dd, yyyy' }}
+    {{ advanceRequest.created_at | date }}
   </div>
 }
 
@@ -41,7 +41,7 @@
             <div>
               <span
                 >{{ 'myAdvancesCard.approvedDate' | transloco }}
-                {{ advanceRequest.areq_approved_at | date: 'MMM dd, yyyy' }}</span
+                {{ advanceRequest.areq_approved_at | date }}</span
               >
             </div>
           }

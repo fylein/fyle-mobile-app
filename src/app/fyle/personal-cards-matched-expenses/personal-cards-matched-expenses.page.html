@@ -19,19 +19,13 @@
             </div>
           </div>
         </div>
-        <div class="matched-expenses--date">{{ txnDetails.spent_at | date: 'MMM dd, yyyy' }}</div>
+        <div class="matched-expenses--date">{{ txnDetails.spent_at | date }}</div>
         <div class="matched-expenses--amount-block">
-          <span
-            class="matched-expenses--currency"
-            [ngClass]="{ 'matched-expenses--green': txnDetails.transactionType === 'credit' }"
-          >
-            {{ txnDetails.currency | currencySymbol }}
-          </span>
           <span
             class="matched-expenses--amount"
             [ngClass]="{ 'matched-expenses--green': txnDetails.transactionType === 'credit' }"
           >
-            {{ { value: txnDetails.amount, currencyCode: txnDetails.currency, skipSymbol: true } | exactCurrency }}
+            {{ { value: txnDetails.amount, currencyCode: txnDetails.currency } | exactCurrency }}
           </span>
           <span
             class="matched-expenses--type"

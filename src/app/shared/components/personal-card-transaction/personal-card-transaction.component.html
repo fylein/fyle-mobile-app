@@ -28,15 +28,10 @@
       <!-- Amount -->
       <div class="personal-card-transaction--currency-amount-container">
         <span
-          class="personal-card-transaction--currency"
-          [ngClass]="{ ' personal-card-transaction--green': transaction.transactionType === 'credit' }"
-          >{{ currency }}
-        </span>
-        <span
           class="personal-card-transaction--amount"
           [ngClass]="{ 'personal-card-transaction--green': transaction.transactionType === 'credit' }"
         >
-          {{ { value: transaction.amount, currencyCode: currency, skipSymbol: true } | exactCurrency }}
+          {{ { value: transaction.amount, currencyCode: currency } | exactCurrency }}
         </span>
         <span
           class="personal-card-transaction--type"

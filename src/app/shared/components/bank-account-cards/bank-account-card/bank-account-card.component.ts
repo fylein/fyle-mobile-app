@@ -12,19 +12,14 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { DateService } from 'src/app/core/services/date.service';
 import { TranslocoService, TranslocoPipe } from '@jsverse/transloco';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
+import { FORMAT_PREFERENCES } from 'src/app/constants';
+import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
 @Component({
   selector: 'app-bank-account-card',
   templateUrl: './bank-account-card.component.html',
   styleUrls: ['./bank-account-card.component.scss'],
-  imports: [
-    DatePipe,
-    IonCol,
-    IonGrid,
-    IonIcon,
-    IonRow,
-    TranslocoPipe
-  ],
+  imports: [DatePipe, IonCol, IonGrid, IonIcon, IonRow, TranslocoPipe],
 })
 export class BankAccountCardComponent implements OnInit {
   private personalCardsService = inject(PersonalCardsService);
@@ -53,7 +48,15 @@ export class BankAccountCardComponent implements OnInit {
 
   deleteCardPopOver;
 
+  dateTimeFormatWithBar: string;
+
+  private datePipeOptions = inject(DATE_PIPE_DEFAULT_OPTIONS);
+
+  private formatPreferences = inject<FormatPreferences>(FORMAT_PREFERENCES);
+
   ngOnInit(): void {
+    this.dateTimeFormatWithBar = `${this.datePipeOptions.dateFormat} | ${this.formatPreferences.timeFormat}`;
+
     if (this.accountDetails.yodlee_last_synced_at) {
       this.lastSyncedAt = this.dateService.convertUTCDateToLocalDate(
         new Date(this.accountDetails.yodlee_last_synced_at),
