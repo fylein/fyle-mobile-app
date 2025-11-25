@@ -5,7 +5,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { StatusesDiffComponent } from './statuses-diff.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-fdescribe('StatusesDiffComponent', () => {
+describe('StatusesDiffComponent', () => {
   let component: StatusesDiffComponent;
   let fixture: ComponentFixture<StatusesDiffComponent>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
