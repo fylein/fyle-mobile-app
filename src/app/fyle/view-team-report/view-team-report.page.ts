@@ -375,9 +375,14 @@ export class ViewTeamReportPage {
 
     this.loadReportDetails$.next(null);
 
-    this.report$ = this.loadReports().pipe(
-      map((report) => this.setupReportData(report)),
-      filter((report): report is Report => !!report),
+    this.report$ = this.loadReportDetails$.pipe(
+      switchMap(() =>
+        this.loadReports().pipe(
+          map((report) => this.setupReportData(report)),
+          filter((report): report is Report => !!report),
+        ),
+      ),
+      shareReplay(1),
     );
 
     this.eou$ = from(this.authService.getEou());
@@ -621,6 +626,7 @@ export class ViewTeamReportPage {
       this.isCommentAdded = true;
 
       this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
+        this.loadReportDetails$.next();
         this.refreshApprovals$.next(null);
         setTimeout(() => {
           this.content().scrollToBottom(500);
