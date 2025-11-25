@@ -11,9 +11,9 @@ import { ValueType } from '../../../../../core/models/statuses-diff-value-type.m
   imports: [TranslocoPipe, SnakeCaseToSpaceCase],
 })
 export class StatusesDiffComponent implements OnInit {
-  key = input<string>();
+  readonly key = input<string>();
 
-  value = input<ValueType>();
+  readonly value = input<ValueType>();
 
   isValueList: boolean;
 
