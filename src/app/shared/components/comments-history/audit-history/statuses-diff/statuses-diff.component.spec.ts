@@ -56,12 +56,14 @@ describe('StatusesDiffComponent', () => {
   it('should set isValueList to true if value is an array', () => {
     fixture.componentRef.setInput('value', ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in']);
     component.ngOnInit();
+    fixture.detectChanges();
     expect(component.isValueList).toBeTrue();
   });
 
   it('should set isValueList to false if value is not an array', () => {
     fixture.componentRef.setInput('value', 4000);
     component.ngOnInit();
+    fixture.detectChanges();
     expect(component.isValueList).toBeFalse();
   });
 
