@@ -43,7 +43,7 @@
     <div class="view-advance-request--container">
       <app-summary-tile
         [purpose]="advanceRequest.areq_purpose || '-'"
-        [currency]="currencySymbol"
+        [currency]="advanceRequest.areq_currency"
         [amount]="advanceRequest.areq_amount || 0"
         [status]="internalState.name"
         [approvals]="activeApprovals$ | async"
@@ -92,7 +92,7 @@
                   [icon]="'../../../../assets/svg/calendar.svg'"
                   [type]="StatisticTypes.DATE"
                   [label]="'Created date'"
-                  [value]="advanceRequest.areq_created_at | date: 'MMM dd, yyyy'"
+                  [value]="advanceRequest.areq_created_at | date"
                 ></app-fy-statistic>
               </div>
             </ion-col>
@@ -103,7 +103,7 @@
                     [icon]="'../../../../assets/svg/calendar.svg'"
                     [type]="StatisticTypes.DATE"
                     [label]="'Approved date'"
-                    [value]="advanceRequest.areq_approved_at | date: 'MMM dd, yyyy'"
+                    [value]="advanceRequest.areq_approved_at | date"
                   ></app-fy-statistic>
                 </div>
               </ion-col>
@@ -154,7 +154,7 @@
                         [icon]="'../../../../assets/svg/calendar.svg'"
                         [type]="StatisticTypes.DATE"
                         [label]="advanceRequestCustomField.name"
-                        [value]="advanceRequestCustomField.value | date: 'MMM dd, yyyy'"
+                        [value]="advanceRequestCustomField.value | date"
                       ></app-fy-statistic>
                     </div>
                   }

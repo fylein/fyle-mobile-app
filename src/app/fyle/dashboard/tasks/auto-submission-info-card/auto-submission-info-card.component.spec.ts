@@ -4,6 +4,7 @@ import { getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { AutoSubmissionInfoCardComponent } from './auto-submission-info-card.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
+import { DatePipe } from '@angular/common';
 
 describe('AutoSubmissionInfoCardComponent', () => {
   let component: AutoSubmissionInfoCardComponent;
@@ -18,12 +19,13 @@ describe('AutoSubmissionInfoCardComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, AutoSubmissionInfoCardComponent],
+      imports: [TranslocoModule, AutoSubmissionInfoCardComponent],
       providers: [
         {
           provide: TranslocoService,
           useValue: translocoServiceSpy,
         },
+        DatePipe,
       ],
     }).compileComponents();
 
@@ -66,6 +68,6 @@ describe('AutoSubmissionInfoCardComponent', () => {
     component.autoSubmissionReportDate = expectedDate;
     fixture.detectChanges();
     const infoCardDate = getElementBySelector(fixture, '.info-card__date');
-    expect(getTextContent(infoCardDate)).toBe('Nov 30');
+    expect(getTextContent(infoCardDate)).toBe('Nov 30, 2022');
   });
 });

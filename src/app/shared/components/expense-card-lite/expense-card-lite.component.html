@@ -33,15 +33,14 @@
         </div>
 
         <div class="expenses-card--date">
-          {{ expense.spent_at | date: 'MMM dd, yyyy' }}
+          {{ expense.spent_at | date }}
         </div>
 
         <div class="d-flex">
           <div class="expenses-card--currency-amount-container">
-            <span class="expenses-card--currency">{{ expense.currency | currencySymbol }}</span>
-            <span class="expenses-card--amount">
-              {{ { value: expense.amount, currencyCode: expense.currency, skipSymbol: true } | exactCurrency }}
-            </span>
+        <span class="expenses-card--amount">
+          {{ { value: expense.amount, currencyCode: expense.currency } | exactCurrency }}
+        </span>
 
             <span>
               <ion-icon [src]="'assets/svg/arrow-right.svg'" class="expenses-card--icon" slot="icon-only"> </ion-icon>

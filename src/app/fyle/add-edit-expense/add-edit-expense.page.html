@@ -52,7 +52,7 @@
         @if ((reviewList?.length || mode === 'edit') && !isCccExpense && etxn$ | async; as etxn) {
           @if (canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)) {
             <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-              <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
+              <ion-icon [src]="'../../../assets/svg/dismiss.svg'" slot="icon-only"></ion-icon>
             </ion-button>
           }
         }
@@ -248,7 +248,7 @@
                   {{ 'addEditExpense.spendDateLabel' | transloco }}
                 </div>
                 <div class="add-edit-expense--card-container__value">
-                  {{ selectedCCCTransaction?.txn_dt | date: 'MMM dd, yyyy' }}
+                  {{ selectedCCCTransaction?.txn_dt | date }}
                 </div>
               </ion-col>
               <ion-col>
@@ -459,10 +459,7 @@
                   @if (
                     autoCodedData?.date &&
                     fg.controls.dateOfSpend?.value &&
-                    (autoCodedData.date
-                      | date
-                        : 'MMM dd,
-              yyyy') === (fg.controls.dateOfSpend.value | date: 'MMM dd, yyyy')
+                    (autoCodedData.date | date) === (fg.controls.dateOfSpend.value | date)
                   ) {
                     <div class="add-edit-expense--auto-coded">
                       <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>

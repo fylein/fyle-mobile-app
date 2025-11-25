@@ -32,7 +32,7 @@
                 | exactCurrency
             }}
           } @else {
-            {{ cardDetail.stats.totalDraftAmount | humanizeCurrency: homeCurrency() : true }}
+            {{ cardDetail.stats.totalDraftAmount | humanizeCurrency: homeCurrency() }}
           }
         </div>
       </div>
@@ -63,7 +63,7 @@
                 | exactCurrency
             }}
           } @else {
-            {{ cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency: homeCurrency() : true }}
+            {{ cardDetail.stats.totalCompleteExpensesAmount | humanizeCurrency: homeCurrency() }}
           }
         </div>
       </div>

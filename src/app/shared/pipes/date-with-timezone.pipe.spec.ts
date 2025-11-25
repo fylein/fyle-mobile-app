@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { DateWithTimezonePipe } from './date-with-timezone.pipe';
 import { TIMEZONE } from 'src/app/constants';
 import { BehaviorSubject } from 'rxjs';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('DateWithTimezonePipe', () => {
   let pipe: DateWithTimezonePipe;
@@ -9,7 +10,11 @@ describe('DateWithTimezonePipe', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [DateWithTimezonePipe, { provide: TIMEZONE, useValue: mockTimezone$ }],
+      providers: [
+        DateWithTimezonePipe,
+        { provide: TIMEZONE, useValue: mockTimezone$ },
+        ...getFormatPreferenceProviders(),
+      ],
     });
 
     pipe = TestBed.inject(DateWithTimezonePipe);

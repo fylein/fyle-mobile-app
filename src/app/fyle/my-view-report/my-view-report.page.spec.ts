@@ -59,6 +59,7 @@ import { LaunchDarklyService } from '../../core/services/launch-darkly.service';
 import { TIMEZONE } from 'src/app/constants';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 // mock for expenses card component
 @Component({
@@ -217,6 +218,7 @@ describe('MyViewReportPage', () => {
           useValue: launchDarklyServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        ...getFormatPreferenceProviders(),
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -1107,8 +1109,7 @@ describe('MyViewReportPage', () => {
   });
 
   describe('ACH Suspension Functionality:', () => {
-    beforeEach(() => {
-    });
+    beforeEach(() => {});
 
     it('should show ACH suspension popup when called', async () => {
       const mockPopover = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
@@ -1159,6 +1160,5 @@ describe('MyViewReportPage', () => {
       expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     });
-
   });
 });

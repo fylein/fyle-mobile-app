@@ -1,4 +1,4 @@
-import { getCurrencySymbol, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input, OnInit, input, output } from '@angular/core';
 import { PlatformPersonalCardTxn } from 'src/app/core/models/platform/platform-personal-card-txn.model';
 import { MatCheckbox } from '@angular/material/checkbox';
@@ -8,21 +8,11 @@ import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
 
-
 @Component({
   selector: 'app-personal-card-transaction',
   templateUrl: './personal-card-transaction.component.html',
   styleUrls: ['./personal-card-transaction.component.scss'],
-  imports: [
-    DateFormatPipe,
-    ExactCurrencyPipe,
-    IonIcon,
-    IonSpinner,
-    MatCheckbox,
-    MatIcon,
-    NgClass,
-    TranslocoPipe
-  ],
+  imports: [DateFormatPipe, ExactCurrencyPipe, IonIcon, IonSpinner, MatCheckbox, MatIcon, NgClass, TranslocoPipe],
 })
 export class PersonalCardTransactionComponent implements OnInit {
   // TODO: Skipped for migration because:
@@ -62,7 +52,7 @@ export class PersonalCardTransactionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currency = getCurrencySymbol(this.transaction.currency, 'wide');
+    this.currency = this.transaction.currency;
     const currentDate = new Date(this.transaction.spent_at).toDateString();
     const previousDate = new Date(this.previousTxnDate).toDateString();
     this.showDt = currentDate !== previousDate;

@@ -50,7 +50,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.created_at | date: 'MMM dd, yyyy' }}
+            {{ expenseDetails.created_at | date }}
           </div>
         </ion-col>
       </ion-row>
@@ -60,7 +60,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.spent_at | date: 'MMM dd, yyyy' }}
+            {{ expenseDetails.spent_at | date }}
           </div>
         </ion-col>
       </ion-row>
