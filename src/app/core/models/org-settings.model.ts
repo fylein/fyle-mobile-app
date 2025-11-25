@@ -356,6 +356,18 @@ export interface CurrencylayerProviderSettings extends CommonOrgSettings {
   name?: string;
 }
 
+export interface RegionalCurrencyFormat {
+  decimal_separator?: string;
+  symbol_position?: 'before' | 'after' | string;
+  thousand_separator?: string;
+}
+
+export interface RegionalSettings extends CommonOrgSettings {
+  currency_format?: RegionalCurrencyFormat;
+  date_format?: string;
+  time_format?: string;
+}
+
 export interface OrgSettingsResponse {
   id?: string;
   created_at?: string;
@@ -464,6 +476,7 @@ export interface OrgSettingsResponse {
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
   is_new_critical_policy_violation_flow_enabled?: boolean;
+  regional_settings?: RegionalSettings;
 }
 
 export interface UiPolicySettings {
@@ -580,4 +593,5 @@ export interface OrgSettings {
   pending_cct_expense_restriction?: CommonOrgSettings;
   simplified_multi_stage_approvals?: CommonOrgSettings;
   is_new_critical_policy_violation_flow_enabled?: boolean;
+  regional_settings?: RegionalSettings;
 }
