@@ -1,7 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SnakeCaseToSpaceCase } from '../../../../pipes/snake-case-to-space-case.pipe';
-import { DisplayObject, ValueType } from '../../../../../core/models/statuses-diff.model';
+import { DisplayObject } from '../../../../../core/models/display-object.model';
+import { ValueType } from '../../../../../core/models/statuses-diff-value-type.model';
 
 @Component({
   selector: 'app-statuses-diff',
@@ -10,13 +11,9 @@ import { DisplayObject, ValueType } from '../../../../../core/models/statuses-di
   imports: [TranslocoPipe, SnakeCaseToSpaceCase],
 })
 export class StatusesDiffComponent implements OnInit {
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() key;
+  key = input<string>();
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() value: ValueType;
+  value = input<ValueType>();
 
   isValueList: boolean;
 
@@ -25,9 +22,10 @@ export class StatusesDiffComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
-    this.isValueList = this.value instanceof Array;
+    const value = this.value();
+    this.isValueList = value instanceof Array;
     if (!this.isValueList) {
-      this.displayValue = this.formatValue(this.value);
+      this.displayValue = this.formatValue(value);
     }
   }
 
@@ -51,7 +49,7 @@ export class StatusesDiffComponent implements OnInit {
       value !== null &&
       !Array.isArray(value) &&
       'display' in value &&
-      typeof (value as DisplayObject).display === 'string'
+      typeof value.display === 'string'
     );
   }
 }

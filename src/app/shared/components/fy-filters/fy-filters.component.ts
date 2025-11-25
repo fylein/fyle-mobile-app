@@ -50,9 +50,9 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export class FyFiltersComponent implements OnInit {
   private modalController = inject(ModalController);
 
-  picker1 = viewChild<MatDatepicker<Date>>('picker1');
+  readonly picker1 = viewChild<MatDatepicker<Date>>('picker1');
 
-  picker2 = viewChild<MatDatepicker<Date>>('picker2');
+  readonly picker2 = viewChild<MatDatepicker<Date>>('picker2');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
