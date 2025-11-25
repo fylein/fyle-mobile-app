@@ -54,20 +54,20 @@ describe('StatusesDiffComponent', () => {
   });
 
   it('should set isValueList to true if value is an array', () => {
-    component.value = ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in'];
+    fixture.componentRef.setInput('value', ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in']);
     component.ngOnInit();
     expect(component.isValueList).toBeTrue();
   });
 
   it('should set isValueList to false if value is not an array', () => {
-    component.value = 4000;
+    fixture.componentRef.setInput('value', 4000);
     component.ngOnInit();
     expect(component.isValueList).toBeFalse();
   });
 
   it('should render key and value as list items if value is an array', () => {
-    component.key = 'User List';
-    component.value = ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in'];
+    fixture.componentRef.setInput('key', 'User List');
+    fixture.componentRef.setInput('value', ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in']);
     component.ngOnInit();
     fixture.detectChanges();
     const listItems = getAllElementsBySelector(fixture, 'li');
@@ -78,8 +78,8 @@ describe('StatusesDiffComponent', () => {
   });
 
   it('should render key and value as plain text if value is not an array', () => {
-    component.key = 'Distance';
-    component.value = 4000;
+    fixture.componentRef.setInput('key', 'Distance');
+    fixture.componentRef.setInput('value', 4000);
     component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
@@ -87,8 +87,8 @@ describe('StatusesDiffComponent', () => {
   });
 
   it('should render key as Mileage Rate Name if key is vehicle type', fakeAsync(() => {
-    component.key = 'vehicle type';
-    component.value = 'Two Wheeler';
+    fixture.componentRef.setInput('key', 'vehicle type');
+    fixture.componentRef.setInput('value', 'Two Wheeler');
     component.ngOnInit();
     fixture.detectChanges();
     tick();
@@ -98,8 +98,8 @@ describe('StatusesDiffComponent', () => {
   }));
 
   it('should render Please contact your admin to configure the following key correctly', () => {
-    component.key = 'Please contact your admin to configure the following';
-    component.value = ['Designated Level Approver'];
+    fixture.componentRef.setInput('key', 'Please contact your admin to configure the following');
+    fixture.componentRef.setInput('value', ['Designated Level Approver']);
     component.ngOnInit();
     fixture.detectChanges();
     const title = getElementBySelector(fixture, 'span');
@@ -107,8 +107,8 @@ describe('StatusesDiffComponent', () => {
   });
 
   it('should render Violating Transactions key correctly', () => {
-    component.key = 'Violating Transactions';
-    component.value = ['E/2022/10/T/14 (INR 555, Flight)', 'E/2022/10/T/18 (INR 128, Mileage)'];
+    fixture.componentRef.setInput('key', 'Violating Transactions');
+    fixture.componentRef.setInput('value', ['E/2022/10/T/14 (INR 555, Flight)', 'E/2022/10/T/18 (INR 128, Mileage)']);
     component.ngOnInit();
     fixture.detectChanges();
     const title = getElementBySelector(fixture, 'span.statuses-diff--violating-txns');
