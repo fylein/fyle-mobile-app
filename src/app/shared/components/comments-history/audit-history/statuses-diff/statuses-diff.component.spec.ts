@@ -5,7 +5,7 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { StatusesDiffComponent } from './statuses-diff.component';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
-describe('StatusesDiffComponent', () => {
+fdescribe('StatusesDiffComponent', () => {
   let component: StatusesDiffComponent;
   let fixture: ComponentFixture<StatusesDiffComponent>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
@@ -118,5 +118,32 @@ describe('StatusesDiffComponent', () => {
     fixture.detectChanges();
     const title = getElementBySelector(fixture, 'span.statuses-diff--violating-txns');
     expect(getTextContent(title)).toEqual('Violating Transactions');
+  });
+
+  it('should display "-" when value is null', () => {
+    fixture.componentRef.setInput('key', 'Location');
+    fixture.componentRef.setInput('value', null);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Location : -');
+  });
+
+  it('should display "-" when value is undefined', () => {
+    fixture.componentRef.setInput('key', 'Category');
+    fixture.componentRef.setInput('value', undefined);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Category : -');
+  });
+
+  it('should extract display property from DisplayObject', () => {
+    fixture.componentRef.setInput('key', 'Location');
+    fixture.componentRef.setInput('value', { display: 'San Francisco, CA' });
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Location : San Francisco, CA');
   });
 });
