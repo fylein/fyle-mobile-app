@@ -10,6 +10,7 @@ import { getFormatPreferenceProviders } from '../testing/format-preference-provi
 import { FORMAT_PREFERENCES } from 'src/app/constants';
 import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
 import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
+import { orgSettingsRes } from '../mock-data/org-settings.data';
 
 describe('ConfigService', () => {
   let configService: ConfigService;
@@ -56,21 +57,8 @@ describe('ConfigService', () => {
     it('should call setClusterDomain if clusterDomain is present', async () => {
       const clusterDomain = 'https://staging.fyle.tech';
       tokenService.getClusterDomain.and.resolveTo(clusterDomain);
-      orgSettingsService.get.and.returnValue(
-        of({
-          regional_settings: {
-            allowed: true,
-            enabled: true,
-            time_format: 'h:mm a',
-            date_format: 'MMM dd, yyyy',
-            currency_format: {
-              decimal_separator: '.',
-              thousand_separator: ',',
-              symbol_position: 'before',
-            },
-          },
-        }),
-      );
+
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       await configService.loadConfigurationData();
       expect(routerAuthService.setClusterDomain).toHaveBeenCalledOnceWith(clusterDomain);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
@@ -78,21 +66,8 @@ describe('ConfigService', () => {
 
     it('should clear all stored data if clusterDomain is not present', async () => {
       tokenService.getClusterDomain.and.resolveTo(null);
-      orgSettingsService.get.and.returnValue(
-        of({
-          regional_settings: {
-            allowed: true,
-            enabled: true,
-            time_format: 'h:mm a',
-            date_format: 'MMM dd, yyyy',
-            currency_format: {
-              decimal_separator: '.',
-              thousand_separator: ',',
-              symbol_position: 'before',
-            },
-          },
-        }),
-      );
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
       await configService.loadConfigurationData();
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
@@ -101,19 +76,21 @@ describe('ConfigService', () => {
     it('should update format preferences and date options from regional settings', async () => {
       const clusterDomain = 'https://staging.fyle.tech';
       tokenService.getClusterDomain.and.resolveTo(clusterDomain);
-      orgSettingsService.get.and.returnValue(
-        of({
-          regional_settings: {
-            time_format: 'H:mm',
-            date_format: 'dd/MM/yyyy',
-            currency_format: {
-              decimal_separator: ',',
-              thousand_separator: '.',
-              symbol_position: 'after',
-            },
+      const orgSettings = {
+        ...orgSettingsRes,
+        regional_settings: {
+          allowed: true,
+          enabled: true,
+          time_format: 'H:mm',
+          date_format: 'dd/MM/yyyy',
+          currency_format: {
+            decimal_separator: ',',
+            thousand_separator: '.',
+            symbol_position: 'after',
           },
-        }),
-      );
+        },
+      };
+      orgSettingsService.get.and.returnValue(of(orgSettings));
 
       await configService.loadConfigurationData();
 
