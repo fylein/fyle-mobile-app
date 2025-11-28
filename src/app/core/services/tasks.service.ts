@@ -563,13 +563,25 @@ export class TasksService {
   getAddCorporateCardTask(): Observable<DashboardTask[]> {
     return forkJoin([this.orgSettingsService.get(), this.corporateCreditCardExpenseService.getCorporateCards()]).pipe(
       map(([orgSettings, cards]) => {
-        const isRtfEnabled =
-          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
-          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
+        const isVisaRtfEnabled =
+          orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled;
+        const isMastercardRtfEnabled =
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled;
+        const isAmexFeedEnabled =
+          orgSettings.amex_feed_enrollment_settings.allowed && orgSettings.amex_feed_enrollment_settings.enabled;
+        const isRtfEnabled = isVisaRtfEnabled || isMastercardRtfEnabled || isAmexFeedEnabled;
+        const isBankDataAggregationEnabled =
+          orgSettings.bank_data_aggregation_settings?.allowed && orgSettings.bank_data_aggregation_settings?.enabled;
         const isCCCEnabled =
           orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled;
         const rtfCards = cards.filter((card) => card.is_visa_enrolled || card.is_mastercard_enrolled);
-        if (isRtfEnabled && isCCCEnabled && rtfCards.length === 0) {
+
+        if (
+          isCCCEnabled &&
+          isRtfEnabled &&
+          rtfCards.length === 0 &&
+          (isVisaRtfEnabled || isMastercardRtfEnabled || isBankDataAggregationEnabled)
+        ) {
           return this.mapAddCorporateCardTask();
         } else {
           return [] as DashboardTask[];
