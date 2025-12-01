@@ -50,15 +50,14 @@ import {
   LowerCasePipe,
   TitleCasePipe,
   CurrencyPipe,
+  DatePipe,
 } from '@angular/common';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
 import { PendingGasChargeInfoComponent } from '../pending-gas-charge-info/pending-gas-charge-info.component';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
-import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
 
 @Component({
@@ -68,8 +67,7 @@ import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
   imports: [
     AsyncPipe,
     CurrencyPipe,
-    CurrencySymbolPipe,
-    DateFormatPipe,
+    DatePipe,
     ExactCurrencyPipe,
     ExpenseState,
     FyCurrencyPipe,
@@ -84,7 +82,7 @@ import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
     NgTemplateOutlet,
     PendingGasChargeInfoComponent,
     TitleCasePipe,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class ExpensesCardComponent implements OnInit {

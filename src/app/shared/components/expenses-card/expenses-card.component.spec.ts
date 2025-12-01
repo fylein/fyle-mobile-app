@@ -42,6 +42,7 @@ import {
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { DatePipe } from '@angular/common';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardV1Component;
@@ -140,6 +141,7 @@ describe('ExpensesCardComponent', () => {
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: ExpenseState, useValue: expenseStateSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: DatePipe, useClass: DatePipe },
       ],
     }).compileComponents();
 

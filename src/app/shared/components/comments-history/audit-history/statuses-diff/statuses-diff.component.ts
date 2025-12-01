@@ -1,6 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SnakeCaseToSpaceCase } from '../../../../pipes/snake-case-to-space-case.pipe';
+import { DisplayObject } from '../../../../../core/models/display-object.model';
+import { ValueType } from '../../../../../core/models/statuses-diff-value-type.model';
 
 @Component({
   selector: 'app-statuses-diff',
@@ -9,19 +11,45 @@ import { SnakeCaseToSpaceCase } from '../../../../pipes/snake-case-to-space-case
   imports: [TranslocoPipe, SnakeCaseToSpaceCase],
 })
 export class StatusesDiffComponent implements OnInit {
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() key;
+  readonly key = input<string>();
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() value;
+  readonly value = input<ValueType>();
 
   isValueList: boolean;
+
+  displayValue: string;
 
   constructor() {}
 
   ngOnInit() {
-    this.isValueList = this.value instanceof Array;
+    const value = this.value();
+    this.isValueList = value instanceof Array;
+    if (!this.isValueList) {
+      this.displayValue = this.formatValue(value);
+    }
+  }
+
+  private formatValue(value: ValueType): string {
+    if (value === null || value === undefined) {
+      return '-';
+    }
+
+    // Handle location objects with display property
+    if (this.isDisplayObject(value)) {
+      return value.display;
+    }
+
+    // For primitives, return as string
+    return String(value);
+  }
+
+  private isDisplayObject(value: ValueType): value is DisplayObject {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value) &&
+      'display' in value &&
+      typeof value.display === 'string'
+    );
   }
 }

@@ -916,7 +916,7 @@ describe('TasksService', () => {
     expect(sentBackAdvanceTask).toEqual([
       {
         hideAmount: true,
-        amount: '123370000.00',
+        amount: '₹123370000.00',
         count: 1,
         header: 'Review sent back advance',
         subheader: 'Fix issues in your advance to resubmit.',
@@ -957,7 +957,7 @@ describe('TasksService', () => {
     expect(sentBackReportTask).toEqual([
       {
         hideAmount: true,
-        amount: '44.53',
+        amount: '₹44.53',
         count: 2,
         header: 'Review sent back reports',
         subheader: 'Fix issues in your reports to resubmit.',
@@ -995,7 +995,7 @@ describe('TasksService', () => {
     expect(tasks).toEqual([
       {
         hideAmount: true,
-        amount: '132573333762.37',
+        amount: '₹132573333762.37',
         count: 1,
         header: 'Complete 1 expense',
         subheader: 'Fill in missing details for incomplete expense',
@@ -1015,9 +1015,8 @@ describe('TasksService', () => {
       .withArgs({
         value: unsubmittedReportsResponse[0].aggregates[1].function_value,
         currencyCode: homeCurrency,
-        skipSymbol: true,
       })
-      .and.returnValue('0.00');
+      .and.returnValue('₹0.00');
 
     const tasks = tasksService.mapAggregateToUnsubmittedReportTask(
       {
@@ -1030,7 +1029,7 @@ describe('TasksService', () => {
     expect(tasks).toEqual([
       {
         hideAmount: true,
-        amount: '0.00',
+        amount: '₹0.00',
         count: 1,
         header: 'Submit 1 expense report',
         subheader: 'Submit report for approval.',
@@ -1071,7 +1070,7 @@ describe('TasksService', () => {
     expect(tasks).toEqual([
       {
         hideAmount: true,
-        amount: '733479.83',
+        amount: '₹733479.83',
         count: 1,
         header: "Approve team's 1 report",
         subheader: 'Approve pending report from your team.',

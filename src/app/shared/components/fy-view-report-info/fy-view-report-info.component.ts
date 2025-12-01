@@ -1,5 +1,19 @@
 import { Component, Input, ElementRef, inject } from '@angular/core';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonRow, IonSegment, IonSegmentButton, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonRow,
+  IonSegment,
+  IonSegmentButton,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  Platform,
+} from '@ionic/angular/standalone';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe, CurrencyPipe, KeyValuePipe } from '@angular/common';
@@ -39,7 +53,7 @@ import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
     IonToolbar,
     KeyValuePipe,
     MatIcon,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class FyViewReportInfoComponent {
@@ -99,7 +113,7 @@ export class FyViewReportInfoComponent {
 
   ionViewWillEnter(): void {
     this.report$.pipe(filter((report) => !!report)).subscribe((report) => {
-      const createdDate = this.datePipe.transform(report.created_at, 'MMM d, y');
+      const createdDate = this.datePipe.transform(report.created_at);
       this.reportDetails = {
         [this.translocoService.translate('fyViewReportInfo.reportName')]: report.purpose,
         [this.translocoService.translate('fyViewReportInfo.owner')]: report.employee.user.full_name,

@@ -123,9 +123,10 @@
                   [(ngModel)]="startDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker1"
+                  (click)="openPicker1()"
                 />
-                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
-                <mat-datepicker #picker1></mat-datepicker>
+                <mat-datepicker-toggle matSuffix [for]="picker1" (click)="openPicker1()"></mat-datepicker-toggle>
+                <mat-datepicker touchUi="true" #picker1></mat-datepicker>
               </mat-form-field>
               <mat-form-field>
                 <mat-label>{{ 'fyFilters.endDate' | transloco }}</mat-label>
@@ -135,9 +136,10 @@
                   [(ngModel)]="endDate"
                   (ngModelChange)="onDateChange()"
                   [matDatepicker]="picker2"
+                  (click)="openPicker2()"
                 />
-                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
-                <mat-datepicker #picker2></mat-datepicker>
+                <mat-datepicker-toggle matSuffix [for]="picker2" (click)="openPicker2()"></mat-datepicker-toggle>
+                <mat-datepicker touchUi="true" #picker2></mat-datepicker>
               </mat-form-field>
             </div>
           }

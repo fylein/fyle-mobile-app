@@ -23,15 +23,16 @@ import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonp
 import { HttpConfigInterceptor } from './app/core/interceptors/httpInterceptor';
 import { CurrencyPipe } from '@angular/common';
 import { ConfigService } from './app/core/services/config.service';
-import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM } from './app/constants';
+import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM, FORMAT_PREFERENCES } from './app/constants';
 import { appRoutes } from './app/app-routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { AppComponent } from './app/app.component';
 import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from './app/shared/pipes/humanize-currency.pipe';
 import { ExactCurrencyPipe } from './app/shared/pipes/exact-currency.pipe';
-import { DecimalPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { DecimalPipe, DatePipe, TitleCasePipe, DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { ReportState } from './app/shared/pipes/report-state.pipe';
 import { provideIcons } from './app/shared/icon/icon.providers';
@@ -149,6 +150,21 @@ bootstrapApplication(AppComponent, {
     DecimalPipe,
     DatePipe,
     TitleCasePipe,
+    {
+      provide: DATE_PIPE_DEFAULT_OPTIONS,
+      useValue: { dateFormat: 'MMM dd, yyyy' },
+    },
+    {
+      provide: FORMAT_PREFERENCES,
+      useValue: {
+        timeFormat: 'hh:mm a',
+        currencyFormat: {
+          placement: 'before',
+          thousandSeparator: ',',
+          decimalSeparator: '.',
+        },
+      },
+    },
     ConfigService,
     SpinnerDialog,
     ReportState,
@@ -179,6 +195,7 @@ bootstrapApplication(AppComponent, {
     },
     provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
     provideAnimations(),
+    provideNativeDateAdapter(),
     provideIonicAngular({
       innerHTMLTemplatesEnabled: true,
       useSetInputAPI: true,

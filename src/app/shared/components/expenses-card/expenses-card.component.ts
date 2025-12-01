@@ -42,7 +42,6 @@ import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
 
 @Component({
   selector: 'app-expense-card',
@@ -51,7 +50,6 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
   imports: [
     AsyncPipe,
     CurrencyPipe,
-    CurrencySymbolPipe,
     DateFormatPipe,
     ExpenseState,
     FyCurrencyPipe,
@@ -65,7 +63,7 @@ import { CurrencySymbolPipe } from '../../pipes/currency-symbol.pipe';
     NgStyle,
     NgTemplateOutlet,
     TitleCasePipe,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class ExpensesCardV1Component implements OnInit {

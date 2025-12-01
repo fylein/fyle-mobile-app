@@ -64,6 +64,7 @@ import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-a
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -224,6 +225,7 @@ describe('ViewTeamReportPageV2', () => {
           provide: BrowserHandlerService,
           useValue: browserHandlerServiceSpy,
         },
+        ...getFormatPreferenceProviders(),
         {
           provide: TIMEZONE,
           useValue: new BehaviorSubject<string>('UTC'),

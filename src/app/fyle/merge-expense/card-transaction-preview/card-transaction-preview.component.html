@@ -7,7 +7,7 @@
         <span class="text-capitalize"
           >{{ transactionDetails.merchant || transactionDetails.description | ellipsis: 20 }},
         </span>
-        <span>{{ transactionDetails.spent_at | date: 'MMM dd, yyyy' }} - </span>
+        <span>{{ transactionDetails.spent_at | date }} - </span>
         <span>{{ transactionDetails.amount | currency: transactionDetails.currency : 'symbol-narrow' }}</span>
       </div>
     </div>

@@ -29,6 +29,7 @@ import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pi
 import { TIMEZONE } from 'src/app/constants';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 
 describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -79,7 +80,6 @@ describe('ViewCommentComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconModule,
         MatIconTestingModule,
         FormsModule,
@@ -105,6 +105,7 @@ describe('ViewCommentComponent', () => {
         { provide: AdvanceRequestService, useValue: advanceRequestService },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
+        ...getFormatPreferenceProviders(),
       ],
     }).compileComponents();
 
