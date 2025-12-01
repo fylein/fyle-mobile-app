@@ -38,6 +38,10 @@ export class ConfigService {
       await this.storageService.clearAll();
     }
 
+    await this.loadFormatPreferences();
+  }
+
+  async loadFormatPreferences(): Promise<void> {
     const orgSettings = (await firstValueFrom(
       this.orgSettingsService.get().pipe(
         defaultIfEmpty(null),
@@ -47,20 +51,16 @@ export class ConfigService {
 
     const regional: RegionalSettings | undefined = orgSettings?.regional_settings;
 
-    if (regional?.time_format) {
+    if (regional) {
       this.formatPreferences.timeFormat = regional.time_format;
-    }
 
-    if (regional?.currency_format) {
-      const cf = regional.currency_format;
+      const currencyFormat = regional.currency_format;
       this.formatPreferences.currencyFormat = {
-        placement: cf.symbol_position === 'after' ? 'after' : 'before',
-        thousandSeparator: cf.thousand_separator ?? this.formatPreferences.currencyFormat.thousandSeparator,
-        decimalSeparator: cf.decimal_separator ?? this.formatPreferences.currencyFormat.decimalSeparator,
+        placement: currencyFormat.symbol_position === 'after' ? 'after' : 'before',
+        thousandSeparator: currencyFormat.thousand_separator ?? this.formatPreferences.currencyFormat.thousandSeparator,
+        decimalSeparator: currencyFormat.decimal_separator ?? this.formatPreferences.currencyFormat.decimalSeparator,
       };
-    }
 
-    if (regional?.date_format) {
       this.datePipeOptions.dateFormat = regional.date_format;
     }
   }

@@ -470,7 +470,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async proceed(isFromInviteLink?: boolean): Promise<void> {
-    await this.configService.loadConfigurationData();
+    await this.configService.loadFormatPreferences();
 
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
