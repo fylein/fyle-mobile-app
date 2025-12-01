@@ -41,6 +41,7 @@ import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/sp
 import { orgSettingsCardsDisabled, orgSettingsData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
+import { ConfigService } from 'src/app/core/services/config.service';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -123,6 +124,7 @@ describe('SwitchOrgPage', () => {
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
+    const configServiceSpy = jasmine.createSpyObj('ConfigService', ['loadConfigurationData', 'loadFormatPreferences']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
@@ -158,6 +160,10 @@ describe('SwitchOrgPage', () => {
         {
           provide: PlatformOrgSettingsService,
           useValue: orgSettingsServiceSpy,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceSpy,
         },
         {
           provide: SpenderOnboardingService,

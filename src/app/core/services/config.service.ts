@@ -1,8 +1,15 @@
 import { Injectable, inject } from '@angular/core';
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
+import { firstValueFrom, of } from 'rxjs';
+import { catchError, defaultIfEmpty } from 'rxjs/operators';
 import { RouterAuthService } from './router-auth.service';
 import { SecureStorageService } from './secure-storage.service';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
+import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
+import { FORMAT_PREFERENCES } from 'src/app/constants';
+import { FormatPreferences } from 'src/app/core/models/format-preferences.model';
+import { OrgSettings, RegionalSettings } from 'src/app/core/models/org-settings.model';
 
 @Injectable()
 export class ConfigService {
@@ -14,6 +21,12 @@ export class ConfigService {
 
   private secureStorageService = inject(SecureStorageService);
 
+  private orgSettingsService = inject(PlatformOrgSettingsService);
+
+  private formatPreferences = inject<FormatPreferences>(FORMAT_PREFERENCES);
+
+  private datePipeOptions = inject(DATE_PIPE_DEFAULT_OPTIONS);
+
   async loadConfigurationData(): Promise<void> {
     const clusterDomain: string = await this.tokenService.getClusterDomain();
 
@@ -23,6 +36,33 @@ export class ConfigService {
     } else {
       await this.secureStorageService.clearAll();
       await this.storageService.clearAll();
+    }
+
+    await this.loadFormatPreferences();
+  }
+
+  async loadFormatPreferences(): Promise<void> {
+    const orgSettings = (await firstValueFrom(
+      this.orgSettingsService.get().pipe(
+        defaultIfEmpty(null),
+        catchError(() => of(null)),
+      ),
+    )) as OrgSettings | null;
+
+    const regional: RegionalSettings | undefined = orgSettings?.regional_settings;
+
+    if (regional) {
+      this.formatPreferences.timeFormat = regional?.time_format;
+
+      const currencyFormat = regional.currency_format;
+      this.formatPreferences.currencyFormat = {
+        placement: currencyFormat.symbol_position === 'after' ? 'after' : 'before',
+        thousandSeparator:
+          currencyFormat.thousand_separator ?? this.formatPreferences.currencyFormat?.thousandSeparator,
+        decimalSeparator: currencyFormat.decimal_separator ?? this.formatPreferences.currencyFormat?.decimalSeparator,
+      };
+
+      this.datePipeOptions.dateFormat = regional.date_format;
     }
   }
 }

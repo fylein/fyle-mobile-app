@@ -415,6 +415,17 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
     enabled: true,
     virtual_card_settings_enabled: true,
   },
+  regional_settings: {
+    allowed: true,
+    enabled: true,
+    time_format: 'h:mm a',
+    date_format: 'MMM dd, yyyy',
+    currency_format: {
+      decimal_separator: '.',
+      thousand_separator: ',',
+      symbol_position: 'before',
+    },
+  },
 });
 
 export const orgSettingsParams2: OrgSettings = deepFreeze({
