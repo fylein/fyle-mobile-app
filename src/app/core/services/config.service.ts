@@ -58,9 +58,8 @@ export class ConfigService {
       this.formatPreferences.currencyFormat = {
         placement: currencyFormat.symbol_position === 'after' ? 'after' : 'before',
         thousandSeparator:
-          currencyFormat.thousand_separator ?? this.formatPreferences.currencyFormat?.thousandSeparator ?? ',',
-        decimalSeparator:
-          currencyFormat.decimal_separator ?? this.formatPreferences.currencyFormat?.decimalSeparator ?? '.',
+          currencyFormat.thousand_separator ?? this.formatPreferences.currencyFormat?.thousandSeparator,
+        decimalSeparator: currencyFormat.decimal_separator ?? this.formatPreferences.currencyFormat?.decimalSeparator,
       };
 
       this.datePipeOptions.dateFormat = regional.date_format;
