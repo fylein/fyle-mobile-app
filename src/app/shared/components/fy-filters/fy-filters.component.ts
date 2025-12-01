@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, viewChild } from '@angular/core';
 import { FilterOptions } from './filter-options.interface';
 import { SelectedFilters } from './selected-filters.interface';
 import { FilterOptionType } from './filter-option-type.enum';
@@ -49,6 +49,10 @@ import { TranslocoPipe } from '@jsverse/transloco';
 })
 export class FyFiltersComponent implements OnInit {
   private modalController = inject(ModalController);
+
+  readonly picker1 = viewChild<MatDatepicker<Date>>('picker1');
+
+  readonly picker2 = viewChild<MatDatepicker<Date>>('picker2');
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -123,6 +127,14 @@ export class FyFiltersComponent implements OnInit {
           : this.filterOptions[stateFilterIndex].optionsNewFlow;
       }
     });
+  }
+
+  openPicker1(): void {
+    this.picker1()?.open();
+  }
+
+  openPicker2(): void {
+    this.picker2()?.open();
   }
 
   getNoOfFilters() {

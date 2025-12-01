@@ -26,6 +26,7 @@ import { ConfigService } from './app/core/services/config.service';
 import { TIMEZONE, PAGINATION_SIZE, DEVICE_PLATFORM, FORMAT_PREFERENCES } from './app/constants';
 import { appRoutes } from './app/app-routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { NgOtpInputModule } from 'ng-otp-input';
 import { AppComponent } from './app/app.component';
 import { FyCurrencyPipe } from './app/shared/pipes/fy-currency.pipe';
@@ -194,6 +195,7 @@ bootstrapApplication(AppComponent, {
     },
     provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
     provideAnimations(),
+    provideNativeDateAdapter(),
     provideIonicAngular({
       innerHTMLTemplatesEnabled: true,
       useSetInputAPI: true,
