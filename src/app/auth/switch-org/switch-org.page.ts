@@ -2,7 +2,16 @@ import { AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, Vie
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, from, fromEvent, noop, Observable, of, catchError, throwError } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonToolbar, Platform, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonBackButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonToolbar,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { Org } from 'src/app/core/models/org.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { UserService } from 'src/app/core/services/user.service';
@@ -32,6 +41,7 @@ import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { SpenderOnboardingService } from 'src/app/core/services/spender-onboarding.service';
+import { ConfigService } from 'src/app/core/services/config.service';
 import { ActiveOrgCardComponent } from './active-org-card/active-org-card.component';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { MatFormField, MatPrefix, MatInput, MatSuffix } from '@angular/material/input';
@@ -61,7 +71,7 @@ import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-z
     MatPrefix,
     MatSuffix,
     NgClass,
-    OrgCardComponent
+    OrgCardComponent,
   ],
 })
 export class SwitchOrgPage implements OnInit, AfterViewChecked {
@@ -114,6 +124,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private spenderOnboardingService = inject(SpenderOnboardingService);
+
+  private configService = inject(ConfigService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -458,6 +470,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
   }
 
   async proceed(isFromInviteLink?: boolean): Promise<void> {
+    await this.configService.loadConfigurationData();
+
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
     const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
