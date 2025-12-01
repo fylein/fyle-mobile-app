@@ -124,7 +124,7 @@ describe('SwitchOrgPage', () => {
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
     const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
-    const configServiceSpy = jasmine.createSpyObj('ConfigService', ['loadConfigurationData']);
+    const configServiceSpy = jasmine.createSpyObj('ConfigService', ['loadConfigurationData', 'loadFormatPreferences']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'checkForRedirectionToOnboarding',
     ]);
