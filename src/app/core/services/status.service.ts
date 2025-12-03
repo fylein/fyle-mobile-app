@@ -136,15 +136,21 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('name was changed from') > -1:
+      case lowerCaseComment.indexOf('name was changed from') > -1 || lowerCaseComment.includes('report name changed'):
         statusCategory = {
           category: this.translocoService.translate('services.status.reportNameChanged'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('report') > -1:
+      case lowerCaseComment.includes('removed by'):
         statusCategory = {
-          category: this.translocoService.translate('services.status.report'),
+          category: this.translocoService.translate('services.status.approverRemoved'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('report closed'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.reportClosed'),
           icon: 'check',
         };
         break;
@@ -172,7 +178,7 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('approver_inquiry') > -1:
+      case lowerCaseComment.indexOf('approver_inquiry') > -1 || lowerCaseComment.includes('report was sent back'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeSentBack', { type }),
           icon: 'danger-outline',
@@ -184,7 +190,13 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('approved') > -1:
+      case lowerCaseComment.includes('approved by admin'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseReportApproved'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.indexOf('approved') > -1 || lowerCaseComment.includes('expense removed from report'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeApproved', { type }),
           icon: 'check',
@@ -248,6 +260,12 @@ export class StatusService {
       case lowerCaseComment.includes('expense was reconciled'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseReconciled'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.indexOf('report') > -1:
+        statusCategory = {
+          category: this.translocoService.translate('services.status.report'),
           icon: 'check',
         };
         break;
