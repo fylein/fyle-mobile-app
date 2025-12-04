@@ -743,7 +743,7 @@ export class MergeExpensesService {
     return allCategories$.pipe(
       map((catogories) => this.categoriesService.filterRequired(catogories)),
       map((categories) => {
-        option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.displayName;
+        option.label = categories[categories.map((category) => category.id).indexOf(option.value)]?.display_name;
         if (!option.label) {
           option.label = this.translocoService.translate('services.mergeExpenses.unspecified');
         }
