@@ -8,7 +8,7 @@ import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.mod
 import { ExpenseField } from '../models/v1/expense-field.model';
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
-import { OrgCategory } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
 import { AuthService } from './auth.service';
 import { DateService } from './date.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -159,7 +159,7 @@ export class ExpenseFieldsService {
   filterByOrgCategoryId(
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
-    orgCategory: OrgCategory,
+    orgCategory: PlatformCategory,
   ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(

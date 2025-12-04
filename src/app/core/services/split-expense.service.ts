@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { FileObject } from '../models/file-obj.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { OrgCategory } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { CategoriesService } from './categories.service';
 import { PolicyService } from './policy.service';
@@ -40,9 +40,9 @@ export class SplitExpenseService {
 
   private translocoService = inject(TranslocoService);
 
-  formatDisplayName(model: number, categoryList: OrgCategory[]): string {
+  formatDisplayName(model: number, categoryList: PlatformCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
-    return category?.displayName;
+    return category?.display_name;
   }
 
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
@@ -187,7 +187,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: PlatformCategory },
   ): Observable<SplitExpensePolicy> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -228,7 +228,7 @@ export class SplitExpenseService {
     splitTxns: Transaction[],
     transaction: Transaction,
     fileIds: string[],
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: PlatformCategory },
   ): SplitPayload {
     const platformSplitObject: SplitPayload = {
       id: transaction.id,
@@ -266,7 +266,7 @@ export class SplitExpenseService {
     return platformSplitObject;
   }
 
-  transformSplitArray(splitEtxns: Transaction[], unspecifiedCategory: OrgCategory): Splits[] {
+  transformSplitArray(splitEtxns: Transaction[], unspecifiedCategory: PlatformCategory): Splits[] {
     const splits: Splits[] = [];
 
     for (const splitEtxn of splitEtxns) {
@@ -291,7 +291,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: PlatformCategory },
   ): Observable<Partial<SplitExpenseMissingFields>> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -308,7 +308,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: PlatformCategory },
   ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
     const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportAndCategoryParams);
     const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(
@@ -406,7 +406,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory },
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: PlatformCategory },
   ): Observable<{ data: Transaction[] }> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
