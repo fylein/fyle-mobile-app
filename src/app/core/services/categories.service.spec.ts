@@ -15,20 +15,12 @@ import {
   expectedFilterOrgCategory,
   transformedOrgCategories,
   sortedOrgCategories,
-  expectedAllOrgCategories,
-  orgCategoryWoDisplayName,
-  orgCategoryWithDisplayName,
   orgCategoryPaginated1,
   orgCategoryPaginated2,
   expectedOrgCategoriesPaginated,
-  expectedTransformedCategories,
   unsortedCategories1,
   sortedCategories1,
-  transformedOrgCategoryById,
   expectedOrgCategoryById,
-  displayOrgCategoryById,
-  transformedOrgCategoriesByName,
-  displayOrgCategoriesByName,
   expectedOrgCategoryByName,
 } from '../mock-data/org-category.data';
 import { cloneDeep } from 'lodash';
@@ -134,26 +126,13 @@ describe('CategoriesService', () => {
 
   it('getCategories(): should get categories from the api', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiAllCategories));
-    spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategories);
     spyOn(categoriesService, 'sortCategories').and.returnValue(sortedOrgCategories);
-    spyOn(categoriesService, 'addDisplayName').and.returnValue(expectedAllOrgCategories);
 
     categoriesService.getCategories({ offset: 0, limit: 4 }).subscribe((res) => {
-      expect(res).toEqual(expectedAllOrgCategories);
-      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiAllCategories.data);
-      expect(categoriesService.sortCategories).toHaveBeenCalledOnceWith(transformedOrgCategories);
-      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(sortedOrgCategories);
+      expect(res).toEqual(sortedOrgCategories);
+      expect(categoriesService.sortCategories).toHaveBeenCalledOnceWith(platformApiAllCategories.data);
       done();
     });
-  });
-
-  it('transformFrom(): should transfrom from platform-category to org-category', () => {
-    expect(categoriesService.transformFrom(platformApiAllCategories.data)).toEqual(expectedTransformedCategories);
-  });
-
-  it('addDisplayName(): should modify display name', () => {
-    const mockCategory = cloneDeep(orgCategoryWoDisplayName);
-    expect(categoriesService.addDisplayName(mockCategory)).toEqual(orgCategoryWithDisplayName);
   });
 
   it('filterByOrgCategoryId(): should filter a category by ID', () => {
@@ -198,30 +177,22 @@ describe('CategoriesService', () => {
 
   it('getCategoryById(): should get a category from the api based on ID', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryById));
-    spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoryById);
-    spyOn(categoriesService, 'addDisplayName').and.returnValue(displayOrgCategoryById);
 
     const categoryId = 141295;
 
     categoriesService.getCategoryById(categoryId).subscribe((res) => {
       expect(res).toEqual(expectedOrgCategoryById);
-      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoryById.data);
-      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoryById);
       done();
     });
   });
 
   it('getCategoryByName(): should get a category from the api based on name', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoriesByName));
-    spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategoriesByName);
-    spyOn(categoriesService, 'addDisplayName').and.returnValue(displayOrgCategoriesByName);
 
     const categoryName = 'Business';
 
     categoriesService.getCategoryByName(categoryName).subscribe((res) => {
       expect(res).toEqual(expectedOrgCategoryByName);
-      expect(categoriesService.transformFrom).toHaveBeenCalledOnceWith(platformApiCategoriesByName.data);
-      expect(categoriesService.addDisplayName).toHaveBeenCalledOnceWith(transformedOrgCategoriesByName);
       done();
     });
   });

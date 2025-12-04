@@ -4945,8 +4945,8 @@ export class AddEditExpensePage implements OnInit {
         ) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find(
-            (platformCategory: { value: { system_category: string } }) =>
-              platformCategory.value.system_category.toLowerCase() === categoryName.toLowerCase(),
+            (platformCategory: { value: { system_category: string | null } }) =>
+              platformCategory.value.system_category?.toLowerCase() === categoryName.toLowerCase(),
           );
           this.fg.patchValue({
             category: category && category.value,

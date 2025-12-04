@@ -845,7 +845,7 @@ export function TestCases6(getTestBed) {
     describe('getFyleCategory():', () => {
       it('should get fyle category', () => {
         component.fg.controls.category.setValue({
-          fyle_category: 'cat',
+          system_category: 'cat',
         });
 
         const result = component.getFyleCategory();
