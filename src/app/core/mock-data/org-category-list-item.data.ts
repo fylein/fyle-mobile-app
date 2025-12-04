@@ -1,9 +1,9 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { OrgCategoryListItem } from '../models/v1/org-category.model';
+import { PlatformCategoryListItem } from '../models/platform/platform-category-list-item.model';
 import { expectedOrgCategoriesPaginated } from './org-category.data';
 
-export const categorieListRes: OrgCategoryListItem[] = deepFreeze([
+export const categorieListRes: PlatformCategoryListItem[] = deepFreeze([
   {
     label: 'Accounts Payable - Employees',
     value: expectedOrgCategoriesPaginated[0],
@@ -22,15 +22,15 @@ export const categorieListRes: OrgCategoryListItem[] = deepFreeze([
   },
 ]);
 
-export const recentUsedCategoriesRes: OrgCategoryListItem[] = deepFreeze([
+export const recentUsedCategoriesRes: PlatformCategoryListItem[] = deepFreeze([
   {
     label: 'Office Supplies',
     value: {
       code: null,
       created_at: new Date('2020-03-04T09:51:01.619958+00:00'),
-      displayName: 'Office supplies',
-      enabled: true,
-      fyle_category: 'Mail',
+      display_name: 'Office supplies',
+      is_enabled: true,
+      system_category: 'Mail',
       id: 89469,
       name: 'Office Supplies',
       org_id: 'orNVthTo2Zyo',
@@ -43,9 +43,9 @@ export const recentUsedCategoriesRes: OrgCategoryListItem[] = deepFreeze([
     value: {
       code: '15510',
       created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
-      displayName: 'Accm.Depr. Furniture & Fixtures',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'Accm.Depr. Furniture & Fixtures',
+      is_enabled: true,
+      system_category: null,
       id: 129111,
       name: 'Accm.Depr. Furniture & Fixtures',
       org_id: 'orNVthTo2Zyo',
@@ -58,9 +58,9 @@ export const recentUsedCategoriesRes: OrgCategoryListItem[] = deepFreeze([
     value: {
       code: null,
       created_at: new Date('2018-01-31T23:50:27.268007+00:00'),
-      displayName: 'Flight',
-      enabled: true,
-      fyle_category: 'Airlines',
+      display_name: 'Flight',
+      is_enabled: true,
+      system_category: 'Airlines',
       id: 16576,
       name: 'Flight',
       org_id: 'orNVthTo2Zyo',
@@ -70,15 +70,15 @@ export const recentUsedCategoriesRes: OrgCategoryListItem[] = deepFreeze([
   },
 ]);
 
-export const orgCategoryListItemData1 = deepFreeze([
+export const orgCategoryListItemData1: PlatformCategoryListItem[] = deepFreeze([
   {
     label: 'Business',
     value: {
       code: '93',
       created_at: new Date('2021-05-18T11:40:38.576Z'),
-      displayName: 'Business',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'Business',
+      is_enabled: true,
+      system_category: null,
       id: 141295,
       name: 'Business',
       org_id: 'orrjqbDbeP9p',
@@ -91,9 +91,9 @@ export const orgCategoryListItemData1 = deepFreeze([
     value: {
       code: '42',
       created_at: new Date('2023-01-09T16:54:09.929Z'),
-      displayName: 'Marketing outreach',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'Marketing outreach',
+      is_enabled: true,
+      system_category: null,
       id: 226659,
       name: 'Marketing outreach',
       org_id: 'orrjqbDbeP9p',
@@ -106,9 +106,9 @@ export const orgCategoryListItemData1 = deepFreeze([
     value: {
       code: '98',
       created_at: new Date('2021-05-18T11:40:38.576Z'),
-      displayName: 'Pager',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'Pager',
+      is_enabled: true,
+      system_category: null,
       id: 141300,
       name: 'Pager',
       org_id: 'orrjqbDbeP9p',
@@ -121,9 +121,9 @@ export const orgCategoryListItemData1 = deepFreeze([
     value: {
       code: '43',
       created_at: new Date('2023-01-09T16:54:09.929Z'),
-      displayName: 'samp category',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'samp category',
+      is_enabled: true,
+      system_category: null,
       id: 226646,
       name: 'samp category',
       org_id: 'orrjqbDbeP9p',

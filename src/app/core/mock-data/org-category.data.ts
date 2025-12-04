@@ -1,14 +1,13 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { PlatformCategory } from '../models/platform/platform-category.model';
-import { OrgCategory } from '../models/v1/org-category.model';
 
-export const orgCategoryData: OrgCategory = deepFreeze({
+export const orgCategoryData: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
-  displayName: 'Food',
-  enabled: true,
-  fyle_category: 'Food',
+  display_name: 'Food',
+  is_enabled: true,
+  system_category: 'Food',
   id: 16566,
   name: 'Food',
   org_id: 'orNVthTo2Zyo',
@@ -43,13 +42,13 @@ export const mileagePerDiemPlatformCategoryData: PlatformCategory[] = deepFreeze
   },
 ]);
 
-export const transformedOrgCategories: OrgCategory[] = deepFreeze([
+export const transformedOrgCategories: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -59,9 +58,9 @@ export const transformedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -71,9 +70,9 @@ export const transformedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -83,9 +82,9 @@ export const transformedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -94,13 +93,13 @@ export const transformedOrgCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const sortedCategory: OrgCategory[] = deepFreeze([
+export const sortedCategory: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -110,9 +109,9 @@ export const sortedCategory: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -122,9 +121,9 @@ export const sortedCategory: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -134,9 +133,9 @@ export const sortedCategory: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -145,13 +144,13 @@ export const sortedCategory: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const sortedOrgCategories: OrgCategory[] = deepFreeze([
+export const sortedOrgCategories: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -161,9 +160,9 @@ export const sortedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -173,9 +172,9 @@ export const sortedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -185,9 +184,9 @@ export const sortedOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -196,13 +195,13 @@ export const sortedOrgCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const filterOrgCategoryParam: OrgCategory[] = deepFreeze([
+export const filterOrgCategoryParam: PlatformCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'activity',
-    enabled: true,
-    fyle_category: 'activity',
+    display_name: 'activity',
+    is_enabled: true,
+    system_category: 'activity',
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -212,9 +211,9 @@ export const filterOrgCategoryParam: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -223,13 +222,13 @@ export const filterOrgCategoryParam: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedFilterOrgCategory: OrgCategory[] = deepFreeze([
+export const expectedFilterOrgCategory: PlatformCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -238,13 +237,13 @@ export const expectedFilterOrgCategory: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedAllOrgCategories: OrgCategory[] = deepFreeze([
+export const expectedAllOrgCategories: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -254,9 +253,9 @@ export const expectedAllOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -266,9 +265,9 @@ export const expectedAllOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -278,9 +277,9 @@ export const expectedAllOrgCategories: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -289,13 +288,13 @@ export const expectedAllOrgCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const orgCategoryWoDisplayName: OrgCategory[] = deepFreeze([
+export const orgCategoryWoDisplayName: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -305,9 +304,9 @@ export const orgCategoryWoDisplayName: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -316,13 +315,13 @@ export const orgCategoryWoDisplayName: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const orgCategoryWithDisplayName: OrgCategory[] = deepFreeze([
+export const orgCategoryWithDisplayName: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business / Marketing',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business / Marketing',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -332,9 +331,9 @@ export const orgCategoryWithDisplayName: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -343,13 +342,13 @@ export const orgCategoryWithDisplayName: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const orgCategoryPaginated1: OrgCategory[] = deepFreeze([
+export const orgCategoryPaginated1: PlatformCategory[] = deepFreeze([
   {
     code: '20300',
     created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
-    displayName: 'Accounts Payable - Employees',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Accounts Payable - Employees',
+    is_enabled: true,
+    system_category: null,
     id: 129140,
     name: 'Accounts Payable - Employees',
     org_id: 'orNVthTo2Zyo',
@@ -359,9 +358,9 @@ export const orgCategoryPaginated1: OrgCategory[] = deepFreeze([
   {
     code: '16300',
     created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
-    displayName: 'Capitalized Software Costs',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Capitalized Software Costs',
+    is_enabled: true,
+    system_category: null,
     id: 129112,
     name: 'Capitalized Software Costs',
     org_id: 'orNVthTo2Zyo',
@@ -372,13 +371,13 @@ export const orgCategoryPaginated1: OrgCategory[] = deepFreeze([
 
 export const categoryIds: string[] = deepFreeze(['129140']);
 
-export const orgCategoryPaginated2: OrgCategory[] = deepFreeze([
+export const orgCategoryPaginated2: PlatformCategory[] = deepFreeze([
   {
     code: '51708',
     created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
-    displayName: 'COGS-Billable Hours',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'COGS-Billable Hours',
+    is_enabled: true,
+    system_category: null,
     id: 129100,
     name: 'COGS-Billable Hours',
     org_id: 'orNVthTo2Zyo',
@@ -388,9 +387,9 @@ export const orgCategoryPaginated2: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -399,13 +398,13 @@ export const orgCategoryPaginated2: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedOrgCategoriesPaginated: OrgCategory[] = deepFreeze([
+export const expectedOrgCategoriesPaginated: PlatformCategory[] = deepFreeze([
   {
     code: '20300',
     created_at: new Date('2021-03-14T06:07:39.652Z'),
-    displayName: 'Accounts Payable - Employees',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Accounts Payable - Employees',
+    is_enabled: true,
+    system_category: null,
     id: 129140,
     name: 'Accounts Payable - Employees',
     org_id: 'orNVthTo2Zyo',
@@ -415,9 +414,9 @@ export const expectedOrgCategoriesPaginated: OrgCategory[] = deepFreeze([
   {
     code: '16300',
     created_at: new Date('2021-03-14T06:07:39.652Z'),
-    displayName: 'Capitalized Software Costs',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Capitalized Software Costs',
+    is_enabled: true,
+    system_category: null,
     id: 129112,
     name: 'Capitalized Software Costs',
     org_id: 'orNVthTo2Zyo',
@@ -427,9 +426,9 @@ export const expectedOrgCategoriesPaginated: OrgCategory[] = deepFreeze([
   {
     code: '51708',
     created_at: new Date('2021-03-14T06:07:39.652Z'),
-    displayName: 'COGS-Billable Hours',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'COGS-Billable Hours',
+    is_enabled: true,
+    system_category: null,
     id: 129100,
     name: 'COGS-Billable Hours',
     org_id: 'orNVthTo2Zyo',
@@ -439,9 +438,9 @@ export const expectedOrgCategoriesPaginated: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -450,15 +449,15 @@ export const expectedOrgCategoriesPaginated: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const orgCategoryData1: OrgCategory[] = deepFreeze([
+export const orgCategoryData1: PlatformCategory[] = deepFreeze([
   { ...expectedOrgCategoriesPaginated[0] },
   { ...expectedOrgCategoriesPaginated[1] },
   {
     code: '4060344',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Hotel',
-    enabled: true,
-    fyle_category: 'Others',
+    display_name: 'Hotel',
+    is_enabled: true,
+    system_category: 'Others',
     id: 16582,
     name: 'Hotel',
     org_id: 'orrjqbDbeP9p',
@@ -468,9 +467,9 @@ export const orgCategoryData1: OrgCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Food',
-    enabled: true,
-    fyle_category: 'Others',
+    display_name: 'Food',
+    is_enabled: true,
+    system_category: 'Others',
     id: 201952,
     name: 'Food',
     org_id: 'orrjqbDbeP9p',
@@ -479,13 +478,13 @@ export const orgCategoryData1: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedTransformedCategories: OrgCategory[] = deepFreeze([
+export const expectedTransformedCategories: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -495,9 +494,9 @@ export const expectedTransformedCategories: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -507,9 +506,9 @@ export const expectedTransformedCategories: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -519,9 +518,9 @@ export const expectedTransformedCategories: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -530,13 +529,13 @@ export const expectedTransformedCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const unsortedCategories1: OrgCategory[] = deepFreeze([
+export const unsortedCategories1: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -546,9 +545,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2022-02-07T10:36:23.916017+00:00'),
-    displayName: '11 / 5665',
-    enabled: true,
-    fyle_category: 'Airlines',
+    display_name: '11 / 5665',
+    is_enabled: true,
+    system_category: 'Airlines',
     id: 174487,
     name: '11',
     org_id: 'orNVthTo2Zyo',
@@ -558,9 +557,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2022-02-07T10:36:23.916017+00:00'),
-    displayName: '11 / 5665',
-    enabled: true,
-    fyle_category: 'Airlines',
+    display_name: '11 / 5665',
+    is_enabled: true,
+    system_category: 'Airlines',
     id: 174485,
     name: '11',
     org_id: 'orNVthTo2Zyo',
@@ -570,9 +569,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -582,9 +581,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -594,9 +593,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -606,9 +605,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060332',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Hotel / Business Review',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Business Review',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201957,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -618,9 +617,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060337',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201958,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -630,9 +629,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060331',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201952,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -642,9 +641,9 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060332',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201954,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -653,13 +652,13 @@ export const unsortedCategories1: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const sortedCategories1: OrgCategory[] = deepFreeze([
+export const sortedCategories1: PlatformCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2022-02-07T10:36:23.916Z'),
-    displayName: '11 / 5665',
-    enabled: true,
-    fyle_category: 'Airlines',
+    display_name: '11 / 5665',
+    is_enabled: true,
+    system_category: 'Airlines',
     id: 174485,
     name: '11',
     org_id: 'orNVthTo2Zyo',
@@ -669,9 +668,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2022-02-07T10:36:23.916Z'),
-    displayName: '11 / 5665',
-    enabled: true,
-    fyle_category: 'Airlines',
+    display_name: '11 / 5665',
+    is_enabled: true,
+    system_category: 'Airlines',
     id: 174487,
     name: '11',
     org_id: 'orNVthTo2Zyo',
@@ -681,9 +680,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -693,9 +692,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -705,9 +704,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060332',
     created_at: new Date('2022-07-05T07:52:00.417Z'),
-    displayName: 'Hotel / Business Review',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Business Review',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201957,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -717,9 +716,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060337',
     created_at: new Date('2022-07-05T07:52:00.417Z'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201958,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -729,9 +728,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060331',
     created_at: new Date('2022-07-05T07:52:00.417Z'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201952,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -741,9 +740,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '4060332',
     created_at: new Date('2022-07-05T07:52:00.417Z'),
-    displayName: 'Hotel / Induction',
-    enabled: true,
-    fyle_category: 'Lodging',
+    display_name: 'Hotel / Induction',
+    is_enabled: true,
+    system_category: 'Lodging',
     id: 201954,
     name: 'Hotel',
     org_id: 'orNVthTo2Zyo',
@@ -753,9 +752,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -765,9 +764,9 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -776,13 +775,13 @@ export const sortedCategories1: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const transformedOrgCategoryById: OrgCategory[] = deepFreeze([
+export const transformedOrgCategoryById: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -792,9 +791,9 @@ export const transformedOrgCategoryById: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -804,9 +803,9 @@ export const transformedOrgCategoryById: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -815,13 +814,13 @@ export const transformedOrgCategoryById: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const displayOrgCategoryById: OrgCategory[] = deepFreeze([
+export const displayOrgCategoryById: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -831,9 +830,9 @@ export const displayOrgCategoryById: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -843,9 +842,9 @@ export const displayOrgCategoryById: OrgCategory[] = deepFreeze([
   {
     code: '43',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'samp category',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'samp category',
+    is_enabled: true,
+    system_category: null,
     id: 226646,
     name: 'samp category',
     org_id: 'orrjqbDbeP9p',
@@ -854,12 +853,12 @@ export const displayOrgCategoryById: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedOrgCategoryById: OrgCategory = deepFreeze({
+export const expectedOrgCategoryById: PlatformCategory = deepFreeze({
   code: '93',
   created_at: new Date('2021-05-18T11:40:38.576Z'),
-  displayName: 'Business',
-  enabled: true,
-  fyle_category: null,
+  display_name: 'Business',
+  is_enabled: true,
+  system_category: null,
   id: 141295,
   name: 'Business',
   org_id: 'orrjqbDbeP9p',
@@ -867,13 +866,13 @@ export const expectedOrgCategoryById: OrgCategory = deepFreeze({
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 });
 
-export const transformedOrgCategoriesByName: OrgCategory[] = deepFreeze([
+export const transformedOrgCategoriesByName: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -883,9 +882,9 @@ export const transformedOrgCategoriesByName: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -895,9 +894,9 @@ export const transformedOrgCategoriesByName: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -906,13 +905,13 @@ export const transformedOrgCategoriesByName: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const displayOrgCategoriesByName: OrgCategory[] = deepFreeze([
+export const displayOrgCategoriesByName: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: null,
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -922,9 +921,9 @@ export const displayOrgCategoriesByName: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: null,
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -934,9 +933,9 @@ export const displayOrgCategoriesByName: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -945,12 +944,12 @@ export const displayOrgCategoriesByName: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedOrgCategoryByName: OrgCategory = deepFreeze({
+export const expectedOrgCategoryByName: PlatformCategory = deepFreeze({
   code: '93',
   created_at: new Date('2021-05-18T11:40:38.576Z'),
-  displayName: 'Business',
-  enabled: true,
-  fyle_category: null,
+  display_name: 'Business',
+  is_enabled: true,
+  system_category: null,
   id: 141295,
   name: 'Business',
   org_id: 'orrjqbDbeP9p',
@@ -967,12 +966,12 @@ export const filteredCategoriesData = deepFreeze([
   },
 ]);
 
-export const expectedAutoFillCategory: OrgCategory = deepFreeze({
+export const expectedAutoFillCategory: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235Z'),
-  displayName: 'Food',
-  enabled: true,
-  fyle_category: 'Food',
+  display_name: 'Food',
+  is_enabled: true,
+  system_category: 'Food',
   id: 16566,
   name: 'Food',
   org_id: 'orNVthTo2Zyo',
@@ -980,12 +979,12 @@ export const expectedAutoFillCategory: OrgCategory = deepFreeze({
   updated_at: new Date('2022-05-05T17:45:42.092Z'),
 });
 
-export const expectedAutoFillCategory2: OrgCategory = deepFreeze({
+export const expectedAutoFillCategory2: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2020-03-04T09:51:01.619Z'),
-  displayName: 'Office supplies',
-  enabled: true,
-  fyle_category: 'Mail',
+  display_name: 'Office supplies',
+  is_enabled: true,
+  system_category: 'Mail',
   id: 89469,
   name: 'Office Supplies',
   org_id: 'orNVthTo2Zyo',
@@ -993,12 +992,12 @@ export const expectedAutoFillCategory2: OrgCategory = deepFreeze({
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 });
 
-export const TaxiCategory: OrgCategory = deepFreeze({
+export const TaxiCategory: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2020-03-04T09:51:01.619Z'),
-  displayName: 'Office supplies',
-  enabled: true,
-  fyle_category: 'Taxi',
+  display_name: 'Office supplies',
+  is_enabled: true,
+  system_category: 'Taxi',
   id: 89469,
   name: 'UBER',
   org_id: 'orNVthTo2Zyo',
@@ -1006,12 +1005,12 @@ export const TaxiCategory: OrgCategory = deepFreeze({
   updated_at: new Date('2022-11-23T13:11:51.771Z'),
 });
 
-export const expectedAutoFillCategory3: OrgCategory = deepFreeze({
+export const expectedAutoFillCategory3: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235Z'),
-  displayName: 'Food',
-  enabled: true,
-  fyle_category: 'Food',
+  display_name: 'Food',
+  is_enabled: true,
+  system_category: 'Food',
   id: 16566,
   name: 'Food',
   org_id: 'orNVthTo2Zyo',
@@ -1019,25 +1018,25 @@ export const expectedAutoFillCategory3: OrgCategory = deepFreeze({
   updated_at: new Date('2022-05-05T17:45:42.092Z'),
 });
 
-export const perDiemCategory: OrgCategory = deepFreeze({
+export const perDiemCategory: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
-  displayName: 'Per Diem',
-  enabled: true,
-  fyle_category: 'Per Diem',
+  display_name: 'Per Diem',
+  is_enabled: true,
+  system_category: 'Per Diem',
   id: 38912,
   name: 'Per Diem',
   org_id: 'orrb8EW1zZsy',
   sub_category: 'Per Diem',
   updated_at: new Date('2022-09-13T17:16:56.232081+00:00'),
 });
-export const perDiemCategories2: OrgCategory[] = deepFreeze([
+export const perDiemCategories2: PlatformCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
-    displayName: 'Per Diem',
-    enabled: true,
-    fyle_category: 'Per Diem',
+    display_name: 'Per Diem',
+    is_enabled: true,
+    system_category: 'Per Diem',
     id: 38912,
     name: 'Per Diem',
     org_id: 'orrb8EW1zZsy',
@@ -1047,9 +1046,9 @@ export const perDiemCategories2: OrgCategory[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2018-07-27T08:52:38.938006+00:00'),
-    displayName: 'Per Diem',
-    enabled: true,
-    fyle_category: 'Per Diem',
+    display_name: 'Per Diem',
+    is_enabled: true,
+    system_category: 'Per Diem',
     id: 38912,
     name: 'Per Diem',
     org_id: 'orrb8EW1zZsy',
@@ -1058,13 +1057,13 @@ export const perDiemCategories2: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const mileageCategories: OrgCategory[] = deepFreeze([
+export const mileageCategories: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141295,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
@@ -1074,9 +1073,9 @@ export const mileageCategories: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -1086,9 +1085,9 @@ export const mileageCategories: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -1097,13 +1096,13 @@ export const mileageCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const mileageCategories2: OrgCategory[] = deepFreeze([
+export const mileageCategories2: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'mileage',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'mileage',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141295,
     name: 'mileage',
     org_id: 'orrjqbDbeP9p',
@@ -1113,9 +1112,9 @@ export const mileageCategories2: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141300,
     name: 'Pager',
     org_id: 'orrjqbDbeP9p',
@@ -1125,9 +1124,9 @@ export const mileageCategories2: OrgCategory[] = deepFreeze([
   {
     code: '42',
     created_at: new Date('2023-01-09T16:54:09.929Z'),
-    displayName: 'Marketing outreach',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Marketing outreach',
+    is_enabled: true,
+    system_category: null,
     id: 226659,
     name: 'Marketing outreach',
     org_id: 'orrjqbDbeP9p',
@@ -1136,13 +1135,13 @@ export const mileageCategories2: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const mileageCategories3: OrgCategory[] = deepFreeze([
+export const mileageCategories3: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'mileage',
-    enabled: true,
-    fyle_category: 'Food',
+    display_name: 'mileage',
+    is_enabled: true,
+    system_category: 'Food',
     id: 141295,
     name: null,
     org_id: 'orrjqbDbeP9p',
@@ -1152,9 +1151,9 @@ export const mileageCategories3: OrgCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141300,
     name: 'Mileage',
     org_id: 'orrjqbDbeP9p',
@@ -1163,13 +1162,13 @@ export const mileageCategories3: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedMileageCategoriesData: OrgCategory[] = deepFreeze([
+export const expectedMileageCategoriesData: PlatformCategory[] = deepFreeze([
   {
     code: '98',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Pager',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Pager',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: 141300,
     name: 'Mileage',
     org_id: 'orrjqbDbeP9p',
@@ -1178,12 +1177,12 @@ export const expectedMileageCategoriesData: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const expectedOrgCategoryByName2: OrgCategory = deepFreeze({
+export const expectedOrgCategoryByName2: PlatformCategory = deepFreeze({
   code: '93',
   created_at: new Date('2021-05-18T11:40:38.576Z'),
-  displayName: 'Business',
-  enabled: true,
-  fyle_category: undefined,
+  display_name: 'Business',
+  is_enabled: true,
+  system_category: undefined,
   id: undefined,
   name: 'Business',
   org_id: 'orrjqbDbeP9p',
@@ -1191,12 +1190,12 @@ export const expectedOrgCategoryByName2: OrgCategory = deepFreeze({
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 });
 
-export const unspecifiedCategory: OrgCategory = deepFreeze({
+export const unspecifiedCategory: PlatformCategory = deepFreeze({
   code: null,
   created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
-  displayName: 'Unspecified',
-  enabled: true,
-  fyle_category: 'Unspecified',
+  display_name: 'Unspecified',
+  is_enabled: true,
+  system_category: 'Unspecified',
   id: 16569,
   name: 'Unspecified',
   org_id: 'orNVthTo2Zyo',
@@ -1204,13 +1203,13 @@ export const unspecifiedCategory: OrgCategory = deepFreeze({
   updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
 });
 
-export const mileageCategoryWithoutId: OrgCategory[] = deepFreeze([
+export const mileageCategoryWithoutId: PlatformCategory[] = deepFreeze([
   {
     code: '93',
     created_at: new Date('2021-05-18T11:40:38.576Z'),
-    displayName: 'Business',
-    enabled: true,
-    fyle_category: 'Mileage',
+    display_name: 'Business',
+    is_enabled: true,
+    system_category: 'Mileage',
     id: undefined,
     name: 'Business',
     org_id: 'orrjqbDbeP9p',
