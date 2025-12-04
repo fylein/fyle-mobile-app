@@ -857,12 +857,13 @@ export const expectedOrgCategoryById: PlatformCategory = deepFreeze({
   code: '93',
   created_at: new Date('2021-05-18T11:40:38.576Z'),
   display_name: 'Business',
-  is_enabled: true,
-  system_category: null,
   id: 141295,
+  is_enabled: true,
   name: 'Business',
   org_id: 'orrjqbDbeP9p',
-  sub_category: 'Business',
+  restricted_project_ids: [518, 519, 520, 589],
+  sub_category: null,
+  system_category: null,
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 });
 
