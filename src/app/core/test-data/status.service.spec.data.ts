@@ -1224,7 +1224,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Expense matched',
+      category: 'Expense',
       icon: 'check',
     },
   },
