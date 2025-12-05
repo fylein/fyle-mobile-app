@@ -385,7 +385,7 @@ export class StatusService {
       st_org_user_id: expenseComment.creator_user_id || expenseComment.creator_type,
       st_comment: expenseComment.comment,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      st_diff: expenseComment.action_data,
+      st_diff: expenseComment.action_data || null,
       st_state: null,
       st_transaction_id: expenseComment.expense_id,
       st_report_id: null,
