@@ -328,7 +328,7 @@ export class MyViewReportPage {
         st_id: comment.id,
         us_full_name: comment.creator_user?.full_name,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        st_diff: comment.action_data,
+        st_diff: comment.action_data || null,
       };
       return status;
     });

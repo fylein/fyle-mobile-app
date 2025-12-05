@@ -323,7 +323,7 @@ export class ViewTeamReportPage {
         st_created_at: comment.created_at,
         st_id: comment.id,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        st_diff: comment.action_data,
+        st_diff: comment.action_data || null,
       };
       return status;
     });
