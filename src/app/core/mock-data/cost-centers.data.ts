@@ -1,11 +1,12 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { CostCenterOptions } from '../models/cost-centers-options.model';
-import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
+import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
+import { CostCenters } from '../models/cost-centers.model';
 
-export const costCentersData: CostCenter[] = deepFreeze([
+export const costCentersData: PlatformCostCenter[] = deepFreeze([
   {
-    active: true,
+    is_enabled: true,
     code: null,
     created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
     description: null,
@@ -15,7 +16,7 @@ export const costCentersData: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-06-24T15:12:05.002242+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cost center code 2',
     created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
     description: 'cost centers data',
@@ -25,7 +26,7 @@ export const costCentersData: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-08-13T14:18:55.500829+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: null,
     created_at: new Date('2019-10-30T07:16:37.975193+00:00'),
     description: null,
@@ -35,7 +36,7 @@ export const costCentersData: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-10-30T07:16:38.975193+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cost center code 2',
     created_at: new Date('2019-10-30T08:25:54.040980+00:00'),
     description: 'this is the test description',
@@ -46,9 +47,9 @@ export const costCentersData: CostCenter[] = deepFreeze([
   },
 ]);
 
-export const costCentersData2: CostCenter[] = deepFreeze([
+export const costCentersData2: PlatformCostCenter[] = deepFreeze([
   {
-    active: true,
+    is_enabled: true,
     code: 'code3',
     created_at: new Date('2022-09-08T15:26:02.756540+00:00'),
     description: 'desc3',
@@ -58,7 +59,7 @@ export const costCentersData2: CostCenter[] = deepFreeze([
     updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'code1',
     created_at: new Date('2022-09-09T10:18:18.270421+00:00'),
     description: null,
@@ -68,7 +69,7 @@ export const costCentersData2: CostCenter[] = deepFreeze([
     updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'code2',
     created_at: new Date('2022-09-09T10:18:18.270421+00:00'),
     description: 'desc2',
@@ -78,7 +79,7 @@ export const costCentersData2: CostCenter[] = deepFreeze([
     updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cc2',
     created_at: new Date('2022-09-09T10:29:05.646835+00:00'),
     description: 'Describe the cost center',
@@ -89,9 +90,9 @@ export const costCentersData2: CostCenter[] = deepFreeze([
   },
 ]);
 
-export const costCentersData3: CostCenter[] = deepFreeze([
+export const costCentersData3: PlatformCostCenter[] = deepFreeze([
   {
-    active: true,
+    is_enabled: true,
     code: null,
     created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
     description: null,
@@ -101,7 +102,7 @@ export const costCentersData3: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-06-24T15:12:05.002242+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cost center code 2',
     created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
     description: 'cost centers data',
@@ -111,7 +112,7 @@ export const costCentersData3: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-08-13T14:18:55.500829+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'code2',
     created_at: new Date('2022-09-09T10:18:18.270421+00:00'),
     description: 'desc2',
@@ -121,7 +122,7 @@ export const costCentersData3: CostCenter[] = deepFreeze([
     updated_at: new Date('2022-09-09T11:36:23.707192+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cc2',
     created_at: new Date('2022-09-09T10:29:05.646835+00:00'),
     description: 'Describe the cost center',
@@ -132,9 +133,9 @@ export const costCentersData3: CostCenter[] = deepFreeze([
   },
 ]);
 
-export const costCenterApiRes1: CostCenter[] = deepFreeze([
+export const costCenterApiRes1: PlatformCostCenter[] = deepFreeze([
   {
-    active: true,
+    is_enabled: true,
     code: null,
     created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
     description: null,
@@ -144,7 +145,7 @@ export const costCenterApiRes1: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-06-24T15:12:05.002242+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cost center code 2',
     created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
     description: 'cost centers data',
@@ -155,9 +156,9 @@ export const costCenterApiRes1: CostCenter[] = deepFreeze([
   },
 ]);
 
-export const costCenterApiRes2: CostCenter[] = deepFreeze([
+export const costCenterApiRes2: PlatformCostCenter[] = deepFreeze([
   {
-    active: true,
+    is_enabled: true,
     code: null,
     created_at: new Date('2019-10-30T07:16:37.975193+00:00'),
     description: null,
@@ -167,7 +168,7 @@ export const costCenterApiRes2: CostCenter[] = deepFreeze([
     updated_at: new Date('2019-10-30T07:16:38.975193+00:00'),
   },
   {
-    active: true,
+    is_enabled: true,
     code: 'cost center code 2',
     created_at: new Date('2019-10-30T08:25:54.040980+00:00'),
     description: 'this is the test description',
@@ -182,7 +183,7 @@ export const expectedCCdata: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-06-24T15:12:04.002Z'),
       description: null,
@@ -195,7 +196,7 @@ export const expectedCCdata: CostCenters[] = deepFreeze([
   {
     label: 'test cost',
     value: {
-      active: true,
+      is_enabled: true,
       code: 'cost center code 2',
       created_at: new Date('2019-08-13T14:18:54.500Z'),
       description: 'cost centers data',
@@ -211,7 +212,7 @@ export const expectedCCdata2: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-06-24T15:12:04.002Z'),
       description: null,
@@ -227,7 +228,7 @@ export const expectedCCdata3: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-06-24T15:12:04.002242+00:00'),
       description: null,
@@ -240,7 +241,7 @@ export const expectedCCdata3: CostCenters[] = deepFreeze([
   {
     label: 'test cost',
     value: {
-      active: true,
+      is_enabled: true,
       code: 'cost center code 2',
       created_at: new Date('2019-08-13T14:18:54.500829+00:00'),
       description: 'cost centers data',
@@ -253,7 +254,7 @@ export const expectedCCdata3: CostCenters[] = deepFreeze([
   {
     label: 'cost centers mock data 1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-10-30T07:16:37.975193+00:00'),
       description: null,
@@ -266,7 +267,7 @@ export const expectedCCdata3: CostCenters[] = deepFreeze([
   {
     label: 'cost center service 2',
     value: {
-      active: true,
+      is_enabled: true,
       code: 'cost center code 2',
       created_at: new Date('2019-10-30T08:25:54.040980+00:00'),
       description: 'this is the test description',
@@ -289,7 +290,7 @@ export const costCenterOptions2: CostCenterOptions[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-06-24T15:12:04.002Z'),
       description: null,
@@ -302,7 +303,7 @@ export const costCenterOptions2: CostCenterOptions[] = deepFreeze([
   {
     label: 'test cost',
     value: {
-      active: true,
+      is_enabled: true,
       code: 'cost center code 2',
       created_at: new Date('2019-08-13T14:18:54.500Z'),
       description: 'cost centers data',
@@ -315,7 +316,7 @@ export const costCenterOptions2: CostCenterOptions[] = deepFreeze([
   {
     label: 'cost centers mock data 1',
     value: {
-      active: true,
+      is_enabled: true,
       code: null,
       created_at: new Date('2019-10-30T07:16:37.975Z'),
       description: null,
@@ -328,7 +329,7 @@ export const costCenterOptions2: CostCenterOptions[] = deepFreeze([
   {
     label: 'cost center service 2',
     value: {
-      active: true,
+      is_enabled: true,
       code: 'cost center code 2',
       created_at: new Date('2019-10-30T08:25:54.040Z'),
       description: 'this is the test description',

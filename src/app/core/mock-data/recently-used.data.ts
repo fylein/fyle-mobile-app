@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 import { Currency, CurrencyName } from '../models/currency.model';
-import { CostCenter } from '../models/v1/cost-center.model';
+import { CostCenterOptions } from '../models/cost-centers-options.model';
 
 export const recentlyUsedRes: RecentlyUsed = deepFreeze({
   project_ids: [168826, 247943, 247946],
@@ -135,61 +135,60 @@ export const costCentersResWithNonMatchingIds = deepFreeze({
   cost_center_ids: [2456, 2457, 3457, 3458],
 });
 
-export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCenter; selected?: boolean }[]> =
-  deepFreeze([
-    {
-      label: 'Cost center 1',
-      value: {
-        active: true,
-        code: '92344',
-        created_at: new Date('2020-10-27T17:07:55.516633+00:00'),
-        description: 'This is the description for cost center 1',
-        id: 6671,
-        name: 'Cost center 1',
-        org_id: 'orNVthTo2Zyo',
-        updated_at: new Date('2020-10-27T17:08:13.441319+00:00'),
-      },
+export const recentlyUsedCostCentersRes: CostCenterOptions[] = deepFreeze([
+  {
+    label: 'Cost center 1',
+    value: {
+      is_enabled: true,
+      code: '92344',
+      created_at: new Date('2020-10-27T17:07:55.516633+00:00'),
+      description: 'This is the description for cost center 1',
+      id: 6671,
+      name: 'Cost center 1',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2020-10-27T17:08:13.441319+00:00'),
     },
-    {
-      label: 'Cost center 2',
-      value: {
-        active: true,
-        code: 'A very long cost center code',
-        created_at: new Date('2020-12-08T03:11:07.653324+00:00'),
-        description: 'This is the description for cost center 2',
-        id: 6725,
-        name: 'Cost center 2',
-        org_id: 'orNVthTo2Zyo',
-        updated_at: new Date('2022-07-14T13:13:56.757449+00:00'),
-      },
+  },
+  {
+    label: 'Cost center 2',
+    value: {
+      is_enabled: true,
+      code: 'A very long cost center code',
+      created_at: new Date('2020-12-08T03:11:07.653324+00:00'),
+      description: 'This is the description for cost center 2',
+      id: 6725,
+      name: 'Cost center 2',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2022-07-14T13:13:56.757449+00:00'),
     },
-    {
-      label: 'Cost center 3',
-      value: {
-        active: true,
-        code: 'Administrion',
-        created_at: new Date('2019-02-01T06:59:07.889634+00:00'),
-        description: 'This is the description for cost center 3',
-        id: 89,
-        name: 'Cost center 3',
-        org_id: 'orNVthTo2Zyo',
-        updated_at: new Date('2019-08-28T10:11:41.004307+00:00'),
-      },
+  },
+  {
+    label: 'Cost center 3',
+    value: {
+      is_enabled: true,
+      code: 'Administrion',
+      created_at: new Date('2019-02-01T06:59:07.889634+00:00'),
+      description: 'This is the description for cost center 3',
+      id: 89,
+      name: 'Cost center 3',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2019-08-28T10:11:41.004307+00:00'),
     },
-    {
-      label: 'Cost center 4',
-      value: {
-        active: true,
-        code: 'code1',
-        created_at: new Date('2019-06-24T08:25:08.307285+00:00'),
-        description: 'This is the description for cost center 4',
-        id: 2406,
-        name: 'Cost center 4',
-        org_id: 'orNVthTo2Zyo',
-        updated_at: new Date('2022-09-08T19:17:19.671789+00:00'),
-      },
+  },
+  {
+    label: 'Cost center 4',
+    value: {
+      is_enabled: true,
+      code: 'code1',
+      created_at: new Date('2019-06-24T08:25:08.307285+00:00'),
+      description: 'This is the description for cost center 4',
+      id: 2406,
+      name: 'Cost center 4',
+      org_id: 'orNVthTo2Zyo',
+      updated_at: new Date('2022-09-08T19:17:19.671789+00:00'),
     },
-  ]);
+  },
+]);
 
 export const recentlyUsedMileages: Pick<RecentlyUsed, 'start_locations' | 'end_locations' | 'locations'> = deepFreeze({
   start_locations: [
