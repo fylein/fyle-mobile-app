@@ -89,7 +89,7 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
@@ -421,11 +421,11 @@ export class AddEditMileagePage implements OnInit {
 
   recentlyUsedProjects$: Observable<ProjectV2[]>;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   presetVehicleType: string;
 
@@ -457,7 +457,7 @@ export class AddEditMileagePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter>;
 
   showCommuteDeductionField = false;
 
@@ -1122,7 +1122,7 @@ export class AddEditMileagePage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -1229,7 +1229,7 @@ export class AddEditMileagePage implements OnInit {
   setupSelectedCostCenters(): void {
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+      .subscribe((costCenter: PlatformCostCenter) => this.selectedCostCenter$.next(costCenter));
   }
 
   checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
@@ -1330,7 +1330,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       map((costCenters) =>
-        costCenters.map((costCenter: CostCenter) => ({
+        costCenters.map((costCenter: PlatformCostCenter) => ({
           label: costCenter.name,
           value: costCenter,
         })),
@@ -1381,7 +1381,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter | null> {
+  getSelectedCostCenters(): Observable<PlatformCostCenter | null> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
