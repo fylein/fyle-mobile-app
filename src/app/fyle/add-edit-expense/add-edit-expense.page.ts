@@ -103,7 +103,7 @@ import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.m
 import { PlatformAccount } from 'src/app/core/models/platform-account.model';
 
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
@@ -232,7 +232,7 @@ type FormValue = {
   distance_unit: string;
   custom_inputs: CustomInput[];
   billable: boolean;
-  costCenter: CostCenter;
+  costCenter: PlatformCostCenter;
   hotel_is_breakfast_provided: boolean;
   project_dependent_fields: TxnCustomProperties[];
   cost_center_dependent_fields: TxnCustomProperties[];
@@ -565,11 +565,11 @@ export class AddEditExpensePage implements OnInit {
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   presetCurrency: string;
 
@@ -641,7 +641,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter | null>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter | null>;
 
   showReceiptMandatoryError = false;
 
@@ -1275,7 +1275,7 @@ export class AddEditExpensePage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters: CostCenter[]) =>
+      map((costCenters: PlatformCostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
@@ -1780,7 +1780,7 @@ export class AddEditExpensePage implements OnInit {
   getRecentCostCenters(): Observable<
     {
       label: string;
-      value: CostCenter;
+      value: PlatformCostCenter;
       selected?: boolean;
     }[]
   > {
@@ -1805,7 +1805,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter> {
+  getSelectedCostCenters(): Observable<PlatformCostCenter> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
@@ -3093,7 +3093,7 @@ export class AddEditExpensePage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -3108,9 +3108,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
-      this.selectedCostCenter$.next(costCenter);
-    });
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter: PlatformCostCenter) => {
+        this.selectedCostCenter$.next(costCenter);
+      });
   }
 
   getCCCpaymentMode(): void {

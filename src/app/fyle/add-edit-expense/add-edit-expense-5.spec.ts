@@ -66,7 +66,7 @@ import {
   unflattenedTxnData,
   unflattenedTxnWithCategory,
 } from 'src/app/core/mock-data/unflattened-txn.data';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -959,7 +959,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
 
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
@@ -1015,7 +1015,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1069,7 +1069,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue([
           ...txnCustomProperties,
@@ -1128,7 +1128,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         customFieldsService.standardizeCustomFields.and.returnValue(filledCustomProperties);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
         activatedRoute.snapshot.params.extractData = true;
@@ -1179,7 +1179,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1233,7 +1233,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1287,7 +1287,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of([]);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -1341,7 +1341,7 @@ export function TestCases5(getTestBed) {
         component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
         component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
         component.recentlyUsedCategories$ = of(undefined);
-        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        component.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(costCentersData[0]);
         spyOn(component, 'getAutofillCategory');
         customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
