@@ -1,6 +1,6 @@
-import { CostCenter } from './v1/cost-center.model';
+import { PlatformCostCenter } from './platform/platform-cost-center.model';
 
 export interface CostCenterOptions {
   label: string;
-  value: CostCenter;
+  value: PlatformCostCenter;
 }
