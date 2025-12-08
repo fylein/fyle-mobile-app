@@ -293,4 +293,74 @@ describe('StatusService', () => {
     expect(result.category).toBe('Policy capped amount');
     expect(result.icon).toBe('danger-outline');
   });
+
+  it('should return "Report closed" for report closed comments', () => {
+    const comment = 'Report closed by admin@example.com';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Report closed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense report approved" for approved by admin comments', () => {
+    const comment = 'Expense report approved by admin';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Expense report approved');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Reconciled" for expense was reconciled comments', () => {
+    const comment = 'Expense was reconciled by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Reconciled');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should sort statuses when dateA is less than or equal to dateB', () => {
+    const statuses = [
+      {
+        st_id: 'st1',
+        st_created_at: new Date('2022-01-01'),
+        st_org_user_id: 'ou1',
+        st_comment: 'First',
+      },
+      {
+        st_id: 'st2',
+        st_created_at: new Date('2022-01-02'),
+        st_org_user_id: 'ou1',
+        st_comment: 'Second',
+      },
+      {
+        st_id: 'st3',
+        st_created_at: new Date('2022-01-01'),
+        st_org_user_id: 'ou1',
+        st_comment: 'Same as first',
+      },
+    ] as any;
+
+    const result = statusService.sortStatusByDate(statuses);
+    expect(result[0].st_comment).toBe('Second');
+    expect(result[1].st_comment).toBe('First');
+  });
+
+  it('should transform expense comment to extended status with creator_type fallback', () => {
+    const expenseComment = {
+      id: 'txcmt123',
+      created_at: '2022-11-17T06:07:38.590Z',
+      creator_user_id: null,
+      creator_type: 'SYSTEM',
+      comment: 'System generated comment',
+      action_data: { key: 'value' },
+      expense_id: 'tx123',
+      creator_user: null,
+    };
+
+    const result = statusService.transformToExtendedStatus(expenseComment as any);
+
+    expect(result.st_id).toBe('txcmt123');
+    expect(result.st_org_user_id).toBe('SYSTEM');
+    expect(result.st_comment).toBe('System generated comment');
+    expect(result.st_diff).toEqual({ key: 'value' });
+    expect(result.us_full_name).toBeNull();
+    expect(result.us_email).toBeNull();
+  });
 });
