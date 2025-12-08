@@ -118,6 +118,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('added as approver'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.approverAdded'),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('added') || lowerCaseComment.includes('attached to expense'):
         statusCategory = {
           category: this.translocoService.translate('services.status.receiptAttached'),
@@ -127,6 +133,12 @@ export class StatusService {
       case lowerCaseComment.includes('submitted by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.reportSubmitted'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('invalid value removed'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.invalidValueRemoved'),
           icon: 'check',
         };
         break;
@@ -149,9 +161,9 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('added as approver'):
+      case lowerCaseComment.includes('card expense removed'):
         statusCategory = {
-          category: this.translocoService.translate('services.status.approverAdded'),
+          category: this.translocoService.translate('services.status.cardExpenseRemoved'),
           icon: 'check',
         };
         break;
@@ -183,6 +195,12 @@ export class StatusService {
         statusCategory = {
           category: this.translocoService.translate('services.status.failedToRunPolicies'),
           icon: 'danger-outline',
+        };
+        break;
+      case lowerCaseComment.includes('expense verified'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseVerified'),
+          icon: 'check',
         };
         break;
       case lowerCaseComment.includes('verified'):
@@ -282,12 +300,6 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('expense verified'):
-        statusCategory = {
-          category: this.translocoService.translate('services.status.expenseVerified'),
-          icon: 'check',
-        };
-        break;
       case lowerCaseComment.includes('expense unlinked'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseUnlinked'),
@@ -300,21 +312,9 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('card expense removed'):
-        statusCategory = {
-          category: this.translocoService.translate('services.status.cardExpenseRemoved'),
-          icon: 'check',
-        };
-        break;
       case lowerCaseComment.includes('data extracted from the receipt'):
         statusCategory = {
           category: this.translocoService.translate('services.status.dataExtracted'),
-          icon: 'check',
-        };
-        break;
-      case lowerCaseComment.includes('invalid value removed'):
-        statusCategory = {
-          category: this.translocoService.translate('services.status.invalidValueRemoved'),
           icon: 'check',
         };
         break;
@@ -385,7 +385,7 @@ export class StatusService {
       st_org_user_id: expenseComment.creator_user_id || expenseComment.creator_type,
       st_comment: expenseComment.comment,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      st_diff: expenseComment.action_data,
+      st_diff: expenseComment.action_data || null,
       st_state: null,
       st_transaction_id: expenseComment.expense_id,
       st_report_id: null,

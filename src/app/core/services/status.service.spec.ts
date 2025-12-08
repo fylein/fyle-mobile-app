@@ -24,39 +24,54 @@ describe('StatusService', () => {
     // Mock translate method to return expected strings
     translocoServiceSpy.translate.and.callFake((key: string, params?: any) => {
       const translations: { [key: string]: string } = {
-        'services.status.expenseAutomaticallyMerged': 'Expense automatically merged',
-        'services.status.expensesMergedToThisExpense': '{{count}} expenses merged to this expense',
-        'services.status.expenseMerged': 'Expense merged',
-        'services.status.typeReversed': '{{type}} reversed',
-        'services.status.expenseRuleApplied': 'Expense rule applied',
-        'services.status.typeCreated': '{{type}} created',
-        'services.status.typeEdited': '{{type}} edited',
-        'services.status.policyViolation': 'Policy violation',
-        'services.status.criticalPolicyViolation': 'Critical policy violation found',
-        'services.status.expenseAdded': 'Expense added',
-        'services.status.receiptAttached': 'Receipt attached',
-        'services.status.reportSubmitted': 'Report submitted',
-        'services.status.receiptRemoved': 'Receipt removed',
-        'services.status.expenseRemoved': 'Expense removed',
-        'services.status.reportNameChanged': 'Report name changed',
-        'services.status.report': 'Report',
-        'services.status.unflagged': 'Unflagged',
-        'services.status.flagged': 'Flagged',
-        'services.status.failedToRunPolicies': 'Failed to run policies',
-        'services.status.verified': 'Verified',
-        'services.status.typeSentBack': '{{type}} sent back',
+        'services.status.approverAdded': 'Approver added',
         'services.status.approverPending': 'Approver pending',
-        'services.status.typeApproved': '{{type}} approved',
-        'services.status.processingPayment': 'Processing payment',
-        'services.status.paid': 'Paid',
-        'services.status.expenseIssues': 'Expense issues',
-        'services.status.policiesRanSuccessfully': 'Policies ran successfully',
+        'services.status.approverRemoved': 'Approver removed',
+        'services.status.cardExpenseRemoved': 'Card expense removed',
         'services.status.cardTransactionMatched': 'Card transaction matched',
-        'services.status.expenseUnmatched': 'Expense unmatched',
-        'services.status.expenseMatched': 'Expense matched',
+        'services.status.criticalPolicyViolation': 'Critical policy violation found',
+        'services.status.dataExtracted': 'Data extracted',
         'services.status.duplicateDetected': 'Duplicate detected',
         'services.status.duplicateIssueResolved': 'Duplicate(s) issue resolved',
+        'services.status.expense': 'Expense',
+        'services.status.expenseAdded': 'Expense added',
+        'services.status.expenseAutomaticallyMerged': 'Expense automatically merged',
+        'services.status.expenseIssues': 'Expense issues',
+        'services.status.expenseMatched': 'Expense matched',
+        'services.status.expenseMerged': 'Expense merged',
+        'services.status.expenseReconciled': 'Reconciled',
+        'services.status.expenseRemoved': 'Expense removed',
+        'services.status.expenseReportApproved': 'Expense report approved',
+        'services.status.expenseRuleApplied': 'Expense rule applied',
+        'services.status.expenseUnlinked': 'Expense unlinked',
+        'services.status.expenseUnmatched': 'Expense unmatched',
+        'services.status.expenseVerificationUndone': 'Expense verification undone',
+        'services.status.expenseVerified': 'Expense verified',
+        'services.status.expensesMergedToThisExpense': '{{count}} expenses merged to this expense',
+        'services.status.failedToRunPolicies': 'Failed to run policies',
+        'services.status.flagged': 'Flagged',
+        'services.status.invalidValueRemoved': 'Invalid value removed',
         'services.status.others': 'Others',
+        'services.status.paid': 'Paid',
+        'services.status.policiesRanSuccessfully': 'Policies ran successfully',
+        'services.status.policyCappedAmount': 'Policy capped amount',
+        'services.status.policyViolation': 'Policy violation',
+        'services.status.policyViolationTriggered': 'Policy violation triggered',
+        'services.status.processingPayment': 'Processing payment',
+        'services.status.receiptAttached': 'Receipt attached',
+        'services.status.receiptRemoved': 'Receipt removed',
+        'services.status.reimbursements': 'Reimbursements',
+        'services.status.report': 'Report',
+        'services.status.reportClosed': 'Report closed',
+        'services.status.reportNameChanged': 'Report name changed',
+        'services.status.reportSubmitted': 'Report submitted',
+        'services.status.typeApproved': '{{type}} approved',
+        'services.status.typeCreated': '{{type}} created',
+        'services.status.typeEdited': '{{type}} edited',
+        'services.status.typeReversed': '{{type}} reversed',
+        'services.status.typeSentBack': '{{type}} sent back',
+        'services.status.unflagged': 'Unflagged',
+        'services.status.verified': 'Verified',
       };
 
       let translation = translations[key] || key;
@@ -171,6 +186,111 @@ describe('StatusService', () => {
       'The policy violation will trigger the following action(s): expense will be flagged for verification and approval';
     const result = statusService.getStatusCategory(nonBlockedComment, 'transactions');
     expect(result.category).toBe('Policy violation');
+    expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Policy violation triggered" for policy violation triggered comments', () => {
+    const comment = 'Policy violation triggered via system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Policy violation triggered');
+    expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Approver added" for added as approver comments', () => {
+    const comment = 'John Doe john@example.com added as approver by system via policy';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Approver added');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Approver removed" for removed approver comments', () => {
+    const comment = 'Removed approver John Doe john@example.com by system via policy';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Approver removed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Receipt attached" for attached to expense comments', () => {
+    const comment = 'Receipt.pdf attached to expense by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Receipt attached');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Receipt removed" for removed from expense comments', () => {
+    const comment = 'Receipt.pdf removed from expense by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Receipt removed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense removed" for expense removed from report comments', () => {
+    const comment = 'Expense removed from report by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense removed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Reimbursements" for expense paid comments', () => {
+    const comment = 'Expense paid by John Doe john@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Reimbursements');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense verified" for expense verified comments', () => {
+    const comment = 'Expense verified by John Doe john@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense verified');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense" for matched by comments', () => {
+    const comment = 'Expense matched by John Doe john@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Card expense removed" for card expense removed comments', () => {
+    const comment = 'Card expense removed by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Card expense removed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Data extracted" for data extracted from receipt comments', () => {
+    const comment = 'Data extracted from the receipt by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Data extracted');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense unlinked" for expense unlinked comments', () => {
+    const comment = 'Expense unlinked by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense unlinked');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense verification undone" for expense verification undone comments', () => {
+    const comment = 'Expense verification undone by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense verification undone');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Invalid value removed" for invalid value removed comments', () => {
+    const comment = 'Invalid value removed from expense by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Invalid value removed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Policy capped amount" for expense amount capped comments', () => {
+    const comment = 'Expense amount capped by system due to policy';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Policy capped amount');
     expect(result.icon).toBe('danger-outline');
   });
 });
