@@ -17,9 +17,8 @@ describe('AppRoutes', () => {
     expect(Array.isArray(appRoutes)).toBeTrue();
   });
 
-  it('should have all expected routes', () => {
+  it('should have exactly 5 routes with expected paths', () => {
     const expectedRoutes = ['', 'auth', 'post_verification', 'enterprise', 'deep_link_redirection'];
-
     expect(appRoutes.length).toBe(expectedRoutes.length);
 
     expectedRoutes.forEach((expectedPath) => {
@@ -29,32 +28,32 @@ describe('AppRoutes', () => {
   });
 
   describe('Route configurations', () => {
-    it('should have correct path for root route', () => {
+    it('should have root route with redirect to enterprise/my_dashboard', () => {
       const route = appRoutes.find((r) => r.path === '');
       expect(route?.path).toBe('');
       expect(route?.redirectTo).toBe('enterprise/my_dashboard');
       expect(route?.pathMatch).toBe('full');
     });
 
-    it('should have correct path for auth route', () => {
+    it('should have auth route with loadChildren', () => {
       const route = appRoutes.find((r) => r.path === 'auth');
       expect(route?.path).toBe('auth');
       expect(route?.loadChildren).toBeDefined();
     });
 
-    it('should have correct path for post_verification route', () => {
+    it('should have post_verification route with loadChildren', () => {
       const route = appRoutes.find((r) => r.path === 'post_verification');
       expect(route?.path).toBe('post_verification');
       expect(route?.loadChildren).toBeDefined();
     });
 
-    it('should have correct path for enterprise route', () => {
+    it('should have enterprise route with loadChildren', () => {
       const route = appRoutes.find((r) => r.path === 'enterprise');
       expect(route?.path).toBe('enterprise');
       expect(route?.loadChildren).toBeDefined();
     });
 
-    it('should have correct path for deep_link_redirection route', () => {
+    it('should have deep_link_redirection route with loadChildren', () => {
       const route = appRoutes.find((r) => r.path === 'deep_link_redirection');
       expect(route?.path).toBe('deep_link_redirection');
       expect(route?.loadChildren).toBeDefined();
@@ -62,143 +61,63 @@ describe('AppRoutes', () => {
   });
 
   describe('LoadChildren configurations', () => {
-    it('should have loadChildren function for auth route', () => {
-      const route = appRoutes.find((r) => r.path === 'auth');
-      expect(route?.loadChildren).toBeDefined();
-      expect(typeof route?.loadChildren).toBe('function');
-    });
-
-    it('should execute loadChildren function for auth route', async () => {
-      const route = appRoutes.find((r) => r.path === 'auth');
-      expect(route?.loadChildren).toBeDefined();
-
-      // Execute the dynamic import to get coverage
-      const module = await route?.loadChildren?.();
-      expect(module).toBeDefined();
-    });
-
-    it('should have loadChildren function for post_verification route', () => {
-      const route = appRoutes.find((r) => r.path === 'post_verification');
-      expect(route?.loadChildren).toBeDefined();
-      expect(typeof route?.loadChildren).toBe('function');
-    });
-
-    it('should execute loadChildren function for post_verification route', async () => {
-      const route = appRoutes.find((r) => r.path === 'post_verification');
-      expect(route?.loadChildren).toBeDefined();
-
-      // Execute the dynamic import to get coverage
-      const module = await route?.loadChildren?.();
-      expect(module).toBeDefined();
-    });
-
-    it('should have loadChildren function for enterprise route', () => {
-      const route = appRoutes.find((r) => r.path === 'enterprise');
-      expect(route?.loadChildren).toBeDefined();
-      expect(typeof route?.loadChildren).toBe('function');
-    });
-
-    it('should execute loadChildren function for enterprise route', async () => {
-      const route = appRoutes.find((r) => r.path === 'enterprise');
-      expect(route?.loadChildren).toBeDefined();
-
-      // Execute the dynamic import to get coverage
-      const module = await route?.loadChildren?.();
-      expect(module).toBeDefined();
-    });
-
-    it('should have loadChildren function for deep_link_redirection route', () => {
-      const route = appRoutes.find((r) => r.path === 'deep_link_redirection');
-      expect(route?.loadChildren).toBeDefined();
-      expect(typeof route?.loadChildren).toBe('function');
-    });
-
-    it('should execute loadChildren function for deep_link_redirection route', async () => {
-      const route = appRoutes.find((r) => r.path === 'deep_link_redirection');
-      expect(route?.loadChildren).toBeDefined();
-
-      // Execute the dynamic import to get coverage
-      const module = await route?.loadChildren?.();
-      expect(module).toBeDefined();
-    });
-
     it('should execute all loadChildren functions to achieve full coverage', async () => {
-      // Execute all dynamic imports to get coverage for the import statements
       const loadChildrenPromises = appRoutes
         .filter((route) => route.loadChildren)
         .map(async (route) => {
+          expect(typeof route.loadChildren).toBe('function');
           const module = await route.loadChildren();
           expect(module).toBeDefined();
           return module;
         });
 
       const modules = await Promise.all(loadChildrenPromises);
-      expect(modules.length).toBe(4); // 4 routes have loadChildren
+      expect(modules.length).toBe(4);
     });
   });
 
   describe('Guard configurations', () => {
-    it('should not have guards on auth route', () => {
-      const route = appRoutes.find((r) => r.path === 'auth');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should have AuthGuard applied to post_verification route', () => {
-      const route = appRoutes.find((r) => r.path === 'post_verification');
-      expect(route?.canActivate).toBeDefined();
-      expect(route?.canActivate).toContain(AuthGuard);
+    it('should not have guards on auth and deep_link_redirection routes', () => {
+      const unprotectedPaths = ['auth', 'deep_link_redirection'];
+      unprotectedPaths.forEach((path) => {
+        const route = appRoutes.find((r) => r.path === path);
+        expect(route?.canActivate).toBeUndefined();
+      });
     });
 
     it('should have only AuthGuard on post_verification route', () => {
       const route = appRoutes.find((r) => r.path === 'post_verification');
+      expect(route?.canActivate).toBeDefined();
       expect(route?.canActivate?.length).toBe(1);
+      expect(route?.canActivate).toContain(AuthGuard);
       expect(route?.canActivate?.[0]).toBe(AuthGuard);
     });
 
-    it('should have both AuthGuard and VerifiedOrgAuthGuard applied to enterprise route', () => {
+    it('should have AuthGuard and VerifiedOrgAuthGuard on enterprise route in correct order', () => {
       const route = appRoutes.find((r) => r.path === 'enterprise');
       expect(route?.canActivate).toBeDefined();
+      expect(route?.canActivate?.length).toBe(2);
       expect(route?.canActivate).toContain(AuthGuard);
       expect(route?.canActivate).toContain(VerifiedOrgAuthGuard);
-    });
-
-    it('should have correct guard array length for enterprise route', () => {
-      const route = appRoutes.find((r) => r.path === 'enterprise');
-      expect(route?.canActivate?.length).toBe(2);
-    });
-
-    it('should have guards in correct order for enterprise route (AuthGuard before VerifiedOrgAuthGuard)', () => {
-      const route = appRoutes.find((r) => r.path === 'enterprise');
       expect(route?.canActivate?.[0]).toBe(AuthGuard);
       expect(route?.canActivate?.[1]).toBe(VerifiedOrgAuthGuard);
-    });
-
-    it('should not have guards on deep_link_redirection route', () => {
-      const route = appRoutes.find((r) => r.path === 'deep_link_redirection');
-      expect(route?.canActivate).toBeUndefined();
     });
 
     it('should have exactly 2 routes protected by guards', () => {
       const protectedRoutes = appRoutes.filter((route) => route.canActivate && route.canActivate.length > 0);
       expect(protectedRoutes.length).toBe(2);
     });
-
-    it('should have exactly 2 routes without guards', () => {
-      const unprotectedRoutes = appRoutes.filter((route) => !route.canActivate || route.canActivate.length === 0);
-      // Root (redirect) + auth + deep_link_redirection = 3
-      expect(unprotectedRoutes.length).toBe(3);
-    });
   });
 
   describe('Route structure validation', () => {
-    it('should have all routes with path property', () => {
+    it('should have all routes with path property as string', () => {
       appRoutes.forEach((route) => {
         expect(route.path).toBeDefined();
         expect(typeof route.path).toBe('string');
       });
     });
 
-    it('should have exactly one redirect route', () => {
+    it('should have exactly one redirect route on root path', () => {
       const redirectRoutes = appRoutes.filter((route) => route.redirectTo);
       expect(redirectRoutes.length).toBe(1);
       expect(redirectRoutes[0].path).toBe('');
@@ -217,56 +136,19 @@ describe('AppRoutes', () => {
       expect(paths.length).toBe(uniquePaths.length);
     });
 
-    it('should have all paths as strings', () => {
-      appRoutes.forEach((route) => {
-        expect(typeof route.path).toBe('string');
-      });
-    });
-
-    it('should use snake_case for multi-word paths', () => {
+    it('should use snake_case for paths and not kebab-case', () => {
       const multiWordRoutes = appRoutes.filter((route) => route.path && route.path.includes('_'));
       expect(multiWordRoutes.length).toBeGreaterThan(0);
 
       multiWordRoutes.forEach((route) => {
         expect(route.path).toMatch(/^[a-z_]+$/);
       });
-    });
 
-    it('should not use kebab-case in any path', () => {
       appRoutes.forEach((route) => {
         if (route.path) {
           expect(route.path).not.toContain('-');
         }
       });
-    });
-  });
-
-  describe('Redirect configuration', () => {
-    it('should have root path redirect to enterprise/my_dashboard', () => {
-      const rootRoute = appRoutes.find((route) => route.path === '');
-      expect(rootRoute).toBeDefined();
-      expect(rootRoute?.redirectTo).toBe('enterprise/my_dashboard');
-    });
-
-    it('should use full pathMatch for root redirect', () => {
-      const rootRoute = appRoutes.find((route) => route.path === '');
-      expect(rootRoute?.pathMatch).toBe('full');
-    });
-
-    it('should only have redirect on root route', () => {
-      const routesWithRedirect = appRoutes.filter((route) => route.redirectTo);
-      expect(routesWithRedirect.length).toBe(1);
-    });
-  });
-
-  describe('Route count validation', () => {
-    it('should have exactly 5 routes', () => {
-      expect(appRoutes.length).toBe(5);
-    });
-
-    it('should have 1 redirect route', () => {
-      const redirectRoutes = appRoutes.filter((route) => route.redirectTo);
-      expect(redirectRoutes.length).toBe(1);
     });
   });
 });

@@ -165,58 +165,30 @@ describe('AuthRoutes', () => {
       const route = authRoutes.find((r) => r.path === 'switch_org');
       expect(route?.canActivate).toBeDefined();
       expect(route?.canActivate).toContain(AuthGuard);
-    });
-
-    it('should have only AuthGuard on switch_org route', () => {
-      const route = authRoutes.find((r) => r.path === 'switch_org');
       expect(route?.canActivate?.length).toBe(1);
       expect(route?.canActivate?.[0]).toBe(AuthGuard);
     });
 
-    it('should not have guards on sign_in route', () => {
-      const route = authRoutes.find((r) => r.path === 'sign_in');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on app_version route', () => {
-      const route = authRoutes.find((r) => r.path === 'app_version');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on reset_password route', () => {
-      const route = authRoutes.find((r) => r.path === 'reset_password');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on verify route', () => {
-      const route = authRoutes.find((r) => r.path === 'verify');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on new_password route', () => {
-      const route = authRoutes.find((r) => r.path === 'new_password');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on disabled route', () => {
-      const route = authRoutes.find((r) => r.path === 'disabled');
-      expect(route?.canActivate).toBeUndefined();
-    });
-
-    it('should not have guards on pending_verification route', () => {
-      const route = authRoutes.find((r) => r.path === 'pending_verification');
-      expect(route?.canActivate).toBeUndefined();
+    it('should not have guards on unprotected auth routes', () => {
+      const unprotectedPaths = [
+        'sign_in',
+        'app_version',
+        'reset_password',
+        'verify',
+        'new_password',
+        'disabled',
+        'pending_verification',
+      ];
+      unprotectedPaths.forEach((path) => {
+        const route = authRoutes.find((r) => r.path === path);
+        expect(route?.canActivate).toBeUndefined();
+      });
     });
 
     it('should have exactly 1 route protected by guards', () => {
       const protectedRoutes = authRoutes.filter((route) => route.canActivate && route.canActivate.length > 0);
       expect(protectedRoutes.length).toBe(1);
       expect(protectedRoutes[0].path).toBe('switch_org');
-    });
-
-    it('should have exactly 7 routes without guards', () => {
-      const unprotectedRoutes = authRoutes.filter((route) => !route.canActivate || route.canActivate.length === 0);
-      expect(unprotectedRoutes.length).toBe(7);
     });
   });
 
