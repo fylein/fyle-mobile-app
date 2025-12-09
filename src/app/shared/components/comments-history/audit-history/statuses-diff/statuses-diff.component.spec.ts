@@ -18,7 +18,7 @@ describe('StatusesDiffComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [ TranslocoModule, StatusesDiffComponent, SnakeCaseToSpaceCase],
+      imports: [TranslocoModule, StatusesDiffComponent, SnakeCaseToSpaceCase],
       providers: [
         {
           provide: TranslocoService,
@@ -53,7 +53,11 @@ describe('StatusesDiffComponent', () => {
   });
 
   it('should set isValueList to true if value is an array', () => {
-    fixture.componentRef.setInput('value', ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in']);
+    fixture.componentRef.setInput('value', [
+      'saniruddha.s+1@fyle.in',
+      'aaaaasdjskjd@sdsd.com',
+      'ajain+12+12+1@fyle.in',
+    ]);
     component.ngOnInit();
     expect(component.isValueList).toBeTrue();
   });
@@ -66,7 +70,11 @@ describe('StatusesDiffComponent', () => {
 
   it('should render key and value as list items if value is an array', () => {
     fixture.componentRef.setInput('key', 'User List');
-    fixture.componentRef.setInput('value', ['saniruddha.s+1@fyle.in', 'aaaaasdjskjd@sdsd.com', 'ajain+12+12+1@fyle.in']);
+    fixture.componentRef.setInput('value', [
+      'saniruddha.s+1@fyle.in',
+      'aaaaasdjskjd@sdsd.com',
+      'ajain+12+12+1@fyle.in',
+    ]);
     component.isValueList = undefined;
     component.displayValue = undefined;
     component.ngOnInit();
@@ -145,5 +153,51 @@ describe('StatusesDiffComponent', () => {
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Location : San Francisco, CA');
+  });
+
+  it('should handle boolean value true', () => {
+    fixture.componentRef.setInput('key', 'Is Active');
+    fixture.componentRef.setInput('value', true);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Is Active : true');
+  });
+
+  it('should handle boolean value false', () => {
+    fixture.componentRef.setInput('key', 'Is Billable');
+    fixture.componentRef.setInput('value', false);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Is Billable : false');
+  });
+
+  it('should handle empty string value', () => {
+    fixture.componentRef.setInput('key', 'Description');
+    fixture.componentRef.setInput('value', '');
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Description :');
+  });
+
+  it('should handle zero value', () => {
+    fixture.componentRef.setInput('key', 'Amount');
+    fixture.componentRef.setInput('value', 0);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItem = getElementBySelector(fixture, 'li');
+    expect(getTextContent(listItem)).toEqual('Amount : 0');
+  });
+
+  it('should handle empty array value', () => {
+    fixture.componentRef.setInput('key', 'Tags');
+    fixture.componentRef.setInput('value', []);
+    component.ngOnInit();
+    fixture.detectChanges();
+    const listItems = getAllElementsBySelector(fixture, 'li');
+    expect(listItems.length).toEqual(0);
+    expect(component.isValueList).toBeTrue();
   });
 });

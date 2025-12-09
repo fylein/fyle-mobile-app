@@ -47,7 +47,7 @@ export class StatusService {
     type = type ? `${type.charAt(0).toUpperCase()}${type.slice(1)}` : '';
 
     switch (true) {
-      case lowerCaseComment.indexOf('automatically merged') > -1:
+      case lowerCaseComment.includes('automatically merged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseAutomaticallyMerged'),
           icon: 'check',
@@ -62,39 +62,45 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('merged') > -1:
+      case lowerCaseComment.includes('merged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseMerged'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
+      case lowerCaseComment.includes('created') && lowerCaseComment.includes('reversal'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeReversed', { type }),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('expense rule') > -1:
+      case lowerCaseComment.includes('expense rule'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseRuleApplied'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('created') > -1:
+      case lowerCaseComment.includes('created'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeCreated', { type }),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('updated') > -1:
+      case lowerCaseComment.includes('updated'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeEdited', { type }),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
+      case lowerCaseComment.includes('policy violation triggered'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.policyViolationTriggered'),
+          icon: 'danger-outline',
+        };
+        break;
+      case lowerCaseComment.includes('policy violation will trigger the following action'):
         // Check if the report is blocked (contains "could not be added to a report")
-        if (lowerCaseComment.indexOf('could not be added to a report') > -1) {
+        if (lowerCaseComment.includes('could not be added to a report')) {
           statusCategory = {
             category: this.translocoService.translate('services.status.criticalPolicyViolation'),
             icon: 'danger-outline',
@@ -106,139 +112,182 @@ export class StatusService {
           };
         }
         break;
-      case lowerCaseComment.indexOf('added to the report') > -1:
+      case lowerCaseComment.includes('added to the report'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseAdded'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('added') > -1:
+      case lowerCaseComment.includes('added as approver'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.approverAdded'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('added') || lowerCaseComment.includes('attached to expense'):
         statusCategory = {
           category: this.translocoService.translate('services.status.receiptAttached'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('submitted by') > -1:
+      case lowerCaseComment.includes('submitted by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.reportSubmitted'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('deleted') > -1:
+      case lowerCaseComment.includes('invalid value removed'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.invalidValueRemoved'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('deleted') || lowerCaseComment.includes('removed from expense'):
         statusCategory = {
           category: this.translocoService.translate('services.status.receiptRemoved'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('removed from the report') > -1:
+      case lowerCaseComment.includes('removed from the report') ||
+        lowerCaseComment.includes('expense removed from report by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseRemoved'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('name was changed from') > -1:
+      case lowerCaseComment.includes('name was changed from') || lowerCaseComment.includes('report name changed'):
         statusCategory = {
           category: this.translocoService.translate('services.status.reportNameChanged'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('report') > -1:
+      case lowerCaseComment.includes('card expense removed'):
         statusCategory = {
-          category: this.translocoService.translate('services.status.report'),
+          category: this.translocoService.translate('services.status.cardExpenseRemoved'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('unflagged') > -1:
+      case lowerCaseComment.includes('removed by') || lowerCaseComment.includes('removed approver'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.approverRemoved'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('report closed'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.reportClosed'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('unflagged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.unflagged'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('flagged') > -1:
+      case lowerCaseComment.includes('flagged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.flagged'),
           icon: 'danger-outline',
         };
         break;
-      case lowerCaseComment.indexOf('additional approvers are not present') > -1:
+      case lowerCaseComment.includes('additional approvers are not present'):
         statusCategory = {
           category: this.translocoService.translate('services.status.failedToRunPolicies'),
           icon: 'danger-outline',
         };
         break;
-      case lowerCaseComment.indexOf('verified') > -1:
+      case lowerCaseComment.includes('expense verified'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseVerified'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('verified'):
         statusCategory = {
           category: this.translocoService.translate('services.status.verified'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('approver_inquiry') > -1:
+      case lowerCaseComment.includes('approver_inquiry') || lowerCaseComment.includes('report was sent back'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeSentBack', { type }),
           icon: 'danger-outline',
         };
         break;
-      case lowerCaseComment.indexOf('approver_pending') > -1:
+      case lowerCaseComment.includes('approver_pending'):
         statusCategory = {
           category: this.translocoService.translate('services.status.approverPending'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('approved') > -1:
+      case lowerCaseComment.includes('approved by admin'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseReportApproved'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('approved'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeApproved', { type }),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('payment_processing') > -1:
+      case lowerCaseComment.includes('payment_processing'):
         statusCategory = {
           category: this.translocoService.translate('services.status.processingPayment'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('to paid') > -1:
+      case lowerCaseComment.includes('expense paid'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.reimbursements'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('to paid'):
         statusCategory = {
           category: this.translocoService.translate('services.status.paid'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('expense issues') > -1:
+      case lowerCaseComment.includes('expense issues'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseIssues'),
           icon: 'danger-outline',
         };
         break;
-      case lowerCaseComment.indexOf('policies ran successfully') > -1:
+      case lowerCaseComment.includes('policies ran successfully'):
         statusCategory = {
           category: this.translocoService.translate('services.status.policiesRanSuccessfully'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('auto-matched by') > -1:
+      case lowerCaseComment.includes('auto-matched by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.cardTransactionMatched'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('unmatched by') > -1:
+      case lowerCaseComment.includes('unmatched by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseUnmatched'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('matched by') > -1:
+      case lowerCaseComment.includes('matched by'):
         statusCategory = {
-          category: this.translocoService.translate('services.status.expenseMatched'),
+          category: this.translocoService.translate('services.status.expense'),
           icon: 'check',
         };
         break;
-      case lowerCaseComment.indexOf('expense is a possible duplicate') > -1:
+      case lowerCaseComment.includes('expense is a possible duplicate'):
         statusCategory = {
           category: this.translocoService.translate('services.status.duplicateDetected'),
           icon: 'danger-outline',
         };
         break;
-      case lowerCaseComment.indexOf('duplicate expense(s) with similar details') > -1:
+      case lowerCaseComment.includes('duplicate expense(s) with similar details'):
         statusCategory = {
           category: this.translocoService.translate('services.status.duplicateIssueResolved'),
           icon: 'check',
@@ -248,6 +297,36 @@ export class StatusService {
       case lowerCaseComment.includes('expense was reconciled'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseReconciled'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('expense unlinked'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseUnlinked'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('expense verification undone'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseVerificationUndone'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('data extracted from the receipt'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.dataExtracted'),
+          icon: 'check',
+        };
+        break;
+      case lowerCaseComment.includes('expense amount capped by system due to policy'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.policyCappedAmount'),
+          icon: 'danger-outline',
+        };
+        break;
+      case lowerCaseComment.includes('report'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.report'),
           icon: 'check',
         };
         break;
@@ -306,7 +385,7 @@ export class StatusService {
       st_org_user_id: expenseComment.creator_user_id || expenseComment.creator_type,
       st_comment: expenseComment.comment,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      st_diff: expenseComment.action_data,
+      st_diff: expenseComment.action_data || null,
       st_state: null,
       st_transaction_id: expenseComment.expense_id,
       st_report_id: null,
