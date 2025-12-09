@@ -10,6 +10,8 @@ import {
 } from '../test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
+import { expenseCommentData, expenseCommentData2 } from '../mock-data/expense-comment.data';
+import { estatusData1 } from '../test-data/status.service.spec.data';
 describe('StatusService', () => {
   let statusService: StatusService;
   let apiService: jasmine.SpyObj<ApiService>;
@@ -292,5 +294,55 @@ describe('StatusService', () => {
     const result = statusService.getStatusCategory(comment, 'transactions');
     expect(result.category).toBe('Policy capped amount');
     expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Report closed" for report closed comments', () => {
+    const comment = 'Report closed by admin@example.com';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Report closed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense report approved" for approved by admin comments', () => {
+    const comment = 'Expense report approved by admin';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Expense report approved');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Reconciled" for expense was reconciled comments', () => {
+    const comment = 'Expense was reconciled by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Reconciled');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should sort statuses when dateA is less than or equal to dateB', () => {
+    const mockEstatusData = cloneDeep(estatusData1);
+    const result = statusService.sortStatusByDate(mockEstatusData);
+    expect(result[0].st_comment).toBe('food expenses are limited to rs 200 only');
+    expect(result[2].st_comment).toBe('created by Abhishek (ajain@fyle.in)');
+  });
+
+  it('should transform expense comment to extended status', () => {
+    const result = statusService.transformToExtendedStatus(expenseCommentData);
+
+    expect(result.st_id).toBe('stNj1KHeiNIb');
+    expect(result.st_org_user_id).toBe('usvMoPfCC9Xw');
+    expect(result.st_comment).toBe('comment add');
+    expect(result.st_diff).toBeNull();
+    expect(result.us_full_name).toBe('Devendra Rana G');
+    expect(result.us_email).toBe('devendra.r@fyle.in');
+  });
+
+  it('should transform expense comment to extended status with creator_type fallback when creator_user_id is null', () => {
+    const result = statusService.transformToExtendedStatus(expenseCommentData2);
+
+    expect(result.st_id).toBe('stIdwUZhp7xB');
+    expect(result.st_org_user_id).toBe('SYSTEM');
+    expect(result.st_comment).toBe('System has auto-filled expense field(s)');
+    expect(result.st_diff).toEqual({ Amount: 5.72, Category: 'Office Supplies', Merchant: 'Enroll' });
+    expect(result.us_full_name).toBeNull();
+    expect(result.us_email).toBeNull();
   });
 });
