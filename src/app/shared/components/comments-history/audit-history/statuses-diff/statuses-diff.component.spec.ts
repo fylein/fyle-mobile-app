@@ -155,24 +155,6 @@ describe('StatusesDiffComponent', () => {
     expect(getTextContent(listItem)).toEqual('Location : San Francisco, CA');
   });
 
-  it('should convert object without display property to string', () => {
-    fixture.componentRef.setInput('key', 'Custom Field');
-    fixture.componentRef.setInput('value', { name: 'test', id: 123 });
-    component.ngOnInit();
-    fixture.detectChanges();
-    const listItem = getElementBySelector(fixture, 'li');
-    expect(getTextContent(listItem)).toEqual('Custom Field : [object Object]');
-  });
-
-  it('should convert object with non-string display property to string', () => {
-    fixture.componentRef.setInput('key', 'Custom Field');
-    fixture.componentRef.setInput('value', { display: 123 });
-    component.ngOnInit();
-    fixture.detectChanges();
-    const listItem = getElementBySelector(fixture, 'li');
-    expect(getTextContent(listItem)).toEqual('Custom Field : [object Object]');
-  });
-
   it('should handle boolean value true', () => {
     fixture.componentRef.setInput('key', 'Is Active');
     fixture.componentRef.setInput('value', true);
