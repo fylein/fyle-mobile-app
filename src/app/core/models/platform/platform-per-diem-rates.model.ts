@@ -9,4 +9,6 @@ export interface PlatformPerDiemRates {
   description?: string;
   currency: string;
   rate: number;
+  full_name?: string;
+  readableRate?: string;
 }
