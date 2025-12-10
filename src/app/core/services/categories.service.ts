@@ -4,7 +4,6 @@ import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
-import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { TranslocoService } from '@jsverse/transloco';
@@ -39,30 +38,28 @@ export class CategoriesService {
   @Cacheable({
     cacheBusterObserver: categoriesCacheBuster$,
   })
-  getAll(): Observable<OrgCategory[]> {
+  getAll(): Observable<PlatformCategory[]> {
     return this.getActiveCategoriesCount().pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getCategories({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as OrgCategory[]),
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformCategory[]),
     );
   }
 
   @Cacheable()
-  getCategoryByName(name: string): Observable<OrgCategory> {
+  getCategoryByName(name: string): Observable<PlatformCategory> {
     const data = {
       params: {
         name: 'ilike.' + name,
         is_enabled: 'eq.true',
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
-      map((res) => this.transformFrom(res.data)),
-      map((res) => this.addDisplayName(res)),
-      map((responses) => responses[0]),
-    );
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data)
+      .pipe(map((res) => res.data[0]));
   }
 
   getActiveCategoriesCount(): Observable<number> {
@@ -78,7 +75,7 @@ export class CategoriesService {
       .pipe(map((res) => res.count));
   }
 
-  getCategories(config: { offset: number; limit: number }): Observable<OrgCategory[]> {
+  getCategories(config: { offset: number; limit: number }): Observable<PlatformCategory[]> {
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -86,31 +83,12 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>('/categories', data).pipe(
-      map((res) => this.transformFrom(res.data)),
-      map((res) => this.sortCategories(res)),
-      map((res) => this.addDisplayName(res)),
-    );
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory[]>>('/categories', data)
+      .pipe(map((res) => this.sortCategories(res.data)));
   }
 
-  transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {
-    const oldCategory = platformCategory.map((category) => ({
-      code: category.code,
-      created_at: category.created_at,
-      displayName: category.display_name,
-      enabled: category.is_enabled,
-      fyle_category: category.system_category,
-      id: category.id,
-      name: category.name,
-      org_id: category.org_id,
-      sub_category: category.sub_category || category.name,
-      updated_at: category.updated_at,
-    }));
-
-    return oldCategory;
-  }
-
-  sortCategories(categories: OrgCategory[]): OrgCategory[] {
+  sortCategories(categories: PlatformCategory[]): PlatformCategory[] {
     return categories.sort((a, b) => {
       const category1 = a.name.toUpperCase();
       const category2 = b.name.toUpperCase();
@@ -147,29 +125,17 @@ export class CategoriesService {
     });
   }
 
-  addDisplayName(categories: OrgCategory[]): OrgCategory[] {
-    return categories.map((category) => {
-      let displayName = category.name;
-
-      if (category.sub_category && category.sub_category.toLowerCase() !== displayName.toLowerCase()) {
-        displayName += ' / ' + category.sub_category;
-      }
-      category.displayName = displayName;
-      return category;
-    });
-  }
-
-  filterByOrgCategoryId(orgCategoryId: number, categoryList: OrgCategory[]): OrgCategory {
+  filterByOrgCategoryId(orgCategoryId: number, categoryList: PlatformCategory[]): PlatformCategory {
     return categoryList.find((orgCategory) => orgCategory.id === orgCategoryId);
   }
 
-  filterRequired(categoryList: OrgCategory[]): OrgCategory[] {
+  filterRequired(categoryList: PlatformCategory[]): PlatformCategory[] {
     return categoryList.filter((category) => {
-      if (!category.fyle_category) {
+      if (!category.system_category) {
         return true;
       }
 
-      return this.skipCategories.indexOf(category.fyle_category.toLowerCase()) === -1;
+      return this.skipCategories.indexOf(category.system_category.toLowerCase()) === -1;
     });
   }
 
@@ -213,16 +179,14 @@ export class CategoriesService {
     return flightSystemCategories;
   }
 
-  getCategoryById(id: number): Observable<OrgCategory> {
+  getCategoryById(id: number): Observable<PlatformCategory> {
     const data = {
       params: {
         id: 'eq.' + id,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
-      map((res) => this.transformFrom(res.data)),
-      map((res) => this.addDisplayName(res)),
-      map((responses) => responses.find((response) => response.id === id)),
-    );
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data)
+      .pipe(map((res) => res.data.find((response) => response.id === id)));
   }
 }
