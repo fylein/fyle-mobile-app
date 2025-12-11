@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:fyle.app.link</string>
+		<string>applinks:fyle.test-app.link</string>
 	</array>
 </dict>
 </plist>
