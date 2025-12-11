@@ -33,6 +33,8 @@ PODS:
     - Capacitor
   - CapacitorPreferences (7.0.1):
     - Capacitor
+  - CapacitorPushNotifications (7.0.4):
+    - Capacitor
   - CapacitorSecureStoragePlugin (0.11.0):
     - Capacitor
     - SwiftKeychainWrapper
@@ -108,6 +110,7 @@ DEPENDENCIES:
   - CapacitorNativeSettings (from `../../node_modules/capacitor-native-settings`)
   - "CapacitorNetwork (from `../../node_modules/@capacitor/network`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - CapacitorSecureStoragePlugin (from `../../node_modules/capacitor-secure-storage-plugin`)
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
@@ -155,6 +158,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/network"
   CapacitorPreferences:
     :path: "../../node_modules/@capacitor/preferences"
+  CapacitorPushNotifications:
+    :path: "../../node_modules/@capacitor/push-notifications"
   CapacitorSecureStoragePlugin:
     :path: "../../node_modules/capacitor-secure-storage-plugin"
   CapacitorSplashScreen:
@@ -184,6 +189,7 @@ SPEC CHECKSUMS:
   CapacitorNativeSettings: 3cd2e2ef431fe471674f381609cfb29154ddfcfa
   CapacitorNetwork: 15cb4385f0913a8ceb5e9a4d7af1ec554bdb8de8
   CapacitorPreferences: 6c98117d4d7508034a4af9db64d6b26fc75d7b94
+  CapacitorPushNotifications: 7604512af53bbfdf1dd8fb2256b9ef1e8a69cdc2
   CapacitorSecureStoragePlugin: 450d402026ee3bcc018fa206504d9c0572fee78d
   CapacitorSplashScreen: 1d67815a422a9b61539c94f283c08ed56667c0fc
   CapacitorStatusBar: 6e7af040d8fc4dd655999819625cae9c2d74c36f
@@ -198,6 +204,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 4a8fa9d8580a3384f5a57035d6ef7f048750bc0a
+PODFILE CHECKSUM: 29f7f21e9e6e50141b5cbe4481bc77ecdf52ca3a
 
 COCOAPODS: 1.16.2

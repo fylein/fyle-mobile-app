@@ -36,6 +36,7 @@
 		"KeyboardPlugin",
 		"CAPNetworkPlugin",
 		"PreferencesPlugin",
+		"PushNotificationsPlugin",
 		"SplashScreenPlugin",
 		"StatusBarPlugin",
 		"TextZoomPlugin",

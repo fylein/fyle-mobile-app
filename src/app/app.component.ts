@@ -31,6 +31,12 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
+import {
+  ActionPerformed,
+  PushNotificationSchema,
+  PushNotifications,
+  Token,
+} from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-root',
@@ -231,6 +237,14 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
+    PushNotifications.requestPermissions().then(result => {
+      if (result.receive === 'granted') {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        // Show some error
+      }
+    });
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
@@ -246,6 +260,34 @@ export class AppComponent implements OnInit, AfterViewInit {
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));
     }
+
+    // On success, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: Token) => {
+        alert('Push registration success, token: ' + token.value);
+      }
+    );
+
+    // Some issue with our setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        alert('Error on registration: ' + JSON.stringify(error));
+      }
+    );
+
+    // Show us the notification payload if the app is open on our device
+    PushNotifications.addListener('pushNotificationReceived',
+      (notification: PushNotificationSchema) => {
+        alert('Push received: ' + JSON.stringify(notification));
+      }
+    );
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed',
+      (notification: ActionPerformed) => {
+        alert('Push action performed: ' + JSON.stringify(notification));
+      }
+    );
 
     this.isConnected$.subscribe((isOnline) => {
       this.isOnline = isOnline;
