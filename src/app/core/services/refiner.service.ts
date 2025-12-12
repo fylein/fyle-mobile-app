@@ -271,10 +271,15 @@ export class RefinerService {
                 company_id: eou.ou.org_id,
                 region: `${this.getRegion(homeCurrency)} - ${homeCurrency}`,
               },
-              source: `Mobile - ${device}`,
               is_admin: eou?.ou?.roles?.some((role) => !['FYLER', 'APPROVER'].includes(role)) ? 'T' : 'F',
               action_name: properties.actionName,
             });
+            (window as typeof window & { _refiner: (eventName: string, payload: { source: string }) => void })._refiner(
+              'addToResponse',
+              {
+                source: `Mobile - ${device}`,
+              },
+            );
             (window as typeof window & { _refiner: (eventName: string, payload: string) => void })._refiner(
               'setProject',
               environment.REFINER_NPS_FORM_PROJECT,
