@@ -62,7 +62,7 @@
     "@ionic/angular": "^8.4.3",
     "@ionic/core": "^8.4.3",
     "@ionic/pwa-elements": "^3.1.1",
-    "@jsverse/transloco": "^7.6.1",
+    "@jsverse/transloco": "^8.0.0",
     "@meddv/ngx-pinch-zoom": "^20.0.0",
     "@sentry/angular": "^9.40.0",
     "@sentry/cli": "^2.33.0",
@@ -137,7 +137,6 @@
     "karma-parallel": "^0.3.1",
     "lint-staged": "^11.1.2",
     "prettier": "^3.0.0",
-    "rimraf": "^6.1.0",
     "ts-node": "~8.3.0",
     "typescript": "~5.8.3"
   },
