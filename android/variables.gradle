@@ -17,5 +17,4 @@ ext {
     androidxFragmentVersion = '1.8.4'
     coreSplashScreenVersion = '1.0.1'
     androidxWebkitVersion = '1.12.1'
-    firebaseMessagingVersion = '25.0.1'
 }
