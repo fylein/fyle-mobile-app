@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   NAME: '',
   ROOT_URL: '',
-  ROUTER_API_ENDPOINT: '',
+  ROUTER_API_ENDPOINT: 'https://staging-accounts.fyle.tech',
   ANDROID_CLIENT_ID: '',
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
@@ -19,6 +19,12 @@ export const environment = {
   USE_MIXPANEL_PROXY: '',
   ENABLE_MIXPANEL: '',
   YODLEE_FAST_LINK_URL: '',
+  FIREBASE_PROJECT_NUMBER: '',
+  FIREBASE_PROJECT_ID: '',
+  FIREBASE_STORAGE_BUCKET: '',
+  FIREBASE_ANDROID_MOBILESDK_APP_ID: '',
+  FIREBASE_ANDROID_PACKAGE_NAME: '',
+  FIREBASE_API_KEY: '',
 };
 
 /*

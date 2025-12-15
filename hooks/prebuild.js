@@ -13,6 +13,14 @@ module.exports = function (ctx) {
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + '/src/environments/environment.prod.ts', secrets.prodEnvironment);
 
+  // Creating android/app/google-services.json from environment variables (if configured)
+  if (secrets.androidGoogleServicesJson) {
+    console.log('Writing google-services.json to android/app/google-services.json');
+    const googleServicesPath = path.resolve(ctx.project.dir, 'android/app/google-services.json');
+    fs.writeFileSync(googleServicesPath, secrets.androidGoogleServicesJson, 'utf8');
+  }
+
+  console.log('secrets.androidGoogleServicesJson', secrets.androidGoogleServicesJson);
   // Adding LIVE_UPDATE_CHANNEL in strings.xml
   var androidStringsPath = path.resolve(process.cwd(), 'android/app/src/main/res/values/strings.xml');
   var androidStrings = fs.readFileSync(androidStringsPath).toString();
