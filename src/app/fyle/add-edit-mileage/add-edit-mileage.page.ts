@@ -74,7 +74,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
+import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
