@@ -13,7 +13,11 @@
 			"resizeOnFullScreen": true
 		},
 		"PushNotifications": {
-			"presentationOptions": ["alert", "sound", "badge"]
+			"presentationOptions": [
+				"alert",
+				"sound",
+				"badge"
+			]
 		}
 	},
 	"cordova": {

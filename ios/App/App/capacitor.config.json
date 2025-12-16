@@ -11,6 +11,13 @@
 		"Keyboard": {
 			"style": "LIGHT",
 			"resizeOnFullScreen": true
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"alert",
+				"sound",
+				"badge"
+			]
 		}
 	},
 	"cordova": {
@@ -34,6 +41,7 @@
 		"GeolocationPlugin",
 		"HapticsPlugin",
 		"KeyboardPlugin",
+		"LocalNotificationsPlugin",
 		"CAPNetworkPlugin",
 		"PreferencesPlugin",
 		"PushNotificationsPlugin",

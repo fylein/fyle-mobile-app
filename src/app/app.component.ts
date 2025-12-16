@@ -31,12 +31,15 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
+
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
 import {
   ActionPerformed,
   PushNotificationSchema,
   PushNotifications,
   Token,
 } from '@capacitor/push-notifications';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-root',
@@ -237,7 +240,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
-    PushNotifications.requestPermissions().then(result => {
+    PushNotifications.requestPermissions().then((result) => {
       if (result.receive === 'granted') {
         // Register with Apple / Google to receive push via APNS/FCM
         PushNotifications.register();
@@ -245,6 +248,10 @@ export class AppComponent implements OnInit, AfterViewInit {
         // Show some error
       }
     });
+
+    // Request local notification permissions so we can display a system notification
+    // when a push is received while the app is in the foreground.
+    LocalNotifications.requestPermissions();
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
@@ -275,11 +282,26 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     );
 
-    // Show us the notification payload if the app is open on our device
-    PushNotifications.addListener('pushNotificationReceived',
-      (notification: PushNotificationSchema) => {
-        alert('Push received: ' + JSON.stringify(notification));
-      }
+    // Show a system notification if a push is received while the app is in the foreground
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      async (notification: PushNotificationSchema) => {
+        const title = notification.title || 'New notification';
+        const body =
+          notification.body ||
+          (notification.data ? JSON.stringify(notification.data) : 'You have a new notification');
+
+        await LocalNotifications.schedule({
+          notifications: [
+            {
+              id: Date.now(),
+              title,
+              body,
+              extra: notification.data,
+            },
+          ],
+        });
+      },
     );
 
     // Method called when tapping on a notification
