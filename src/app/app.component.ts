@@ -251,7 +251,18 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     // Request local notification permissions so we can display a system notification
     // when a push is received while the app is in the foreground.
-    LocalNotifications.requestPermissions();
+    LocalNotifications.requestPermissions().then(() => {
+      // Fire a sample local notification when the app is initialised
+      void LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Date.now(),
+            title: 'Welcome to Fyle',
+            body: 'Local notifications are configured correctly.',
+          },
+        ],
+      });
+    });
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
@@ -271,6 +282,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // On success, we should be able to receive notifications
     // Show a local notification with the registration token (for debugging/manual testing)
     PushNotifications.addListener('registration', async (token: Token) => {
+      
       await LocalNotifications.schedule({
         notifications: [
           {
