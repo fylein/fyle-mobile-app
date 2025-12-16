@@ -269,11 +269,19 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     // On success, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: Token) => {
-        alert('Push registration success, token: ' + token.value);
-      }
-    );
+    // Show a local notification with the registration token (for debugging/manual testing)
+    PushNotifications.addListener('registration', async (token: Token) => {
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Date.now(),
+            title: 'Push registration success',
+            body: token.value,
+            extra: { token: token.value },
+          },
+        ],
+      });
+    });
 
     // Some issue with our setup and push will not work
     PushNotifications.addListener('registrationError',
