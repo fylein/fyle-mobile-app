@@ -56,6 +56,7 @@ declare module '@capacitor/local-notifications' {
 declare module '@capacitor/core' {
   export const Capacitor: {
     isNativePlatform(): boolean;
+    getPlatform(): string;
   };
 }
 
