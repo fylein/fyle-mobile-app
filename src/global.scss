@@ -328,6 +328,14 @@ ion-popover.camera-options-popover {
   text-transform: uppercase !important;
 }
 
+.text-sentence-case {
+  text-transform: lowercase !important;
+
+  &::first-letter {
+    text-transform: uppercase !important;
+  }
+}
+
 .d-flex {
   display: flex !important;
 }

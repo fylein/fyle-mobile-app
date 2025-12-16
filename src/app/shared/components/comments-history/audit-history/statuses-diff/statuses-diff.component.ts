@@ -19,14 +19,33 @@ export class StatusesDiffComponent implements OnInit {
 
   displayValue: string;
 
+  shouldShow: boolean;
+
   constructor() {}
 
   ngOnInit() {
     const value = this.value();
+    this.shouldShow = !this.isEmptyObject(value);
     this.isValueList = value instanceof Array;
     if (!this.isValueList) {
       this.displayValue = this.formatValue(value);
     }
+  }
+
+  private isEmptyObject(value: ValueType): boolean {
+    // null and undefined should be hidden
+    if (value === null || value === undefined) {
+      return true;
+    }
+    // Empty object (not DisplayObject) should be hidden
+    if (typeof value === 'object') {
+      if (this.isDisplayObject(value)) {
+        return false;
+      }
+      return Object.keys(value).length === 0;
+    }
+
+    return false;
   }
 
   private formatValue(value: ValueType): string {

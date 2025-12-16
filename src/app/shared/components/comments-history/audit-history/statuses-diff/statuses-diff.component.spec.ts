@@ -128,22 +128,24 @@ describe('StatusesDiffComponent', () => {
     expect(getTextContent(title)).toEqual('Violating Transactions');
   });
 
-  it('should display "-" when value is null', () => {
+  it('should not render when value is null', () => {
     fixture.componentRef.setInput('key', 'Location');
     fixture.componentRef.setInput('value', null);
     component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
-    expect(getTextContent(listItem)).toEqual('Location : -');
+    expect(listItem).toBeNull();
+    expect(component.shouldShow).toBeFalse();
   });
 
-  it('should display "-" when value is undefined', () => {
+  it('should not render when value is undefined', () => {
     fixture.componentRef.setInput('key', 'Category');
     fixture.componentRef.setInput('value', undefined);
     component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
-    expect(getTextContent(listItem)).toEqual('Category : -');
+    expect(listItem).toBeNull();
+    expect(component.shouldShow).toBeFalse();
   });
 
   it('should extract display property from DisplayObject', () => {

@@ -303,10 +303,10 @@ describe('StatusService', () => {
     expect(result.icon).toBe('check');
   });
 
-  it('should return "Expense report approved" for approved by admin comments', () => {
+  it('should return "Reports approved" for approved by admin comments', () => {
     const comment = 'Expense report approved by admin';
     const result = statusService.getStatusCategory(comment, 'reports');
-    expect(result.category).toBe('Expense report approved');
+    expect(result.category).toBe('Reports approved');
     expect(result.icon).toBe('check');
   });
 

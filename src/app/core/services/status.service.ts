@@ -62,6 +62,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('expense merged automatically'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.cardExpenseMerged'),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('merged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.expenseMerged'),
@@ -124,7 +130,8 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('added') || lowerCaseComment.includes('attached to expense'):
+      case (lowerCaseComment.includes('attachment') && lowerCaseComment.includes('added')) ||
+        (lowerCaseComment.includes('receipt') && lowerCaseComment.includes('attached to expense')):
         statusCategory = {
           category: this.translocoService.translate('services.status.receiptAttached'),
           icon: 'check',
@@ -142,7 +149,8 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('deleted') || lowerCaseComment.includes('removed from expense'):
+      case (lowerCaseComment.includes('attachment') && lowerCaseComment.includes('deleted')) ||
+        (lowerCaseComment.includes('receipt') && lowerCaseComment.includes('removed from expense')):
         statusCategory = {
           category: this.translocoService.translate('services.status.receiptRemoved'),
           icon: 'check',
@@ -167,7 +175,7 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('removed by') || lowerCaseComment.includes('removed approver'):
+      case lowerCaseComment.includes('removed') && lowerCaseComment.includes('approver'):
         statusCategory = {
           category: this.translocoService.translate('services.status.approverRemoved'),
           icon: 'check',
@@ -203,6 +211,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('expense split'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseSplit'),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('verified'):
         statusCategory = {
           category: this.translocoService.translate('services.status.verified'),
@@ -218,12 +232,6 @@ export class StatusService {
       case lowerCaseComment.includes('approver_pending'):
         statusCategory = {
           category: this.translocoService.translate('services.status.approverPending'),
-          icon: 'check',
-        };
-        break;
-      case lowerCaseComment.includes('approved by admin'):
-        statusCategory = {
-          category: this.translocoService.translate('services.status.expenseReportApproved'),
           icon: 'check',
         };
         break;
@@ -318,7 +326,8 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('expense amount capped by system due to policy'):
+      case lowerCaseComment.includes('expense amount capped by system') ||
+        lowerCaseComment.includes('policy caps amount'):
         statusCategory = {
           category: this.translocoService.translate('services.status.policyCappedAmount'),
           icon: 'danger-outline',

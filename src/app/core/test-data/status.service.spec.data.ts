@@ -884,7 +884,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Receipt removed',
+      category: 'Others',
       icon: 'check',
     },
   },
@@ -924,7 +924,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
     isSelfComment: false,
     isOthersComment: true,
     st: {
-      category: 'Receipt attached',
+      category: 'Others',
       icon: 'check',
     },
   },
