@@ -11,6 +11,22 @@
 		"Keyboard": {
 			"style": "LIGHT",
 			"resizeOnFullScreen": true
+		},
+		"AppShortcuts": {
+			"shortcuts": [
+				{
+					"id": "capture_receipt",
+					"title": "Capture Receipt",
+					"iosIcon": "camera.fill",
+					"androidIcon": "ic_menu_camera"
+				},
+				{
+					"id": "add_expense",
+					"title": "Add Expense",
+					"iosIcon": "plus.circle.fill",
+					"androidIcon": "ic_menu_add"
+				}
+			]
 		}
 	},
 	"cordova": {

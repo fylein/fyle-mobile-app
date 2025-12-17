@@ -1,3 +1,5 @@
+/// <reference types="@capawesome/capacitor-app-shortcuts" />
+
 import { CapacitorConfig } from '@capacitor/cli';
 import { KeyboardStyle } from '@capacitor/keyboard';
 
@@ -14,6 +16,22 @@ const config: CapacitorConfig = {
     Keyboard: {
       style: KeyboardStyle.Light,
       resizeOnFullScreen: true,
+    },
+    AppShortcuts: {
+      shortcuts: [
+        {
+          id: 'capture_receipt',
+          title: 'Capture Receipt',
+          iosIcon: 'camera.fill', // SF Symbol
+          androidIcon: 'ic_menu_camera', // Android system drawable
+        },
+        {
+          id: 'add_expense',
+          title: 'Add Expense',
+          iosIcon: 'plus.circle.fill', // SF Symbol
+          androidIcon: 'ic_menu_add', // Android system drawable
+        },
+      ],
     },
   },
   cordova: {
