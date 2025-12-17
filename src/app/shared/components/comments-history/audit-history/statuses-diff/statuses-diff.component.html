@@ -1,4 +1,4 @@
-@if (isValueList) {
+@if (shouldShowDetails() && isValueList()) {
   <div class="statuses-diff">
     <div class="statuses-diff--expense-issues">
       @if (key() === 'Please contact your admin to configure the following') {
@@ -8,22 +8,22 @@
         <span class="statuses-diff--violating-txns">{{ key() | snakeCaseToSpaceCase }}</span>
       }
       @if (key() !== 'Please contact your admin to configure the following' && key() !== 'Violating Transactions') {
-        <span class="text-capitalize">{{ key() | snakeCaseToSpaceCase }}</span>
+        <span class="text-sentence-case">{{ key() | snakeCaseToSpaceCase }}</span>
       }
     </div>
     <ul class="statuses-diff--values-list">
       @for (detail of value(); track detail) {
         <div>
-          <li class="text-capitalize">{{ detail }}</li>
+          <li class="text-sentence-case">{{ detail }}</li>
         </div>
       }
     </ul>
   </div>
 }
-@if (!isValueList) {
+@if (shouldShowDetails() && !isValueList()) {
   <div>
-    <li class="text-capitalize">
-      {{ key() === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key() }} : {{ displayValue }}
+    <li class="text-sentence-case">
+      {{ key() === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key() }} : {{ displayValue() }}
     </li>
   </div>
 }
