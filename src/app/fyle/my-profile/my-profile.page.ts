@@ -1,9 +1,19 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -79,7 +89,7 @@ import { PreferenceSettingComponent } from './preference-setting/preference-sett
     NgClass,
     PreferenceSettingComponent,
     ProfileOptInCardComponent,
-    RouterLink
+    RouterLink,
   ],
 })
 export class MyProfilePage {
@@ -375,7 +385,13 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
+    // Set info cards initially (without eou for email receipts card)
     this.setInfoCardsData();
+
+    // Subscribe to eou$ to update info cards when eou is available (for Magic mail card)
+    this.eou$.pipe(take(1)).subscribe((eou) => {
+      this.setInfoCardsData(eou);
+    });
 
     forkJoin({
       employeeSettings: employeeSettings$,
@@ -456,18 +472,31 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(): void {
+  setInfoCardsData(eou?: ExtendedOrgUser): void {
     const fyleEmail = 'receipts@fylehq.com';
 
-    const allInfoCardsData: InfoCardData[] = [
-      {
-        title: 'Email receipts',
-        content: `Forward your receipts to Sage Expense Management at ${fyleEmail}.`,
-        contentToCopy: fyleEmail,
+    const allInfoCardsData: InfoCardData[] = [];
+
+    if (eou?.ou?.special_email) {
+      allInfoCardsData.push({
+        title: 'Magic mail',
+        content: `Add this email in apps like Uber, or at checkout to automatically capture receipts and create expenses in Sage Expense Management.`,
+        contentToCopy: eou.ou.special_email,
         toastMessageContent: 'Email copied successfully',
         isShown: true,
-      },
-    ];
+        showEmail: true,
+        showBetaTag: true,
+      });
+    }
+
+    allInfoCardsData.push({
+      title: 'Email receipts',
+      content: `Forward receipt your registered email to this email to automatically create expenses.`,
+      contentToCopy: fyleEmail,
+      toastMessageContent: 'Email copied successfully',
+      isShown: true,
+      showEmail: true,
+    });
 
     this.infoCardsData = allInfoCardsData.filter((infoCardData) => infoCardData.isShown);
   }
