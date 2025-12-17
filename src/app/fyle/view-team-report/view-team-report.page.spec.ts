@@ -1046,7 +1046,7 @@ describe('ViewTeamReportPageV2', () => {
 
     expect(getTextContent(empEl)).toEqual(expectedReportsSinglePage[0].employee.user.full_name);
     expect(getTextContent(dateEl)).toEqual('Feb 01, 2023');
-    expect(getTextContent(amtEl)).toEqual(component.approvalAmount.toString());
+    expect(getTextContent(amtEl)).toEqual('$250.75');
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
     click(openButton);

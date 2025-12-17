@@ -29,7 +29,8 @@ describe('AddTxnToReportDialogComponent', () => {
     const matBottomsheetSpy = jasmine.createSpyObj('MatBottomSheet', ['dismiss']);
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule,
+      imports: [
+        RouterTestingModule,
         RouterModule,
         MatBottomSheetModule,
         getTranslocoTestingModule(),
@@ -39,7 +40,8 @@ describe('AddTxnToReportDialogComponent', () => {
         ExactCurrencyPipe,
         ReportState,
         SnakeCaseToSpaceCase,
-        MatIconTestingModule],
+        MatIconTestingModule,
+      ],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -104,8 +106,7 @@ describe('AddTxnToReportDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.report-list--purpose'))).toEqual('#8:  Jan 2023');
     expect(getTextContent(getElementBySelector(fixture, '.report-list--count'))).toEqual('0 Expense');
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--currency'))).toEqual('$');
-    expect(getTextContent(getElementBySelector(fixture, '.report-list--amount'))).toEqual('100.00');
+    expect(getTextContent(getElementBySelector(fixture, '.report-list--amount'))).toEqual('$100.00');
     expect(getTextContent(getElementBySelector(fixture, '.report-list--state'))).toEqual('Draft');
   });
 

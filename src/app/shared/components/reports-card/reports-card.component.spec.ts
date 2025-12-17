@@ -27,7 +27,6 @@ describe('ReportsCardComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconTestingModule,
         MatIconModule,
         TranslocoModule,
@@ -72,8 +71,7 @@ describe('ReportsCardComponent', () => {
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--date'))).toEqual('Jul 11, 2023');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--purpose'))).toEqual('#8:  Jan 2023');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--currency'))).toEqual('$');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('100.00');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount-block'))).toContain('$100.00');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
   }));
 
