@@ -180,7 +180,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
             projectIds: allowedProjectIds,
             searchNameText,
             offset: 0,
-            limit: 20,
+            limit: 200,
           },
           this.isProjectCategoryRestrictionsEnabled,
           activeCategories,
