@@ -1,4 +1,4 @@
-import { Component, OnInit, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SnakeCaseToSpaceCase } from '../../../../pipes/snake-case-to-space-case.pipe';
 import { DisplayObject } from '../../../../../core/models/display-object.model';
@@ -10,34 +10,22 @@ import { ValueType } from '../../../../../core/models/statuses-diff-value-type.m
   styleUrls: ['./statuses-diff.component.scss'],
   imports: [TranslocoPipe, SnakeCaseToSpaceCase],
 })
-export class StatusesDiffComponent implements OnInit {
+export class StatusesDiffComponent {
   readonly key = input<string>();
 
   readonly value = input<ValueType>();
 
-  isValueList: boolean;
+  readonly isValueList = computed(() => this.value() instanceof Array);
 
-  displayValue: string;
+  readonly displayValue = computed(() => (this.isValueList() ? '' : this.formatValue(this.value())));
 
-  shouldShow: boolean;
+  readonly shouldShowDetails = computed(() => !this.isEmptyObject(this.value()));
 
-  constructor() {}
-
-  ngOnInit() {
-    const value = this.value();
-    this.shouldShow = !this.isEmptyObject(value);
-    this.isValueList = value instanceof Array;
-    if (!this.isValueList) {
-      this.displayValue = this.formatValue(value);
-    }
-  }
-
+  // Filters out invalid values (null, undefined, empty objects) that shouldn't be displayed in audit history
   private isEmptyObject(value: ValueType): boolean {
-    // null and undefined should be hidden
     if (value === null || value === undefined) {
       return true;
     }
-    // Empty object (not DisplayObject) should be hidden
     if (typeof value === 'object') {
       if (this.isDisplayObject(value)) {
         return false;

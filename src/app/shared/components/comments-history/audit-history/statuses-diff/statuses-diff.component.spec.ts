@@ -58,14 +58,14 @@ describe('StatusesDiffComponent', () => {
       'aaaaasdjskjd@sdsd.com',
       'ajain+12+12+1@fyle.in',
     ]);
-    component.ngOnInit();
-    expect(component.isValueList).toBeTrue();
+    fixture.detectChanges();
+    expect(component.isValueList()).toBeTrue();
   });
 
   it('should set isValueList to false if value is not an array', () => {
     fixture.componentRef.setInput('value', 4000);
-    component.ngOnInit();
-    expect(component.isValueList).toBeFalse();
+    fixture.detectChanges();
+    expect(component.isValueList()).toBeFalse();
   });
 
   it('should render key and value as list items if value is an array', () => {
@@ -75,9 +75,6 @@ describe('StatusesDiffComponent', () => {
       'aaaaasdjskjd@sdsd.com',
       'ajain+12+12+1@fyle.in',
     ]);
-    component.isValueList = undefined;
-    component.displayValue = undefined;
-    component.ngOnInit();
     fixture.detectChanges();
     const listItems = getAllElementsBySelector(fixture, 'li');
     expect(listItems.length).toEqual(3);
@@ -89,9 +86,6 @@ describe('StatusesDiffComponent', () => {
   it('should render key and value as plain text if value is not an array', () => {
     fixture.componentRef.setInput('key', 'Distance');
     fixture.componentRef.setInput('value', 4000);
-    component.isValueList = undefined;
-    component.displayValue = undefined;
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Distance : 4000');
@@ -100,9 +94,6 @@ describe('StatusesDiffComponent', () => {
   it('should render key as Mileage Rate Name if key is vehicle type', fakeAsync(() => {
     fixture.componentRef.setInput('key', 'vehicle type');
     fixture.componentRef.setInput('value', 'Two Wheeler');
-    component.isValueList = undefined;
-    component.displayValue = undefined;
-    component.ngOnInit();
     fixture.detectChanges();
     tick();
     fixture.detectChanges();
@@ -113,7 +104,6 @@ describe('StatusesDiffComponent', () => {
   it('should render Please contact your admin to configure the following key correctly', () => {
     fixture.componentRef.setInput('key', 'Please contact your admin to configure the following');
     fixture.componentRef.setInput('value', ['Designated Level Approver']);
-    component.ngOnInit();
     fixture.detectChanges();
     const title = getElementBySelector(fixture, 'span');
     expect(getTextContent(title)).toEqual('Please contact your admin to configure the following');
@@ -122,7 +112,6 @@ describe('StatusesDiffComponent', () => {
   it('should render Violating Transactions key correctly', () => {
     fixture.componentRef.setInput('key', 'Violating Transactions');
     fixture.componentRef.setInput('value', ['E/2022/10/T/14 (INR 555, Flight)', 'E/2022/10/T/18 (INR 128, Mileage)']);
-    component.ngOnInit();
     fixture.detectChanges();
     const title = getElementBySelector(fixture, 'span.statuses-diff--violating-txns');
     expect(getTextContent(title)).toEqual('Violating Transactions');
@@ -131,27 +120,24 @@ describe('StatusesDiffComponent', () => {
   it('should not render when value is null', () => {
     fixture.componentRef.setInput('key', 'Location');
     fixture.componentRef.setInput('value', null);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(listItem).toBeNull();
-    expect(component.shouldShow).toBeFalse();
+    expect(component.shouldShowDetails()).toBeFalse();
   });
 
   it('should not render when value is undefined', () => {
     fixture.componentRef.setInput('key', 'Category');
     fixture.componentRef.setInput('value', undefined);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(listItem).toBeNull();
-    expect(component.shouldShow).toBeFalse();
+    expect(component.shouldShowDetails()).toBeFalse();
   });
 
   it('should extract display property from DisplayObject', () => {
     fixture.componentRef.setInput('key', 'Location');
     fixture.componentRef.setInput('value', { display: 'San Francisco, CA' });
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Location : San Francisco, CA');
@@ -160,7 +146,6 @@ describe('StatusesDiffComponent', () => {
   it('should handle boolean value true', () => {
     fixture.componentRef.setInput('key', 'Is Active');
     fixture.componentRef.setInput('value', true);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Is Active : true');
@@ -169,7 +154,6 @@ describe('StatusesDiffComponent', () => {
   it('should handle boolean value false', () => {
     fixture.componentRef.setInput('key', 'Is Billable');
     fixture.componentRef.setInput('value', false);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Is Billable : false');
@@ -178,7 +162,6 @@ describe('StatusesDiffComponent', () => {
   it('should handle empty string value', () => {
     fixture.componentRef.setInput('key', 'Description');
     fixture.componentRef.setInput('value', '');
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Description :');
@@ -187,7 +170,6 @@ describe('StatusesDiffComponent', () => {
   it('should handle zero value', () => {
     fixture.componentRef.setInput('key', 'Amount');
     fixture.componentRef.setInput('value', 0);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItem = getElementBySelector(fixture, 'li');
     expect(getTextContent(listItem)).toEqual('Amount : 0');
@@ -196,10 +178,9 @@ describe('StatusesDiffComponent', () => {
   it('should handle empty array value', () => {
     fixture.componentRef.setInput('key', 'Tags');
     fixture.componentRef.setInput('value', []);
-    component.ngOnInit();
     fixture.detectChanges();
     const listItems = getAllElementsBySelector(fixture, 'li');
     expect(listItems.length).toEqual(0);
-    expect(component.isValueList).toBeTrue();
+    expect(component.isValueList()).toBeTrue();
   });
 });

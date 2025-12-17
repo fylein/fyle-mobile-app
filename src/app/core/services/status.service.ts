@@ -62,7 +62,8 @@ export class StatusService {
           icon: 'check',
         };
         break;
-      case lowerCaseComment.includes('expense merged automatically'):
+      case lowerCaseComment.includes('expense merged automatically') ||
+        lowerCaseComment.includes('automatically merged'):
         statusCategory = {
           category: this.translocoService.translate('services.status.cardExpenseMerged'),
           icon: 'check',
@@ -117,6 +118,12 @@ export class StatusService {
             icon: 'danger-outline',
           };
         }
+        break;
+      case lowerCaseComment.includes('expense(s) added to report'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expensesAdded'),
+          icon: 'check',
+        };
         break;
       case lowerCaseComment.includes('added to the report'):
         statusCategory = {
@@ -223,6 +230,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('approvals reset'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.approvalsReset'),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('approver_inquiry') || lowerCaseComment.includes('report was sent back'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeSentBack', { type }),
@@ -271,6 +284,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('expense approved') || lowerCaseComment.includes('expense was approved'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.expenseApproved'),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('auto-matched by'):
         statusCategory = {
           category: this.translocoService.translate('services.status.cardTransactionMatched'),
@@ -285,7 +304,7 @@ export class StatusService {
         break;
       case lowerCaseComment.includes('matched by'):
         statusCategory = {
-          category: this.translocoService.translate('services.status.expense'),
+          category: this.translocoService.translate('services.status.expenseMatched'),
           icon: 'check',
         };
         break;
