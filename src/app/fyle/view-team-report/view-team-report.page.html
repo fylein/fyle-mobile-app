@@ -67,12 +67,11 @@
             </ion-row>
             <ion-row>
               <ion-col size="8">
-                    <div class="view-reports--amount">
-                      <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
-                      <span class="view-reports--purpose-amount-block__amount">
-                        {{ { value: approvalAmount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-                      </span>
-                    </div>
+                <div class="view-reports--amount">
+                  <div class="view-reports--purpose-amount-block__amount">
+                    {{ { value: approvalAmount || 0, currencyCode: report.currency } | exactCurrency }}
+                  </div>
+                </div>
               </ion-col>
             </ion-row>
             <ion-row>
