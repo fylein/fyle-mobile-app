@@ -1,12 +1,13 @@
 import { Component, Input, inject, input, output } from '@angular/core';
 import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { IonIcon } from '@ionic/angular/standalone';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-info-card',
   templateUrl: './info-card.component.html',
   styleUrls: ['./info-card.component.scss'],
-  imports: [IonIcon],
+  imports: [IonIcon, TranslocoPipe],
 })
 export class InfoCardComponent {
   private clipboardService = inject(ClipboardService);
@@ -27,12 +28,8 @@ export class InfoCardComponent {
   //  Your application code writes to the input. This prevents migration.
   @Input() toastMessageContent: string;
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
   readonly showEmail = input<boolean>(false);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
   readonly showBetaTag = input<boolean>(false);
 
   readonly copiedText = output<string>();

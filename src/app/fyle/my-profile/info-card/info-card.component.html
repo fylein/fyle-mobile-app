@@ -1,12 +1,12 @@
-<div class="info-card__card" (click)="copyToClipboard(contentToCopy())">
+<div class="info-card__card" (click)="copyToClipboard(contentToCopy)">
   <div class="info-card__card__title-container">
-    <div class="info-card__card__title">{{ title() }}</div>
+    <div class="info-card__card__title">{{ title }}</div>
     @if (showBetaTag()) {
-      <div class="info-card__card__beta-tag">Beta</div>
+      <div class="info-card__card__beta-tag">{{ 'infoCard.beta' | transloco }}</div>
     }
   </div>
   <div class="info-card__content-container">
-    <div class="info-card__content-container__content">{{ content() }}</div>
+    <div class="info-card__content-container__content">{{ content }}</div>
     @if (!showEmail()) {
       <div class="info-card__content-container__icon-container">
         <ion-icon
@@ -16,9 +16,9 @@
       </div>
     }
   </div>
-  @if (contentToCopy() && showEmail()) {
+  @if (contentToCopy && showEmail()) {
     <div class="info-card__email-container">
-      <div class="info-card__email-container__email">{{ contentToCopy() }}</div>
+      <div class="info-card__email-container__email">{{ contentToCopy }}</div>
       <div class="info-card__email-container__icon-container">
         <ion-icon
           class="info-card__email-container__icon-container__icon"

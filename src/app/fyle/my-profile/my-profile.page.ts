@@ -491,7 +491,7 @@ export class MyProfilePage {
 
     allInfoCardsData.push({
       title: 'Email receipts',
-      content: `Forward receipt your registered email to this email to automatically create expenses.`,
+      content: `Forward receipts from your registered email to this email to automatically create expenses.`,
       contentToCopy: fyleEmail,
       toastMessageContent: 'Email copied successfully',
       isShown: true,
