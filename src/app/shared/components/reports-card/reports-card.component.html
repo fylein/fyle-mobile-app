@@ -24,10 +24,9 @@
           </div>
           <!-- Total amount -->
           <div class="reports-card--amount-block ion-text-nowrap">
-            <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
-            <span class="reports-card--amount">
-              {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-            </span>
+            <div class="reports-card--amount">
+              {{ { value: report.amount || 0, currencyCode: report.currency } | exactCurrency }}
+            </div>
           </div>
         </div>
       </div>

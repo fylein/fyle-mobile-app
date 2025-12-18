@@ -633,7 +633,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: reportWithExpenses.amount,
         currencyCode: reportWithExpenses.currency,
-        skipSymbol: false,
       });
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
@@ -1046,7 +1045,7 @@ describe('ViewTeamReportPageV2', () => {
 
     expect(getTextContent(empEl)).toEqual(expectedReportsSinglePage[0].employee.user.full_name);
     expect(getTextContent(dateEl)).toEqual('Feb 01, 2023');
-    expect(getTextContent(amtEl)).toEqual(component.approvalAmount.toString());
+    expect(getTextContent(amtEl)).toEqual('$250.75');
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
     click(openButton);
@@ -1217,7 +1216,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
         currencyCode: 'USD',
-        skipSymbol: false,
       });
     });
   });

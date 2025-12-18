@@ -49,12 +49,9 @@
                     }}
                   </div>
                   <div class="report-list--currency-amount-container">
-                    <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
-                    <span class="report-list--amount">
-                      {{
-                        { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency
-                      }}
-                    </span>
+                    <div class="report-list--amount">
+                      {{ { value: report.amount || 0, currencyCode: report.currency } | exactCurrency }}
+                    </div>
                   </div>
                 </ion-col>
                 <ion-col size="2.75" class="ion-no-padding ion-text-right">
