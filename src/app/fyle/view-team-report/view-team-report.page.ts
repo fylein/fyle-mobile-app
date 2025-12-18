@@ -482,7 +482,6 @@ export class ViewTeamReportPage {
       const rpAmount = this.exactCurrency.transform({
         value: report.amount,
         currencyCode: report.currency,
-        skipSymbol: false,
       });
       const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
@@ -743,7 +742,6 @@ export class ViewTeamReportPage {
     return this.exactCurrency.transform({
       value: amount,
       currencyCode,
-      skipSymbol: false,
     });
   }
 }

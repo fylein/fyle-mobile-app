@@ -633,7 +633,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: reportWithExpenses.amount,
         currencyCode: reportWithExpenses.currency,
-        skipSymbol: false,
       });
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
@@ -1217,7 +1216,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(exactCurrency.transform).toHaveBeenCalledOnceWith({
         value: 150.5,
         currencyCode: 'USD',
-        skipSymbol: false,
       });
     });
   });
