@@ -1812,5 +1812,16 @@
   },
   "infoCard": {
     "beta": "Beta"
+  },
+  "myProfile": {
+    "magicMail": {
+      "title": "Magic mail",
+      "content": "Add this email in apps like Uber, or at checkout to automatically capture receipts and create expenses in Sage Expense Management."
+    },
+    "emailReceipts": {
+      "title": "Email receipts",
+      "content": "Forward receipts from your registered email to this email to automatically create expenses."
+    },
+    "emailCopiedSuccessfully": "Email copied successfully"
   }
 }

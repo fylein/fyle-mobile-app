@@ -4,6 +4,6 @@ export interface InfoCardData {
   contentToCopy: string;
   toastMessageContent: string;
   isShown: boolean;
-  showEmail?: boolean;
+  showMagicEmail?: boolean;
   showBetaTag?: boolean;
 }

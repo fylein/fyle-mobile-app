@@ -67,6 +67,7 @@ import { MatRipple } from '@angular/material/core';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-my-profile',
@@ -147,6 +148,8 @@ export class MyProfilePage {
 
   private featureConfigService = inject(FeatureConfigService);
 
+  private translocoService = inject(TranslocoService);
+
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
@@ -170,7 +173,7 @@ export class MyProfilePage {
 
   preferenceSettings: PreferenceSetting[] = [];
 
-  infoCardsData: CopyCardDetails[];
+  infoCardsData: InfoCardData[];
 
   commuteDetails: CommuteDetails;
 
@@ -479,23 +482,23 @@ export class MyProfilePage {
 
     if (eou?.ou?.special_email) {
       allInfoCardsData.push({
-        title: 'Magic mail',
-        content: `Add this email in apps like Uber, or at checkout to automatically capture receipts and create expenses in Sage Expense Management.`,
+        title: this.translocoService.translate<string>('myProfile.magicMail.title'),
+        content: this.translocoService.translate<string>('myProfile.magicMail.content'),
         contentToCopy: eou.ou.special_email,
-        toastMessageContent: 'Email copied successfully',
+        toastMessageContent: this.translocoService.translate<string>('myProfile.emailCopiedSuccessfully'),
         isShown: true,
-        showEmail: true,
+        showMagicEmail: true,
         showBetaTag: true,
       });
     }
 
     allInfoCardsData.push({
-      title: 'Email receipts',
-      content: `Forward receipts from your registered email to this email to automatically create expenses.`,
+      title: this.translocoService.translate<string>('myProfile.emailReceipts.title'),
+      content: this.translocoService.translate<string>('myProfile.emailReceipts.content'),
       contentToCopy: fyleEmail,
-      toastMessageContent: 'Email copied successfully',
+      toastMessageContent: this.translocoService.translate<string>('myProfile.emailCopiedSuccessfully'),
       isShown: true,
-      showEmail: true,
+      showMagicEmail: true,
     });
 
     this.infoCardsData = allInfoCardsData.filter((infoCardData) => infoCardData.isShown);
