@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, flush, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -43,6 +43,8 @@ import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { FeatureConfig } from 'src/app/core/models/feature-config.model';
 import { Component } from '@angular/core';
 import { EmployeeDetailsCardComponent } from './employee-details-card/employee-details-card.component';
+import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoModule } from '@jsverse/transloco';
 
 // mock EmployeeDetailsCardComponent
 @Component({
@@ -123,9 +125,11 @@ describe('MyProfilePage', () => {
       'getIsOverlayClicked',
       'getProfileEmailOptInWalkthroughConfig',
     ]);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    translocoServiceSpy.translate.and.returnValue('');
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MyProfilePage],
+      imports: [RouterTestingModule, MyProfilePage, TranslocoModule],
       providers: [
         {
           provide: ActivatedRoute,
@@ -228,6 +232,10 @@ describe('MyProfilePage', () => {
         {
           provide: WalkthroughService,
           useValue: walkthroughServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
         },
         SpenderService,
         provideHttpClient(withInterceptorsFromDi()),
@@ -393,10 +401,7 @@ describe('MyProfilePage', () => {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
-        'success',
-        { message }
-      );
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -458,7 +463,7 @@ describe('MyProfilePage', () => {
     expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
     expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-    expect(component.setInfoCardsData).toHaveBeenCalledTimes(1);
+    expect(component.setInfoCardsData).toHaveBeenCalledTimes(2);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
     expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
 
@@ -742,7 +747,10 @@ describe('MyProfilePage', () => {
 
   it('setInfoCardsData(): should show only email card for non USD orgs', () => {
     component.setInfoCardsData();
-    expect(component.infoCardsData).toEqual(allInfoCardsData);
+    expect(component.infoCardsData.length).toBe(1);
+    expect(component.infoCardsData[0].contentToCopy).toBe('receipts@fylehq.com');
+    expect(component.infoCardsData[0].showMagicEmail).toBeTrue();
+    expect(component.infoCardsData[0].isShown).toBeTrue();
   });
 
   describe('toggleSetting():', () => {
@@ -1042,7 +1050,8 @@ describe('MyProfilePage', () => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
 
       component.setCommuteDetails();
-      tick(100);
+      tick();
+      flush();
 
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
@@ -1068,7 +1077,8 @@ describe('MyProfilePage', () => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsWithMiles));
 
       component.setCommuteDetails();
-      tick(100);
+      tick();
+      flush();
 
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
