@@ -22,14 +22,14 @@ const config: CapacitorConfig = {
         {
           id: 'capture_receipt',
           title: 'Capture Receipt',
-          iosIcon: 'camera.fill', // SF Symbol
-          androidIcon: 'ic_menu_camera', // Android system drawable
+          iosIcon: 'camera', // SF Symbol
+          androidIcon: 'ic_shortcut_camera_sage', // Green circle with white camera
         },
         {
           id: 'add_expense',
           title: 'Add Expense',
-          iosIcon: 'plus.circle.fill', // SF Symbol
-          androidIcon: 'ic_menu_add', // Android system drawable
+          iosIcon: 'plus.app', // SF Symbol
+          androidIcon: 'ic_shortcut_add_sage', // Green circle with white plus
         },
       ],
     },

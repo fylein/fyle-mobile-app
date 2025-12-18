@@ -15,16 +15,10 @@
 		"AppShortcuts": {
 			"shortcuts": [
 				{
-					"id": "capture_receipt",
-					"title": "Capture Receipt",
-					"iosIcon": "camera.fill",
-					"androidIcon": "ic_menu_camera"
-				},
-				{
-					"id": "add_expense",
-					"title": "Add Expense",
-					"iosIcon": "plus.circle.fill",
-					"androidIcon": "ic_menu_add"
+					"id": "plus.rectangle.fill",
+					"title": "plus.rectangle.fill",
+					"iosIcon": "plus.rectangle.fill",
+					"androidIcon": "ic_shortcut_add"
 				}
 			]
 		}

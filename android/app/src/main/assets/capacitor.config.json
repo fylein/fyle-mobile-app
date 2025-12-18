@@ -17,14 +17,26 @@
 				{
 					"id": "capture_receipt",
 					"title": "Capture Receipt",
-					"iosIcon": "camera.fill",
-					"androidIcon": "ic_menu_camera"
+					"iosIcon": "camera.circle",
+					"androidIcon": "ic_shortcut_camera_sage"
+				},
+				{
+					"id": "capture_receipt_outline",
+					"title": "Capture (Outline)",
+					"iosIcon": "camera",
+					"androidIcon": "ic_shortcut_camera_outline"
 				},
 				{
 					"id": "add_expense",
 					"title": "Add Expense",
-					"iosIcon": "plus.circle.fill",
-					"androidIcon": "ic_menu_add"
+					"iosIcon": "plus.circle",
+					"androidIcon": "ic_shortcut_add_sage"
+				},
+				{
+					"id": "add_expense_outline",
+					"title": "Add (Outline)",
+					"iosIcon": "plus",
+					"androidIcon": "ic_shortcut_add_outline"
 				}
 			]
 		}
