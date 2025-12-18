@@ -206,9 +206,6 @@ describe('TasksService', () => {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
     exactCurrencyPipe.transform
-      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('123370000.00');
-    exactCurrencyPipe.transform
       .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹123370000.00');
 
@@ -221,9 +218,6 @@ describe('TasksService', () => {
   it('should be able to fetch unsubmitted reports', (done) => {
     spenderReportsService.getReportsStats.and.returnValue(of(expectedReportStats.draft));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    exactCurrencyPipe.transform
-      .withArgs({ value: expectedReportStats.draft.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('93165.91');
     exactCurrencyPipe.transform
       .withArgs({ value: expectedReportStats.draft.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹93165.91');
@@ -257,9 +251,6 @@ describe('TasksService', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     exactCurrencyPipe.transform
-      .withArgs({ value: completeStats.data.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('30.00');
-    exactCurrencyPipe.transform
       .withArgs({ value: completeStats.data.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹30.00');
     tasksService.getUnreportedExpensesTasks().subscribe((unrepotedExpensesTasks) => {
@@ -276,9 +267,6 @@ describe('TasksService', () => {
 
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    exactCurrencyPipe.transform
-      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('4500.00');
     exactCurrencyPipe.transform
       .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹4500.00');
@@ -299,9 +287,6 @@ describe('TasksService', () => {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     exactCurrencyPipe.transform
-      .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('4500.00');
-    exactCurrencyPipe.transform
       .withArgs({ value: expectedSentBackResponse.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹4500.00');
 
@@ -315,9 +300,6 @@ describe('TasksService', () => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    exactCurrencyPipe.transform
-      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('5177243929.65');
     exactCurrencyPipe.transform
       .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹5177243929.65');
@@ -339,9 +321,6 @@ describe('TasksService', () => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    exactCurrencyPipe.transform
-      .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('5177243929.65');
     exactCurrencyPipe.transform
       .withArgs({ value: expectedReportStats.report.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹5177243929.65');
@@ -371,9 +350,6 @@ describe('TasksService', () => {
 
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
-    exactCurrencyPipe.transform
-      .withArgs({ value: incompleteStats.data.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('76234.47');
     exactCurrencyPipe.transform
       .withArgs({ value: incompleteStats.data.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹76234.47');
@@ -683,9 +659,6 @@ describe('TasksService', () => {
 
   it('should be able to generate unreported expenses tasks when no reports present', () => {
     const totalCount = incompleteStats.data.count;
-    exactCurrencyPipe.transform
-      .withArgs({ value: totalCount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('339.00');
     exactCurrencyPipe.transform.withArgs({ value: totalCount, currencyCode: homeCurrency }).and.returnValue('₹339.00');
 
     const tasks = tasksService.mapAggregateToUnreportedExpensesTask(
@@ -899,9 +872,6 @@ describe('TasksService', () => {
 
   it('should generate proper content in all cases for sent back advances', () => {
     exactCurrencyPipe.transform
-      .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency, skipSymbol: true })
-      .and.returnValue('123370000.00');
-    exactCurrencyPipe.transform
       .withArgs({ value: sentBackAdvancesResponse.total_amount, currencyCode: homeCurrency })
       .and.returnValue('₹123370000.00');
 
@@ -936,13 +906,6 @@ describe('TasksService', () => {
       .withArgs({
         value: sentBackResponse[0].aggregates[1].function_value,
         currencyCode: homeCurrency,
-        skipSymbol: true,
-      })
-      .and.returnValue('44.53');
-    exactCurrencyPipe.transform
-      .withArgs({
-        value: sentBackResponse[0].aggregates[1].function_value,
-        currencyCode: homeCurrency,
       })
       .and.returnValue('₹44.53');
 
@@ -973,13 +936,6 @@ describe('TasksService', () => {
   });
 
   it('should generate proper content in all cases of draft expenses tasks', () => {
-    exactCurrencyPipe.transform
-      .withArgs({
-        value: incompleteExpensesResponse[0].aggregates[1].function_value,
-        currencyCode: homeCurrency,
-        skipSymbol: true,
-      })
-      .and.returnValue('132573333762.37');
     exactCurrencyPipe.transform
       .withArgs({ value: incompleteExpensesResponse[0].aggregates[1].function_value, currencyCode: homeCurrency })
       .and.returnValue('₹132573333762.37');
@@ -1045,13 +1001,6 @@ describe('TasksService', () => {
   });
 
   it('should be able to generate proper content in all cases of team report tasks', () => {
-    exactCurrencyPipe.transform
-      .withArgs({
-        value: teamReportResponse[0].aggregates[1].function_value,
-        currencyCode: homeCurrency,
-        skipSymbol: true,
-      })
-      .and.returnValue('733479.83');
     exactCurrencyPipe.transform
       .withArgs({
         value: teamReportResponse[0].aggregates[1].function_value,

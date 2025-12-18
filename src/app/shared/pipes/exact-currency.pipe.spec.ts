@@ -38,14 +38,6 @@ describe('ExactCurrencyPipe', () => {
       expect(result).toEqual('-$100.00');
     });
 
-    it('should format a value without the currency symbol when skipSymbol is true', () => {
-      fyCurrencyPipeSpy.transform.and.returnValue('100.00');
-      const config: CurrencyPipeConfig = { value: 100, currencyCode: 'USD', skipSymbol: true };
-      const result = exactCurrencyPipe.transform(config);
-      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', '', undefined);
-      expect(result).toEqual('100.00');
-    });
-
     it('should format a value with custom fraction digits', () => {
       fyCurrencyPipeSpy.transform.and.returnValue('$100.12');
       const config: CurrencyPipeConfig = { value: 100.1234, currencyCode: 'USD', fraction: 2 };
@@ -78,28 +70,12 @@ describe('ExactCurrencyPipe', () => {
       expect(result).toEqual('$1,000,000.00');
     });
 
-    it('should format a negative value without the currency symbol when skipSymbol is true', () => {
-      fyCurrencyPipeSpy.transform.and.returnValue('100.00');
-      const config: CurrencyPipeConfig = { value: -100, currencyCode: 'USD', skipSymbol: true };
-      const result = exactCurrencyPipe.transform(config);
-      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', '', undefined);
-      expect(result).toEqual('-100.00');
-    });
-
     it('should format a positive decimal with single fraction digit', () => {
       fyCurrencyPipeSpy.transform.and.returnValue('$123.40');
       const config: CurrencyPipeConfig = { value: 123.4, currencyCode: 'USD', fraction: 2 };
       const result = exactCurrencyPipe.transform(config);
       expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(123.4, 'USD', 'symbol', '1.2-2');
       expect(result).toEqual('$123.40');
-    });
-
-    it('should format a value without decimal digits, when skipSymbol is true and fraction is set to 2', () => {
-      fyCurrencyPipeSpy.transform.and.returnValue('100.00');
-      const config: CurrencyPipeConfig = { value: 100, currencyCode: 'USD', skipSymbol: true, fraction: 2 };
-      const result = exactCurrencyPipe.transform(config);
-      expect(fyCurrencyPipeSpy.transform).toHaveBeenCalledWith(100, 'USD', '', '1.2-2');
-      expect(result).toEqual('100.00');
     });
 
     it('should format a negative integer with fraction digits', () => {

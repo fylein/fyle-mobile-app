@@ -1809,5 +1809,19 @@
     "message": "You'll notice our new name and logo across the app. Your workflows and data remain exactly the same - it's the same product you know and love, just with a new name.",
     "learnMore": "Learn More",
     "ok": "OK"
+  },
+  "infoCard": {
+    "beta": "Beta"
+  },
+  "myProfile": {
+    "magicMail": {
+      "title": "Magic mail",
+      "content": "Add this email in apps like Uber, or at checkout to automatically capture receipts and create expenses in Sage Expense Management."
+    },
+    "emailReceipts": {
+      "title": "Email receipts",
+      "content": "Forward receipts from your registered email to this email to automatically create expenses."
+    },
+    "emailCopiedSuccessfully": "Email copied successfully"
   }
 }

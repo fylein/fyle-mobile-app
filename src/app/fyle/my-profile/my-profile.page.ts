@@ -1,9 +1,19 @@
 import { Component, EventEmitter, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { Observable, Subscription, concat, forkJoin, from, noop, finalize } from 'rxjs';
-import { map, shareReplay, switchMap } from 'rxjs/operators';
+import { map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -57,6 +67,7 @@ import { MatRipple } from '@angular/material/core';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { InfoCardComponent } from './info-card/info-card.component';
 import { PreferenceSettingComponent } from './preference-setting/preference-setting.component';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-my-profile',
@@ -79,7 +90,7 @@ import { PreferenceSettingComponent } from './preference-setting/preference-sett
     NgClass,
     PreferenceSettingComponent,
     ProfileOptInCardComponent,
-    RouterLink
+    RouterLink,
   ],
 })
 export class MyProfilePage {
@@ -137,6 +148,8 @@ export class MyProfilePage {
 
   private featureConfigService = inject(FeatureConfigService);
 
+  private translocoService = inject(TranslocoService);
+
   employeeSettings: EmployeeSettings;
 
   orgSettings: OrgSettings;
@@ -160,7 +173,7 @@ export class MyProfilePage {
 
   preferenceSettings: PreferenceSetting[] = [];
 
-  infoCardsData: CopyCardDetails[];
+  infoCardsData: InfoCardData[];
 
   commuteDetails: CommuteDetails;
 
@@ -375,7 +388,13 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
+    // Set info cards initially (without eou for email receipts card)
     this.setInfoCardsData();
+
+    // Subscribe to eou$ to update info cards when eou is available (for Magic mail card)
+    this.eou$.pipe(take(1)).subscribe((eou) => {
+      this.setInfoCardsData(eou);
+    });
 
     forkJoin({
       employeeSettings: employeeSettings$,
@@ -456,18 +475,31 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(): void {
+  setInfoCardsData(eou?: ExtendedOrgUser): void {
     const fyleEmail = 'receipts@fylehq.com';
 
-    const allInfoCardsData: InfoCardData[] = [
-      {
-        title: 'Email receipts',
-        content: `Forward your receipts to Sage Expense Management at ${fyleEmail}.`,
-        contentToCopy: fyleEmail,
-        toastMessageContent: 'Email copied successfully',
+    const allInfoCardsData: InfoCardData[] = [];
+
+    if (eou?.ou?.special_email) {
+      allInfoCardsData.push({
+        title: this.translocoService.translate<string>('myProfile.magicMail.title'),
+        content: this.translocoService.translate<string>('myProfile.magicMail.content'),
+        contentToCopy: eou.ou.special_email,
+        toastMessageContent: this.translocoService.translate<string>('myProfile.emailCopiedSuccessfully'),
         isShown: true,
-      },
-    ];
+        showMagicEmail: true,
+        showBetaTag: true,
+      });
+    }
+
+    allInfoCardsData.push({
+      title: this.translocoService.translate<string>('myProfile.emailReceipts.title'),
+      content: this.translocoService.translate<string>('myProfile.emailReceipts.content'),
+      contentToCopy: fyleEmail,
+      toastMessageContent: this.translocoService.translate<string>('myProfile.emailCopiedSuccessfully'),
+      isShown: true,
+      showMagicEmail: true,
+    });
 
     this.infoCardsData = allInfoCardsData.filter((infoCardData) => infoCardData.isShown);
   }

@@ -21,17 +21,12 @@
           </div>
           <!-- Amount -->
           <div class="advance-card--amount-block">
-            <span class="advance-card--currency">{{ currencySymbol }}</span>
             @if (advanceRequest.areq_amount && advanceRequest.areq_currency) {
-              <span class="advance-card--amount">
+              <div class="advance-card--amount">
                 {{
-                  {
-                    value: advanceRequest.areq_amount || 0,
-                    currencyCode: advanceRequest.areq_currency,
-                    skipSymbol: true,
-                  } | exactCurrency
+                  { value: advanceRequest.areq_amount || 0, currencyCode: advanceRequest.areq_currency } | exactCurrency
                 }}
-              </span>
+              </div>
             }
           </div>
           <!-- Approved date -->
@@ -39,10 +34,7 @@
             <div class="advance-card--approval">
               @if (advanceRequest.areq_approved_at) {
                 <div>
-                  <span
-                    >{{ 'teamAdvCard.approvedDate' | transloco
-                    }}{{ advanceRequest.areq_approved_at | date }}</span
-                  >
+                  <span>{{ 'teamAdvCard.approvedDate' | transloco }}{{ advanceRequest.areq_approved_at | date }}</span>
                 </div>
               }
             </div>

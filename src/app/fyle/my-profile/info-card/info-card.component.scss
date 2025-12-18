@@ -2,13 +2,29 @@
 
 .info-card {
   &__card {
-    align-items: center;
-    padding: 20px 0;
+    align-items: flex-start;
+    padding: 0;
+
+    &__title-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
     &__title {
       font-size: 16px;
       font-weight: 500;
       color: colors.$pure-black;
+    }
+
+    &__beta-tag {
+      background-color: colors.$pure-black;
+      color: colors.$pure-white;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 12px;
     }
   }
 
@@ -16,15 +32,39 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-top: 8px;
+    padding-top: 6px;
 
     &__content {
-      font-size: 12px;
+      font-size: 14px;
       color: colors.$black-light;
     }
 
     &__icon-container {
       padding-left: 8px;
+
+      &__icon {
+        height: 24px;
+        width: 24px;
+        color: colors.$brand-primary;
+      }
+    }
+  }
+
+  &__email-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+
+    &__email {
+      font-size: 14px;
+      font-weight: 500;
+      color: colors.$gray-25;
+    }
+
+    &__icon-container {
+      padding-left: 8px;
+      flex-shrink: 0;
 
       &__icon {
         height: 24px;
