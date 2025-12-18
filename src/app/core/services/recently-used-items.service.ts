@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
+import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
+import { CostCenters } from '../models/cost-centers.model';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -83,7 +84,7 @@ export class RecentlyUsedItemsService {
   getRecentCostCenters(
     costCenters: CostCenters[],
     recentValue: RecentlyUsed,
-  ): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
+  ): Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]> {
     if (
       costCenters &&
       costCenters.length > 0 &&
