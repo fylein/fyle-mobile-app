@@ -15,7 +15,7 @@ require('dotenv').config();
 
 function getIosGoogleServicesPlist() {
   const apiKey =
-    process.env.FYLE_MOBILE_FIREBASE_IOS_API_KEY || process.env.FIREBASE_IOS_API_KEY;
+    process.env.FIREBASE_API_KEY;
   const gcmSenderId =
     process.env.FYLE_MOBILE_FIREBASE_IOS_GCM_SENDER_ID ||
     process.env.FIREBASE_IOS_GCM_SENDER_ID;
