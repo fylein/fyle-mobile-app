@@ -1,4 +1,3 @@
-/// <reference types="@capawesome/capacitor-app-shortcuts" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 import { KeyboardStyle } from '@capacitor/keyboard';
