@@ -52,37 +52,6 @@ PODS:
     - CapacitorCordova
     - GoogleSignIn (~> 5.0.2)
     - GoogleUtilities (~> 7.2.2)
-  - FirebaseCore (7.11.0):
-    - FirebaseCoreDiagnostics (~> 7.4)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/Logger (~> 7.0)
-  - FirebaseCoreDiagnostics (7.11.0):
-    - GoogleDataTransport (~> 8.4)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/Logger (~> 7.0)
-    - nanopb (~> 2.30908.0)
-  - FirebaseInstallations (7.11.0):
-    - FirebaseCore (~> 7.0)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/UserDefaults (~> 7.0)
-    - PromisesObjC (~> 1.2)
-  - FirebaseInstanceID (7.11.0):
-    - FirebaseCore (~> 7.0)
-    - FirebaseInstallations (~> 7.0)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/UserDefaults (~> 7.0)
-  - FirebaseMessaging (7.11.0):
-    - FirebaseCore (~> 7.0)
-    - FirebaseInstallations (~> 7.0)
-    - FirebaseInstanceID (~> 7.0)
-    - GoogleUtilities/AppDelegateSwizzler (~> 7.0)
-    - GoogleUtilities/Environment (~> 7.0)
-    - GoogleUtilities/Reachability (~> 7.0)
-    - GoogleUtilities/UserDefaults (~> 7.0)
-  - GoogleDataTransport (8.4.0):
-    - GoogleUtilities/Environment (~> 7.2)
-    - nanopb (~> 2.30908.0)
-    - PromisesObjC (~> 1.2)
   - GoogleSignIn (5.0.2):
     - AppAuth (~> 1.2)
     - GTMAppAuth (~> 1.0)
@@ -125,11 +94,6 @@ PODS:
     - GTMSessionFetcher/Core (< 3.0, >= 1.5)
   - GTMSessionFetcher/Core (1.7.2)
   - IONGeolocationLib (1.0.0)
-  - nanopb (2.30908.0):
-    - nanopb/decode (= 2.30908.0)
-    - nanopb/encode (= 2.30908.0)
-  - nanopb/decode (2.30908.0)
-  - nanopb/encode (2.30908.0)
   - PromisesObjC (1.2.12)
   - SwiftKeychainWrapper (4.0.1)
 
@@ -156,23 +120,15 @@ DEPENDENCIES:
   - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
-  - FirebaseMessaging
 
 SPEC REPOS:
   trunk:
     - AppAuth
-    - FirebaseCore
-    - FirebaseCoreDiagnostics
-    - FirebaseInstallations
-    - FirebaseInstanceID
-    - FirebaseMessaging
-    - GoogleDataTransport
     - GoogleSignIn
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
     - IONGeolocationLib
-    - nanopb
     - PromisesObjC
     - SwiftKeychainWrapper
 
@@ -246,21 +202,14 @@ SPEC CHECKSUMS:
   CapacitorTextZoom: ccb82513c95a64bd9d4de4fc2399c2690a8705de
   CordovaPlugins: cd09dcd80d0232dccd9631dcd03ba86f8ec46471
   CordovaPluginsStatic: 1b6af5eeaf26daae1b53f7f4acbd1e728be627a8
-  FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
-  FirebaseCoreDiagnostics: 68ad972f99206cef818230f3f3179d52ccfb7f8c
-  FirebaseInstallations: a58d4f72ec5861840b84df489f2668d970df558a
-  FirebaseInstanceID: ad5135045a498d7775903efd39762d2cdfa1be27
-  FirebaseMessaging: 163435fb6db065e3b6228f1e577b10ed2cc506d2
-  GoogleDataTransport: cd9db2180fcecd8da1b561aea31e3e56cf834aa7
   GoogleSignIn: 7137d297ddc022a7e0aa4619c86d72c909fa7213
   GoogleUtilities: 31c5b01f978a70c6cff2afc6272b3f1921614b43
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
   IONGeolocationLib: 81f33f88d025846946de2cf63b0c7628e7c6bc9d
-  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 56a0e4bfee8dcb5febbd4e8c4ab5bb1734727dfb
+PODFILE CHECKSUM: 1a560a5029fabd3dd19dbdc92af0ed0870a8a570
 
 COCOAPODS: 1.16.2
