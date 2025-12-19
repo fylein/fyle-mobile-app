@@ -101,7 +101,21 @@
         </div>
       }
       <app-stats></app-stats>
-      <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
+      @if (areDashboardTabsEnabled()) {
+        <ion-segment class="dashboard--segment" (ionChange)="onTabChange($event)" [value]="activeTabState()">
+          <ion-segment-button value="cards" class="text-capitalize">Cards</ion-segment-button>
+          <ion-segment-button value="budgets" class="text-capitalize">Budgets</ion-segment-button>
+          <ion-segment-button value="#" disabled></ion-segment-button>
+        </ion-segment>
+      }
+
+      @if (shouldShowCards()) {
+        <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
+      }
+
+      @if (shouldShowBudgets()) {
+        <div>Budgets component</div>
+      }
     </mat-tab>
     <mat-tab label="tasks">
       <app-tasks (optedIn)="hideOptInDashboardBanner()"></app-tasks>

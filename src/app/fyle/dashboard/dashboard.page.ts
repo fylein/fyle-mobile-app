@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -9,6 +9,8 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonSegment,
+  IonSegmentButton,
   IonSkeletonText,
   IonTitle,
   IonToolbar,
@@ -64,7 +66,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { OverlayEventDetail } from '@ionic/core';
+import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -95,6 +97,8 @@ SwiperCore.use([Pagination, Autoplay]);
     SwiperModule,
     TasksComponent,
     TranslocoPipe,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class DashboardPage {
@@ -151,6 +155,41 @@ export class DashboardPage {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private popoverController = inject(PopoverController);
+
+  readonly areCardsEnabled = signal<boolean>(false);
+
+  readonly areBudgetsEnabled = signal<boolean>(false);
+
+  readonly areDashboardTabsEnabled = signal<boolean>(false);
+
+  readonly isDashboardConfigReady = signal<boolean>(false);
+
+  readonly activeTabState = signal<'cards' | 'budgets'>('cards');
+
+  readonly shouldShowCards = computed(() => {
+    if (!this.isDashboardConfigReady()) return false; // Don't show until ready
+
+    if (this.areDashboardTabsEnabled()) {
+      return this.activeTabState() === 'cards';
+    }
+    return this.areCardsEnabled();
+  });
+
+  readonly shouldShowBudgets = computed(() => {
+    if (!this.isDashboardConfigReady()) return false; // Don't show until ready
+
+    if (this.areDashboardTabsEnabled()) {
+      return this.activeTabState() === 'budgets';
+    }
+    return this.areBudgetsEnabled();
+  });
+
+  onTabChange(event: SegmentCustomEvent): void {
+    const value = event.detail.value as 'cards' | 'budgets';
+    if (value) {
+      this.activeTabState.set(value);
+    }
+  }
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -659,9 +698,34 @@ export class DashboardPage {
     this.canShowOptInBanner$ = optInBanner$;
     this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
-    this.eou$.subscribe((eou) => {
-      this.userName = eou.us.full_name;
-    });
+    combineLatest([this.orgSettings$, this.eou$])
+      .pipe(take(1))
+      .subscribe(([orgSettings, eou]) => {
+        // Set cards enabled flag
+        const isCCCEnabled =
+          orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
+        this.areCardsEnabled.set(isCCCEnabled);
+
+        // Set budgets enabled flag
+        // TODO: @SahilK-027 to remove this check
+        this.areBudgetsEnabled.set(eou.us.email === 'sahil.k@fyle.in' && eou.us.id === 'usWpJFdb3yqA');
+
+        // Calculate if tabs should be enabled
+        this.areDashboardTabsEnabled.set(this.areCardsEnabled() && this.areBudgetsEnabled());
+
+        // Set initial active tab
+        if (isCCCEnabled) {
+          this.activeTabState.set('cards');
+        } else if (this.areBudgetsEnabled()) {
+          this.activeTabState.set('budgets');
+        }
+
+        // Set user name
+        this.userName = eou.us.full_name;
+
+        // Mark as ready - this will trigger component creation
+        this.isDashboardConfigReady.set(true);
+      });
 
     forkJoin({
       optInBanner: optInBanner$,
@@ -714,8 +778,6 @@ export class DashboardPage {
     });
 
     this.statsComponent.init();
-    this.cardStatsComponent.init();
-
     this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
