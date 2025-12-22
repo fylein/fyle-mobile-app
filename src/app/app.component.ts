@@ -39,7 +39,6 @@ import {
   PushNotifications,
   Token,
 } from '@capacitor/push-notifications';
-import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-root',
@@ -269,17 +268,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // On success, we should be able to receive notifications
     // Show a local notification with the registration token (for debugging/manual testing)
     PushNotifications.addListener('registration', async (token: Token) => {
-      
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            id: Date.now(),
-            title: 'Push registration success',
-            body: token.value,
-            extra: { token: token.value },
-          },
-        ],
-      });
+      console.log('Push registration success', token);
     });
 
     // Some issue with our setup and push will not work
@@ -298,16 +287,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           notification.body ||
           (notification.data ? JSON.stringify(notification.data) : 'You have a new notification');
 
-        await LocalNotifications.schedule({
-          notifications: [
-            {
-              id: Date.now(),
-              title,
-              body,
-              extra: notification.data,
-            },
-          ],
-        });
+        console.log('Push notification received', notification);
       },
     );
 
