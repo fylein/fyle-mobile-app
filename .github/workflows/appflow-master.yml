@@ -8,6 +8,9 @@ jobs:
   build-app:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -28,6 +31,15 @@ jobs:
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
+
+      - name: Prepare iOS Appflow environment (nanopb fix script reference)
+        run: |
+          # This step runs on GitHub's Linux runner and is a no-op there,
+          # but keeps the ios-nanopb-fix.sh script versioned in the repo.
+          # The same script should be invoked as a Pre-build command
+          # inside the Appflow iOS native build configuration:
+          #   bash scripts/ios-nanopb-fix.sh
+          echo "ios-nanopb-fix script is available at scripts/ios-nanopb-fix.sh"
 
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
