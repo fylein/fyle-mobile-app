@@ -32,6 +32,14 @@ import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
 
+/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+import {
+  ActionPerformed,
+  PushNotificationSchema,
+  PushNotifications,
+  Token,
+} from '@capacitor/push-notifications';
+
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -231,6 +239,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
+    PushNotifications.requestPermissions().then((result) => {
+      if (result.receive === 'granted') {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register().then((token) => {
+          console.log('Push registration success', token);
+        });
+      } else {
+        // Show some error
+      }
+    });
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
@@ -246,6 +264,39 @@ export class AppComponent implements OnInit, AfterViewInit {
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));
     }
+
+    // On success, we should be able to receive notifications
+    // Show a local notification with the registration token (for debugging/manual testing)
+    PushNotifications.addListener('registration', async (token: Token) => {
+      console.log('Push registration success', token);
+    });
+
+    // Some issue with our setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        alert('Error on registration: ' + JSON.stringify(error));
+      }
+    );
+
+    // Show a system notification if a push is received while the app is in the foreground
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      async (notification: PushNotificationSchema) => {
+        const title = notification.title || 'New notification';
+        const body =
+          notification.body ||
+          (notification.data ? JSON.stringify(notification.data) : 'You have a new notification');
+
+        console.log('Push notification received', notification);
+      },
+    );
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed',
+      (notification: ActionPerformed) => {
+        alert('Push action performed: ' + JSON.stringify(notification));
+      }
+    );
 
     this.isConnected$.subscribe((isOnline) => {
       this.isOnline = isOnline;

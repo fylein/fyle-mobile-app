@@ -8,6 +8,9 @@ jobs:
   build-app:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Build Android with Appflow
         uses: ionic-team/appflow-build@v1
         with:
@@ -28,6 +31,9 @@ jobs:
         with:
           token: ${{ secrets.DIAWI_TOKEN }}
           file: android.apk
+
+      - name: Prepare iOS Appflow environment (nanopb fix script reference)
+        run: bash scripts/ios-nanopb-fix.sh
 
       - name: Build iOS on Appflow
         uses: ionic-team/appflow-build@v1
