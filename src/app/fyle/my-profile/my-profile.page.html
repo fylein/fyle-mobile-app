@@ -70,6 +70,8 @@
                         [content]="infoCardData.content"
                         [contentToCopy]="infoCardData.contentToCopy"
                         [toastMessageContent]="infoCardData.toastMessageContent"
+                        [showEmail]="infoCardData.showMagicEmail"
+                        [showBetaTag]="infoCardData.showBetaTag"
                         (copiedText)="showToastMessage($event, 'success')"
                       ></app-info-card>
                     </div>
