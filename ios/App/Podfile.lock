@@ -27,6 +27,8 @@ PODS:
     - Capacitor
   - CapacitorKeyboard (7.0.4):
     - Capacitor
+  - CapacitorLocalNotifications (7.0.4):
+    - Capacitor
   - CapacitorNativeSettings (7.0.2):
     - Capacitor
   - CapacitorNetwork (7.0.3):
@@ -197,6 +199,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
     :path: "../../node_modules/@capacitor/keyboard"
+  CapacitorLocalNotifications:
+    :path: "../../node_modules/@capacitor/local-notifications"
   CapacitorNativeSettings:
     :path: "../../node_modules/capacitor-native-settings"
   CapacitorNetwork:
@@ -231,6 +235,7 @@ SPEC CHECKSUMS:
   CapacitorGeolocation: a65213fef581c7b8c5d486abbd5a6d00192a179e
   CapacitorHaptics: ce15be8f287fa2c61c7d2d9e958885b90cf0bebc
   CapacitorKeyboard: 5660c760113bfa48962817a785879373cf5339c3
+  CapacitorLocalNotifications: ba2a08bd92887b08f352e6b2db430575cef0cea3
   CapacitorNativeSettings: 3cd2e2ef431fe471674f381609cfb29154ddfcfa
   CapacitorNetwork: 1a22460c6f900686f12ffa52f3074ee313821b08
   CapacitorPreferences: 913eef88272c13eb6445b21e51fe8ef6635412cc
