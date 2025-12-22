@@ -62,27 +62,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
   }
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    // Override point for customization after application launch.
-    FirebaseApp.configure() // Need to initialize
-    return true
-  }
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Override point for customization after application launch.
+    FirebaseApp.configure() // Need to initialize
+    return true
+  }
 
-  // Function to register the token as APNS for IOS only
-  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
-    Messaging.messaging().token(completion: { (token, error) in
-      if let error = error {
-          NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
-      } else if let token = token {
-          NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
-      }
-    })
-  }
-   // Function to through the registration error
-  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-    NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
-  }
+  // Function to register the token as APNS for iOS only
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    Messaging.messaging().token(completion: { token, error in
+      if let error = error {
+        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+      } else if let token = token {
+        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
+      }
+    })
+  }
+
+  // Function to throw the registration error
+  func application(_ application: UIApplication,
+                   didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+  }
 }
-
 
