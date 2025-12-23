@@ -118,7 +118,11 @@
       }
 
       @if (shouldShowBudgets()) {
-        <div>Budgets component</div>
+        <app-dashboard-budgets
+          [budgets]="budgets()"
+          [isLoading]="isBudgetsLoading()"
+          [areDashboardTabsEnabled]="areDashboardTabsEnabled()"
+        ></app-dashboard-budgets>
       }
     </mat-tab>
     <mat-tab label="tasks">

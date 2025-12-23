@@ -1790,6 +1790,10 @@
     "cardsTab": "Cards",
     "budgetsTab": "Budgets"
   },
+  "dashboardBudgets": {
+    "header": "My budgets",
+    "noBudgetsAvailable": "No budgets available"
+  },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
     "description": "Gas stations often place a temporary $1 hold amount when you swipe your card. This placeholder amount is updated to the actual amount within a few days of your purchase.",

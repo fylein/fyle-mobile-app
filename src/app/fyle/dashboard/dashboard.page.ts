@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -34,6 +34,7 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { CardStatsComponent } from './card-stats/card-stats.component';
+import { DashboardBudgetsComponent } from './dashboard-budgets/dashboard-budgets.component';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -67,9 +68,128 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
+import { Budget } from 'src/app/core/models/budget.model';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
+
+// TODO: @SahilK-027 to remove this fake data
+const FAKE_BUDGETS_DATA = [
+  [
+    {
+      id: 'sdfd2391',
+      org_id: 'orwruogwnngg',
+      created_at: '2020-06-01T13:14:54.804+00:00',
+      updated_at: '2025-12-01T10:00:00.000+00:00',
+      is_enabled: true,
+      name: 'Monthly Budget for Sales',
+      type: 'MONTHLY',
+      amount_limit: 100000.0,
+      alert_threshold: 9000,
+      department_ids: ['2222', '1221'],
+      project_ids: ['2222', '1221'],
+      cost_center_ids: ['2222', '1221'],
+      category_ids: [2222, 1221],
+      observer_ids: ['usge49ielgel'],
+      fiscal_year_start_month: 10,
+      budget_start_date: '2025-11-01T00:00:00+00:00',
+      budget_end_date: '2025-11-30T23:59:59+00:00',
+      budget_creator: {
+        id: 'usq8rwZj2POy',
+        name: 'John Brown',
+        email: 'admin1@company.com',
+      },
+      amount_spent: 50000.0,
+      amount_remaining: 50000.0,
+      utilisation_percentage: 50.0,
+      status: 'ON_TRACK',
+    },
+    {
+      id: 'mkt-2025',
+      org_id: 'orwruogwnngg',
+      created_at: '2021-02-15T09:05:12.000+00:00',
+      updated_at: '2025-12-02T08:30:00.000+00:00',
+      is_enabled: true,
+      name: 'Marketing',
+      type: 'QUARTERLY',
+      amount_limit: 15000.0,
+      alert_threshold: 14000,
+      department_ids: ['2222', '1221'],
+      project_ids: ['2222', '1221'],
+      cost_center_ids: ['2222', '1221'],
+      category_ids: [6001, 6002],
+      observer_ids: ['us9abcde1234'],
+      fiscal_year_start_month: 4,
+      budget_start_date: '2025-10-01T00:00:00+00:00',
+      budget_end_date: '2025-12-31T23:59:59+00:00',
+      budget_creator: {
+        id: 'us9mkLZx7Qp',
+        name: 'Aisha Patel',
+        email: 'aisha.patel@company.com',
+      },
+      amount_spent: 13500.0,
+      amount_remaining: 1500.0,
+      utilisation_percentage: 90.0,
+      status: 'NEAR_LIMIT',
+    },
+    {
+      id: 'eng-2025',
+      org_id: 'orwruogwnngg',
+      created_at: '2022-07-01T12:00:00.000+00:00',
+      updated_at: '2025-12-03T14:30:00.000+00:00',
+      is_enabled: true,
+      name: 'Engineering',
+      type: 'YEARLY',
+      amount_limit: 20000.0,
+      alert_threshold: 19000,
+      department_ids: ['2222', '1221'],
+      project_ids: ['2222', '1221'],
+      cost_center_ids: ['2222', '1221'],
+      category_ids: [10001],
+      observer_ids: ['usdevobserver1'],
+      fiscal_year_start_month: 1,
+      budget_start_date: '2025-01-01T00:00:00+00:00',
+      budget_end_date: '2025-12-31T23:59:59+00:00',
+      budget_creator: {
+        id: 'usDevLead001',
+        name: 'Carlos Mendes',
+        email: 'carlos.mendes@company.com',
+      },
+      amount_spent: 20000.0,
+      amount_remaining: 0.0,
+      utilisation_percentage: 100.0,
+      status: 'EXCEEDED',
+    },
+    {
+      id: 'fin-2025',
+      org_id: 'orwruogwnngg',
+      created_at: '2022-07-01T12:00:00.000+00:00',
+      updated_at: '2025-12-03T14:30:00.000+00:00',
+      is_enabled: false,
+      name: 'Finance budget',
+      type: 'ONE_TIME',
+      amount_limit: 2000.0,
+      alert_threshold: 1500,
+      department_ids: ['2222', '1221'],
+      project_ids: ['2222', '1221'],
+      cost_center_ids: ['2222', '1221'],
+      category_ids: [1000],
+      observer_ids: ['usdevobserver1'],
+      fiscal_year_start_month: 1,
+      budget_start_date: '2025-01-01T00:00:00+00:00',
+      budget_end_date: '2025-12-31T23:59:59+00:00',
+      budget_creator: {
+        id: 'usDevLead001',
+        name: 'Carlos Mendes',
+        email: 'carlos.mendes@company.com',
+      },
+      amount_spent: 1000.0,
+      amount_remaining: 1000.0,
+      utilisation_percentage: 50.0,
+      status: 'DISABLED',
+    },
+  ],
+];
 
 @Component({
   selector: 'app-dashboard',
@@ -78,6 +198,7 @@ SwiperCore.use([Pagination, Autoplay]);
   imports: [
     AsyncPipe,
     CardStatsComponent,
+    DashboardBudgetsComponent,
     DashboardEmailOptInComponent,
     DashboardOptInComponent,
     FyMenuIconComponent,
@@ -184,6 +305,15 @@ export class DashboardPage {
     return this.areBudgetsEnabled();
   });
 
+  constructor() {
+    // Fetch budgets when they should be shown
+    effect(() => {
+      if (this.shouldShowBudgets() && this.budgets().length === 0 && !this.isBudgetsLoading()) {
+        this.fetchBudgets();
+      }
+    });
+  }
+
   onTabChange(event: SegmentCustomEvent): void {
     const value = event.detail.value as 'cards' | 'budgets';
     if (value) {
@@ -259,6 +389,10 @@ export class DashboardPage {
   swiperConfig: SwiperOptions;
 
   readonly rebrandingPopupShown = signal<boolean>(false);
+
+  readonly budgets = signal<Budget[]>([]);
+
+  readonly isBudgetsLoading = signal<boolean>(false);
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
@@ -1132,5 +1266,23 @@ export class DashboardPage {
         }),
       )
       .subscribe();
+  }
+
+  // TODO: @SahilK-027 to implement actual API call when platform/v1/spender/budgets API is available
+  fetchBudgets(): void {
+    this.isBudgetsLoading.set(true);
+    const fakeBudgets = FAKE_BUDGETS_DATA[0];
+
+    of(fakeBudgets)
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe({
+        next: (budgets) => {
+          this.budgets.set(budgets);
+          this.isBudgetsLoading.set(false);
+        },
+        error: () => {
+          this.isBudgetsLoading.set(false);
+        },
+      });
   }
 }
