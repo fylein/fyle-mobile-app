@@ -1792,15 +1792,7 @@
   },
   "dashboardBudgets": {
     "header": "My budgets",
-    "noBudgetsAvailable": "No budgets available",
-    "limit": "Limit",
-    "totalUtilization": "Total utilization",
-    "totalUtilizationInfoTooltip": "Total amount spent from the budget",
-    "remaining": "Remaining",
-    "monthly": "Monthly",
-    "quarterly": "Quarterly",
-    "yearly": "Yearly",
-    "oneTime": "One-time"
+    "noBudgetsAvailable": "No budgets available"
   },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
