@@ -337,6 +337,13 @@ ion-popover.camera-options-popover {
   }
 }
 
+.text-first-letter-uppercase {
+  display: inline-block;
+  &::first-letter {
+    text-transform: uppercase !important;
+  }
+}
+
 .d-flex {
   display: flex !important;
 }
