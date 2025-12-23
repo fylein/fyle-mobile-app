@@ -56,6 +56,10 @@
 		"classpath": "com.capacitorjs.plugins.textzoom.TextZoomPlugin"
 	},
 	{
+		"pkg": "@capawesome/capacitor-app-shortcuts",
+		"classpath": "io.capawesome.capacitorjs.plugins.appshortcuts.AppShortcutsPlugin"
+	},
+	{
 		"pkg": "capacitor-native-settings",
 		"classpath": "nl.raphael.settings.NativeSettingsPlugin"
 	},

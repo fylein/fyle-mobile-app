@@ -11,6 +11,22 @@
 		"Keyboard": {
 			"style": "LIGHT",
 			"resizeOnFullScreen": true
+		},
+		"AppShortcuts": {
+			"shortcuts": [
+				{
+					"id": "capture_receipt",
+					"title": "Capture Receipt",
+					"iosIcon": "camera",
+					"androidIcon": "ic_shortcut_camera_sage"
+				},
+				{
+					"id": "add_expense",
+					"title": "Add Expense",
+					"iosIcon": "plus.app",
+					"androidIcon": "ic_shortcut_add_sage"
+				}
+			]
 		}
 	},
 	"cordova": {
@@ -39,6 +55,7 @@
 		"SplashScreenPlugin",
 		"StatusBarPlugin",
 		"TextZoomPlugin",
+		"AppShortcutsPlugin",
 		"NativeSettingsPlugin",
 		"SecureStoragePlugin",
 		"CDVPlugin"
