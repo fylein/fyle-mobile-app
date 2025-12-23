@@ -81,10 +81,11 @@ module.exports = function (ctx) {
   // Creating Info.plist file
   fs.writeFileSync('ios/App/App/Info.plist', secrets.iosInfo);
 
-  // // Creating GoogleService-Info.plist file (if config is available)
-  // if (secrets.iosGoogleServicesPlist) {
-  //   fs.writeFileSync('ios/App/App/GoogleService-Info.plist', secrets.iosGoogleServicesPlist, 'utf8');
-  // }
+  // Creating GoogleService-Info.plist file (if config is available)
+  console.log('testingprebuild');
+  if (secrets.iosGoogleServicesPlist) {
+    fs.writeFileSync('ios/App/App/GoogleService-Info.plist', secrets.iosGoogleServicesPlist, 'utf8');
+  }
 };
 
 function compareAppVersion(liveUpdateVersion, currentVersion) {
