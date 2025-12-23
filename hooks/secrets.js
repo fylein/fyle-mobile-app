@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const { getIosInfo } = require('./utils/ios-info');
 const { getProdEnvironment } = require('./utils/prod-environment');
-// const { getAndroidGoogleServicesJson } = require('./utils/android-google-services.js');
+const { getAndroidGoogleServicesJson } = require('./utils/android-google-services.js');
 const { getIosGoogleServicesPlist } = require('./utils/ios-google-services');
 
 dotenv.config();
@@ -15,4 +15,4 @@ if (process.env.NATIVE_CONFIG) {
 
 module.exports.iosGoogleServicesPlist = getIosGoogleServicesPlist();
 module.exports.prodEnvironment = getProdEnvironment();
-// module.exports.androidGoogleServicesJson = getAndroidGoogleServicesJson()
+module.exports.androidGoogleServicesJson = getAndroidGoogleServicesJson()
