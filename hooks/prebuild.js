@@ -13,6 +13,9 @@ module.exports = function (ctx) {
   // Creating environment.prod.ts file
   fs.writeFileSync(`${ctx.project.dir}` + '/src/environments/environment.prod.ts', secrets.prodEnvironment);
 
+  // const googleServicesPath = path.resolve(ctx.project.dir, 'android/app/google-services.json');
+  // fs.writeFileSync(googleServicesPath, secrets.androidGoogleServicesJson, 'utf8');
+
   // Adding LIVE_UPDATE_CHANNEL in strings.xml
   var androidStringsPath = path.resolve(process.cwd(), 'android/app/src/main/res/values/strings.xml');
   var androidStrings = fs.readFileSync(androidStringsPath).toString();
@@ -77,6 +80,11 @@ module.exports = function (ctx) {
 
   // Creating Info.plist file
   fs.writeFileSync('ios/App/App/Info.plist', secrets.iosInfo);
+
+  // Creating GoogleService-Info.plist file (if config is available)
+  if (secrets.iosGoogleServicesPlist) {
+    fs.writeFileSync('ios/App/App/GoogleService-Info.plist', secrets.iosGoogleServicesPlist, 'utf8');
+  }
 };
 
 function compareAppVersion(liveUpdateVersion, currentVersion) {
