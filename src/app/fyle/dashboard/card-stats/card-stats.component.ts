@@ -21,13 +21,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   selector: 'app-card-stats',
   templateUrl: './card-stats.component.html',
   styleUrls: ['./card-stats.component.scss'],
-  imports: [
-    AddCardComponent,
-    AsyncPipe,
-    IonSkeletonText,
-    SpentCardsComponent,
-    TranslocoPipe
-  ],
+  imports: [AddCardComponent, AsyncPipe, IonSkeletonText, SpentCardsComponent, TranslocoPipe],
 })
 export class CardStatsComponent implements OnInit {
   private currencyService = inject(CurrencyService);
@@ -74,6 +68,7 @@ export class CardStatsComponent implements OnInit {
 
   ngOnInit(): void {
     this.setupNetworkWatcher();
+    this.init();
   }
 
   setupNetworkWatcher(): void {
