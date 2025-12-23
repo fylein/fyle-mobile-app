@@ -26,6 +26,8 @@ import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
 import { TextZoom } from '@capacitor/text-zoom';
 import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { BackButtonService } from './core/services/back-button.service';
 import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
@@ -79,11 +81,17 @@ describe('AppComponent', () => {
     const textZoomSetSpy = jasmine.createSpy('set').and.resolveTo();
     const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
 
+    // Mock AppShortcuts plugin
+    const appShortcutsAddListenerSpy = jasmine
+      .createSpy('addListener')
+      .and.resolveTo({ remove: jasmine.createSpy('remove') });
+
     // Replace the methods on the imported modules
     Object.defineProperty(SplashScreen, 'hide', { value: splashScreenHideSpy, writable: true });
     Object.defineProperty(StatusBar, 'setStyle', { value: statusBarSetStyleSpy, writable: true });
     Object.defineProperty(TextZoom, 'set', { value: textZoomSetSpy, writable: true });
     Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
+    Object.defineProperty(AppShortcuts, 'addListener', { value: appShortcutsAddListenerSpy, writable: true });
 
     platformReadySpy = Promise.resolve();
     platformSpy = jasmine.createSpyObj('Platform', { ready: platformReadySpy });
@@ -134,6 +142,7 @@ describe('AppComponent', () => {
       'footerHomeTabClicked',
       'footerExpensesTabClicked',
       'footerReportsTabClicked',
+      'appShortcutUsed',
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
@@ -662,4 +671,37 @@ describe('AppComponent', () => {
       expect(component.isOnline).toBeFalse();
     });
   });
+
+  describe('handleAppShortcut', () => {
+    let fixture: ComponentFixture<AppComponent>;
+    let component: AppComponent;
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(AppComponent);
+      component = fixture.componentInstance;
+    });
+
+    it('should navigate to camera overlay when capture_receipt shortcut is clicked', () => {
+      // Access private method using type assertion
+      (component as any).handleAppShortcut('capture_receipt');
+
+      expect(trackingService.appShortcutUsed).toHaveBeenCalledWith({ action: 'capture_receipt' });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+    });
+
+    it('should navigate to add/edit expense when add_expense shortcut is clicked', () => {
+      (component as any).handleAppShortcut('add_expense');
+
+      expect(trackingService.appShortcutUsed).toHaveBeenCalledWith({ action: 'add_expense' });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'add_edit_expense', { navigate_back: true }]);
+    });
+
+    it('should navigate to dashboard when unknown shortcut is clicked', () => {
+      (component as any).handleAppShortcut('unknown_shortcut');
+
+      expect(trackingService.appShortcutUsed).toHaveBeenCalledWith({ action: 'unknown_shortcut' });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
+    });
+  });
+
 });
