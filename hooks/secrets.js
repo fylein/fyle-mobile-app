@@ -10,9 +10,9 @@ if (process.env.NATIVE_CONFIG) {
   const NATIVE_CONFIG = JSON.parse(process.env.NATIVE_CONFIG);
   module.exports = {
     iosInfo: getIosInfo(),
-    iosGoogleServicesPlist: getIosGoogleServicesPlist(),
   };
 }
 
+module.exports.iosGoogleServicesPlist = getIosGoogleServicesPlist();
 module.exports.prodEnvironment = getProdEnvironment();
 // module.exports.androidGoogleServicesJson = getAndroidGoogleServicesJson()
