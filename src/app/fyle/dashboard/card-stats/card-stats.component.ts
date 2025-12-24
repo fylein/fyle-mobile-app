@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, input, output } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
@@ -39,6 +39,8 @@ export class CardStatsComponent implements OnInit {
   private virtualCardsService = inject(VirtualCardsService);
 
   readonly cardAdded = output<void>();
+
+  readonly areDashboardTabsEnabled = input<boolean>(false);
 
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 

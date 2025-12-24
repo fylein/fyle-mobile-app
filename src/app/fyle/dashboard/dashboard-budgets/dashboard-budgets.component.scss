@@ -5,7 +5,7 @@
   user-select: none;
 
   &__tabs-enabled {
-    margin: 20px 0;
+    margin-bottom: 40px;
   }
 
   &__header {
@@ -14,6 +14,7 @@
     color: colors.$black-light;
     font-weight: 500;
     margin: 16px;
+    margin-bottom: 0;
   }
 
   .budget-count {
@@ -50,7 +51,7 @@
   &__item {
     padding: 16px;
 
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e6ebed;
     border-radius: 8px;
     background-color: #fff;
     height: 100%;
@@ -73,6 +74,7 @@
   &__item-type {
     color: #5a5d72;
     font-weight: 400;
+    font-size: 12px;
   }
 
   &__empty {
@@ -99,7 +101,7 @@
       height: 8px;
 
       &--green {
-        background-color: colors.$green;
+        background-color: colors.$green-500;
       }
 
       &--yellow {
@@ -107,7 +109,7 @@
       }
 
       &--red {
-        background-color: colors.$red;
+        background-color: colors.$negative-500;
       }
     }
   }
@@ -147,8 +149,8 @@
   }
 
   &__item-info-stat-label {
-    color: colors.$sage-text-tertiary;
-    font-size: 14px;
+    color: #5a5d72;
+    font-size: 12px;
     line-height: 18px;
   }
 
@@ -176,7 +178,7 @@
     border-radius: 2px;
 
     &--green {
-      background-color: colors.$green;
+      background-color: colors.$green-500;
     }
 
     &--yellow {
@@ -184,7 +186,7 @@
     }
 
     &--red {
-      background-color: colors.$red;
+      background-color: colors.$negative-500;
     }
   }
 
@@ -192,7 +194,8 @@
     width: 14px;
     height: 14px;
     display: flex;
-    color: colors.$grey-light;
+    color: #595959;
+    cursor: pointer;
   }
 
   &__item-info-status {

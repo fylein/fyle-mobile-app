@@ -1,6 +1,17 @@
-import { Component, EventEmitter, ViewChild, computed, effect, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  ViewChild,
+  AfterViewInit,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, map, shareReplay, startWith, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -82,10 +93,10 @@ const FAKE_BUDGETS_DATA = [
       created_at: '2020-06-01T13:14:54.804+00:00',
       updated_at: '2025-12-01T10:00:00.000+00:00',
       is_enabled: true,
-      name: 'Monthly Budget for Sales',
+      name: 'Monthly Budget for Sales and Marketing For Initiative 1',
       type: 'MONTHLY',
-      amount_limit: 100000.0,
-      alert_threshold: 9000,
+      amount_limit: 5000.0,
+      alert_threshold: 900,
       department_ids: ['2222', '1221'],
       project_ids: ['2222', '1221'],
       cost_center_ids: ['2222', '1221'],
@@ -99,9 +110,9 @@ const FAKE_BUDGETS_DATA = [
         name: 'John Brown',
         email: 'admin1@company.com',
       },
-      amount_spent: 50000.0,
-      amount_remaining: 50000.0,
-      utilisation_percentage: 50.0,
+      amount_spent: 500.0,
+      amount_remaining: 4500.0,
+      utilisation_percentage: 10.0,
       status: 'ON_TRACK',
     },
     {
@@ -222,7 +233,7 @@ const FAKE_BUDGETS_DATA = [
     IonSegmentButton,
   ],
 })
-export class DashboardPage {
+export class DashboardPage implements AfterViewInit {
   private currencyService = inject(CurrencyService);
 
   private networkService = inject(NetworkService);
@@ -305,13 +316,62 @@ export class DashboardPage {
     return this.areBudgetsEnabled();
   });
 
+  private cardDetailsSubscription: Subscription;
+
   constructor() {
     // Fetch budgets when they should be shown
     effect(() => {
-      if (this.shouldShowBudgets() && this.budgets().length === 0 && !this.isBudgetsLoading()) {
+      if (this.areBudgetsEnabled() && this.budgets().length === 0 && !this.isBudgetsLoading()) {
         this.fetchBudgets();
       }
     });
+
+    // Subscribe to card details when component becomes available
+    effect(() => {
+      if (this.shouldShowCards() && this.cardStatsComponent?.cardDetails$) {
+        this.subscribeToCardDetails();
+      }
+    });
+
+    // Use afterNextRender to ensure ViewChild is available
+    afterNextRender(() => {
+      this.subscribeToCardDetails();
+    });
+  }
+
+  ngAfterViewInit(): void {
+    // Subscribe to card details when component becomes available
+    this.subscribeToCardDetails();
+  }
+
+  private subscribeToCardDetails(): void {
+    // Unsubscribe from previous subscription if exists
+    this.cardDetailsSubscription?.unsubscribe();
+
+    if (!this.cardStatsComponent?.cardDetails$) {
+      // Retry after a short delay if component isn't ready yet
+      setTimeout(() => {
+        if (this.cardStatsComponent?.cardDetails$) {
+          this.subscribeToCardDetails();
+        }
+      }, 200);
+      return;
+    }
+
+    this.cardDetailsSubscription = this.cardStatsComponent.cardDetails$
+      .pipe(startWith([]), takeUntil(this.onPageExit$))
+      .subscribe({
+        next: (cardDetails) => {
+          if (cardDetails && Array.isArray(cardDetails)) {
+            this.cardCount.set(cardDetails.length);
+          } else {
+            this.cardCount.set(0);
+          }
+        },
+        error: () => {
+          this.cardCount.set(0);
+        },
+      });
   }
 
   onTabChange(event: SegmentCustomEvent): void {
@@ -393,6 +453,8 @@ export class DashboardPage {
   readonly budgets = signal<Budget[]>([]);
 
   readonly isBudgetsLoading = signal<boolean>(false);
+
+  readonly cardCount = signal<number>(0);
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,

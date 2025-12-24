@@ -1,4 +1,3 @@
-<!-- TODO: @SahilK-027 to reorganize template and use areDashboardTabsEnabled for conditional rendering -->
 <div class="dashboard-budgets dashboard-budgets__tabs-enabled">
   @if (isLoading()) {
     <div class="dashboard-budgets__shimmers">
@@ -89,7 +88,11 @@
                       <span class="dashboard-budgets__item-info-stat-label">{{
                         'dashboardBudgets.totalUtilization' | transloco
                       }}</span>
-                      <mat-icon class="dashboard-budgets__item-info-tooltip" svgIcon="info-circle-outline"></mat-icon>
+                      <mat-icon
+                        class="dashboard-budgets__item-info-tooltip"
+                        svgIcon="info-circle-outline"
+                        (click)="openTotalUtilisationInfoModal($event)"
+                      ></mat-icon>
                     </div>
                     <div>
                       @if (homeCurrency(); as homeCurrency) {
@@ -122,12 +125,6 @@
                       }
                     </div>
                   </div>
-                </div>
-                <!-- Status -->
-                <!-- TODO: @SahilK-027 to implement status pills for budgets -->
-                <div class="dashboard-budgets__item-info-status">
-                  <div></div>
-                  <div>{{ budget.status }}</div>
                 </div>
               </div>
             </div>
