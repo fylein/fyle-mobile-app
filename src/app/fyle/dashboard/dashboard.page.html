@@ -117,6 +117,7 @@
         <app-card-stats
           [areDashboardTabsEnabled]="areDashboardTabsEnabled()"
           (cardAdded)="onCardAdded()"
+          (cardCountChange)="onCardCountChange($event)"
         ></app-card-stats>
       }
 

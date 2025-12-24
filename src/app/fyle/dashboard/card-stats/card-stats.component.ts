@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, inject, input, output } from '@angular/core';
+import { Component, EventEmitter, OnInit, inject, input, output, effect } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
@@ -16,6 +16,7 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { SpentCardsComponent } from '../../../shared/components/spent-cards/spent-cards.component';
 import { AddCardComponent } from '../../../shared/components/add-card/add-card.component';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-card-stats',
@@ -39,6 +40,8 @@ export class CardStatsComponent implements OnInit {
   private virtualCardsService = inject(VirtualCardsService);
 
   readonly cardAdded = output<void>();
+
+  readonly cardCountChange = output<number>();
 
   readonly areDashboardTabsEnabled = input<boolean>(false);
 
@@ -67,6 +70,28 @@ export class CardStatsComponent implements OnInit {
   loadCardDetails$ = new BehaviorSubject<void>(null);
 
   CardStatus: typeof CardStatus = CardStatus;
+
+  // NEW: Convert observable to signal - initialized after cardDetails$
+  private readonly cardDetailsSignal = toSignal(
+    this.loadCardDetails$.pipe(
+      switchMap(() =>
+        forkJoin([this.corporateCreditCardExpenseService.getCorporateCards(), this.dashboardService.getCCCDetails()]),
+      ),
+      map(([corporateCards, corporateCardStats]) =>
+        this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats),
+      ),
+      shareReplay(1),
+    ),
+    { initialValue: [] },
+  );
+
+  constructor() {
+    effect(() => {
+      const cards = this.cardDetailsSignal();
+      const count = cards?.length ?? 0;
+      this.cardCountChange.emit(count);
+    });
+  }
 
   ngOnInit(): void {
     this.setupNetworkWatcher();
@@ -170,6 +195,7 @@ export class CardStatsComponent implements OnInit {
       map(([corporateCards, corporateCardStats]) =>
         this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats),
       ),
+      shareReplay(1),
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();

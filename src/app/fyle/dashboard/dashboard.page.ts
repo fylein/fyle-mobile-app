@@ -1,15 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  ViewChild,
-  AfterViewInit,
-  afterNextRender,
-  computed,
-  effect,
-  inject,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, EventEmitter, ViewChild, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, startWith, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -233,7 +222,7 @@ const FAKE_BUDGETS_DATA = [
     IonSegmentButton,
   ],
 })
-export class DashboardPage implements AfterViewInit {
+export class DashboardPage {
   private currencyService = inject(CurrencyService);
 
   private networkService = inject(NetworkService);
@@ -316,8 +305,6 @@ export class DashboardPage implements AfterViewInit {
     return this.areBudgetsEnabled();
   });
 
-  private cardDetailsSubscription: Subscription;
-
   constructor() {
     // Fetch budgets when they should be shown
     effect(() => {
@@ -325,53 +312,6 @@ export class DashboardPage implements AfterViewInit {
         this.fetchBudgets();
       }
     });
-
-    // Subscribe to card details when component becomes available
-    effect(() => {
-      if (this.shouldShowCards() && this.cardStatsComponent?.cardDetails$) {
-        this.subscribeToCardDetails();
-      }
-    });
-
-    // Use afterNextRender to ensure ViewChild is available
-    afterNextRender(() => {
-      this.subscribeToCardDetails();
-    });
-  }
-
-  ngAfterViewInit(): void {
-    // Subscribe to card details when component becomes available
-    this.subscribeToCardDetails();
-  }
-
-  private subscribeToCardDetails(): void {
-    // Unsubscribe from previous subscription if exists
-    this.cardDetailsSubscription?.unsubscribe();
-
-    if (!this.cardStatsComponent?.cardDetails$) {
-      // Retry after a short delay if component isn't ready yet
-      setTimeout(() => {
-        if (this.cardStatsComponent?.cardDetails$) {
-          this.subscribeToCardDetails();
-        }
-      }, 200);
-      return;
-    }
-
-    this.cardDetailsSubscription = this.cardStatsComponent.cardDetails$
-      .pipe(startWith([]), takeUntil(this.onPageExit$))
-      .subscribe({
-        next: (cardDetails) => {
-          if (cardDetails && Array.isArray(cardDetails)) {
-            this.cardCount.set(cardDetails.length);
-          } else {
-            this.cardCount.set(0);
-          }
-        },
-        error: () => {
-          this.cardCount.set(0);
-        },
-      });
   }
 
   onTabChange(event: SegmentCustomEvent): void {
@@ -379,6 +319,10 @@ export class DashboardPage implements AfterViewInit {
     if (value) {
       this.activeTabState.set(value);
     }
+  }
+
+  onCardCountChange(count: number): void {
+    this.cardCount.set(count);
   }
 
   // TODO: Skipped for migration because:
