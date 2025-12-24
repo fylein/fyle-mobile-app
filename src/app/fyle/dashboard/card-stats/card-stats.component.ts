@@ -71,7 +71,6 @@ export class CardStatsComponent implements OnInit {
 
   CardStatus: typeof CardStatus = CardStatus;
 
-  // NEW: Convert observable to signal - initialized after cardDetails$
   private readonly cardDetailsSignal = toSignal(
     this.loadCardDetails$.pipe(
       switchMap(() =>
