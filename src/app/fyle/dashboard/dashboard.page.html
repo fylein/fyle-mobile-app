@@ -103,18 +103,22 @@
       <app-stats></app-stats>
       @if (areDashboardTabsEnabled()) {
         <ion-segment class="dashboard--segment" (ionChange)="onTabChange($event)" [value]="activeTabState()">
-          <ion-segment-button value="cards" class="text-capitalize">{{
-            'dashboard.cardsTab' | transloco
-          }}</ion-segment-button>
-          <ion-segment-button value="budgets" class="text-capitalize">{{
-            'dashboard.budgetsTab' | transloco
-          }}</ion-segment-button>
+          <ion-segment-button value="cards" class="text-capitalize"
+            >{{ 'dashboard.cardsTab' | transloco }} ({{ cardCount() }})</ion-segment-button
+          >
+          <ion-segment-button value="budgets" class="text-capitalize"
+            >{{ 'dashboard.budgetsTab' | transloco }} ({{ budgets().length }})
+          </ion-segment-button>
           <ion-segment-button value="#" disabled></ion-segment-button>
         </ion-segment>
       }
 
       @if (shouldShowCards()) {
-        <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
+        <app-card-stats
+          [areDashboardTabsEnabled]="areDashboardTabsEnabled()"
+          (cardAdded)="onCardAdded()"
+          (cardCountChange)="onCardCountChange($event)"
+        ></app-card-stats>
       }
 
       @if (shouldShowBudgets()) {

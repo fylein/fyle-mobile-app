@@ -1200,6 +1200,20 @@ ion-modal.pending-gas-charge-info {
   }
 }
 
+ion-modal.budget-total-utilisation-info-modal {
+  &::part(content) {
+    border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: auto;
+
+  ion-content {
+    --padding-bottom: 20px;
+  }
+}
+
 .icon--navigate {
   height: 14px;
 }
@@ -1281,6 +1295,40 @@ ion-popover.delete-button-class {
 }
 
 .spent-cards__swiper .swiper-wrapper {
+  margin-top: 6%;
+}
+
+.dashboard-budgets.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: colors.$pure-white !important;
+  border: 1px solid colors.$black !important;
+  box-sizing: border-box !important;
+  opacity: 0.3;
+}
+
+.dashboard-budgets.swiper-pagination-bullet-active {
+  width: 16px !important;
+  height: 6px !important;
+  background: colors.$black !important;
+  border-radius: 4px !important;
+  opacity: 0.3;
+}
+
+.dashboard-budgets__swiper {
+  padding: 0 16px;
+}
+
+.dashboard-budgets__swiper .swiper-pagination {
+  position: absolute;
+  text-align: center;
+  transition: 300ms opacity;
+  z-index: 10;
+  top: 0%;
+  margin-left: 40%;
+}
+
+.dashboard-budgets__swiper .swiper-wrapper {
   margin-top: 6%;
 }
 

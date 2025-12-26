@@ -82,10 +82,10 @@ const FAKE_BUDGETS_DATA = [
       created_at: '2020-06-01T13:14:54.804+00:00',
       updated_at: '2025-12-01T10:00:00.000+00:00',
       is_enabled: true,
-      name: 'Monthly Budget for Sales',
+      name: 'Monthly Budget for Sales and Marketing For Initiative 1',
       type: 'MONTHLY',
-      amount_limit: 100000.0,
-      alert_threshold: 9000,
+      amount_limit: 5000.0,
+      alert_threshold: 900,
       department_ids: ['2222', '1221'],
       project_ids: ['2222', '1221'],
       cost_center_ids: ['2222', '1221'],
@@ -99,9 +99,9 @@ const FAKE_BUDGETS_DATA = [
         name: 'John Brown',
         email: 'admin1@company.com',
       },
-      amount_spent: 50000.0,
-      amount_remaining: 50000.0,
-      utilisation_percentage: 50.0,
+      amount_spent: 500.0,
+      amount_remaining: 4500.0,
+      utilisation_percentage: 10.0,
       status: 'ON_TRACK',
     },
     {
@@ -308,7 +308,7 @@ export class DashboardPage {
   constructor() {
     // Fetch budgets when they should be shown
     effect(() => {
-      if (this.shouldShowBudgets() && this.budgets().length === 0 && !this.isBudgetsLoading()) {
+      if (this.areBudgetsEnabled() && this.budgets().length === 0 && !this.isBudgetsLoading()) {
         this.fetchBudgets();
       }
     });
@@ -319,6 +319,10 @@ export class DashboardPage {
     if (value) {
       this.activeTabState.set(value);
     }
+  }
+
+  onCardCountChange(count: number): void {
+    this.cardCount.set(count);
   }
 
   // TODO: Skipped for migration because:
@@ -393,6 +397,8 @@ export class DashboardPage {
   readonly budgets = signal<Budget[]>([]);
 
   readonly isBudgetsLoading = signal<boolean>(false);
+
+  readonly cardCount = signal<number>(0);
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,

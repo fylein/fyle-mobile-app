@@ -1792,7 +1792,19 @@
   },
   "dashboardBudgets": {
     "header": "My budgets",
-    "noBudgetsAvailable": "No budgets available"
+    "noBudgetsAvailable": "No budgets available",
+    "limit": "Limit",
+    "totalUtilization": "Total utilization",
+    "totalUtilizationInfoTooltip": "Total amount spent from the budget",
+    "remaining": "Remaining",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly",
+    "oneTime": "One-time"
+  },
+  "budgetTotalUtilisationInfoModal": {
+    "title": "Total utilisation",
+    "description": "Total amount spent by all employees in this budget."
   },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
