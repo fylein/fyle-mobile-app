@@ -7,9 +7,7 @@
             @if (!areDashboardTabsEnabled()) {
               <div class="card-stats__header">
                 {{ 'cardStats.myCards' | transloco }}
-                @if (cardDetails?.length > 0) {
-                  <span class="card-count"> ({{ cardDetails.length }})</span>
-                }
+                <span class="card-count"> ({{ cardDetails.length }})</span>
               </div>
             }
 

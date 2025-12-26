@@ -50,19 +50,17 @@
 
   &__item {
     padding: 16px;
-
-    border: 1px solid #e6ebed;
+    border: 1px solid colors.$navy-50;
     border-radius: 8px;
-    background-color: #fff;
+    background-color: colors.$pure-white;
     height: 100%;
-
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
 
   &__item-header {
-    color: #2c304e;
+    color: colors.$blue-black;
     font-weight: 500;
     font-size: 14px;
   }
@@ -72,7 +70,7 @@
   }
 
   &__item-type {
-    color: #5a5d72;
+    color: colors.$black-light;
     font-weight: 400;
     font-size: 12px;
   }
@@ -80,7 +78,7 @@
   &__empty {
     padding: 32px;
     text-align: center;
-    color: #666;
+    color: colors.$grey-8;
   }
 
   &__item-utilization {
@@ -149,7 +147,7 @@
   }
 
   &__item-info-stat-label {
-    color: #5a5d72;
+    color: colors.$black-light;
     font-size: 12px;
     line-height: 18px;
   }
@@ -194,7 +192,7 @@
     width: 14px;
     height: 14px;
     display: flex;
-    color: #595959;
+    color: colors.$sage-text-tertiary;
     cursor: pointer;
   }
 
