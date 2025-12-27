@@ -4498,31 +4498,6 @@ export class AddEditExpensePage implements OnInit {
     return (expenseEndTime - this.expenseStartTime) / 1000;
   }
 
-  trackAddExpense(): void {
-    const customFields$ = this.getCustomFields();
-    const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe((etxn) => {
-      this.trackingService.createExpense({
-        Type: 'Receipt',
-        Amount: etxn.tx.amount,
-        Currency: etxn.tx.currency,
-        Category: etxn.tx.org_category,
-        Time_Spent: this.getTimeSpentOnPage() + ' secs',
-        Used_Autofilled_Category:
-          etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
-        Used_Autofilled_Project:
-          etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-        Used_Autofilled_CostCenter:
-          etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
-        Used_Autofilled_Currency:
-          (etxn.tx.currency || etxn.tx.orig_currency) &&
-          this.presetCurrency &&
-          (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-        Instafyle: isInstaFyleExpense,
-      });
-    });
-  }
-
   criticalPolicyViolationErrorHandler(
     err: {
       status?: number;
@@ -4633,8 +4608,6 @@ export class AddEditExpensePage implements OnInit {
     this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
-
-    this.trackAddExpense();
     return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
