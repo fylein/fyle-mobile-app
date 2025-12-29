@@ -1,18 +1,18 @@
 const dotenv = require('dotenv');
 const { getIosInfo } = require('./utils/ios-info');
 const { getProdEnvironment } = require('./utils/prod-environment');
-const { getAndroidGoogleServicesJson } = require('./utils/android-google-services.js');
-const { getIosGoogleServicesPlist } = require('./utils/ios-google-services');
+const { getGoogleCredentialsAndroid } = require('./utils/google-credentials-android');
+const { getGoogleCredentialsIos } = require('./utils/google-credentials-ios');
 
 dotenv.config();
 
 if (process.env.NATIVE_CONFIG) {
   const NATIVE_CONFIG = JSON.parse(process.env.NATIVE_CONFIG);
   module.exports = {
+    googleCredentialsAndroid: getGoogleCredentialsAndroid(NATIVE_CONFIG),
+    googleCredentialsIos: getGoogleCredentialsIos(NATIVE_CONFIG),
     iosInfo: getIosInfo(),
   };
 }
 
-module.exports.iosGoogleServicesPlist = getIosGoogleServicesPlist();
 module.exports.prodEnvironment = getProdEnvironment();
-module.exports.androidGoogleServicesJson = getAndroidGoogleServicesJson()
