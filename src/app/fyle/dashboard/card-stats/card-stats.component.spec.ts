@@ -29,6 +29,7 @@ import { tap } from 'rxjs/operators';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { AddCardComponent } from 'src/app/shared/components/add-card/add-card.component';
 import { SpentCardsComponent } from 'src/app/shared/components/spent-cards/spent-cards.component';
+import { cloneDeep } from 'lodash';
 
 @Component({
   selector: 'app-spent-cards',
@@ -57,7 +58,7 @@ class MockAddCardComponent {
 describe('CardStatsComponent', () => {
   const cards = [mastercardRTFCard];
   const cardStats = mastercardCCCStats;
-  const cardDetails = cardDetailsRes;
+  const cardDetails = cloneDeep(cardDetailsRes);
 
   let component: CardStatsComponent;
   let fixture: ComponentFixture<CardStatsComponent>;
@@ -153,9 +154,10 @@ describe('CardStatsComponent', () => {
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of(cards));
     dashboardService.getCCCDetails.and.returnValue(of(cardStats));
-    corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue(cardDetails);
+    corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.callFake(() => cloneDeep(cardDetails));
     networkService.isOnline.and.returnValue(of(true));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+    virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
 
     spyOn(component.loadCardDetails$, 'next').and.callThrough();
 
@@ -190,9 +192,11 @@ describe('CardStatsComponent', () => {
     });
 
     it('should display the cards swiper when cards are present for the user', () => {
-      component.ngOnInit();
-      component.init();
+      // Reset spies to only count calls from this test
+      corporateCreditCardExpenseService.getCorporateCards.calls.reset();
+      corporateCreditCardExpenseService.getPlatformCorporateCardDetails.calls.reset();
 
+      component.init();
       component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       fixture.detectChanges();

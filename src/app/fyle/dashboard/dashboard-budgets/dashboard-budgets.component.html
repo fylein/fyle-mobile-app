@@ -1,0 +1,46 @@
+<!-- TODO: @SahilK-027 to reorganize template and use areDashboardTabsEnabled for conditional rendering -->
+<div class="dashboard-budgets">
+  @if (isLoading()) {
+    <div class="dashboard-budgets__shimmers">
+      <ion-skeleton-text data-testid="shimmer" animated class="dashboard-budgets__shimmers__card"></ion-skeleton-text>
+      <ion-skeleton-text
+        data-testid="shimmer"
+        animated
+        class="dashboard-budgets__shimmers__card-lg"
+      ></ion-skeleton-text>
+    </div>
+  } @else {
+    @if (budgets().length > 0) {
+      <div class="dashboard-budgets__header">
+        {{ 'dashboardBudgets.header' | transloco }}
+        @if (budgets().length > 0) {
+          <span class="budget-count"> ({{ budgets().length }})</span>
+        }
+      </div>
+      <swiper
+        #swiper
+        class="dashboard-budgets__swiper"
+        [slidesPerView]="1.1"
+        [spaceBetween]="16"
+        [pagination]="pagination"
+        [centeredSlides]="budgets().length === 1"
+      >
+        @for (budget of budgets(); track budget.id) {
+          <ng-template swiperSlide>
+            <div class="dashboard-budgets__item">
+              <h3>{{ budget.name }}</h3>
+              <p>Status: {{ budget.status }}</p>
+              <p>Amount Spent: {{ budget.amount_spent }}</p>
+              <p>Amount Remaining: {{ budget.amount_remaining }}</p>
+              <p>Utilization: {{ budget.utilisation_percentage }}%</p>
+            </div>
+          </ng-template>
+        }
+      </swiper>
+    } @else {
+      <div class="dashboard-budgets__empty">
+        <p>{{ 'dashboardBudgets.noBudgetsAvailable' | transloco }}</p>
+      </div>
+    }
+  }
+</div>
