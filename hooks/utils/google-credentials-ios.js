@@ -28,7 +28,7 @@ module.exports.getGoogleCredentialsIos = (NATIVE_CONFIG) =>
       <key>IS_SIGNIN_ENABLED</key>
       <true></true>
       <key>GOOGLE_APP_ID</key>
-      <string>${process.env.FIREBASE_IOS_GOOGLE_APP_ID}</string>
+      <string>${process.env.GOOGLE_APP_ID}</string>
   </dict>
 </plist>
 `
