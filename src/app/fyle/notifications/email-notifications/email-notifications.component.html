@@ -20,21 +20,48 @@
     <div class="email-notifications--flex-row table-header">
       <div class="email-notifications--event-name">Events</div>
       <div class="email-notifications--checkbox-col">
-        <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event)">
-          <span class="email-notifications--checkbox-label">Email</span>
-        </mat-checkbox>
+        <span class="email-notifications--checkbox-label">Email</span>
       </div>
+      @if (showMobilePushColumn) {
+        <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+          <span class="email-notifications--checkbox-label">Mobile push</span>
+        </div>
+      }
     </div>
     <div>
+      <div class="email-notifications--flex-row email-notifications--select-all-row">
+        <div class="email-notifications--event-name">
+          Select all
+        </div>
+        <div class="email-notifications--checkbox-col">
+          <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event, 'email')">
+          </mat-checkbox>
+        </div>
+        @if (showMobilePushColumn) {
+          <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+            <mat-checkbox [(ngModel)]="selectAllPush" (ngModelChange)="toggleAllNotifications($event, 'push')">
+            </mat-checkbox>
+          </div>
+        }
+      </div>
       @for (notification of notifications; track notification) {
         <div class="email-notifications--flex-row">
-          <div class="email-notifications--event-name" (click)="toggleNotification(notification)">
+          <div class="email-notifications--event-name" (click)="toggleNotification(notification, 'email')">
             {{ notification.event }}
           </div>
           <div class="email-notifications--checkbox-col">
-            <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification)">
+            <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification, 'email')">
             </mat-checkbox>
           </div>
+          @if (showMobilePushColumn) {
+            <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+              <mat-checkbox
+                [ngModel]="notification.push ?? true"
+                (ngModelChange)="toggleNotification(notification, 'push')"
+              >
+              </mat-checkbox>
+            </div>
+          }
         </div>
       }
     </div>

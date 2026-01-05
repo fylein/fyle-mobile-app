@@ -43,13 +43,21 @@ export class EmailNotificationsComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
 
+  // TODO: Skipped for migration because:
+  //  Your application code writes to the input. This prevents migration.
+  @Input() unsubscribedPushEventsByUser: string[];
+
   isLongTitle = false;
 
   isIos = false;
 
   selectAll = false;
 
+  selectAllPush = false;
+
   saveText: '' | 'Saved' | 'Saving...' = '';
+
+  showMobilePushColumn = false;
 
   private platform = inject(Platform);
 
@@ -73,18 +81,19 @@ export class EmailNotificationsComponent implements OnInit {
 
   updateSelectAll(): void {
     this.selectAll = this.notifications.every((n) => n.email);
+    this.selectAllPush = this.notifications.every((n) => n.push ?? true);
   }
 
-  toggleAllNotifications(selectAll: boolean): void {
+  toggleAllNotifications(selectAll: boolean, type: 'email' | 'push'): void {
     const isSelected = selectAll;
-    this.notifications = this.notifications.map((notification) => ({ ...notification, email: isSelected }));
+    this.notifications = this.notifications.map((notification) => ({ ...notification, [type]: isSelected }));
     this.updateSelectAll();
 
     this.updateNotificationSettings();
   }
 
-  toggleNotification(updatedNotification: NotificationEventItem): void {
-    updatedNotification.email = !updatedNotification.email;
+  toggleNotification(updatedNotification: NotificationEventItem, type: 'email' | 'push' = 'email'): void {
+    updatedNotification[type] = !updatedNotification[type];
     this.updateSelectAll();
     this.updateNotificationSettings();
   }
@@ -92,23 +101,44 @@ export class EmailNotificationsComponent implements OnInit {
   updateNotificationSettings(): void {
     const currentEventTypes = new Set(this.notifications.map((notification) => notification.eventEnum));
 
-    // Keep events unsubscribed from other notification types
-    const otherUnsubscribedEvents = this.unsubscribedEventsByUser.filter(
+    // EMAIL: Keep events unsubscribed from other notification types
+    const otherEmailUnsubscribedEvents = this.unsubscribedEventsByUser.filter(
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
-    // Add events that are currently unsubscribed in this modal
-    const currentlyUnsubscribedEvents = this.notifications
+    // EMAIL: Add events that are currently unsubscribed in this modal
+    const currentlyEmailUnsubscribedEvents = this.notifications
       .filter((notification) => !notification.email)
       .map((notification) => notification.eventEnum);
 
-    const updatedUnsubscribedEventsByUser = [...otherUnsubscribedEvents, ...currentlyUnsubscribedEvents];
+    const updatedEmailUnsubscribedEventsByUser = [
+      ...otherEmailUnsubscribedEvents,
+      ...currentlyEmailUnsubscribedEvents,
+    ];
 
-    this.employeeSettings.notification_settings.email_unsubscribed_events = updatedUnsubscribedEventsByUser;
+    this.employeeSettings.notification_settings.email_unsubscribed_events = updatedEmailUnsubscribedEventsByUser;
+
+    // PUSH: Keep events unsubscribed from other notification types
+    const otherPushUnsubscribedEvents = (this.unsubscribedPushEventsByUser ?? []).filter(
+      (event) => !currentEventTypes.has(event as NotificationEventsEnum),
+    );
+
+    // PUSH: Add events that are currently unsubscribed in this modal
+    const currentlyPushUnsubscribedEvents = this.notifications
+      .filter((notification) => notification.push === false)
+      .map((notification) => notification.eventEnum);
+
+    const updatedPushUnsubscribedEventsByUser = [
+      ...otherPushUnsubscribedEvents,
+      ...currentlyPushUnsubscribedEvents,
+    ];
+
+    this.employeeSettings.notification_settings.push_unsubscribed_events = updatedPushUnsubscribedEventsByUser;
     this.updateEmployeeSettings();
 
     this.trackingService.eventTrack('Email notifications updated from mobile app', {
-      unsubscribedEvents: updatedUnsubscribedEventsByUser,
+      unsubscribedEvents: updatedEmailUnsubscribedEventsByUser,
+      pushUnsubscribedEvents: updatedPushUnsubscribedEventsByUser,
     });
   }
 
@@ -127,5 +157,8 @@ export class EmailNotificationsComponent implements OnInit {
     this.isIos = this.platform.is('ios');
     this.isLongTitle = this.title.length > 25;
     this.updateSelectAll();
+
+    this.showMobilePushColumn =
+      this.title === 'Expense notifications' || this.title === 'Expense report notifications';
   }
 }

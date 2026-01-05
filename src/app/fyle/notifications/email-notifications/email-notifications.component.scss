@@ -24,8 +24,8 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 6px;
-    margin: 6px 0;
+    padding: 6px 24px;
+    margin: 0;
     font-size: 14px;
     font-weight: 400;
     color: colors.$blue-black;
@@ -48,12 +48,35 @@
       white-space: nowrap;
     }
   }
+
+  &--checkbox-col-mobile {
+    justify-content: flex-end;
+  }
 }
 
 .table-header {
-  background-color: colors.$off-white;
-  margin-bottom: 12px;
+  border-top: 1px solid colors.$border-grey-secondary;
+  border-right: 1px solid colors.$border-grey-secondary;
+  border-bottom: 1px solid colors.$border-grey-secondary;
+  background: colors.$navy-50;
+  display: flex;
+  padding: 1px 24px;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1 0 0;
+  align-self: stretch;
   font-weight: 500;
+}
+
+.email-notifications--select-all-row {
+  display: flex;
+  height: 40px;
+  padding: 4px 24px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1px;
+  align-self: stretch;
 }
 
 ion-title {

@@ -154,6 +154,8 @@ export class NotificationsBetaPage implements OnInit {
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
     const unsubscribedEventsByUser: string[] =
       this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const unsubscribedPushEventsByUser: string[] =
+      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
@@ -162,6 +164,7 @@ export class NotificationsBetaPage implements OnInit {
         notifications: notificationConfig.notifications,
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
+        unsubscribedPushEventsByUser,
       },
       ...this.modalPropertiesService.getModalDefaultProperties(),
       initialBreakpoint: 0.5,
