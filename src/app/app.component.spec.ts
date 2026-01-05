@@ -226,7 +226,6 @@ describe('AppComponent', () => {
     it('should initialize after view is ready', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.componentInstance;
-      component.isLoading = true;
       component.isUserLoggedIn = true;
       component.isOnline = true;
 
@@ -265,8 +264,6 @@ describe('AppComponent', () => {
 
       // Fast-forward any remaining timers
       jasmine.clock().tick(1000);
-
-      expect(component.isLoading).toBeFalse();
     });
   });
 

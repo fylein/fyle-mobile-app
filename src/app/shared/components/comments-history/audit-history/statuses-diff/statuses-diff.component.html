@@ -22,8 +22,11 @@
 }
 @if (shouldShowDetails() && !isValueList()) {
   <div>
-    <li class="text-sentence-case">
-      {{ key() === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key() }} : {{ displayValue() }}
+    <li>
+      <span class="text-sentence-case">{{
+        key() === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key()
+      }}</span>
+      : <span class="text-first-letter-uppercase">{{ displayValue() }}</span>
     </li>
   </div>
 }

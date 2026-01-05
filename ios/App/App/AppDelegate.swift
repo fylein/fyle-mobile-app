@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import CapawesomeCapacitorAppShortcuts
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -57,6 +58,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Feel free to add additional processing here, but if you want the App API to support
     // tracking app url opens, make sure to keep this call
     return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+  }
+  
+  // MARK: - App Shortcuts (Home Screen Quick Actions)
+  
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Handle shortcut from cold start
+    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem {
+      NotificationCenter.default.post(
+        name: NSNotification.Name(AppShortcutsPlugin.notificationName),
+        object: nil,
+        userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
+      )
+      return true
+    }
+    return true
+  }
+  
+  func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    // Handle shortcut when app is running in background
+    NotificationCenter.default.post(
+      name: NSNotification.Name(AppShortcutsPlugin.notificationName),
+      object: nil,
+      userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
+    )
+    completionHandler(true)
   }
 }
 
