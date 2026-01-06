@@ -132,9 +132,6 @@ describe('CardStatsComponent', () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(CardStatsComponent);
-    component = fixture.componentInstance;
-
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     dashboardService = TestBed.inject(DashboardService) as jasmine.SpyObj<DashboardService>;
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
@@ -148,7 +145,7 @@ describe('CardStatsComponent', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
 
-    // Default return values
+    // Default return values - MUST be set before createComponent because toSignal subscribes immediately
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
@@ -158,6 +155,9 @@ describe('CardStatsComponent', () => {
     networkService.isOnline.and.returnValue(of(true));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
+
+    fixture = TestBed.createComponent(CardStatsComponent);
+    component = fixture.componentInstance;
 
     spyOn(component.loadCardDetails$, 'next').and.callThrough();
 
