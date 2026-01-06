@@ -1,5 +1,5 @@
 export interface BudgetsQueryParams {
-  limit: number;
+  limit?: number;
   offset?: number;
   order?: string;
   or?: string[] | string;

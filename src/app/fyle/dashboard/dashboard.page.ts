@@ -730,7 +730,7 @@ export class DashboardPage {
           this.userName = eou.us.full_name;
 
           this.isBudgetsLoading.set(true);
-          return this.budgetsService.getSpenderBudgetByParams({ limit: 200 }).pipe(
+          return this.budgetsService.getSpenderBudgetByParams({}).pipe(
             takeUntil(this.onPageExit$),
             map((budgets) => ({ budgets, isCCCEnabled })),
             catchError(() => of({ budgets: [] as Budget[], isCCCEnabled })),
