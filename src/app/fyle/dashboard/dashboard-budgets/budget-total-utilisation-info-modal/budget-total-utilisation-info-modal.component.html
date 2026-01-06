@@ -1,0 +1,22 @@
+<ion-header mode="md" class="header">
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button
+        (click)="dismissModal()"
+        class="budget-total-utilisation-info-modal__toolbar-close-btn"
+        data-testid="close-btn"
+      >
+        <mat-icon class="icon-close" svgIcon="cross"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="text-center budget-total-utilisation-info-modal__toolbar-title" data-testid="title">{{
+      'budgetTotalUtilisationInfoModal.title' | transloco
+    }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div class="budget-total-utilisation-info-modal__body" data-testid="content">
+  <span class="budget-total-utilisation-info-modal__description">
+    {{ 'budgetTotalUtilisationInfoModal.description' | transloco }}
+  </span>
+</div>
