@@ -17,20 +17,31 @@
 
 <ion-content>
   <div class="email-notifications--container">
-    <div class="email-notifications--flex-row table-header">
-      <div class="email-notifications--event-name">Events</div>
-      <div class="email-notifications--checkbox-col">
+    @if (isPushPermissionDenied) {
+      <app-fy-alert-info
+        class="email-notifications--push-alert"
+        [message]="'emailNotifications.pushNotificationsTurnedOff' | transloco"
+        [type]="'warning'"
+        [showActionButton]="true"
+        [actionButtonContent]="'Go to Settings'"
+        (actionClick)="openDeviceSettings()"
+      >
+      </app-fy-alert-info>
+    }
+    <div class="table-header">
+      <div class="email-notifications--checkbox-col-events">Events</div>
+      <div class="email-notifications--checkbox-col-email">
         <span class="email-notifications--checkbox-label">Email</span>
       </div>
       @if (showMobilePushColumn) {
-        <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+        <div class="email-notifications--checkbox-col-mobile">
           <span class="email-notifications--checkbox-label">Mobile push</span>
         </div>
       }
     </div>
     <div>
-      <div class="email-notifications--flex-row email-notifications--select-all-row">
-        <div class="email-notifications--event-name">
+      <div class="email-notifications--flex-row">
+        <div class="email-notifications--event-name email-notifications--select-all-row">
           Select all
         </div>
         <div class="email-notifications--checkbox-col">
@@ -38,7 +49,7 @@
           </mat-checkbox>
         </div>
         @if (showMobilePushColumn) {
-          <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+          <div class="email-notifications--checkbox-mobile-container">
             <mat-checkbox [(ngModel)]="selectAllPush" (ngModelChange)="toggleAllNotifications($event, 'push')">
             </mat-checkbox>
           </div>
@@ -46,7 +57,7 @@
       </div>
       @for (notification of notifications; track notification) {
         <div class="email-notifications--flex-row">
-          <div class="email-notifications--event-name" (click)="toggleNotification(notification, 'email')">
+          <div class="email-notifications--event-name">
             {{ notification.event }}
           </div>
           <div class="email-notifications--checkbox-col">
@@ -54,7 +65,7 @@
             </mat-checkbox>
           </div>
           @if (showMobilePushColumn) {
-            <div class="email-notifications--checkbox-col email-notifications--checkbox-col-mobile">
+            <div class="email-notifications--checkbox-mobile-container">
               <mat-checkbox
                 [ngModel]="notification.push ?? true"
                 (ngModelChange)="toggleNotification(notification, 'push')"
@@ -67,3 +78,18 @@
     </div>
   </div>
 </ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <div class="fy-footer-cta-container">
+      <ion-button
+        class="btn-primary fy-footer-cta fy-footer-cta--primary"
+        fill="clear"
+        (click)="saveChanges()"
+        [disabled]="!hasChanges"
+      >
+        {{ 'emailNotifications.saveChanges' | transloco }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

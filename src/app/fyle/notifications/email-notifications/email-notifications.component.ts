@@ -1,5 +1,16 @@
 import { Component, inject, Input, OnInit } from '@angular/core';
-import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController, Platform } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  Platform,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { finalize, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
@@ -9,7 +20,12 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
-
+import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -18,12 +34,16 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     IonButton,
     IonButtons,
+    IonToolbar,
     IonContent,
     IonHeader,
     IonTitle,
     IonToolbar,
     MatCheckbox,
-    MatIcon
+    MatIcon,
+    FyAlertInfoComponent,
+    IonFooter,
+    TranslocoPipe
   ],
 })
 export class EmailNotificationsComponent implements OnInit {
@@ -59,7 +79,13 @@ export class EmailNotificationsComponent implements OnInit {
 
   showMobilePushColumn = false;
 
+  hasChanges = false;
+
+  isPushPermissionDenied = false;
+
   private platform = inject(Platform);
+
+  nativeSettings = NativeSettings;
 
   private modalController = inject(ModalController);
 
@@ -67,16 +93,56 @@ export class EmailNotificationsComponent implements OnInit {
 
   private trackingService = inject(TrackingService);
 
+  private popoverController = inject(PopoverController);
+
+  private translocoService = inject(TranslocoService);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
   }
 
-  closeModal(): void {
-    // saveText === 'Saved' implies the user has made changes
-    const data = {
-      employeeSettingsUpdated: this.saveText === 'Saved',
-    };
-    this.modalController.dismiss(data);
+  async closeModal(): Promise<void> {
+    if (this.hasChanges) {
+      const title = this.translocoService.translate('emailNotifications.unsavedChangesTitle');
+      const message = this.translocoService.translate('emailNotifications.unsavedChangesMessage');
+      const primaryCtaText = this.translocoService.translate('emailNotifications.unsavedChangesPrimaryCta');
+      const secondaryCtaText = this.translocoService.translate('emailNotifications.unsavedChangesSecondaryCta');
+
+      const unsavedChangesPopOver = await this.popoverController.create({
+        component: PopupAlertComponent,
+        componentProps: {
+          title,
+          message,
+          primaryCta: {
+            text: primaryCtaText,
+            action: 'discard',
+            type: 'alert',
+          },
+          secondaryCta: {
+            text: secondaryCtaText,
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      await unsavedChangesPopOver.present();
+
+      const { data } = (await unsavedChangesPopOver.onWillDismiss()) as { data: { action: string } };
+
+      if (data && data.action === 'discard') {
+        this.hasChanges = false;
+        this.modalController.dismiss({ employeeSettingsUpdated: this.saveText === 'Saved' });
+      }
+    } else {
+      // saveText === 'Saved' implies the user has made changes
+      const data = {
+        employeeSettingsUpdated: this.saveText === 'Saved',
+      };
+      this.modalController.dismiss(data);
+    }
   }
 
   updateSelectAll(): void {
@@ -134,12 +200,9 @@ export class EmailNotificationsComponent implements OnInit {
     ];
 
     this.employeeSettings.notification_settings.push_unsubscribed_events = updatedPushUnsubscribedEventsByUser;
-    this.updateEmployeeSettings();
 
-    this.trackingService.eventTrack('Email notifications updated from mobile app', {
-      unsubscribedEvents: updatedEmailUnsubscribedEventsByUser,
-      pushUnsubscribedEvents: updatedPushUnsubscribedEventsByUser,
-    });
+    // Mark that there are unsaved changes which can be persisted via CTA
+    this.hasChanges = true;
   }
 
   updateEmployeeSettings(): void {
@@ -153,12 +216,57 @@ export class EmailNotificationsComponent implements OnInit {
       .subscribe();
   }
 
+  saveChanges(): void {
+    // Ensure notification settings are in sync with current UI state
+    this.updateNotificationSettings();
+
+    const emailUnsubscribedEvents =
+      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const pushUnsubscribedEvents =
+      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
+
+    this.updateEmployeeSettings();
+
+    this.trackingService.eventTrack('Email notifications updated from mobile app', {
+      unsubscribedEvents: emailUnsubscribedEvents,
+      pushUnsubscribedEvents,
+    });
+
+    this.hasChanges = false;
+  }
+
+  async checkPushPermission(): Promise<void> {
+    try {
+      const permissionStatus = await PushNotifications.checkPermissions();
+      this.isPushPermissionDenied = permissionStatus.receive === 'denied';
+    } catch {
+      this.isPushPermissionDenied = false;
+    }
+  }
+
+  openDeviceSettings(): void {
+    this.nativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
+  }
+
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
     this.isLongTitle = this.title.length > 25;
     this.updateSelectAll();
 
-    this.showMobilePushColumn =
+    const isPushColumnSupportedForTitle =
       this.title === 'Expense notifications' || this.title === 'Expense report notifications';
+
+    // Gate mobile push UI behind LaunchDarkly flag
+    this.launchDarklyService
+      .getVariation('show_push_notif_ui', false)
+      .subscribe((isPushNotifUiEnabled) => {
+        this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
+      });
+
+    // Check push notification permission to show alert banner if turned off
+    this.checkPushPermission();
   }
 }

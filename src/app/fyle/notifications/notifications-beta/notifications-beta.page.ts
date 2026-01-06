@@ -167,8 +167,8 @@ export class NotificationsBetaPage implements OnInit {
         unsubscribedPushEventsByUser,
       },
       ...this.modalPropertiesService.getModalDefaultProperties(),
-      initialBreakpoint: 0.5,
-      breakpoints: [0, 0.5, 1],
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
     });
 
     await emailNotificationsModal.present();

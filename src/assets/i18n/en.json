@@ -775,7 +775,16 @@
     "save": "Save"
   },
   "fyAlertInfo": {
-    "action": "Action;"
+    "action": "Action;",
+    "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings."
+  },
+  "emailNotifications": {
+    "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings.",
+    "saveChanges": "Save changes",
+    "unsavedChangesTitle": "Unsaved changes",
+    "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to cancel?",
+    "unsavedChangesPrimaryCta": "Yes, cancel",
+    "unsavedChangesSecondaryCta": "No, go back"
   },
   "mobileNumberCard": {
     "title": "Mobile number",
