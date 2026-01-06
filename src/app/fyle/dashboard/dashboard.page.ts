@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
