@@ -41,8 +41,8 @@ export class BudgetsService {
     };
 
     return this.spenderService.get<PlatformApiResponse<Budget[]>>('/budgets', { params }).pipe(
-      map((resp) =>
-        (resp.data || []).map((budget: Budget) => ({
+      map((budget) =>
+        (budget.data || []).map((budget: Budget) => ({
           ...budget,
           budget_type: this.getBudgetType(budget),
         })),

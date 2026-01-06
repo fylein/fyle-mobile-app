@@ -175,24 +175,24 @@ export class DashboardPage {
   readonly shouldShowCards = computed(() => {
     if (!this.isDashboardConfigReady()) return false;
 
-    // If tabs are enabled, show cards only when cards tab is active
+    // With tabs UI: show cards only when 'cards' tab is selected
     if (this.areDashboardTabsEnabled()) {
       return this.activeTabState() === 'cards';
     }
 
-    // If tabs are disabled, show cards if cards are enabled
+    // Without tabs UI: show cards based on feature flag
     return this.areCardsEnabled();
   });
 
   readonly shouldShowBudgets = computed(() => {
     if (!this.isDashboardConfigReady()) return false;
 
-    // If tabs are enabled, show budgets only when budgets tab is active
+    // With tabs UI: show budgets only when 'budgets' tab is selected
     if (this.areDashboardTabsEnabled()) {
       return this.activeTabState() === 'budgets';
     }
 
-    // If tabs are disabled, show budgets if budgets are enabled
+    // Without tabs UI: show budgets based on feature flag
     return this.areBudgetsEnabled();
   });
 
