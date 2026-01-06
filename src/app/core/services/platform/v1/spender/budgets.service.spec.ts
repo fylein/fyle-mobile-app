@@ -18,14 +18,11 @@ import {
 describe('BudgetsService', () => {
   let service: BudgetsService;
   let spenderService: jasmine.SpyObj<SpenderService>;
-
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
-
     TestBed.configureTestingModule({
       providers: [{ provide: SpenderService, useValue: spenderServiceSpy }],
     });
-
     service = TestBed.inject(BudgetsService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
   });
@@ -83,16 +80,12 @@ describe('BudgetsService', () => {
         count: 2,
         offset: 0,
       };
-
       spenderService.get.and.returnValue(of(mockResponse));
-
       const queryParams = { limit: 10 };
-
       service.getSpenderBudgetByParams(queryParams).subscribe((result) => {
         expect(result.length).toBe(2);
         expect(result[0].budget_type).toBe('DEPARTMENT_AND_CATEGORIES');
         expect(result[1].budget_type).toBe('PROJECT_AND_CATEGORIES');
-
         expect(spenderService.get).toHaveBeenCalledOnceWith('/budgets', {
           params: {
             offset: 0,
@@ -110,14 +103,10 @@ describe('BudgetsService', () => {
         count: 1,
         offset: 10,
       };
-
       spenderService.get.and.returnValue(of(mockResponse));
-
       const queryParams = { limit: 5, offset: 10, order: 'updated_at.desc' };
-
       service.getSpenderBudgetByParams(queryParams).subscribe((result) => {
         expect(result.length).toBe(1);
-
         expect(spenderService.get).toHaveBeenCalledOnceWith('/budgets', {
           params: {
             offset: 10,
@@ -135,11 +124,8 @@ describe('BudgetsService', () => {
         count: 0,
         offset: 0,
       };
-
       spenderService.get.and.returnValue(of(mockResponse));
-
       const queryParams = { limit: 10 };
-
       service.getSpenderBudgetByParams(queryParams).subscribe((result) => {
         expect(result).toEqual([]);
         done();
@@ -152,14 +138,10 @@ describe('BudgetsService', () => {
         count: 1,
         offset: 0,
       };
-
       spenderService.get.and.returnValue(of(mockResponse));
-
       const queryParams = { limit: 10, name: 'ilike.%Marketing%' };
-
       service.getSpenderBudgetByParams(queryParams).subscribe((result) => {
         expect(result.length).toBe(1);
-
         expect(spenderService.get).toHaveBeenCalledOnceWith('/budgets', {
           params: {
             offset: 0,
@@ -170,6 +152,89 @@ describe('BudgetsService', () => {
         });
         done();
       });
+    });
+
+    it('should handle empty query params', (done) => {
+      const mockResponse: PlatformApiResponse<Budget[]> = {
+        data: [budgetData],
+        count: 1,
+        offset: 0,
+      };
+      spenderService.get.and.returnValue(of(mockResponse));
+      service.getSpenderBudgetByParams({}).subscribe((result) => {
+        expect(result.length).toBe(1);
+        expect(result[0].budget_type).toBe('DEPARTMENT_AND_CATEGORIES');
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/budgets', {
+          params: {
+            offset: 0,
+            order: 'name.asc',
+          },
+        });
+        done();
+      });
+    });
+
+    it('should correctly add budget_type to all budgets in array', (done) => {
+      const mockResponse: PlatformApiResponse<Budget[]> = {
+        data: [
+          budgetData,
+          budgetWithProjectsData,
+          budgetWithCostCentersData,
+          budgetDepartmentsOnlyData,
+          budgetCategoriesOnlyData,
+        ],
+        count: 5,
+        offset: 0,
+      };
+      spenderService.get.and.returnValue(of(mockResponse));
+      service.getSpenderBudgetByParams({}).subscribe((result) => {
+        expect(result.length).toBe(5);
+        expect(result[0].budget_type).toBe('DEPARTMENT_AND_CATEGORIES');
+        expect(result[1].budget_type).toBe('PROJECT_AND_CATEGORIES');
+        expect(result[2].budget_type).toBe('COST_CENTER_AND_CATEGORIES');
+        expect(result[3].budget_type).toBe('DEPARTMENTS');
+        expect(result[4].budget_type).toBe('CATEGORIES');
+        done();
+      });
+    });
+
+    it('should return empty array when API returns undefined data', (done) => {
+      const mockResponse: PlatformApiResponse<Budget[]> = {
+        data: undefined,
+        count: 0,
+        offset: 0,
+      };
+      spenderService.get.and.returnValue(of(mockResponse));
+      service.getSpenderBudgetByParams({}).subscribe((result) => {
+        expect(result).toEqual([]);
+        done();
+      });
+    });
+  });
+
+  describe('getBudgetType() edge cases:', () => {
+    it('should handle budget with undefined arrays', () => {
+      const budgetWithUndefined = {
+        ...budgetUnknownTypeData,
+        department_ids: undefined,
+        project_ids: undefined,
+        cost_center_ids: undefined,
+        category_ids: undefined,
+      } as unknown as Budget;
+      const result = service.getBudgetType(budgetWithUndefined);
+      expect(result).toBe('UNKNOWN');
+    });
+
+    it('should handle budget with null arrays', () => {
+      const budgetWithNull = {
+        ...budgetUnknownTypeData,
+        department_ids: null,
+        project_ids: null,
+        cost_center_ids: null,
+        category_ids: null,
+      } as unknown as Budget;
+      const result = service.getBudgetType(budgetWithNull);
+      expect(result).toBe('UNKNOWN');
     });
   });
 });
