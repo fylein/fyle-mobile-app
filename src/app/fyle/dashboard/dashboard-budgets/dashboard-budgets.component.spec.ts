@@ -44,6 +44,7 @@ describe('DashboardBudgetsComponent', () => {
     utilisation_percentage: 20,
     status: 'ON_TRACK',
   };
+
   beforeEach(async () => {
     currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     currencyServiceSpy.getHomeCurrency.and.returnValue(of('USD'));
