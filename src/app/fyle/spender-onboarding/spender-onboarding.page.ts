@@ -16,7 +16,11 @@ import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-men
 import { NgClass } from '@angular/common';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
-import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
+import { IonButtons, IonContent, IonIcon, PopoverController } from '@ionic/angular/standalone';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 
 @Component({
@@ -48,6 +52,12 @@ export class SpenderOnboardingPage {
 
   private trackingService = inject(TrackingService);
 
+  private popoverController = inject(PopoverController);
+
+  private launchDarklyService = inject(LaunchDarklyService);
+
+  private translocoService = inject(TranslocoService);
+
   isLoading = true;
 
   userFullName: string;
@@ -70,6 +80,52 @@ export class SpenderOnboardingPage {
 
   areCardsEnrolled = false;
 
+  private async showNotificationPermissionPopoverIfEnabled(): Promise<void> {
+    this.launchDarklyService.getVariation('show_push_notif_ui', false).subscribe(async (isEnabled) => {
+      if (!isEnabled) {
+        return;
+      }
+
+      const title = this.translocoService.translate('spenderOnboarding.notificationsTitle');
+      const message = this.translocoService.translate('spenderOnboarding.notificationsMessage');
+      const primaryCtaText = this.translocoService.translate('spenderOnboarding.notificationsPrimaryCta');
+      const secondaryCtaText = this.translocoService.translate('spenderOnboarding.notificationsSecondaryCta');
+
+      const popover = await this.popoverController.create({
+        component: PopupAlertComponent,
+        componentProps: {
+          title,
+          message,
+          primaryCta: {
+            text: primaryCtaText,
+            action: 'ENABLE_NOTIFICATIONS',
+            type: 'alert',
+          },
+          secondaryCta: {
+            text: secondaryCtaText,
+            action: 'SKIP',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      await popover.present();
+
+      const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
+
+      if (data && data.action === 'ENABLE_NOTIFICATIONS') {
+        try {
+          const permission = await PushNotifications.requestPermissions();
+          if (permission.receive === 'granted') {
+            await PushNotifications.register();
+          }
+        } catch {
+          // Intentionally swallow errors; failure to register notifications shouldn't block onboarding
+        }
+      }
+    });
+  }
+
   isMobileVerified(eou: ExtendedOrgUser): boolean {
     return !!(eou.ou.mobile && eou.ou.mobile_verified);
   }
@@ -79,6 +135,7 @@ export class SpenderOnboardingPage {
     this.corporateCreditCardExpenseService.clearCache().subscribe();
     if (isComplete) {
       this.onboardingComplete = true;
+      this.showNotificationPermissionPopoverIfEnabled();
       this.startCountdown();
     } else {
       this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Skip');

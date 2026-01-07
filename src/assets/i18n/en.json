@@ -786,6 +786,12 @@
     "unsavedChangesPrimaryCta": "Yes, cancel",
     "unsavedChangesSecondaryCta": "No, go back"
   },
+  "spenderOnboarding": {
+    "notificationsTitle": "Turn on notifications",
+    "notificationsMessage": "Stay updated on your expenses and approvals. Would you like to enable push notifications?",
+    "notificationsPrimaryCta": "Yes, enable",
+    "notificationsSecondaryCta": "Maybe later"
+  },
   "mobileNumberCard": {
     "title": "Mobile number",
     "description": "Add your mobile number to keep your profile information updated.",

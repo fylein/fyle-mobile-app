@@ -28,13 +28,15 @@
       >
       </app-fy-alert-info>
     }
-    <div class="table-header">
-      <div class="email-notifications--checkbox-col-events">Events</div>
-      <div class="email-notifications--checkbox-col-email">
+    <div class="table-header email-notifications--flex-row">
+      <div class="email-notifications--event-name">
+        Events
+      </div>
+      <div class="email-notifications--checkbox-col">
         <span class="email-notifications--checkbox-label">Email</span>
       </div>
       @if (showMobilePushColumn) {
-        <div class="email-notifications--checkbox-col-mobile">
+        <div class="email-notifications--checkbox-mobile-container">
           <span class="email-notifications--checkbox-label">Mobile push</span>
         </div>
       }
@@ -83,8 +85,7 @@
   <ion-toolbar mode="md">
     <div class="fy-footer-cta-container">
       <ion-button
-        class="btn-primary fy-footer-cta fy-footer-cta--primary"
-        fill="clear"
+        class="btn-primary"
         (click)="saveChanges()"
         [disabled]="!hasChanges"
       >

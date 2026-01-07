@@ -107,8 +107,13 @@
   }
 }
 
+.btn-primary {
+  color: colors.$pure-white !important;
+}
+
 .table-header {
   border-top: 1px solid colors.$border-grey-secondary;
+  border-left: 1px solid colors.$border-grey-secondary;
   border-right: 1px solid colors.$border-grey-secondary;
   border-bottom: 1px solid colors.$border-grey-secondary;
   background: colors.$navy-50;
@@ -117,6 +122,17 @@
   align-items: center;
   align-self: stretch;
   font-weight: 500;
+}
+
+.table-header .email-notifications--checkbox-col,
+.table-header .email-notifications--checkbox-mobile-container {
+  border-left: 1px solid colors.$border-grey-secondary;
+}
+
+.email-notifications--checkbox-mobile-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 ion-title {
