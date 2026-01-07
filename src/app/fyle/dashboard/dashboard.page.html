@@ -6,7 +6,7 @@
       <ion-buttons slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>
-      <ion-title class="dashboard--title" mode="md"> Tasks </ion-title>
+      <ion-title class="dashboard--title" mode="md"> {{ 'dashboard.tasksTitle' | transloco }} </ion-title>
       <ion-buttons slot="end">
         <ion-button>
           <ion-button class="tasks--header-btn" (click)="openFilters()">
@@ -27,13 +27,13 @@
       <ion-buttons slot="start">
         <app-fy-menu-icon></app-fy-menu-icon>
       </ion-buttons>
-      <ion-title class="stats--title" mode="md"> Home </ion-title>
+      <ion-title class="stats--title" mode="md"> {{ 'dashboard.homeTitle' | transloco }} </ion-title>
       @if (isConnected$ | async) {
         <ion-buttons class="stats--action-shortcut-container" slot="end">
           @if ((orgSettings$ | async) && (specialCategories$ | async)) {
             <div class="stats--action-shortcut" id="dashboard-add-expense-button" (click)="openAddExpenseActionSheet()">
               <mat-icon class="stats--action-shortcut-plus-icon" svgIcon="plus-square"></mat-icon>
-              <span>Add expense</span>
+              <span>{{ 'dashboard.addExpense' | transloco }}</span>
             </div>
           } @else {
             <div class="stats--action-shortcut--skeleton-icon">
@@ -101,7 +101,33 @@
         </div>
       }
       <app-stats></app-stats>
-      <app-card-stats (cardAdded)="onCardAdded()"></app-card-stats>
+      @if (areDashboardTabsEnabled()) {
+        <ion-segment class="dashboard--segment" (ionChange)="onTabChange($event)" [value]="activeTabState()">
+          <ion-segment-button value="cards" class="text-capitalize"
+            >{{ 'dashboard.cardsTab' | transloco }} ({{ cardCount() }})</ion-segment-button
+          >
+          <ion-segment-button value="budgets" class="text-capitalize"
+            >{{ 'dashboard.budgetsTab' | transloco }} ({{ budgets().length }})
+          </ion-segment-button>
+          <ion-segment-button value="#" disabled></ion-segment-button>
+        </ion-segment>
+      }
+
+      @if (shouldShowCards()) {
+        <app-card-stats
+          [areDashboardTabsEnabled]="areDashboardTabsEnabled()"
+          (cardAdded)="onCardAdded()"
+          (cardCountChange)="onCardCountChange($event)"
+        ></app-card-stats>
+      }
+
+      @if (shouldShowBudgets()) {
+        <app-dashboard-budgets
+          [budgets]="budgets()"
+          [isLoading]="isBudgetsLoading()"
+          [areDashboardTabsEnabled]="areDashboardTabsEnabled()"
+        ></app-dashboard-budgets>
+      }
     </mat-tab>
     <mat-tab label="tasks">
       <app-tasks (optedIn)="hideOptInDashboardBanner()"></app-tasks>

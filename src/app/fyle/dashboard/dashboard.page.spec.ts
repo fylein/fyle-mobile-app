@@ -52,6 +52,7 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
 import { DriveStep } from 'driver.js';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
@@ -117,6 +118,7 @@ describe('DashboardPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let budgetsService: jasmine.SpyObj<BudgetsService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -175,6 +177,7 @@ describe('DashboardPage', () => {
     ]);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -231,6 +234,10 @@ describe('DashboardPage', () => {
         {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: BudgetsService,
+          useValue: budgetsServiceSpy,
         },
         ...getFormatPreferenceProviders(),
       ],
@@ -289,6 +296,8 @@ describe('DashboardPage', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    budgetsService = TestBed.inject(BudgetsService) as jasmine.SpyObj<BudgetsService>;
+    budgetsService.getSpenderBudgetByParams.and.returnValue(of([]));
     fixture.detectChanges();
   }));
 
@@ -452,7 +461,6 @@ describe('DashboardPage', () => {
     it('should call init method of statsComponent and tasksComponent', () => {
       component.ionViewWillEnter();
       expect(component.statsComponent.init).toHaveBeenCalledTimes(1);
-      expect(component.cardStatsComponent.init).toHaveBeenCalledTimes(1);
       expect(component.tasksComponent.init).toHaveBeenCalledTimes(1);
     });
 

@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { LoaderService } from '../services/loader.service';
 import { fakeAsync, tick } from '@angular/core/testing';
@@ -102,6 +102,18 @@ describe('VerifiedOrgAuthGuard', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
       expect(result).toBeFalse();
+    }));
+
+    it('should return true on error', fakeAsync(() => {
+      authService.getEou.and.rejectWith(new Error('error'));
+      userService.getUserPasswordStatus.and.returnValue(throwError(() => new Error('error')));
+      const canActivate = guard.canActivate() as any;
+      let result: boolean;
+      canActivate.subscribe((res: boolean) => {
+        result = res;
+      });
+      tick();
+      expect(result).toBeTrue();
     }));
   });
 });

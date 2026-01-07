@@ -119,6 +119,12 @@ describe('HttpConfigInterceptor', () => {
       );
       expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
     });
+
+    it('should truncate URL to 200 characters if URL length exceeds 200', () => {
+      const longUrl = 'https://staging1.fyle.tech/' + 'a'.repeat(250);
+      const result = httpInterceptor.getUrlWithoutQueryParam(longUrl);
+      expect(result.length).toBe(200);
+    });
   });
 
   describe('secureUrl():', () => {
@@ -142,6 +148,12 @@ describe('HttpConfigInterceptor', () => {
 
     it('should return false if URL does not contain logout ', () => {
       const result = httpInterceptor.secureUrl('https://staging1.fyle.tech/app/api/auth/login');
+
+      expect(result).toBeFalse();
+    });
+
+    it('should return false for routerapi/auth URL without logout', () => {
+      const result = httpInterceptor.secureUrl('https://staging1.fyle.tech/routerapi/auth/verify');
 
       expect(result).toBeFalse();
     });
@@ -229,6 +241,20 @@ describe('HttpConfigInterceptor', () => {
       });
     });
 
+    it('should refresh access token if accessToken is null', (done) => {
+      tokenService.getAccessToken.and.resolveTo(null);
+      spyOn(httpInterceptor.accessTokenSubject, 'next');
+      spyOn(httpInterceptor, 'refreshAccessToken').and.returnValue(of(authResData2.accessToken));
+
+      httpInterceptor.getAccessToken().subscribe((res) => {
+        expect(res).toEqual(authResData2.accessToken);
+        expect(tokenService.getAccessToken).toHaveBeenCalledTimes(1);
+        expect(httpInterceptor.refreshAccessToken).toHaveBeenCalledTimes(1);
+        expect(httpInterceptor.accessTokenSubject.next).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+
     describe('intercept():', () => {
       it('should refresh access token if expiring soon and set the token in the request', (done) => {
         spyOn(httpInterceptor, 'secureUrl').and.returnValue(true);
@@ -309,8 +335,7 @@ describe('HttpConfigInterceptor', () => {
         spyOn(httpInterceptor, 'getAccessToken').and.returnValue(of(authResData2.accessToken));
         deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockDataWoApp));
 
-        const header = new HttpHeaders();
-        header.set('X-Mobile-App-Blocked', 'true');
+        const headers = new HttpHeaders().set('X-Mobile-App-Blocked', 'true');
 
         httpInterceptor
           .intercept(new HttpRequest('DELETE', 'https://app.fylehq.com/'), {
@@ -319,7 +344,7 @@ describe('HttpConfigInterceptor', () => {
                 () =>
                   new HttpErrorResponse({
                     status: 404,
-                    headers: header,
+                    headers,
                   }),
               ),
           })
@@ -328,9 +353,12 @@ describe('HttpConfigInterceptor', () => {
               expect(err).toBeTruthy();
               expect(httpInterceptor.expiringSoon).toHaveBeenCalledTimes(1);
               expect(httpInterceptor.getAccessToken).toHaveBeenCalledTimes(1);
+              expect(userEventService.logout).toHaveBeenCalledTimes(1);
+              expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+              expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+              done();
             },
           });
-        done();
       });
     });
 
