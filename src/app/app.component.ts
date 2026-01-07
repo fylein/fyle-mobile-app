@@ -31,7 +31,6 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
-import { ActionPerformed, PushNotificationSchema, PushNotifications, Token } from '@capacitor/push-notifications';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 
 @Component({
