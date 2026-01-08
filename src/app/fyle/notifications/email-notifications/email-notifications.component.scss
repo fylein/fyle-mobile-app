@@ -26,6 +26,9 @@
     font-size: 14px;
     font-weight: 400;
     color: colors.$blue-black;
+    border-left: 1px solid colors.$border-grey-secondary;
+    border-right: 1px solid colors.$border-grey-secondary;
+    border-bottom: 1px solid colors.$border-tertiary;
   }
 
   &--event-name {
@@ -53,11 +56,6 @@
     flex: 0 0 auto;
     display: flex;
     justify-content: flex-start;
-
-    .email-notifications--checkbox-label {
-      font-weight: 500;
-      white-space: nowrap;
-    }
   }
 
   &--checkbox-col-mobile {
@@ -98,7 +96,6 @@
 .email-notifications--container {
   // Row borders and alternating background colors
   > div:last-child > .email-notifications--flex-row {
-    border-bottom: 1px solid colors.$border-tertiary;
     background: colors.$pure-white;
 
     &:nth-child(even) {
@@ -107,8 +104,23 @@
   }
 }
 
+.email-notifications--select-all-container {
+  background: colors.$navy-150;
+}
+
+.email-notifications--header-divider {
+  width: 1px;
+  height: 58px;
+  background: colors.$border-grey-secondary;
+}
+
+.email-notifications--header-email-select-all {
+  align-items: center;
+  gap: 8px;
+}
+
 .btn-primary {
-  color: colors.$pure-white !important;
+  --background: colors.$brand-primary !important;
 }
 
 .table-header {
@@ -119,11 +131,6 @@
   align-items: center;
   align-self: stretch;
   font-weight: 500;
-}
-
-.table-header .email-notifications--checkbox-col,
-.table-header .email-notifications--checkbox-mobile-container {
-  border-left: 1px solid colors.$border-grey-secondary;
 }
 
 .email-notifications--checkbox-mobile-container {

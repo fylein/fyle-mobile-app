@@ -23,28 +23,44 @@
         [message]="'emailNotifications.pushNotificationsTurnedOff' | transloco"
         [type]="'warning'"
         [showActionButton]="true"
-        [actionButtonContent]="'Go to Settings'"
+        [actionButtonContent]="'emailNotifications.goToSettingsCta' | transloco"
         (actionClick)="openDeviceSettings()"
       >
       </app-fy-alert-info>
     }
     <div class="table-header email-notifications--flex-row">
       <div class="email-notifications--event-name">
-        Events
+        {{ 'emailNotifications.eventsHeader' | transloco }}
       </div>
-      <div class="email-notifications--checkbox-col">
-        <span class="email-notifications--checkbox-label">Email</span>
+      <div class="email-notifications--header-divider"></div>
+      <div class="email-notifications--checkbox-col email-notifications--header-email-select-all">
+        <mat-checkbox
+        [(ngModel)]="selectAll"
+        (ngModelChange)="toggleAllNotifications($event, 'email')"
+        >
+        </mat-checkbox>
+        <span class="email-notifications--checkbox-label">
+          {{ 'emailNotifications.emailHeader' | transloco }}
+        </span>
       </div>
       @if (showMobilePushColumn) {
+        <div class="email-notifications--header-divider"></div>
         <div class="email-notifications--checkbox-mobile-container">
-          <span class="email-notifications--checkbox-label">Mobile push</span>
+          <mat-checkbox
+          [(ngModel)]="selectAll"
+          (ngModelChange)="toggleAllNotifications($event, 'email')"
+          >
+          </mat-checkbox>
+          <span class="email-notifications--checkbox-label">
+            {{ 'emailNotifications.mobilePushHeader' | transloco }}
+          </span>
         </div>
       }
     </div>
     <div>
-      <div class="email-notifications--flex-row">
+      <div class="email-notifications--flex-row email-notifications--select-all-container">
         <div class="email-notifications--event-name email-notifications--select-all-row">
-          Select all
+          {{ 'emailNotifications.selectAllRowLabel' | transloco }}
         </div>
         <div class="email-notifications--checkbox-col">
           <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event, 'email')">
@@ -88,6 +104,7 @@
         class="btn-primary"
         (click)="saveChanges()"
         [disabled]="!hasChanges"
+        role="button"
       >
         {{ 'emailNotifications.saveChanges' | transloco }}
       </ion-button>

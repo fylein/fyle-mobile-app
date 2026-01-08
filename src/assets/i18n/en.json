@@ -779,12 +779,17 @@
     "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings."
   },
   "emailNotifications": {
+    "emailHeader": "Email",
+    "eventsHeader": "Events",
+    "goToSettingsCta": "Go to Settings",
+    "mobilePushHeader": "Mobile push",
     "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings.",
     "saveChanges": "Save changes",
-    "unsavedChangesTitle": "Unsaved changes",
+    "selectAllRowLabel": "Select all",
     "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to cancel?",
     "unsavedChangesPrimaryCta": "Yes, cancel",
-    "unsavedChangesSecondaryCta": "No, go back"
+    "unsavedChangesSecondaryCta": "No, go back",
+    "unsavedChangesTitle": "Unsaved changes"
   },
   "spenderOnboarding": {
     "notificationsTitle": "Turn on notifications",

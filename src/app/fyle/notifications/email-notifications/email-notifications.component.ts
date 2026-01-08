@@ -11,7 +11,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
-import { finalize, tap } from 'rxjs';
+import { catchError, finalize, from, map, of, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -81,7 +81,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   hasChanges = false;
 
-  isPushPermissionDenied = false;
+  isPushPermissionDenied = true;
 
   private platform = inject(Platform);
 
@@ -235,13 +235,14 @@ export class EmailNotificationsComponent implements OnInit {
     this.hasChanges = false;
   }
 
-  async checkPushPermission(): Promise<void> {
-    try {
-      const permissionStatus = await PushNotifications.checkPermissions();
-      this.isPushPermissionDenied = permissionStatus.receive === 'denied';
-    } catch {
-      this.isPushPermissionDenied = false;
-    }
+  checkPushPermission(): ReturnType<typeof from> {
+    return from(PushNotifications.checkPermissions()).pipe(
+      map((permissionStatus) => {
+        if (permissionStatus.receive === 'granted') {
+          this.isPushPermissionDenied = false;
+        }
+      })
+    );
   }
 
   openDeviceSettings(): void {
@@ -267,6 +268,6 @@ export class EmailNotificationsComponent implements OnInit {
       });
 
     // Check push notification permission to show alert banner if turned off
-    this.checkPushPermission();
+    this.checkPushPermission().subscribe();
   }
 }
