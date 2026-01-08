@@ -63,8 +63,6 @@ export class EmailNotificationsComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedPushEventsByUser: string[];
 
   isLongTitle = false;
