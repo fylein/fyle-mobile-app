@@ -29,8 +29,7 @@ describe('PendingVerificationPage', () => {
 
   // mock for FormButtonValidationDirective
   @Directive({ selector: '[appFormButtonValidation]' })
-  class MockFormButtonValidationDirective {
-  }
+  class MockFormButtonValidationDirective {}
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -38,10 +37,7 @@ describe('PendingVerificationPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     TestBed.configureTestingModule({
-      imports: [
-        RouterTestingModule,
-        PendingVerificationPage,
-      ],
+      imports: [RouterTestingModule, PendingVerificationPage],
       providers: [
         UntypedFormBuilder,
         {
@@ -65,15 +61,17 @@ describe('PendingVerificationPage', () => {
           useValue: { snapshot: { params: { email: 'aastha.b@fyle.in' } } },
         },
       ],
-    }).overrideComponent(PendingVerificationPage, {
-      remove: {
-        imports: [FormButtonValidationDirective],
-      },
-      add: {
-        imports: [MockFormButtonValidationDirective],
-        schemas: [NO_ERRORS_SCHEMA],
-      },
-    }).compileComponents();
+    })
+      .overrideComponent(PendingVerificationPage, {
+        remove: {
+          imports: [FormButtonValidationDirective],
+        },
+        add: {
+          imports: [MockFormButtonValidationDirective],
+          schemas: [NO_ERRORS_SCHEMA],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(PendingVerificationPage);
     component = fixture.componentInstance;
@@ -92,6 +90,13 @@ describe('PendingVerificationPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('ionViewWillEnter(): should initialize the form group', () => {
+    component.fg = null;
+    component.ionViewWillEnter();
+    expect(component.fg).toBeTruthy();
+    expect(component.fg.controls.email).toBeTruthy();
   });
 
   it('resendVerificationLink(): should call routerAuthService and set PageState to success if API is successful', fakeAsync(() => {

@@ -13,7 +13,7 @@ describe('FyAlertComponent', () => {
   beforeEach(waitForAsync(() => {
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
-      imports: [ MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
+      imports: [MatIconModule, MatIconTestingModule, FyAlertInfoComponent],
       providers: [
         {
           provide: TranslocoService,
@@ -40,6 +40,21 @@ describe('FyAlertComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('ngOnInit():', () => {
+    it('should use translated default action button content when not provided', () => {
+      component.actionButtonContent = undefined;
+      component.ngOnInit();
+      expect(component.actionButtonContent).toBe('Action');
+      expect(translocoService.translate).toHaveBeenCalledWith('fyAlertInfo.action');
+    });
+
+    it('should keep provided actionButtonContent when set', () => {
+      component.actionButtonContent = 'Custom Action';
+      component.ngOnInit();
+      expect(component.actionButtonContent).toBe('Custom Action');
+    });
   });
 
   it('onActionClick(): should emit actionClick', () => {

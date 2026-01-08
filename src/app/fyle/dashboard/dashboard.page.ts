@@ -1,4 +1,4 @@
-import { Component, EventEmitter, ViewChild, inject, signal, viewChild } from '@angular/core';
+import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -9,6 +9,8 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonSegment,
+  IonSegmentButton,
   IonSkeletonText,
   IonTitle,
   IonToolbar,
@@ -32,6 +34,7 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { CardStatsComponent } from './card-stats/card-stats.component';
+import { DashboardBudgetsComponent } from './dashboard-budgets/dashboard-budgets.component';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -64,7 +67,9 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { OverlayEventDetail } from '@ionic/core';
+import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
+import { Budget } from 'src/app/core/models/budget.model';
+import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -76,6 +81,7 @@ SwiperCore.use([Pagination, Autoplay]);
   imports: [
     AsyncPipe,
     CardStatsComponent,
+    DashboardBudgetsComponent,
     DashboardEmailOptInComponent,
     DashboardOptInComponent,
     FyMenuIconComponent,
@@ -95,6 +101,8 @@ SwiperCore.use([Pagination, Autoplay]);
     SwiperModule,
     TasksComponent,
     TranslocoPipe,
+    IonSegment,
+    IonSegmentButton,
   ],
 })
 export class DashboardPage {
@@ -151,6 +159,53 @@ export class DashboardPage {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private popoverController = inject(PopoverController);
+
+  private budgetsService = inject(BudgetsService);
+
+  readonly areCardsEnabled = signal<boolean>(false);
+
+  readonly areBudgetsEnabled = signal<boolean>(false);
+
+  readonly areDashboardTabsEnabled = signal<boolean>(false);
+
+  readonly isDashboardConfigReady = signal<boolean>(false);
+
+  readonly activeTabState = signal<'cards' | 'budgets'>('cards');
+
+  readonly shouldShowCards = computed(() => {
+    if (!this.isDashboardConfigReady()) return false;
+
+    // With tabs UI: show cards only when 'cards' tab is selected
+    if (this.areDashboardTabsEnabled()) {
+      return this.activeTabState() === 'cards';
+    }
+
+    // Without tabs UI: show cards based on feature flag
+    return this.areCardsEnabled();
+  });
+
+  readonly shouldShowBudgets = computed(() => {
+    if (!this.isDashboardConfigReady()) return false;
+
+    // With tabs UI: show budgets only when 'budgets' tab is selected
+    if (this.areDashboardTabsEnabled()) {
+      return this.activeTabState() === 'budgets';
+    }
+
+    // Without tabs UI: show budgets based on feature flag
+    return this.areBudgetsEnabled();
+  });
+
+  onTabChange(event: SegmentCustomEvent): void {
+    const value = event.detail.value as 'cards' | 'budgets';
+    if (value) {
+      this.activeTabState.set(value);
+    }
+  }
+
+  onCardCountChange(count: number): void {
+    this.cardCount.set(count);
+  }
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -220,6 +275,12 @@ export class DashboardPage {
   swiperConfig: SwiperOptions;
 
   readonly rebrandingPopupShown = signal<boolean>(false);
+
+  readonly budgets = signal<Budget[]>([]);
+
+  readonly isBudgetsLoading = signal<boolean>(false);
+
+  readonly cardCount = signal<number>(0);
 
   optInBannerPagination: PaginationOptions = {
     dynamicBullets: true,
@@ -659,9 +720,44 @@ export class DashboardPage {
     this.canShowOptInBanner$ = optInBanner$;
     this.canShowEmailOptInBanner$ = emailOptInBanner$;
 
-    this.eou$.subscribe((eou) => {
-      this.userName = eou.us.full_name;
-    });
+    combineLatest([this.orgSettings$, this.eou$])
+      .pipe(
+        take(1),
+        switchMap(([orgSettings, eou]) => {
+          const isCCCEnabled =
+            orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
+          this.areCardsEnabled.set(isCCCEnabled);
+          this.userName = eou.us.full_name;
+
+          this.isBudgetsLoading.set(true);
+          return this.budgetsService.getSpenderBudgetByParams({}).pipe(
+            takeUntil(this.onPageExit$),
+            map((budgets) => ({ budgets, isCCCEnabled })),
+            catchError(() => of({ budgets: [] as Budget[], isCCCEnabled })),
+          );
+        }),
+      )
+      .subscribe(({ budgets, isCCCEnabled }) => {
+        this.budgets.set(budgets);
+        const hasBudgets = budgets.length > 0;
+        this.areBudgetsEnabled.set(hasBudgets);
+        this.isBudgetsLoading.set(false);
+
+        this.areDashboardTabsEnabled.set(isCCCEnabled && hasBudgets);
+
+        if (isCCCEnabled && hasBudgets) {
+          // Both enabled - tabs will show, default to cards
+          this.activeTabState.set('cards');
+        } else if (isCCCEnabled) {
+          // Only cards - no tabs
+          this.activeTabState.set('cards');
+        } else if (hasBudgets) {
+          // Only budgets - no tabs
+          this.activeTabState.set('budgets');
+        }
+
+        this.isDashboardConfigReady.set(true);
+      });
 
     forkJoin({
       optInBanner: optInBanner$,
@@ -714,8 +810,6 @@ export class DashboardPage {
     });
 
     this.statsComponent.init();
-    this.cardStatsComponent.init();
-
     this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
