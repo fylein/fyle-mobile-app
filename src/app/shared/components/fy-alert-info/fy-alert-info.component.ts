@@ -32,8 +32,6 @@ export class FyAlertInfoComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() actionButtonContent: string;
 
-  readonly redirectionText = input<string>(null);
-
   readonly allowHtml = input(false);
 
   readonly actionClick = output<void>();
