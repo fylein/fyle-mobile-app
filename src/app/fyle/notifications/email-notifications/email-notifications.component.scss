@@ -119,6 +119,45 @@
   gap: 8px;
 }
 
+.notifications-push-alert {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 16px;
+  padding: 12px;
+  border: 1px solid colors.$border-lighter-warning;
+  border-radius: 4px;
+  background: colors.$warning-lighter;
+  color: colors.$blue-black;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    fill: colors.$dark-yellow;
+    height: 20px;
+    width: 20px;
+    margin-right: 4px;
+  }
+
+  &__message {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  &__cta {
+    border: none;
+    background: none;
+    padding: 0;
+    color: colors.$blue-black;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+}
+
 .btn-primary {
   --background: colors.$brand-primary !important;
 }

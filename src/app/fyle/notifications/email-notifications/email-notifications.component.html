@@ -18,15 +18,25 @@
 <ion-content>
   <div class="email-notifications--container">
     @if (isPushPermissionDenied) {
-      <app-fy-alert-info
-        class="email-notifications--push-alert"
-        [message]="'emailNotifications.pushNotificationsTurnedOff' | transloco"
-        [type]="'warning'"
-        [showActionButton]="true"
-        [actionButtonContent]="'emailNotifications.goToSettingsCta' | transloco"
-        (actionClick)="openDeviceSettings()"
-      >
-      </app-fy-alert-info>
+      <div class="notifications-push-alert email-notifications--push-alert" role="alert">
+        <div>
+          <ion-icon
+            class="notifications-push-alert__icon"
+            [src]="'/assets/svg/warning-fill.svg'"
+            slot="icon-only"
+          ></ion-icon>
+        </div>
+        <div class="notifications-push-alert__message">
+          {{ 'emailNotifications.pushNotificationsTurnedOff' | transloco }}
+        </div>
+        <button
+          type="button"
+          class="notifications-push-alert__cta"
+          (click)="openDeviceSettings()"
+        >
+          {{ 'emailNotifications.goToSettingsCta' | transloco }}
+        </button>
+      </div>
     }
     <div class="table-header email-notifications--flex-row">
       <div class="email-notifications--event-name">
@@ -34,11 +44,6 @@
       </div>
       <div class="email-notifications--header-divider"></div>
       <div class="email-notifications--checkbox-col email-notifications--header-email-select-all">
-        <mat-checkbox
-        [(ngModel)]="selectAll"
-        (ngModelChange)="toggleAllNotifications($event, 'email')"
-        >
-        </mat-checkbox>
         <span class="email-notifications--checkbox-label">
           {{ 'emailNotifications.emailHeader' | transloco }}
         </span>
@@ -46,11 +51,6 @@
       @if (showMobilePushColumn) {
         <div class="email-notifications--header-divider"></div>
         <div class="email-notifications--checkbox-mobile-container">
-          <mat-checkbox
-          [(ngModel)]="selectAll"
-          (ngModelChange)="toggleAllNotifications($event, 'email')"
-          >
-          </mat-checkbox>
           <span class="email-notifications--checkbox-label">
             {{ 'emailNotifications.mobilePushHeader' | transloco }}
           </span>

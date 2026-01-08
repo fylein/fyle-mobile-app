@@ -11,7 +11,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
-import { catchError, finalize, from, map, of, tap } from 'rxjs';
+import { finalize, forkJoin, from, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -235,16 +235,6 @@ export class EmailNotificationsComponent implements OnInit {
     this.hasChanges = false;
   }
 
-  checkPushPermission(): ReturnType<typeof from> {
-    return from(PushNotifications.checkPermissions()).pipe(
-      map((permissionStatus) => {
-        if (permissionStatus.receive === 'granted') {
-          this.isPushPermissionDenied = false;
-        }
-      })
-    );
-  }
-
   openDeviceSettings(): void {
     this.nativeSettings.open({
       optionAndroid: AndroidSettings.ApplicationDetails,
@@ -260,14 +250,15 @@ export class EmailNotificationsComponent implements OnInit {
     const isPushColumnSupportedForTitle =
       this.title === 'Expense notifications' || this.title === 'Expense report notifications';
 
-    // Gate mobile push UI behind LaunchDarkly flag
-    this.launchDarklyService
-      .getVariation('show_push_notif_ui', false)
-      .subscribe((isPushNotifUiEnabled) => {
-        this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
-      });
-
-    // Check push notification permission to show alert banner if turned off
-    this.checkPushPermission().subscribe();
+    forkJoin({
+      isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
+      permissionStatus: from(PushNotifications.checkPermissions()),
+    }).subscribe(({ isPushNotifUiEnabled, permissionStatus }) => {
+      this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
+      this.isPushPermissionDenied =
+        isPushNotifUiEnabled &&
+        isPushColumnSupportedForTitle &&
+        permissionStatus.receive !== 'granted';
+    });
   }
 }
