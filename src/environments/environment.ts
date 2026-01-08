@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   NAME: '',
   ROOT_URL: '',
-  ROUTER_API_ENDPOINT: 'https://staging-accounts.fyle.tech',
+  ROUTER_API_ENDPOINT: '',
   ANDROID_CLIENT_ID: '',
   GOOGLE_MAPS_API_KEY: '',
   FRESHCHAT_TOKEN: '',
