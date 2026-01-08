@@ -56,7 +56,6 @@
 		"SplashScreenPlugin",
 		"StatusBarPlugin",
 		"TextZoomPlugin",
-		"AppShortcutsPlugin",
 		"NativeSettingsPlugin",
 		"SecureStoragePlugin",
 		"CDVPlugin"
