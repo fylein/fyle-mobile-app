@@ -1,18 +1,6 @@
 require('dotenv').config();
 
-/**
- * Build the contents of android/app/google-services.json from environment variables.
- *
- * Required env vars (examples):
- * - FYLE_MOBILE_FIREBASE_PROJECT_NUMBER
- * - FYLE_MOBILE_FIREBASE_PROJECT_ID
- * - FYLE_MOBILE_FIREBASE_STORAGE_BUCKET
- * - FYLE_MOBILE_FIREBASE_ANDROID_MOBILESDK_APP_ID
- * - FYLE_MOBILE_FIREBASE_ANDROID_PACKAGE_NAME
- * - FYLE_MOBILE_FIREBASE_API_KEY
- */
-
-function getAndroidGoogleServicesJson() {
+function getGoogleCredentialsAndroid() {
   // Prefer the FYLE_MOBILE_* names, but also support FIREBASE_* aliases
   const projectNumber =
     process.env.FYLE_MOBILE_PROJECT_NUMBER;
@@ -60,4 +48,4 @@ function getAndroidGoogleServicesJson() {
   return JSON.stringify(obj, null, 2);
 }
 
-module.exports.getAndroidGoogleServicesJson = getAndroidGoogleServicesJson;
+module.exports.getAndroidGoogleServicesJson = getGoogleCredentialsAndroid;

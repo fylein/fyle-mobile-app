@@ -83,9 +83,6 @@ module.exports = function (ctx) {
 
   // Creating Info.plist file
   fs.writeFileSync('ios/App/App/Info.plist', secrets.iosInfo);
-
-  // Creating google-services.json file
-  fs.writeFileSync('android/app/google-services.json', secrets.googleCredentialsAndroid);
 };
 
 function compareAppVersion(liveUpdateVersion, currentVersion) {
