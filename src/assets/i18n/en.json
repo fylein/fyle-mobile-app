@@ -1326,7 +1326,8 @@
   },
   "autoSubmissionInfoCard": {
     "nextSubmissionOn": "Next auto-submission of expense reports on",
-    "completeExpenses": "Add and complete your expenses for auto-submission"
+    "completeExpenses": "Add and complete your expenses for auto-submission",
+    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings."
   },
   "stats": {
     "myExpenses": "My expenses",
