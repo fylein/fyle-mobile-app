@@ -120,6 +120,42 @@
   }
 }
 
+.notifications-push-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: colors.$warning-lighter;
+  color: colors.$blue-black;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: colors.$caution-500;
+    margin-right: 4px;
+  }
+
+  &__message {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 400;
+  }
+
+  &__cta {
+    border: none;
+    background: none;
+    padding: 0;
+    color: colors.$blue-black;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+}
+
 // Skeleton Loading Styles
 .notifications {
   &--skeleton-wrapper {

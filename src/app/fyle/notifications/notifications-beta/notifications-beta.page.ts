@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
-import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
+import { finalize, forkJoin, from, map, Observable, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -18,6 +18,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -67,6 +69,10 @@ export class NotificationsBetaPage implements OnInit {
 
   isInitialLoading: boolean;
 
+  isPushPermissionDenied = true;
+
+  showMobilePushColumn = false;
+
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
@@ -87,13 +93,23 @@ export class NotificationsBetaPage implements OnInit {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
+  nativeSettings = NativeSettings;
+
   ngOnInit(): void {
     this.isInitialLoading = true;
-    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
+    forkJoin({
+      orgData: this.getOrgSettings(),
+      isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
+      permissionStatus: from(PushNotifications.checkPermissions()),
+    }).subscribe(({ orgData, isPushNotifUiEnabled, permissionStatus }) => {
+      const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
+
+      this.showMobilePushColumn = isPushNotifUiEnabled;
+      this.isPushPermissionDenied = isPushNotifUiEnabled && permissionStatus.receive !== 'granted';
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
@@ -154,6 +170,8 @@ export class NotificationsBetaPage implements OnInit {
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
     const unsubscribedEventsByUser: string[] =
       this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const unsubscribedPushEventsByUser: string[] =
+      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
@@ -162,10 +180,11 @@ export class NotificationsBetaPage implements OnInit {
         notifications: notificationConfig.notifications,
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
+        unsubscribedPushEventsByUser,
       },
       ...this.modalPropertiesService.getModalDefaultProperties(),
-      initialBreakpoint: 0.5,
-      breakpoints: [0, 0.5, 1],
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
     });
 
     await emailNotificationsModal.present();
@@ -208,5 +227,12 @@ export class NotificationsBetaPage implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
+  }
+
+  openDeviceSettings(): void {
+    this.nativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
   }
 }

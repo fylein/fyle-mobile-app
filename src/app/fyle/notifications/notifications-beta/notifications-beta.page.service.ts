@@ -143,7 +143,10 @@ export class NotificationsBetaPageService {
     advanceNotificationsConfig: NotificationConfig;
   } {
     const unsubscribedEventsByAdmin: string[] = orgSettings.admin_email_settings?.unsubscribed_events ?? [];
-    const unsubscribedEventsByUser: string[] = employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const unsubscribedEmailEventsByUser: string[] =
+      employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const unsubscribedPushEventsByUser: string[] =
+      employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
     // Filter out admin-disabled notifications first, then apply user preferences
     const processNotifications = (notifications: NotificationEventItem[]): NotificationEventItem[] =>
@@ -151,7 +154,8 @@ export class NotificationsBetaPageService {
         .filter((notification) => !unsubscribedEventsByAdmin.includes(notification.eventEnum))
         .map((notification) => ({
           ...notification,
-          email: !unsubscribedEventsByUser.includes(notification.eventEnum),
+          email: !unsubscribedEmailEventsByUser.includes(notification.eventEnum),
+          push: !unsubscribedPushEventsByUser.includes(notification.eventEnum),
         }));
 
     const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou));

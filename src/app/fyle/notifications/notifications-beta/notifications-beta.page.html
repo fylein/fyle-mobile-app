@@ -17,6 +17,27 @@
       }
     </div>
   } @else {
+    @if (isPushPermissionDenied) {
+      <div class="notifications-push-alert email-notifications--push-alert" role="alert">
+        <div>
+          <ion-icon
+            class="notifications-push-alert__icon"
+            [src]="'/assets/svg/warning-fill.svg'"
+            slot="icon-only"
+          ></ion-icon>
+        </div>
+        <div class="notifications-push-alert__message">
+          {{ 'emailNotifications.pushNotificationsTurnedOff' | transloco }}
+        </div>
+        <button
+          type="button"
+          class="notifications-push-alert__cta"
+          (click)="openDeviceSettings()"
+        >
+          {{ 'emailNotifications.goToSettingsCta' | transloco }}
+        </button>
+      </div>
+    }
     @if (isNotificationsDisabled) {
       <div class="notifications--zero-state-container" data-testid="zero-state">
         <img class="notifications--zero-state-img" src="../../../../assets/images/zero-states/notifications.png" />
