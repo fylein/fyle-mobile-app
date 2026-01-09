@@ -657,7 +657,8 @@
     "missing": "missing",
     "at": "at",
     "add": "Add",
-    "more": "more"
+    "more": "more",
+    "autoApprovedBySystem": "Auto-approved by system"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
@@ -851,7 +852,8 @@
   },
   "reportsCard": {
     "expense": "Expense",
-    "expenses": "Expenses"
+    "expenses": "Expenses",
+    "autoApprovedBySystem": "Auto-approved by system"
   },
   "auditHistory": {
     "detailsLabel": "Details:",
