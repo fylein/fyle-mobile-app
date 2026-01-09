@@ -9,6 +9,7 @@ export const platformPersonalCardTxnExpenseSuggestionsRes: PlatformApiResponse<E
   data: [
     {
       accounting_export_summary: {},
+      report_auto_approval_state: null,
       activity_details: null,
       added_to_report_at: null,
       admin_amount: null,
