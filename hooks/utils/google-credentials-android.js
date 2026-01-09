@@ -48,4 +48,4 @@ function getGoogleCredentialsAndroid() {
   return JSON.stringify(obj, null, 2);
 }
 
-module.exports.getAndroidGoogleServicesJson = getGoogleCredentialsAndroid;
+module.exports.getGoogleCredentialsAndroid = getGoogleCredentialsAndroid;
