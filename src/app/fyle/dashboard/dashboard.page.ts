@@ -161,9 +161,8 @@ export class DashboardPage {
 
   private popoverController = inject(PopoverController);
 
-<<<<<<< HEAD
   private pushNotificationService = inject(PushNotificationService);
-=======
+
   private budgetsService = inject(BudgetsService);
 
   readonly areCardsEnabled = signal<boolean>(false);
@@ -210,7 +209,6 @@ export class DashboardPage {
   onCardCountChange(count: number): void {
     this.cardCount.set(count);
   }
->>>>>>> fyle-mobile-notif-redesign
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
