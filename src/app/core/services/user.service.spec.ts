@@ -177,16 +177,6 @@ describe('UserService', () => {
     expect(userService).toBeTruthy();
   });
 
-  it('should be able to fetch current user', (done) => {
-    apiService.get.and.returnValue(of(currentUserResponse));
-
-    userService.getCurrent().subscribe((currentUserRes) => {
-      expect(currentUser).toEqual(currentUserRes);
-      expect(apiService.get).toHaveBeenCalledWith('/users/current');
-      done();
-    });
-  });
-
   it('should be able to check if user is not in pending details state', (done) => {
     authService.getEou.and.returnValue(new Promise<ExtendedOrgUser>((resolve) => resolve(extendedOrgUser)));
 

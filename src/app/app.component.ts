@@ -31,7 +31,7 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
-import { ActionPerformed, PushNotificationSchema, PushNotifications, Token } from '@capacitor/push-notifications';
+import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 
 @Component({
   selector: 'app-root',
@@ -127,8 +127,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     'team_reports',
   ];
 
-  isLoading = true;
-
   constructor() {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -137,7 +135,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     // Move platform ready check here after view is initialized
     setTimeout(async () => {
-      this.isLoading = false;
       await SplashScreen.hide();
     }, 2000);
   }
@@ -166,6 +163,15 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
     });
+
+    // Handle app shortcuts (Home Screen Quick Actions)
+    if (Capacitor.isNativePlatform()) {
+      AppShortcuts.addListener('click', (event) => {
+        this.zone.run(() => {
+          this.handleAppShortcut(event.shortcutId);
+        });
+      });
+    }
 
     this.platform.ready().then(async () => {
       if (Capacitor.isNativePlatform()) {
@@ -404,6 +410,27 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   switchDelegator(isSwitchedToDelegator: boolean): void {
     this.isSwitchedToDelegator = isSwitchedToDelegator;
+  }
+
+  /**
+   * Handles app shortcuts (Home Screen Quick Actions)
+   * @param shortcutId - The ID of the shortcut that was clicked
+   */
+  private handleAppShortcut(shortcutId: string): void {
+    this.trackingService.appShortcutUsed({ action: shortcutId });
+
+    switch (shortcutId) {
+      case 'capture_receipt':
+        this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+        break;
+      case 'add_expense':
+        this.router.navigate(['/', 'enterprise', 'add_edit_expense', { navigate_back: true }]);
+        break;
+      default:
+        // Fallback to dashboard if unknown shortcut
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+        break;
+    }
   }
 
   private getTotalTasksCount(): void {

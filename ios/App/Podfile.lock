@@ -44,6 +44,8 @@ PODS:
     - Capacitor
   - CapacitorTextZoom (7.0.3):
     - Capacitor
+  - CapawesomeCapacitorAppShortcuts (7.5.0):
+    - Capacitor
   - CordovaPlugins (7.4.4):
     - CapacitorCordova
   - CordovaPluginsStatic (7.4.4):
@@ -151,6 +153,7 @@ DEPENDENCIES:
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
+  - "CapawesomeCapacitorAppShortcuts (from `../../node_modules/@capawesome/capacitor-app-shortcuts`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
@@ -212,6 +215,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapacitorTextZoom:
     :path: "../../node_modules/@capacitor/text-zoom"
+  CapawesomeCapacitorAppShortcuts:
+    :path: "../../node_modules/@capawesome/capacitor-app-shortcuts"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
   CordovaPluginsStatic:
@@ -238,6 +243,7 @@ SPEC CHECKSUMS:
   CapacitorSplashScreen: 000f7591d546907dda5cbb514bd6b6d9e6048cf8
   CapacitorStatusBar: d0e0151c89c001a9c7125bac59ddedf76b664768
   CapacitorTextZoom: c22bedd7b6762443ae7648edd6e6df70c5e0b2fe
+  CapawesomeCapacitorAppShortcuts: ba59ff3a9da01610ac0ffc96c07631bc817fb7b5
   CordovaPlugins: 6b39dd8097d06e1816b3cc50085d5e46e6b4a861
   CordovaPluginsStatic: f8618193a06f78efe2da401283820de5239a8f65
   FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
@@ -255,6 +261,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
-PODFILE CHECKSUM: 280ff7a8c420e15fd5180fe3c69ac15b1f5bdfa3
+PODFILE CHECKSUM: e8d2d5b2c4afd01caa869215f1a8143a4bb26265
 
 COCOAPODS: 1.16.2

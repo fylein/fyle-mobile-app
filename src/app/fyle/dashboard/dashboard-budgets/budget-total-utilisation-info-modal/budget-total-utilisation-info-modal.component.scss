@@ -1,0 +1,35 @@
+@use '../../../../../theme/colors.scss';
+
+.header {
+  border-radius: 16px;
+}
+
+.budget-total-utilisation-info-modal {
+  position: relative;
+  height: auto;
+
+  &__toolbar-title {
+    color: colors.$grayscale-90;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  &__toolbar-close-btn {
+    position: absolute;
+
+    .icon-close {
+      color: colors.$black;
+    }
+  }
+
+  &__body {
+    padding: 20px 20px 36px 20px;
+  }
+
+  &__description {
+    font-size: 14px;
+    color: colors.$gray-25;
+    margin: 0;
+  }
+}
