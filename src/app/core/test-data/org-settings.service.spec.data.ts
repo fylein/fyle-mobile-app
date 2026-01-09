@@ -464,6 +464,11 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
       symbol_position: 'before',
     },
   },
+  auto_report_approval_settings: {
+    amount_threshold: 500,
+    enabled: false,
+    allowed: false,
+  },
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
