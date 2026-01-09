@@ -65,6 +65,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
     FirebaseApp.configure()
+
+    // Handle shortcut from cold start
+    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem {
+      NotificationCenter.default.post(
+        name: NSNotification.Name(AppShortcutsPlugin.notificationName),
+        object: nil,
+        userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
+      )
+    }
+
     return true
   }
 
@@ -82,22 +92,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
     NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
   }
-  
   // MARK: - App Shortcuts (Home Screen Quick Actions)
-  
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    // Handle shortcut from cold start
-    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem {
-      NotificationCenter.default.post(
-        name: NSNotification.Name(AppShortcutsPlugin.notificationName),
-        object: nil,
-        userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
-      )
-      return true
-    }
-    return true
-  }
-  
+    
   func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
     // Handle shortcut when app is running in background
     NotificationCenter.default.post(
