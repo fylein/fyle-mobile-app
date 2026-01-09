@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, output } from '@angular/core';
+import { Component, OnInit, Input, output, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 @Component({
   selector: 'app-auto-submission-info-card',
@@ -13,11 +14,19 @@ export class AutoSubmissionInfoCardComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() autoSubmissionReportDate: Date;
 
+  readonly orgSettings = input<OrgSettings>();
+
   readonly cardClicked = output<void>();
+
+  showAutoApprovalInfo = false;
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    this.showAutoApprovalInfo =
+      this.orgSettings()?.auto_report_approval_settings?.allowed &&
+      this.orgSettings()?.auto_report_approval_settings?.enabled;
+  }
 
   onCardClicked() {
     // TODO: The 'emit' function requires a mandatory void argument

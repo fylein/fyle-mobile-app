@@ -1,3 +1,4 @@
+import { AutoApprovalState } from '../auto-approval-state.enum';
 import { ReportApprovals } from '../report-approvals.model';
 import { Comment } from './comment.model';
 import { Level } from './level.model';
@@ -5,6 +6,7 @@ import { Level } from './level.model';
 export interface Report {
   id: string;
   org_id: string;
+  auto_approval_state: AutoApprovalState | null;
   created_at: Date | string;
   updated_at: Date;
   user_id: string;

@@ -275,6 +275,8 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 6px;
 
     &.is-pending-gas-charge {
       width: 100%;
@@ -374,4 +376,15 @@
   width: 16px;
   position: relative;
   top: 16%;
+}
+
+.expenses-card--auto-approved-by-system {
+  color: colors.$sage-text-tertiary;
+  font-size: 11px;
+  line-height: 150%;
+}
+
+.expenses-card--state-container-container {
+  display: flex;
+  flex-direction: column;
 }

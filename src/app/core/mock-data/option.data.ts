@@ -6,6 +6,7 @@ export const optionData1: Option[] = deepFreeze([
   {
     label: 'report 1',
     value: {
+      auto_approval_state: null,
       amount: 1348.09332,
       comments: [],
       approvals: [],
@@ -73,6 +74,7 @@ export const optionData1: Option[] = deepFreeze([
   {
     label: 'report 2',
     value: {
+      auto_approval_state: null,
       amount: 100,
       comments: [],
       approvals: [],

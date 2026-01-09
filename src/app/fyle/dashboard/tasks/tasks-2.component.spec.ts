@@ -120,6 +120,7 @@ export function TestCases2(getTestBed) {
     describe('init():', () => {
       beforeEach(() => {
         reportService.getReportAutoSubmissionDetails.and.returnValue(of(apiReportAutoSubmissionDetails));
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
         orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
         orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
         tasksService.getTasks.and.returnValue(of(dashboardTasksData));

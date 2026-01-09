@@ -1,5 +1,5 @@
 import { getCurrencySymbol, NgClass, DatePipe } from '@angular/common';
-import { Component, OnInit, Input, input, output } from '@angular/core';
+import { Component, OnInit, Input, input, output, computed } from '@angular/core';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { MatRipple } from '@angular/material/core';
 import { MatIcon } from '@angular/material/icon';
@@ -8,6 +8,7 @@ import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { AutoApprovalState } from 'src/app/core/models/platform/auto-approval-state.enum';
 
 @Component({
   selector: 'app-reports-card',
@@ -49,6 +50,8 @@ export class ReportsCardComponent implements OnInit {
   actionOpened = false;
 
   reportCurrencySymbol = '';
+
+  readonly isAutoApproved = computed(() => this.report?.auto_approval_state === AutoApprovalState.AUTO_APPROVED);
 
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}

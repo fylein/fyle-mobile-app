@@ -36,6 +36,11 @@
           <div class="state-pill state-{{ report.state | reportState }}">
             {{ report.state | reportState | snakeCaseToSpaceCase }}
           </div>
+          @if (isAutoApproved()) {
+            <div class="reports-card--auto-approved-by-system">
+              {{ 'reportsCard.autoApprovedBySystem' | transloco }}
+            </div>
+          }
         </div>
       </div>
     </div>

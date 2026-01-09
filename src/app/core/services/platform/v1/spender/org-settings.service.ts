@@ -413,6 +413,11 @@ export class PlatformOrgSettingsService {
       },
       is_new_critical_policy_violation_flow_enabled: incoming?.is_new_critical_policy_violation_flow_enabled,
       regional_settings: incoming.regional_settings,
+      auto_report_approval_settings: {
+        allowed: incoming.auto_report_approval_settings?.allowed,
+        enabled: incoming.auto_report_approval_settings?.enabled,
+        amount_threshold: incoming.auto_report_approval_settings?.amount_threshold ?? 0,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

@@ -477,6 +477,7 @@ export interface OrgSettingsResponse {
   simplified_multi_stage_approvals?: CommonOrgSettings;
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
+  auto_report_approval_settings?: AutoReportApprovalSettings;
 }
 
 export interface UiPolicySettings {
@@ -510,6 +511,10 @@ export interface OandaProviderSettings extends CommonOrgSettings {
 export interface XeProviderSettings extends CommonOrgSettings {
   id?: string;
   name?: string;
+}
+
+export interface AutoReportApprovalSettings extends CommonOrgSettings {
+  amount_threshold: number;
 }
 
 export interface OrgSettings {
@@ -594,4 +599,5 @@ export interface OrgSettings {
   simplified_multi_stage_approvals?: CommonOrgSettings;
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
+  auto_report_approval_settings?: AutoReportApprovalSettings;
 }

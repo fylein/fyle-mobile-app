@@ -1,0 +1,5 @@
+export enum AutoApprovalState {
+  PENDING = 'PENDING',
+  NOT_ELIGIBLE = 'NOT_ELIGIBLE',
+  AUTO_APPROVED = 'AUTO_APPROVED',
+}

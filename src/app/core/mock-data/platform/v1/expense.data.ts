@@ -19,6 +19,7 @@ import {
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: null,
   admin_amount: null,
   amount: 10,
@@ -245,6 +246,7 @@ export const expenseData: Expense = deepFreeze({
 
 export const mileageExpense: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: new Date('2023-11-01T00:10:01.286157+00:00'),
   admin_amount: null,
   amount: 459,
@@ -648,6 +650,7 @@ export const mileageExpense: Expense = deepFreeze({
 
 export const perDiemExpense: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: new Date('2023-11-02T07:56:41.065000+00:00'),
   admin_amount: null,
   amount: 440,
@@ -1083,7 +1086,7 @@ export const perDiemExpenseWithMultipleNumDays: Expense = deepFreeze({
 export const apiExpenses1: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
-
+    report_auto_approval_state: null,
     added_to_report_at: null,
     admin_amount: null,
     amount: 10,
@@ -1383,6 +1386,7 @@ export const apiExpenses1: Expense[] = deepFreeze([
   },
   {
     accounting_export_summary: {},
+    report_auto_approval_state: null,
 
     added_to_report_at: null,
     admin_amount: null,
@@ -1794,6 +1798,7 @@ export const draftExpense: Expense = deepFreeze({
 export const splitExpensesData: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
+    report_auto_approval_state: null,
     added_to_report_at: null,
     admin_amount: null,
     amount: 7.2,
@@ -1939,6 +1944,7 @@ export const splitExpensesData: Expense[] = deepFreeze([
   },
   {
     accounting_export_summary: {},
+    report_auto_approval_state: null,
     added_to_report_at: null,
     admin_amount: null,
     amount: 4.8,
@@ -2089,6 +2095,7 @@ export const apiExpenses2: Expense[] = deepFreeze([splitExpensesData[0]]);
 export const apiExpenses3: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
+    report_auto_approval_state: null,
     added_to_report_at: null,
     admin_amount: null,
     amount: 4.8,
@@ -2234,6 +2241,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
   },
   {
     accounting_export_summary: {},
+    report_auto_approval_state: null,
     added_to_report_at: null,
     admin_amount: null,
     amount: 4.8,
@@ -2381,6 +2389,7 @@ export const apiExpenses3: Expense[] = deepFreeze([
 
 export const platformExpenseData: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: null,
   admin_amount: null,
   amount: 2263.68,
@@ -2582,6 +2591,7 @@ export const platformExpenseDataWithPendingGasCharge: Expense = deepFreeze({
 
 export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: null,
   id: 'txD5hIQgLuR5',
   created_at: new Date('2024-02-09T06:50:13.098Z'),
@@ -2820,6 +2830,7 @@ export const platformExpenseDataWithReportId2: Expense = deepFreeze({
 
 export const platformExpenseWithExtractedData: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: null,
   admin_amount: null,
   amount: 2.64,
@@ -3031,6 +3042,7 @@ export const platformExpenseWithExtractedData2: Expense = deepFreeze({
 
 export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   accounting_export_summary: {},
+  report_auto_approval_state: null,
   added_to_report_at: null,
   admin_amount: null,
   amount: 260.37,
