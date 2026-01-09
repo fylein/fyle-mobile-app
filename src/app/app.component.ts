@@ -32,6 +32,7 @@ import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
+import { Token, PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-root',
@@ -236,6 +237,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    PushNotifications.addListener('registration',
+      (token: Token) => {
+        console.log('Push registration success, token: ' + token.value);
+      }
+    );
+
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
