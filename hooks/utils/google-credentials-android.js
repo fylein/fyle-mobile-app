@@ -5,15 +5,15 @@ function getGoogleCredentialsAndroid() {
   const projectNumber =
     process.env.FYLE_MOBILE_PROJECT_NUMBER;
   const projectId =
-    process.env.FYLE_MOBILE_PROJECT_ID;
+    process.env.FIREBASE_PROJECT_ID;
   const storageBucket =
-    process.env.FYLE_MOBILE_STORAGE_BUCKET;
+    process.env.FIREBASE_STORAGE_BUCKET;
   const mobilesdkAppId =
     process.env.FYLE_MOBILE_MOBILESDK_APP_ID;
   const packageName =
     process.env.FIREBASE_IOS_BUNDLE_ID;
   const apiKey =
-    process.env.FYLE_MOBILE_API_KEY;
+    process.env.FIREBASE_ANDROID_API_KEY;
 
   const obj = {
     project_info: {
