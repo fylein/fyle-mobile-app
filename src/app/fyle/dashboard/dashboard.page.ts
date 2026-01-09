@@ -66,10 +66,12 @@ import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
+import { PushNotifications, Token } from '@capacitor/push-notifications';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -159,6 +161,8 @@ export class DashboardPage {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private popoverController = inject(PopoverController);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   private budgetsService = inject(BudgetsService);
 
@@ -681,6 +685,12 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
+      // On success, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: Token) => {
+        console.log('Push registration success, token: ' + token.value);
+      }
+    );
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
@@ -764,10 +774,11 @@ export class DashboardPage {
       emailOptInBanner: emailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
+      showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
     })
       .pipe(take(1))
       .subscribe({
-        next: ({ showRebrandingPopup, eou }) => {
+        next: ({ showRebrandingPopup, eou, showPushNotifUi }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
             this.showRebrandingPopup().then(() => {
@@ -776,6 +787,17 @@ export class DashboardPage {
           } else {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
+          }
+
+          if (showPushNotifUi) {
+            PushNotifications.requestPermissions().then(result => {
+              if (result.receive === 'granted') {
+                // Register with Apple / Google to receive push via APNS/FCM
+                PushNotifications.register();
+              } else {
+                // Show some error
+              }
+            });
           }
         },
         error: () => {
