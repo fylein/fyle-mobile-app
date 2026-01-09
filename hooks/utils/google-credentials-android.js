@@ -2,32 +2,32 @@ require('dotenv').config();
 
 module.exports.getGoogleCredentialsAndroid = (NATIVE_CONFIG) => `
 {
-    "project_info": {
+  "project_info": {
     "project_number": "${process.env.FYLE_MOBILE_PROJECT_NUMBER}",
     "project_id": "${process.env.FYLE_MOBILE_PROJECT_ID}",
     "storage_bucket": "${process.env.FYLE_MOBILE_STORAGE_BUCKET}"
-    },
-    "client": [
+  },
+  "client": [
     {
-        "client_info": {
+      "client_info": {
         "mobilesdk_app_id": "${process.env.FYLE_MOBILE_MOBILESDK_APP_ID}",
         "android_client_info": {
-            "package_name": "${NATIVE_CONFIG.base.bundle_id}"
+          "package_name": "${NATIVE_CONFIG.base.bundle_id}"
         }
-        },
-        "oauth_client": [],
-        "api_key": [
-            {
-            "current_key": "${process.env.FYLE_MOBILE_API_KEY}"
-            }
-        ],
-        "services": {
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "${process.env.FYLE_MOBILE_API_KEY}"
+        }
+      ],
+      "services": {
         "appinvite_service": {
-            "other_platform_oauth_client": []
+          "other_platform_oauth_client": []
         }
-        }
+      }
     }
-    ],
-    "configuration_version": "1"
+  ]
+  "configuration_version": "1"
 }
 `
