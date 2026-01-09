@@ -6,6 +6,9 @@ import { PushNotifications } from '@capacitor/push-notifications';
   providedIn: 'root',
 })
 export class PushNotificationService {
+  constructor() {
+    this.initializePushNotifications();
+  }
 
   async initializePushNotifications(): Promise<void> {
     const permission = await PushNotifications.requestPermissions();

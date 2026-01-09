@@ -182,6 +182,7 @@ ion-popover.dialog-popover {
 
   .popover-viewport {
     height: 100%;
+
     &.sc-ion-popover-ios {
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -200,6 +201,7 @@ ion-popover.fy-dialog-popover {
 
   .popover-viewport {
     height: 100%;
+
     &.sc-ion-popover-ios {
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -233,6 +235,7 @@ ion-popover.get-started-popup {
 
 ion-popover.pop-up-in-center {
   background: rgba(22, 21, 40, 0.5);
+
   &::part(content) {
     border-radius: 16px;
     --max-height: 80%;
@@ -243,6 +246,7 @@ ion-popover.pop-up-in-center {
 
 ion-popover.skip-opt-in-popover {
   background: rgba(22, 21, 40, 0.5);
+
   &::part(content) {
     border-radius: 16px;
     --max-height: 80%;
@@ -332,6 +336,13 @@ ion-popover.camera-options-popover {
   text-transform: lowercase !important;
   display: inline-block;
 
+  &::first-letter {
+    text-transform: uppercase !important;
+  }
+}
+
+.text-first-letter-uppercase {
+  display: inline-block;
   &::first-letter {
     text-transform: uppercase !important;
   }
@@ -470,6 +481,7 @@ ion-popover.camera-options-popover {
   0% {
     -webkit-transform: rotate(0deg);
   }
+
   100% {
     -webkit-transform: rotate(360deg);
   }
@@ -479,10 +491,12 @@ ion-popover.camera-options-popover {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
 }
+
 .page-title {
   line-height: 1.3;
   color: #161528;
@@ -646,6 +660,7 @@ html {
     &--header {
       border-bottom: 1px solid #d8d8d8;
       height: 64px;
+
       &-text {
         font-size: 18px !important;
         font-weight: 700 !important;
@@ -702,15 +717,20 @@ input::placeholder {
 
 #fc_frame {
   display: none;
-  padding-top: constant(safe-area-inset-top); /*for iOS 11.2 and above*/
-  padding-top: env(safe-area-inset-top); /*for iOS 11.1*/
-  padding-bottom: constant(safe-area-inset-bottom); /*for iOS 11.2 and above*/
-  padding-bottom: env(safe-area-inset-bottom); /*for iOS 11.1*/
+  padding-top: constant(safe-area-inset-top);
+  /*for iOS 11.2 and above*/
+  padding-top: env(safe-area-inset-top);
+  /*for iOS 11.1*/
+  padding-bottom: constant(safe-area-inset-bottom);
+  /*for iOS 11.2 and above*/
+  padding-bottom: env(safe-area-inset-bottom);
+  /*for iOS 11.1*/
 }
 
 .button-outline {
   --border-width: 1px;
 }
+
 /*
 using this class for all input type of date, the input value will be showin in format dd/mm/yyy by default
 and hiding the default value and showing the desired formatted value set by format-date.directive -
@@ -754,6 +774,7 @@ ref - https://stackoverflow.com/a/31162426
 
 .fy-action-sheet {
   --background: colors.$white;
+
   .action-sheet-button {
     background: colors.$white;
     min-height: 73px;
@@ -827,9 +848,11 @@ ref - https://stackoverflow.com/a/31162426
       display: none;
     }
   }
+
   &--refresher {
     .refresher-refreshing-icon {
       margin-top: 200px !important;
+
       .spinner-circular {
         --ion-color-primary: #{colors.$brand-primary};
       }
@@ -1013,6 +1036,7 @@ ion-popover.delete-dialog {
   &::part(content) {
     border-radius: 16px;
   }
+
   background: rgba(0, 0, 0, 0.6);
 }
 
@@ -1032,7 +1056,8 @@ ion-popover.delete-dialog {
 }
 
 .segment-button-checked {
-  --color-checked: #{colors.$gray-15};
+  --color-checked: #{colors.$brand-primary};
+  color: colors.$sage-text-tertiary;
 }
 
 .ios .segment-button-checked {
@@ -1182,6 +1207,20 @@ ion-modal.pending-gas-charge-info {
   }
 }
 
+ion-modal.budget-total-utilisation-info-modal {
+  &::part(content) {
+    border-radius: 16px 16px 0 0 !important;
+    position: absolute;
+    bottom: 0;
+  }
+
+  --height: auto;
+
+  ion-content {
+    --padding-bottom: 20px;
+  }
+}
+
 .icon--navigate {
   height: 14px;
 }
@@ -1263,6 +1302,40 @@ ion-popover.delete-button-class {
 }
 
 .spent-cards__swiper .swiper-wrapper {
+  margin-top: 6%;
+}
+
+.dashboard-budgets.swiper-pagination-bullet {
+  width: 6px !important;
+  height: 6px !important;
+  background: colors.$pure-white !important;
+  border: 1px solid colors.$black !important;
+  box-sizing: border-box !important;
+  opacity: 0.3;
+}
+
+.dashboard-budgets.swiper-pagination-bullet-active {
+  width: 16px !important;
+  height: 6px !important;
+  background: colors.$black !important;
+  border-radius: 4px !important;
+  opacity: 0.3;
+}
+
+.dashboard-budgets__swiper {
+  padding: 0 16px;
+}
+
+.dashboard-budgets__swiper .swiper-pagination {
+  position: absolute;
+  text-align: center;
+  transition: 300ms opacity;
+  z-index: 10;
+  top: 0%;
+  margin-left: 40%;
+}
+
+.dashboard-budgets__swiper .swiper-wrapper {
   margin-top: 6%;
 }
 
@@ -1416,12 +1489,14 @@ ion-toggle.toggle-checked {
   border-radius: 8px;
   padding: 12px 8px;
   align-items: center;
+
   .capped-icon {
     color: colors.$highlight-blue;
     height: 20px;
     width: 20px;
     margin: 6px;
   }
+
   .capped-message {
     width: 100%;
     color: colors.$blue-black;
