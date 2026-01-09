@@ -15,32 +15,15 @@ module.exports.getGoogleCredentialsAndroid = (NATIVE_CONFIG) => `
             "package_name": "${NATIVE_CONFIG.base.bundle_id}"
         }
         },
-        "oauth_client": [
-        {
-            "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_3}",
-            "client_type": 3
-        }
-        ],
+        "oauth_client": [],
         "api_key": [
-        {
-            "current_key": "${process.env.FYLE_MOBILE_CURRENT_KEY}"
-        }
+            {
+            "current_key": "${process.env.FYLE_MOBILE_API_KEY}"
+            }
         ],
         "services": {
         "appinvite_service": {
-            "other_platform_oauth_client": [
-            {
-                "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_3}",
-                "client_type": 3
-            },
-            {
-                "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_2}",
-                "client_type": 2,
-                "ios_info": {
-                "bundle_id": "${NATIVE_CONFIG.base.bundle_id}"
-                }
-            }
-            ]
+            "other_platform_oauth_client": []
         }
         }
     }

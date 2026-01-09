@@ -63,6 +63,7 @@ import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayEventDetail } from '@ionic/core';
 
@@ -151,6 +152,8 @@ export class DashboardPage {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private popoverController = inject(PopoverController);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -668,10 +671,11 @@ export class DashboardPage {
       emailOptInBanner: emailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
+      showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
     })
       .pipe(take(1))
       .subscribe({
-        next: ({ showRebrandingPopup, eou }) => {
+        next: ({ showRebrandingPopup, eou, showPushNotifUi }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
             this.showRebrandingPopup().then(() => {
@@ -680,6 +684,10 @@ export class DashboardPage {
           } else {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
+          }
+
+          if (showPushNotifUi) {
+            from(this.pushNotificationService.initializePushNotifications()).subscribe();
           }
         },
         error: () => {
