@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { CostCenter } from '../models/v1/cost-center.model';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -21,14 +20,14 @@ export class CostCentersService {
   @Cacheable({
     cacheBusterObserver: costCentersCacheBuster$,
   })
-  getAllActive(): Observable<CostCenter[]> {
+  getAllActive(): Observable<PlatformCostCenter[]> {
     return this.getActiveCostCentersCount().pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getCostCenters({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as CostCenter[]),
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformCostCenter[]),
     );
   }
 
@@ -45,7 +44,7 @@ export class CostCentersService {
       .pipe(map((res) => res.count));
   }
 
-  getCostCenters(config: { offset: number; limit: number }): Observable<CostCenter[]> {
+  getCostCenters(config: { offset: number; limit: number }): Observable<PlatformCostCenter[]> {
     const data = {
       params: {
         is_enabled: 'eq.' + true,
@@ -55,21 +54,6 @@ export class CostCentersService {
     };
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformCostCenter[]>>('/cost_centers', data)
-      .pipe(map((res) => this.transformFrom(res.data)));
-  }
-
-  transformFrom(platformCostCenter: PlatformCostCenter[]): CostCenter[] {
-    const oldCostCenter = platformCostCenter.map((costCenter) => ({
-      active: costCenter.is_enabled,
-      code: costCenter.code,
-      created_at: costCenter.created_at,
-      description: costCenter.description,
-      id: costCenter.id,
-      name: costCenter.name,
-      org_id: costCenter.org_id,
-      updated_at: costCenter.updated_at,
-    }));
-
-    return oldCostCenter;
+      .pipe(map((res) => res.data));
   }
 }
