@@ -23,7 +23,9 @@ export class PushNotificationService {
 
     this.listenersInitialized = true;
 
-    PushNotifications.addListener('registration', (_token: Token) => undefined);
+    PushNotifications.addListener('registration', (_token: Token) => {
+      console.log('Push registration success, token: ' + _token.value);
+    });
     PushNotifications.addListener('registrationError', () => undefined);
     PushNotifications.addListener('pushNotificationActionPerformed', () => undefined);
   }
