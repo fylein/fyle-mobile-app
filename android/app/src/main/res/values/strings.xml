@@ -10,4 +10,6 @@
   <string name="ionic_max_versions">2</string>
   <string name="ionic_min_background_duration">30</string>
   <string name="ionic_update_api">https://api.ionicjs.com</string>
+  <!-- Default notification channel id used by FCM (must match a created NotificationChannel) -->
+  <string name="default_notification_channel_id">fyle_default_channel</string>
 </resources>
