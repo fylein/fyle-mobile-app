@@ -71,7 +71,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
-import { PushNotifications, Token } from '@capacitor/push-notifications';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -685,12 +684,6 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
-      // On success, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: Token) => {
-        console.log('Push registration success, token: ' + token.value);
-      }
-    );
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
@@ -737,7 +730,7 @@ export class DashboardPage {
           const isCCCEnabled =
             orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
           this.areCardsEnabled.set(isCCCEnabled);
-          this.userName = eou.us.full_name;
+      this.userName = eou.us.full_name;
 
           this.isBudgetsLoading.set(true);
           return this.budgetsService.getSpenderBudgetByParams({}).pipe(
@@ -767,7 +760,7 @@ export class DashboardPage {
         }
 
         this.isDashboardConfigReady.set(true);
-      });
+    });
 
     forkJoin({
       optInBanner: optInBanner$,
@@ -790,14 +783,7 @@ export class DashboardPage {
           }
 
           if (showPushNotifUi) {
-            PushNotifications.requestPermissions().then(result => {
-              if (result.receive === 'granted') {
-                // Register with Apple / Google to receive push via APNS/FCM
-                PushNotifications.register();
-              } else {
-                // Show some error
-              }
-            });
+            this.pushNotificationService.initializePushNotifications();
           }
         },
         error: () => {

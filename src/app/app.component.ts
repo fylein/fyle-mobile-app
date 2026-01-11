@@ -237,11 +237,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    PushNotifications.addListener('registration',
-      (token: Token) => {
-        console.log('Push registration success, token: ' + token.value);
-      }
-    );
 
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
