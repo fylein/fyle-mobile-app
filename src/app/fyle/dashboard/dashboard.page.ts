@@ -781,10 +781,6 @@ export class DashboardPage {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
           }
-
-          if (showPushNotifUi) {
-            this.pushNotificationService.initializePushNotifications();
-          }
         },
         error: () => {
           // If there's an error, still set up default swiper config

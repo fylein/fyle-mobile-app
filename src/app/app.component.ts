@@ -33,6 +33,7 @@ import { FyConnectionComponent } from './shared/components/fy-connection/fy-conn
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { Token, PushNotifications } from '@capacitor/push-notifications';
+import { PushNotificationService } from './core/services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -69,6 +70,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   private networkService = inject(NetworkService);
 
   private freshChatService = inject(FreshChatService);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   private zone = inject(NgZone);
 
@@ -237,7 +240,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
+    this.pushNotificationService.initializePushNotifications();
     this.setupNetworkWatcher();
     this.totalTasksCount = 0;
     //This is to subscribe to the selection mode and hide the footer when selection mode is enabled on the expenses page
