@@ -109,6 +109,8 @@ SwiperCore.use([Pagination, Autoplay]);
 export class DashboardPage {
   private currencyService = inject(CurrencyService);
 
+  private pushNotificationService = inject(PushNotificationService);
+
   private networkService = inject(NetworkService);
 
   private activatedRoute = inject(ActivatedRoute);
@@ -684,6 +686,7 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
+    this.pushNotificationService.initializePushNotifications();
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
@@ -780,6 +783,9 @@ export class DashboardPage {
           } else {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
+          }
+          if (showPushNotifUi) {
+            this.pushNotificationService.initializePushNotifications();
           }
         },
         error: () => {
