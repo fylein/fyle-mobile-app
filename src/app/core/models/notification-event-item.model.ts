@@ -4,6 +4,6 @@ export interface NotificationEventItem {
   event: string;
   email: boolean;
   // Mobile push preference; optional for backward compatibility
-  push?: boolean;
+  mobile?: boolean;
   eventEnum: NotificationEventsEnum;
 }

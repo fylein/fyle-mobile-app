@@ -177,7 +177,7 @@ describe('EmailNotificationsComponent', () => {
 
       component.updateSelectAll();
 
-      expect(component.selectAll).toBeFalse();
+      expect(component.selectAllEmail).toBeFalse();
     });
   });
 
@@ -186,7 +186,7 @@ describe('EmailNotificationsComponent', () => {
       spyOn(component, 'updateSelectAll');
       spyOn(component, 'updateNotificationSettings');
 
-      component.toggleAllNotifications(true);
+      component.toggleAllNotifications(true, 'email');
 
       expect(component.notifications.every((n) => n.email)).toBeTrue();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
@@ -197,7 +197,7 @@ describe('EmailNotificationsComponent', () => {
       spyOn(component, 'updateSelectAll');
       spyOn(component, 'updateNotificationSettings');
 
-      component.toggleAllNotifications(false);
+      component.toggleAllNotifications(false, 'email');
 
       expect(component.notifications.every((n) => !n.email)).toBeTrue();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
