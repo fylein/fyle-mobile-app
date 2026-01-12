@@ -779,6 +779,8 @@
     "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings."
   },
   "emailNotifications": {
+    "savingChanges": "Saving changes...",
+    "notificationsUpdatedSuccessMessage": "Notification preferences updated successfully.",
     "emailHeader": "Email",
     "eventsHeader": "Events",
     "goToSettingsCta": "Go to Settings",

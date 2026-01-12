@@ -166,7 +166,7 @@ describe('EmailNotificationsComponent', () => {
 
       component.updateSelectAll();
 
-      expect(component.selectAll).toBeTrue();
+      expect(component.selectAllEmail).toBeTrue();
     });
 
     it('should set selectAll to false when not all notifications have email enabled', () => {
