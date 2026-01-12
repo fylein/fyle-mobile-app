@@ -20,6 +20,7 @@ import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -35,7 +36,8 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
     IonSkeletonText,
     IonTitle,
     IonToolbar,
-    MatIcon
+    MatIcon,
+    TranslocoPipe
   ],
 })
 export class NotificationsBetaPage implements OnInit {

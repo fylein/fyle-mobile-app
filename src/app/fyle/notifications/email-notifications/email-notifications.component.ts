@@ -11,7 +11,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
-import { finalize, forkJoin, from, tap } from 'rxjs';
+import { finalize, forkJoin, from, of, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -26,6 +26,7 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -43,7 +44,8 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
     MatIcon,
     FyAlertInfoComponent,
     IonFooter,
-    TranslocoPipe
+    TranslocoPipe,
+    FormButtonValidationDirective
   ],
 })
 export class EmailNotificationsComponent implements OnInit {
@@ -68,6 +70,8 @@ export class EmailNotificationsComponent implements OnInit {
   isLongTitle = false;
 
   isIos = false;
+
+  saveChangesLoader = false;
 
   selectAllEmail = false;
 
@@ -189,7 +193,7 @@ export class EmailNotificationsComponent implements OnInit {
 
     // PUSH: Add events that are currently unsubscribed in this modal
     const currentlyPushUnsubscribedEvents = this.notifications
-      .filter((notification) => notification.push === false)
+      .filter((notification) => notification.mobile === false)
       .map((notification) => notification.eventEnum);
 
     const updatedPushUnsubscribedEventsByUser = [
@@ -205,11 +209,14 @@ export class EmailNotificationsComponent implements OnInit {
 
   updateEmployeeSettings(): void {
     this.updateSaveText('Saving...');
+    this.saveChangesLoader = true;
     this.platformEmployeeSettingsService
       .post(this.employeeSettings)
       .pipe(
         tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
-        finalize(() => this.updateSaveText('Saved')),
+        finalize(() => {
+          this.saveChangesLoader = false;
+        }),
       )
       .subscribe();
   }

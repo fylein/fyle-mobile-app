@@ -32,7 +32,7 @@
   }
 
   &--event-name {
-    width: 60%;
+    width: 50%;
   }
 
   &--select-all-row {
@@ -53,6 +53,7 @@
 
   &--checkbox-col {
     margin-left: 6px;
+    width: 20%;
     flex: 0 0 auto;
     display: flex;
     justify-content: flex-start;
@@ -62,11 +63,12 @@
     justify-content: flex-end;
     padding: 12px 24px;
     height: 58px;
+    width: 30%;
     border-left: 1px solid colors.$border-grey-secondary;
   }
 
   &--checkbox-mobile-container {
-    padding: 12px 18px;
+    padding: 12px 24px;
   }
 
   &--checkbox-col-email {
@@ -78,7 +80,7 @@
 
   &--checkbox-col-events {
     justify-content: flex-end;
-    width: 60%;
+    width: 50%;
     padding: 12px 24px;
     height: 58px;
     border-left: 1px solid colors.$border-grey-secondary;
@@ -96,16 +98,12 @@
 .email-notifications--container {
   // Row borders and alternating background colors
   > div:last-child > .email-notifications--flex-row {
-    background: colors.$pure-white;
+    background: colors.$background-lightest;
 
     &:nth-child(even) {
-      background: colors.$background-lightest;
+      background: colors.$pure-white;
     }
   }
-}
-
-.email-notifications--select-all-container {
-  background: colors.$navy-150;
 }
 
 .email-notifications--header-divider {
@@ -117,36 +115,38 @@
 .email-notifications--header-email-select-all {
   align-items: center;
   gap: 8px;
+  width: 20%;
+  padding: 18px;
 }
 
-.notifications-push-alert {
+.email-notifications {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 12px 16px;
-  padding: 12px;
-  border: 1px solid colors.$border-lighter-warning;
-  border-radius: 4px;
+  align-items: start;
+  margin: 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
   background: colors.$warning-lighter;
   color: colors.$blue-black;
 
   &__icon {
+    margin-right: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    fill: colors.$dark-yellow;
+    color: colors.$dark-yellow;
     height: 20px;
     width: 20px;
-    margin-right: 4px;
   }
 
   &__message {
     flex: 1;
     font-size: 12px;
     font-weight: 400;
+    line-height: 1.25;
   }
 
   &__cta {
+    margin-left: 4px;
     border: none;
     background: none;
     padding: 0;
@@ -157,7 +157,6 @@
     white-space: nowrap;
   }
 }
-
 .btn-primary {
   --background: colors.$brand-primary !important;
 }
