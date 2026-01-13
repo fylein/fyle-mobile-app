@@ -32,6 +32,7 @@ $border-grey-secondary: #ccd6db !default;
 $border-translucent-grey: #dfdfe24d !default;
 $border-tertiary: #ececee !default;
 $border-info-lighter: #5c98e51a !default;
+$border-lighter-warning: rgba(225, 175, 5, 0.1) !default;
 $translucent-grey: #dfdfe280 !default;
 $transparent-grey: rgba(255, 255, 255, 0.12) !default;
 $transparent-pearl-grey: rgba(215, 215, 215, 0.5) !default;
@@ -66,6 +67,9 @@ $negative-500: #cd384b;
 $brand-primary: #007e45 !default;
 $brand-primary-rgb: 0, 126, 69;
 $background: #f2f5f6 !default;
+
+// Lightest background shade for tables / alternating rows
+$background-lightest: #fafbfb !default;
 
 $green: #24a148 !default;
 $green-500: #00821f;
