@@ -175,6 +175,19 @@ export class NotificationsBetaPage implements OnInit {
     const unsubscribedPushEventsByUser: string[] =
       this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
+    // Take a deep copy of the current notification settings so we can restore
+    // them if the modal is closed without saving.
+    const originalNotificationSettings: EmployeeSettings['notification_settings'] = {
+      email_allowed: this.employeeSettings.notification_settings.email_allowed,
+      email_enabled: this.employeeSettings.notification_settings.email_enabled,
+      email_unsubscribed_events: [...this.employeeSettings.notification_settings.email_unsubscribed_events],
+      push_allowed: this.employeeSettings.notification_settings.push_allowed,
+      push_enabled: this.employeeSettings.notification_settings.push_enabled,
+      push_unsubscribed_events: [...this.employeeSettings.notification_settings.push_unsubscribed_events],
+      notify_user: this.employeeSettings.notification_settings.notify_user,
+      notify_delegatee: this.employeeSettings.notification_settings.notify_delegatee,
+    };
+
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
       componentProps: {
@@ -195,6 +208,10 @@ export class NotificationsBetaPage implements OnInit {
     }>;
     if (data?.employeeSettingsUpdated) {
       this.ngOnInit();
+    } else {
+      // Restore previous settings when the modal is closed without saving
+      this.employeeSettings.notification_settings = originalNotificationSettings;
+      this.platformEmployeeSettingsService.clearEmployeeSettings();
     }
   }
 

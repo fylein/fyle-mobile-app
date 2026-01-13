@@ -216,6 +216,7 @@ export class EmailNotificationsComponent implements OnInit {
         tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
         finalize(() => {
           this.saveChangesLoader = false;
+          this.updateSaveText('Saved');
         }),
       )
       .subscribe();
