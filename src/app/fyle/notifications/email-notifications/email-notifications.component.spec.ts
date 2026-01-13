@@ -24,6 +24,8 @@ describe('EmailNotificationsComponent', () => {
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+  let matSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   const mockNotifications: NotificationEventItem[] = [
     {
@@ -123,6 +125,8 @@ describe('EmailNotificationsComponent', () => {
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
 
     component.title = 'Email Notifications';
     component.notifications = cloneDeep(mockNotifications);
@@ -280,5 +284,24 @@ describe('EmailNotificationsComponent', () => {
       expect(modalController.dismiss).toHaveBeenCalledWith({ employeeSettingsUpdated: true });
       expect(component.saveChangesLoader).toBeFalse();
     }));
+  });
+
+  describe('showSuccessToast():', () => {
+    it('should show success toast with translated message and track it', () => {
+      (component as any).showSuccessToast();
+
+      expect(translocoService.translate).toHaveBeenCalledWith(
+        'emailNotifications.notificationsUpdatedSuccessMessage',
+      );
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledWith(
+        jasmine.any(Function),
+        jasmine.objectContaining({
+          panelClass: 'msb-success',
+        }),
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledWith({
+        ToastContent: 'emailNotifications.notificationsUpdatedSuccessMessage',
+      });
+    });
   });
 });
