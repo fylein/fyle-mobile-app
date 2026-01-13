@@ -33,7 +33,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-fdescribe('NotificationsBetaPage', () => {
+describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
