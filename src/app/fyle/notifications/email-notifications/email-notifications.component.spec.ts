@@ -304,4 +304,24 @@ describe('EmailNotificationsComponent', () => {
       });
     });
   });
+
+  describe('saveChanges():', () => {
+    it('should update notification settings, persist changes and track event', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+      spyOn(trackingService, 'eventTrack');
+
+      component.saveChanges();
+
+      expect(component.updateNotificationSettings).toHaveBeenCalledTimes(1);
+      expect(component.updateEmployeeSettings).toHaveBeenCalledTimes(1);
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('Email notifications updated from mobile app', {
+        unsubscribedEvents:
+          component.employeeSettings.notification_settings.email_unsubscribed_events,
+        pushUnsubscribedEvents:
+          component.employeeSettings.notification_settings.push_unsubscribed_events,
+      });
+      expect(component.hasChanges).toBeFalse();
+    });
+  });
 });
