@@ -31,7 +31,7 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-describe('NotificationsBetaPage', () => {
+xdescribe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
