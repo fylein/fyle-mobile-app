@@ -17,7 +17,6 @@ import { NgClass } from '@angular/common';
 import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-connect-card-step/spender-onboarding-connect-card-step.component';
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
 import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 
 @Component({
@@ -49,8 +48,6 @@ export class SpenderOnboardingPage {
 
   private trackingService = inject(TrackingService);
 
-  private launchDarklyService = inject(LaunchDarklyService);
-
   isLoading = true;
 
   userFullName: string;
@@ -73,14 +70,6 @@ export class SpenderOnboardingPage {
 
   areCardsEnrolled = false;
 
-  private async showNotificationPermissionPopoverIfEnabled(): Promise<void> {
-    this.launchDarklyService.getVariation('show_push_notif_ui', false).subscribe(async (isEnabled) => {
-      if (!isEnabled) {
-        return;
-      }
-    });
-  }
-
   isMobileVerified(eou: ExtendedOrgUser): boolean {
     return !!(eou.ou.mobile && eou.ou.mobile_verified);
   }
@@ -90,7 +79,6 @@ export class SpenderOnboardingPage {
     this.corporateCreditCardExpenseService.clearCache().subscribe();
     if (isComplete) {
       this.onboardingComplete = true;
-      this.showNotificationPermissionPopoverIfEnabled();
       this.startCountdown();
     } else {
       this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Skip');
