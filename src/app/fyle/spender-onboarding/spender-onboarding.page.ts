@@ -18,7 +18,6 @@ import { SpenderOnboardingConnectCardStepComponent } from './spender-onboarding-
 import { SpenderOnboardingOptInStepComponent } from './spender-onboarding-opt-in-step/spender-onboarding-opt-in-step.component';
 import { IonButtons, IonContent, IonIcon } from '@ionic/angular/standalone';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
 
 @Component({
@@ -52,8 +51,6 @@ export class SpenderOnboardingPage {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
-  private pushNotificationService = inject(PushNotificationService);
-
   isLoading = true;
 
   userFullName: string;
@@ -81,8 +78,6 @@ export class SpenderOnboardingPage {
       if (!isEnabled) {
         return;
       }
-
-      await this.pushNotificationService.initializePushNotifications();
     });
   }
 
