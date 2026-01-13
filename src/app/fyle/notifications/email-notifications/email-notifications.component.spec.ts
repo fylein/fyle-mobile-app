@@ -15,6 +15,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { PushNotifications } from '@capacitor/push-notifications';
+import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 
 describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
@@ -301,6 +302,19 @@ describe('EmailNotificationsComponent', () => {
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledWith({
         ToastContent: 'emailNotifications.notificationsUpdatedSuccessMessage',
+      });
+    });
+  });
+
+  describe('openDeviceSettings():', () => {
+    it('should open native app settings on the device', () => {
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']) as any;
+
+      component.openDeviceSettings();
+
+      expect(component.nativeSettings.open).toHaveBeenCalledWith({
+        optionAndroid: AndroidSettings.ApplicationDetails,
+        optionIOS: IOSSettings.App,
       });
     });
   });
