@@ -309,7 +309,6 @@ describe('EmailNotificationsComponent', () => {
     it('should update notification settings, persist changes and track event', () => {
       spyOn(component, 'updateNotificationSettings');
       spyOn(component, 'updateEmployeeSettings');
-      spyOn(trackingService, 'eventTrack');
 
       component.saveChanges();
 
