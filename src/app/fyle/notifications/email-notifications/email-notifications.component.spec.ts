@@ -295,7 +295,10 @@ describe('EmailNotificationsComponent', () => {
         } as any,
       ];
 
-      (component as any).unsubscribedPushEventsByUser.set(['some-other-event', NotificationEventsEnum.ERPTS_SUBMITTED]);
+      Object.defineProperty(component, 'unsubscribedPushEventsByUser', {
+        value: () => ['some-other-event', NotificationEventsEnum.ERPTS_SUBMITTED],
+        configurable: true,
+      });
       component.employeeSettings.notification_settings.push_unsubscribed_events = [];
 
       component.updateNotificationSettings();
