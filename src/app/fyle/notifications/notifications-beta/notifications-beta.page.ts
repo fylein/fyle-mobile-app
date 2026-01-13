@@ -102,7 +102,8 @@ export class NotificationsBetaPage implements OnInit {
     forkJoin({
       orgData: this.getOrgSettings(),
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-    }).subscribe(({ orgData, isPushNotifUiEnabled }) => {
+      permissionStatus: from(PushNotifications.checkPermissions()),
+    }).subscribe(({ orgData, isPushNotifUiEnabled, permissionStatus }) => {
       const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
@@ -110,7 +111,7 @@ export class NotificationsBetaPage implements OnInit {
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
       this.showMobilePushColumn = isPushNotifUiEnabled;
-      this.isPushPermissionDenied = isPushNotifUiEnabled;
+      this.isPushPermissionDenied = isPushNotifUiEnabled && permissionStatus.receive !== 'granted';
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();

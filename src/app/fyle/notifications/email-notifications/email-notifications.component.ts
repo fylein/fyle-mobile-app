@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, input } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -11,7 +11,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
-import { finalize, forkJoin, from, of, tap } from 'rxjs';
+import { finalize, forkJoin, from, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -68,7 +68,7 @@ export class EmailNotificationsComponent implements OnInit {
   //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
 
-  @Input() unsubscribedPushEventsByUser: string[];
+  readonly unsubscribedPushEventsByUser = input<string[]>([]);
 
   isLongTitle = false;
 
@@ -188,7 +188,7 @@ export class EmailNotificationsComponent implements OnInit {
     this.employeeSettings.notification_settings.email_unsubscribed_events = updatedEmailUnsubscribedEventsByUser;
 
     // PUSH: Keep events unsubscribed from other notification types
-    const otherPushUnsubscribedEvents = (this.unsubscribedPushEventsByUser ?? []).filter(
+    const otherPushUnsubscribedEvents = (this.unsubscribedPushEventsByUser() ?? []).filter(
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
