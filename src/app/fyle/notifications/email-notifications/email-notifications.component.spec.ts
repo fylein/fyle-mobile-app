@@ -181,12 +181,20 @@ describe('EmailNotificationsComponent', () => {
       expect(modalController.dismiss).not.toHaveBeenCalled();
     });
 
-    xit('should dismiss the modal with employeeSettingsUpdated as false when there are no changes', () => {
-      component.hasChanges = false;
-      component.saveText = 'Saving...';
+    it('should reset changes and dismiss the modal when user chooses discard in unsaved changes popover', async () => {
+      component.hasChanges = true;
 
-      component.closeModal();
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: { action: 'discard' },
+      } as any);
 
+      (popoverController.create as jasmine.Spy).and.resolveTo(popoverSpy);
+
+      await component.closeModal();
+
+      expect(component.hasChanges).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledWith({
         employeeSettingsUpdated: false,
       });
@@ -270,6 +278,34 @@ describe('EmailNotificationsComponent', () => {
       );
       expect(component.hasChanges).toBeTrue();
     });
+
+    it('should merge other push-unsubscribed events with current modal selection', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: true,
+        } as any,
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          mobile: false,
+        } as any,
+      ];
+
+      (component as any).unsubscribedPushEventsByUser.set(['some-other-event', NotificationEventsEnum.ERPTS_SUBMITTED]);
+      component.employeeSettings.notification_settings.push_unsubscribed_events = [];
+
+      component.updateNotificationSettings();
+
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).toEqual([
+        'some-other-event',
+        NotificationEventsEnum.ERPTS_SUBMITTED,
+      ]);
+      expect(component.hasChanges).toBeTrue();
+    });
   });
 
   describe('updateEmployeeSettings():', () => {
@@ -335,6 +371,17 @@ describe('EmailNotificationsComponent', () => {
           component.employeeSettings.notification_settings.push_unsubscribed_events,
       });
       expect(component.hasChanges).toBeFalse();
+    });
+
+    it('should use empty array for pushUnsubscribedEvents when push_unsubscribed_events is undefined', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+      component.employeeSettings.notification_settings.push_unsubscribed_events = undefined as any;
+
+      component.saveChanges();
+
+      const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
+      expect(trackingCallArgs.pushUnsubscribedEvents).toEqual([]);
     });
   });
 });
