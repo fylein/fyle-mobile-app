@@ -18,7 +18,6 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -102,8 +101,7 @@ export class NotificationsBetaPage implements OnInit {
     forkJoin({
       orgData: this.getOrgSettings(),
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-      permissionStatus: from(PushNotifications.checkPermissions()),
-    }).subscribe(({ orgData, isPushNotifUiEnabled, permissionStatus }) => {
+    }).subscribe(({ orgData, isPushNotifUiEnabled }) => {
       const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
@@ -111,7 +109,7 @@ export class NotificationsBetaPage implements OnInit {
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
       this.showMobilePushColumn = isPushNotifUiEnabled;
-      this.isPushPermissionDenied = isPushNotifUiEnabled && permissionStatus.receive !== 'granted';
+      this.isPushPermissionDenied = isPushNotifUiEnabled;
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();

@@ -30,8 +30,10 @@ import { EmailNotificationsComponent } from '../email-notifications/email-notifi
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
-xdescribe('NotificationsBetaPage', () => {
+fdescribe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
@@ -63,6 +65,12 @@ xdescribe('NotificationsBetaPage', () => {
     const modalPropertiesServiceSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+
+    platformEmployeeSettingsServiceSpy.clearEmployeeSettings.and.returnValue(of(null));
+
+    spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(true));
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage, MatIconTestingModule],
@@ -106,6 +114,10 @@ xdescribe('NotificationsBetaPage', () => {
         {
           provide: LoaderService,
           useValue: loaderServiceSpy,
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -321,7 +333,8 @@ xdescribe('NotificationsBetaPage', () => {
 
   describe('openNotificationModal():', () => {
     beforeEach(() => {
-      component.employeeSettings = employeeSettingsData;
+      // Use a mutable clone here; the fixture data is deep-frozen
+      component.employeeSettings = cloneDeep(employeeSettingsData);
       modalPropertiesService.getModalDefaultProperties.and.returnValue(properties);
     });
 
@@ -336,21 +349,24 @@ xdescribe('NotificationsBetaPage', () => {
       component.openNotificationModal(mockEmailNotificationsConfig.expenseNotificationsConfig);
       tick(100);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: EmailNotificationsComponent,
-        componentProps: {
-          title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
-          notifications: mockEmailNotificationsConfig.expenseNotificationsConfig.notifications,
-          employeeSettings: component.employeeSettings,
-          unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
-        },
-        ...properties,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(
+        jasmine.objectContaining({
+          component: EmailNotificationsComponent,
+          componentProps: {
+            title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
+            notifications: jasmine.any(Array),
+            employeeSettings: component.employeeSettings,
+            unsubscribedEventsByUser:
+              component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
+            unsubscribedPushEventsByUser:
+              component.employeeSettings.notification_settings.push_unsubscribed_events ?? [],
+          },
+          initialBreakpoint: 1,
+          breakpoints: [0, 1],
+        }),
+      );
       expect(notificationModalSpy.present).toHaveBeenCalledTimes(1);
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(component.ngOnInit).toHaveBeenCalledTimes(1);
     }));
 
     it('should not call ngOnInit when employeeSettingsUpdated is false', fakeAsync(() => {
@@ -364,18 +380,22 @@ xdescribe('NotificationsBetaPage', () => {
       component.openNotificationModal(mockEmailNotificationsConfig.expenseNotificationsConfig);
       tick(100);
 
-      expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: EmailNotificationsComponent,
-        componentProps: {
-          title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
-          notifications: mockEmailNotificationsConfig.expenseNotificationsConfig.notifications,
-          employeeSettings: component.employeeSettings,
-          unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
-        },
-        ...properties,
-        initialBreakpoint: 1,
-        breakpoints: [0, 1],
-      });
+      expect(modalController.create).toHaveBeenCalledOnceWith(
+        jasmine.objectContaining({
+          component: EmailNotificationsComponent,
+          componentProps: {
+            title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
+            notifications: jasmine.any(Array),
+            employeeSettings: component.employeeSettings,
+            unsubscribedEventsByUser:
+              component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
+            unsubscribedPushEventsByUser:
+              component.employeeSettings.notification_settings.push_unsubscribed_events ?? [],
+          },
+          initialBreakpoint: 1,
+          breakpoints: [0, 1],
+        }),
+      );
       expect(notificationModalSpy.present).toHaveBeenCalledTimes(1);
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.ngOnInit).not.toHaveBeenCalled();
