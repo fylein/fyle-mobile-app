@@ -28,7 +28,7 @@
         </div>
         <button
           type="button"
-          class="notifications-push-alert__cta"
+          class="notifications--push-alert__cta"
           (click)="openDeviceSettings()"
         >
           {{ 'emailNotifications.goToSettingsCta' | transloco }}
@@ -59,12 +59,12 @@
         <div class="email-notifications--event-name email-notifications--select-all-row">
           {{ 'emailNotifications.selectAllRowLabel' | transloco }}
         </div>
-        <div class="email-notifications--checkbox-col">
+        <div class="email-notifications--checkbox-col-value">
           <mat-checkbox [(ngModel)]="selectAllEmail" (ngModelChange)="toggleAllNotifications($event, 'email')">
           </mat-checkbox>
         </div>
         @if (showMobilePushColumn) {
-          <div class="email-notifications--checkbox-mobile-container">
+          <div class="email-notifications--checkbox-col-value">
             <mat-checkbox [(ngModel)]="selectAllMobile" (ngModelChange)="toggleAllNotifications($event, 'push')">
             </mat-checkbox>
           </div>
@@ -75,12 +75,12 @@
           <div class="email-notifications--event-name">
             {{ notification.event }}
           </div>
-          <div class="email-notifications--checkbox-col">
+          <div class="email-notifications--checkbox-col-value">
             <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification, 'email')">
             </mat-checkbox>
           </div>
           @if (showMobilePushColumn) {
-            <div class="email-notifications--checkbox-mobile-container">
+            <div class="email-notifications--checkbox-col-value">
               <mat-checkbox
                 [ngModel]="notification.push ?? true"
                 (ngModelChange)="toggleNotification(notification, 'push')"
@@ -97,7 +97,10 @@
 <ion-footer>
   <div class="fy-footer-cta-container">
     <ion-button
-      class="btn-primary"
+      class="email-notifications--save-button"
+      fill="solid"
+      shape="round"
+      color="fyle-primary"
       (click)="saveChanges()"
       [disabled]="!hasChanges"
       appFormButtonValidation

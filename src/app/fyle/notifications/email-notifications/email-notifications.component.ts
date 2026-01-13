@@ -27,6 +27,9 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -83,7 +86,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   hasChanges = false;
 
-  isPushPermissionDenied = true;
+  isPushPermissionDenied = false;
 
   private platform = inject(Platform);
 
@@ -100,6 +103,10 @@ export class EmailNotificationsComponent implements OnInit {
   private translocoService = inject(TranslocoService);
 
   private launchDarklyService = inject(LaunchDarklyService);
+
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
 
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
@@ -136,14 +143,8 @@ export class EmailNotificationsComponent implements OnInit {
 
       if (data && data.action === 'discard') {
         this.hasChanges = false;
-        this.modalController.dismiss({ employeeSettingsUpdated: this.saveText === 'Saved' });
+        this.modalController.dismiss({ employeeSettingsUpdated: false });
       }
-    } else {
-      // saveText === 'Saved' implies the user has made changes
-      const data = {
-        employeeSettingsUpdated: this.saveText === 'Saved',
-      };
-      this.modalController.dismiss(data);
     }
   }
 
@@ -208,7 +209,6 @@ export class EmailNotificationsComponent implements OnInit {
   }
 
   updateEmployeeSettings(): void {
-    this.updateSaveText('Saving...');
     this.saveChangesLoader = true;
     this.platformEmployeeSettingsService
       .post(this.employeeSettings)
@@ -216,10 +216,23 @@ export class EmailNotificationsComponent implements OnInit {
         tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
         finalize(() => {
           this.saveChangesLoader = false;
-          this.updateSaveText('Saved');
         }),
       )
-      .subscribe();
+      .subscribe({
+        next: () => {
+          this.showSuccessToast();
+          this.modalController.dismiss({ employeeSettingsUpdated: true });
+        },
+      });
+  }
+
+  private showSuccessToast(): void {
+    const message = this.translocoService.translate('emailNotifications.notificationsUpdatedSuccessMessage');
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: 'msb-success',
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
   }
 
   saveChanges(): void {
