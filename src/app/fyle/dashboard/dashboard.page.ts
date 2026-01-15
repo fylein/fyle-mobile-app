@@ -163,8 +163,6 @@ export class DashboardPage {
 
   private popoverController = inject(PopoverController);
 
-  private pushNotificationService = inject(PushNotificationService);
-
   private budgetsService = inject(BudgetsService);
 
   readonly areCardsEnabled = signal<boolean>(false);
