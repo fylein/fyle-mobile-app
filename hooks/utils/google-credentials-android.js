@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-function getGoogleCredentialsAndroid() {
+function getAndroidGoogleServicesJson() {
   // Prefer the FYLE_MOBILE_* names, but also support FIREBASE_* aliases
   const projectNumber =
     process.env.FYLE_MOBILE_PROJECT_NUMBER;
@@ -48,4 +48,4 @@ function getGoogleCredentialsAndroid() {
   return JSON.stringify(obj, null, 2);
 }
 
-module.exports.getGoogleCredentialsAndroid = getGoogleCredentialsAndroid;
+module.exports.getGoogleCredentialsAndroid = getAndroidGoogleServicesJson;
