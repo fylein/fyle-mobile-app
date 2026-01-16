@@ -248,6 +248,12 @@ export class StatusService {
           icon: 'check',
         };
         break;
+      case lowerCaseComment.includes('automatically approved'):
+        statusCategory = {
+          category: this.translocoService.translate('services.status.typeAutomaticallyApproved', { type }),
+          icon: 'check',
+        };
+        break;
       case lowerCaseComment.includes('approved'):
         statusCategory = {
           category: this.translocoService.translate('services.status.typeApproved', { type }),
