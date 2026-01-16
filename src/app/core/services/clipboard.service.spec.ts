@@ -1,9 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-
 import { ClipboardService } from './clipboard.service';
 
-//TODO: Write tests for this service
-xdescribe('ClipboardService', () => {
+describe('ClipboardService', () => {
   let service: ClipboardService;
 
   beforeEach(() => {
@@ -13,5 +11,11 @@ xdescribe('ClipboardService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  describe('writeString():', () => {
+    it('should be defined', () => {
+      expect(service.writeString).toBeDefined();
+    });
   });
 });
