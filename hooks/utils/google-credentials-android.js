@@ -1,50 +1,51 @@
 require('dotenv').config();
 
-module.exports.getGoogleCredentialsAndroid = (NATIVE_CONFIG) => `
-{
-    "project_info": {
-    "project_number": "${process.env.FYLE_MOBILE_PROJECT_NUMBER}",
-    "project_id": "${process.env.FYLE_MOBILE_PROJECT_ID}",
-    "storage_bucket": "${process.env.FYLE_MOBILE_STORAGE_BUCKET}"
+function getAndroidGoogleServicesJson() {
+  // Prefer the FYLE_MOBILE_* names, but also support FIREBASE_* aliases
+  const projectNumber =
+    process.env.FYLE_MOBILE_PROJECT_NUMBER;
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID;
+  const storageBucket =
+    process.env.FIREBASE_STORAGE_BUCKET;
+  const mobilesdkAppId =
+    process.env.FYLE_MOBILE_MOBILESDK_APP_ID;
+  const packageName =
+    process.env.FIREBASE_IOS_BUNDLE_ID;
+  const apiKey =
+    process.env.FIREBASE_ANDROID_API_KEY;
+
+  const obj = {
+    project_info: {
+      project_number: projectNumber,
+      project_id: projectId,
+      storage_bucket: storageBucket,
     },
-    "client": [
-    {
-        "client_info": {
-        "mobilesdk_app_id": "${process.env.FYLE_MOBILE_MOBILESDK_APP_ID}",
-        "android_client_info": {
-            "package_name": "${NATIVE_CONFIG.base.bundle_id}"
-        }
+    client: [
+      {
+        client_info: {
+          mobilesdk_app_id: mobilesdkAppId,
+          android_client_info: {
+            package_name: packageName,
+          },
         },
-        "oauth_client": [
-        {
-            "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_3}",
-            "client_type": 3
-        }
+        oauth_client: [],
+        api_key: [
+          {
+            current_key: apiKey,
+          },
         ],
-        "api_key": [
-        {
-            "current_key": "${process.env.FYLE_MOBILE_CURRENT_KEY}"
-        }
-        ],
-        "services": {
-        "appinvite_service": {
-            "other_platform_oauth_client": [
-            {
-                "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_3}",
-                "client_type": 3
-            },
-            {
-                "client_id": "${process.env.FYLE_MOBILE_CLIENT_ID_2}",
-                "client_type": 2,
-                "ios_info": {
-                "bundle_id": "${NATIVE_CONFIG.base.bundle_id}"
-                }
-            }
-            ]
-        }
-        }
-    }
+        services: {
+          appinvite_service: {
+            other_platform_oauth_client: [],
+          },
+        },
+      },
     ],
-    "configuration_version": "1"
+    configuration_version: '1',
+  };
+
+  return JSON.stringify(obj, null, 2);
 }
-`
+
+module.exports.getGoogleCredentialsAndroid = getAndroidGoogleServicesJson;
