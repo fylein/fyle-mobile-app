@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -26,6 +26,8 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { App } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -46,7 +48,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
     TranslocoPipe
   ],
 })
-export class EmailNotificationsComponent implements OnInit {
+export class EmailNotificationsComponent implements OnInit, OnDestroy {
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
@@ -96,6 +98,8 @@ export class EmailNotificationsComponent implements OnInit {
   private translocoService = inject(TranslocoService);
 
   private launchDarklyService = inject(LaunchDarklyService);
+
+  private appStateChangeListener: PluginListenerHandle | null = null;
 
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
@@ -257,6 +261,40 @@ export class EmailNotificationsComponent implements OnInit {
         isPushNotifUiEnabled &&
         isPushColumnSupportedForTitle &&
         permissionStatus.receive !== 'granted';
+
+      if (this.showMobilePushColumn && !this.isPushPermissionDenied) {
+        // Permission already granted – ensure device is registered for push notifications.
+        PushNotifications.register();
+      }
+
+      this.startAppStateListener(isPushColumnSupportedForTitle);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.appStateChangeListener?.remove();
+    this.appStateChangeListener = null;
+  }
+
+  private startAppStateListener(isPushColumnSupportedForTitle: boolean): void {
+    if (this.appStateChangeListener) {
+      return;
+    }
+
+    this.appStateChangeListener = App.addListener('appStateChange', async ({ isActive }) => {
+      if (!isActive || !this.showMobilePushColumn || !isPushColumnSupportedForTitle) {
+        return;
+      }
+
+      const latestPermission = await PushNotifications.checkPermissions();
+      const hasPermission = latestPermission.receive === 'granted';
+
+      if (hasPermission && this.isPushPermissionDenied) {
+        this.isPushPermissionDenied = false;
+        await PushNotifications.register();
+      } else if (!hasPermission) {
+        this.isPushPermissionDenied = true;
+      }
     });
   }
 }
