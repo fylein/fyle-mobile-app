@@ -606,10 +606,13 @@ export class AddEditMileagePage implements OnInit {
   setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
-        if (!this.fg.controls.project.value) {
+        const selectedProject = this.fg.controls.project.value;
+        if (!selectedProject) {
           this.fg.patchValue({ billable: false });
         } else {
-          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
+          this.fg.patchValue({
+            billable: !!(this.showBillable && selectedProject.default_billable),
+          });
         }
       }),
       startWith(this.fg.controls.project.value),

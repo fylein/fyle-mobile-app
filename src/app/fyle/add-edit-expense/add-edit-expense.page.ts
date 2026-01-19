@@ -2773,11 +2773,13 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
-          tap((initialProject) => {
-            if (!initialProject) {
+          tap((project) => {
+            if (!project) {
               this.fg.patchValue({ billable: false });
             } else {
-              this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
+              this.fg.patchValue({
+                billable: !!(this.showBillable && project.default_billable),
+              });
             }
           }),
           startWith(initialProject),
