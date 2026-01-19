@@ -22,10 +22,12 @@ import { ExpenseRuleData } from './expense-rule-data.model';
 import { AccountingExportSummary } from './accounting-export-summary.model';
 import { ExpenseReport } from './expense-report.model';
 import { ExpenseEmployee } from 'src/app/core/mock-data/platform/v1/expense-employee.model';
+import { AutoApprovalState } from '../auto-approval-state.enum';
 
 export interface Expense {
   // `activity_details` is not added on purpose
   accounting_export_summary: {} | AccountingExportSummary;
+  report_auto_approval_state: AutoApprovalState | null;
   is_exported: boolean;
   last_exported_at: Date;
   added_to_report_at: Date;
