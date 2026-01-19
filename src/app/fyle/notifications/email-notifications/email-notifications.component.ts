@@ -51,7 +51,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
     FormButtonValidationDirective
   ],
 })
-export class EmailNotificationsComponent implements OnInit, OnDestroy {
+export class EmailNotificationsComponent implements OnInit {
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
@@ -235,32 +235,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       panelClass: 'msb-success',
     });
     this.trackingService.showToastMessage({ ToastContent: message });
-  }
-
-  saveChanges(): void {
-    // Ensure notification settings are in sync with current UI state
-    this.updateNotificationSettings();
-
-    const emailUnsubscribedEvents =
-      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
-    const pushUnsubscribedEvents =
-      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
-
-    this.updateEmployeeSettings();
-
-    this.trackingService.eventTrack('Email notifications updated from mobile app', {
-      unsubscribedEvents: emailUnsubscribedEvents,
-      pushUnsubscribedEvents,
-    });
-
-    this.hasChanges = false;
-  }
-
-  openDeviceSettings(): void {
-    this.nativeSettings.open({
-      optionAndroid: AndroidSettings.ApplicationDetails,
-      optionIOS: IOSSettings.App,
-    });
   }
 
   saveChanges(): void {
