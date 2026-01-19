@@ -20,6 +20,9 @@ import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { App } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -74,6 +77,8 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   showMobilePushColumn = false;
 
+  appStateChangeListener: PluginListenerHandle | null = null;
+
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
@@ -127,7 +132,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.appStateChangeListener = App.addListener('appStateChange', async ({ isActive }) => {
+    App.addListener('appStateChange', async ({ isActive }) => {
       if (!isActive || !this.showMobilePushColumn) {
         return;
       }
@@ -141,6 +146,8 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       } else if (!hasPermission) {
         this.isPushPermissionDenied = true;
       }
+    }).then((listener) => {
+      this.appStateChangeListener = listener;
     });
   }
 
