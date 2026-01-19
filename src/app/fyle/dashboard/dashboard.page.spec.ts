@@ -63,6 +63,7 @@ import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-m
 import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
 import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
+import { SmartlookService } from 'src/app/core/services/smartlook.service';
 
 // mocks
 @Component({
@@ -119,6 +120,7 @@ describe('DashboardPage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let budgetsService: jasmine.SpyObj<BudgetsService>;
+  let smartlookService: jasmine.SpyObj<SmartlookService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -178,6 +180,7 @@ describe('DashboardPage', () => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
+    const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -239,6 +242,10 @@ describe('DashboardPage', () => {
           provide: BudgetsService,
           useValue: budgetsServiceSpy,
         },
+        {
+          provide: SmartlookService,
+          useValue: smartlookServiceSpy,
+        },
         ...getFormatPreferenceProviders(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -298,6 +305,7 @@ describe('DashboardPage', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     budgetsService = TestBed.inject(BudgetsService) as jasmine.SpyObj<BudgetsService>;
     budgetsService.getSpenderBudgetByParams.and.returnValue(of([]));
+    smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     fixture.detectChanges();
   }));
 
@@ -410,10 +418,11 @@ describe('DashboardPage', () => {
       featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
-    it('should call setupNetworkWatcher, registerBackButtonAction once', () => {
+    it('should call setupNetworkWatcher, registerBackButtonAction once, smartlookService.init once', () => {
       component.ionViewWillEnter();
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.registerBackButtonAction).toHaveBeenCalledTimes(1);
+      expect(smartlookService.init).toHaveBeenCalledTimes(1);
     });
 
     it('should set currentStateIndex to 1 if queryParams.state is tasks', () => {
