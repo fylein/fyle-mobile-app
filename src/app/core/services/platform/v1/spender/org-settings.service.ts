@@ -416,7 +416,7 @@ export class PlatformOrgSettingsService {
       auto_report_approval_settings: {
         allowed: incoming.auto_report_approval_settings?.allowed,
         enabled: incoming.auto_report_approval_settings?.enabled,
-        amount_threshold: incoming.auto_report_approval_settings?.amount_threshold ?? 0,
+        amount_threshold: incoming.auto_report_approval_settings?.amount_threshold,
       },
     };
 
