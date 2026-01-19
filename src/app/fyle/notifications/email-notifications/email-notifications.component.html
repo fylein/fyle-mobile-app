@@ -9,29 +9,26 @@
     <ion-title [class.long-title]="isLongTitle">
       {{ title }}
     </ion-title>
-    <ion-buttons slot="end" class="email-notifications--end-buttons">
-      <div class="email-notifications--saved-text">{{ saveText }}</div>
-    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="email-notifications--container">
     @if (isPushPermissionDenied) {
-      <div class="notifications-push-alert email-notifications--push-alert" role="alert">
+      <div class="email-notifications--push-alert" role="alert">
         <div>
           <ion-icon
-            class="notifications-push-alert__icon"
+            class="email-notifications--push-alert__icon"
             [src]="'/assets/svg/warning-fill.svg'"
             slot="icon-only"
           ></ion-icon>
         </div>
-        <div class="notifications-push-alert__message">
+        <div class="email-notifications--push-alert__message">
           {{ 'emailNotifications.pushNotificationsTurnedOff' | transloco }}
         </div>
         <button
           type="button"
-          class="notifications-push-alert__cta"
+          class="notifications--push-alert__cta"
           (click)="openDeviceSettings()"
         >
           {{ 'emailNotifications.goToSettingsCta' | transloco }}
@@ -50,7 +47,7 @@
       </div>
       @if (showMobilePushColumn) {
         <div class="email-notifications--header-divider"></div>
-        <div class="email-notifications--checkbox-mobile-container">
+        <div class="email-notifications--checkbox-col email-notifications--checkbox-mobile-container">
           <span class="email-notifications--checkbox-label">
             {{ 'emailNotifications.mobilePushHeader' | transloco }}
           </span>
@@ -62,13 +59,13 @@
         <div class="email-notifications--event-name email-notifications--select-all-row">
           {{ 'emailNotifications.selectAllRowLabel' | transloco }}
         </div>
-        <div class="email-notifications--checkbox-col">
-          <mat-checkbox [(ngModel)]="selectAll" (ngModelChange)="toggleAllNotifications($event, 'email')">
+        <div class="email-notifications--checkbox-col-value">
+          <mat-checkbox [(ngModel)]="selectAllEmail" (ngModelChange)="toggleAllNotifications($event, 'email')">
           </mat-checkbox>
         </div>
         @if (showMobilePushColumn) {
-          <div class="email-notifications--checkbox-mobile-container">
-            <mat-checkbox [(ngModel)]="selectAllPush" (ngModelChange)="toggleAllNotifications($event, 'push')">
+          <div class="email-notifications--checkbox-col-value">
+            <mat-checkbox [(ngModel)]="selectAllMobile" (ngModelChange)="toggleAllNotifications($event, 'push')">
             </mat-checkbox>
           </div>
         }
@@ -78,12 +75,12 @@
           <div class="email-notifications--event-name">
             {{ notification.event }}
           </div>
-          <div class="email-notifications--checkbox-col">
+          <div class="email-notifications--checkbox-col-value">
             <mat-checkbox [ngModel]="notification.email" (ngModelChange)="toggleNotification(notification, 'email')">
             </mat-checkbox>
           </div>
           @if (showMobilePushColumn) {
-            <div class="email-notifications--checkbox-mobile-container">
+            <div class="email-notifications--checkbox-col-value">
               <mat-checkbox
                 [ngModel]="notification.push ?? true"
                 (ngModelChange)="toggleNotification(notification, 'push')"
@@ -98,16 +95,20 @@
 </ion-content>
 
 <ion-footer>
-  <ion-toolbar mode="md">
-    <div class="fy-footer-cta-container">
-      <ion-button
-        class="btn-primary"
-        (click)="saveChanges()"
-        [disabled]="!hasChanges"
-        role="button"
-      >
-        {{ 'emailNotifications.saveChanges' | transloco }}
-      </ion-button>
-    </div>
-  </ion-toolbar>
+  <div class="fy-footer-cta-container">
+    <ion-button
+      class="email-notifications--save-button"
+      fill="solid"
+      shape="round"
+      color="fyle-primary"
+      (click)="saveChanges()"
+      [disabled]="!hasChanges"
+      appFormButtonValidation
+      [loading]="saveChangesLoader"
+      [loadingText]="'emailNotifications.savingChanges' | transloco"
+      role="button"
+    >
+      {{ 'emailNotifications.saveChanges' | transloco }}
+    </ion-button>
+  </div>
 </ion-footer>

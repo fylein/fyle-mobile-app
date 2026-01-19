@@ -14,7 +14,7 @@
     <ul class="statuses-diff--values-list">
       @for (detail of value(); track detail) {
         <div>
-          <li class="text-sentence-case">{{ detail }}</li>
+          <li>{{ detail }}</li>
         </div>
       }
     </ul>
@@ -26,7 +26,7 @@
       <span class="text-sentence-case">{{
         key() === 'vehicle type' ? ('statusesDiff.mileageRateName' | transloco) : key()
       }}</span>
-      : <span class="text-first-letter-uppercase">{{ displayValue() }}</span>
+      : <span>{{ displayValue() }}</span>
     </li>
   </div>
 }

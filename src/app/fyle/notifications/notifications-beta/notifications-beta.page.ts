@@ -18,10 +18,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
-import { App } from '@capacitor/app';
-import type { PluginListenerHandle } from '@capacitor/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -37,7 +35,8 @@ import type { PluginListenerHandle } from '@capacitor/core';
     IonSkeletonText,
     IonTitle,
     IonToolbar,
-    MatIcon
+    MatIcon,
+    TranslocoPipe
   ],
 })
 export class NotificationsBetaPage implements OnInit, OnDestroy {
@@ -71,11 +70,9 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   isInitialLoading: boolean;
 
-  isPushPermissionDenied = true;
+  isPushPermissionDenied = false;
 
   showMobilePushColumn = false;
-
-  private appStateChangeListener: PluginListenerHandle | null = null;
 
   private router = inject(Router);
 
@@ -104,8 +101,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     forkJoin({
       orgData: this.getOrgSettings(),
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-      permissionStatus: from(PushNotifications.checkPermissions()),
-    }).subscribe(({ orgData, isPushNotifUiEnabled, permissionStatus }) => {
+    }).subscribe(({ orgData, isPushNotifUiEnabled }) => {
       const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
@@ -113,12 +109,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
       this.showMobilePushColumn = isPushNotifUiEnabled;
-      this.isPushPermissionDenied = isPushNotifUiEnabled && permissionStatus.receive !== 'granted';
-
-      if (this.showMobilePushColumn && !this.isPushPermissionDenied) {
-        // Permission already granted – ensure device is registered for push notifications.
-        PushNotifications.register();
-      }
+      this.isPushPermissionDenied = isPushNotifUiEnabled;
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
@@ -210,11 +201,28 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     const unsubscribedPushEventsByUser: string[] =
       this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
+    // Take a deep copy of the current notification settings so we can restore
+    // them if the modal is closed without saving.
+    const originalNotificationSettings: EmployeeSettings['notification_settings'] = {
+      email_allowed: this.employeeSettings.notification_settings.email_allowed,
+      email_enabled: this.employeeSettings.notification_settings.email_enabled,
+      email_unsubscribed_events: [...this.employeeSettings.notification_settings.email_unsubscribed_events],
+      push_allowed: this.employeeSettings.notification_settings.push_allowed,
+      push_enabled: this.employeeSettings.notification_settings.push_enabled,
+      push_unsubscribed_events: [...this.employeeSettings.notification_settings.push_unsubscribed_events],
+      notify_user: this.employeeSettings.notification_settings.notify_user,
+      notify_delegatee: this.employeeSettings.notification_settings.notify_delegatee,
+    };
+
+    // Use a cloned notifications array so changes inside the modal don't mutate
+    // the cached config on this page unless the user actually saves.
+    const clonedNotifications = notificationConfig.notifications.map((notification) => ({ ...notification }));
+
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
       componentProps: {
         title: notificationConfig.title,
-        notifications: notificationConfig.notifications,
+        notifications: clonedNotifications,
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
         unsubscribedPushEventsByUser,
@@ -229,7 +237,15 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       employeeSettingsUpdated: boolean;
     }>;
     if (data?.employeeSettingsUpdated) {
-      this.ngOnInit();
+      // Refetch fresh employee settings (cache is already busted by the POST)
+      this.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
+        this.employeeSettings = employeeSettings;
+        this.initializeEmailNotificationsConfig();
+        this.initializeDelegateNotification();
+      });
+    } else {
+      this.employeeSettings.notification_settings = originalNotificationSettings;
+      this.platformEmployeeSettingsService.clearEmployeeSettings().subscribe();
     }
   }
 

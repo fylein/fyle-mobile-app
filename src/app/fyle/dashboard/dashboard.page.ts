@@ -71,6 +71,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
+import { SmartlookService } from 'src/app/core/services/smartlook.service';
 
 // install Swiper modules
 SwiperCore.use([Pagination, Autoplay]);
@@ -160,6 +161,8 @@ export class DashboardPage {
   private orgUserService = inject(OrgUserService);
 
   private launchDarklyService = inject(LaunchDarklyService);
+
+  private smartlookService = inject(SmartlookService);
 
   private popoverController = inject(PopoverController);
 
@@ -694,6 +697,7 @@ export class DashboardPage {
     };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
+    this.smartlookService.init();
     this.footerService.footerCurrentStateIndex$.subscribe((index) => {
       this.currentStateIndex = index;
     });

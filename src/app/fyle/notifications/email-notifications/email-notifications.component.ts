@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit, input } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -26,8 +26,10 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { App } from '@capacitor/app';
-import type { PluginListenerHandle } from '@capacitor/core';
+import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -45,7 +47,8 @@ import type { PluginListenerHandle } from '@capacitor/core';
     MatIcon,
     FyAlertInfoComponent,
     IonFooter,
-    TranslocoPipe
+    TranslocoPipe,
+    FormButtonValidationDirective
   ],
 })
 export class EmailNotificationsComponent implements OnInit, OnDestroy {
@@ -65,13 +68,17 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   //  Your application code writes to the input. This prevents migration.
   @Input() unsubscribedEventsByUser: string[];
 
-  @Input() unsubscribedPushEventsByUser: string[];
+  readonly unsubscribedPushEventsByUser = input<string[]>([]);
 
   isLongTitle = false;
 
   isIos = false;
 
-  selectAll = false;
+  saveChangesLoader = false;
+
+  selectAllEmail = false;
+
+  selectAllMobile = false;
 
   selectAllPush = false;
 
@@ -81,7 +88,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   hasChanges = false;
 
-  isPushPermissionDenied = true;
+  isPushPermissionDenied = false;
 
   private platform = inject(Platform);
 
@@ -99,7 +106,9 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
-  private appStateChangeListener: PluginListenerHandle | null = null;
+  private matSnackBar = inject(MatSnackBar);
+
+  private snackbarProperties = inject(SnackbarPropertiesService);
 
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
@@ -136,23 +145,17 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
       if (data && data.action === 'discard') {
         this.hasChanges = false;
-        this.modalController.dismiss({ employeeSettingsUpdated: this.saveText === 'Saved' });
+        this.modalController.dismiss({ employeeSettingsUpdated: false });
       }
-    } else {
-      // saveText === 'Saved' implies the user has made changes
-      const data = {
-        employeeSettingsUpdated: this.saveText === 'Saved',
-      };
-      this.modalController.dismiss(data);
     }
   }
 
   updateSelectAll(): void {
-    this.selectAll = this.notifications.every((n) => n.email);
-    this.selectAllPush = this.notifications.every((n) => n.push ?? true);
+    this.selectAllEmail = this.notifications.every((n) => n.email);
+    this.selectAllMobile = this.notifications.every((n) => n.mobile ?? true);
   }
 
-  toggleAllNotifications(selectAll: boolean, type: 'email' | 'push'): void {
+  toggleAllNotifications(selectAll: boolean, type: 'email' | 'mobile'): void {
     const isSelected = selectAll;
     this.notifications = this.notifications.map((notification) => ({ ...notification, [type]: isSelected }));
     this.updateSelectAll();
@@ -160,7 +163,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     this.updateNotificationSettings();
   }
 
-  toggleNotification(updatedNotification: NotificationEventItem, type: 'email' | 'push' = 'email'): void {
+  toggleNotification(updatedNotification: NotificationEventItem, type: 'email' | 'mobile' = 'email'): void {
     updatedNotification[type] = !updatedNotification[type];
     this.updateSelectAll();
     this.updateNotificationSettings();
@@ -187,13 +190,13 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     this.employeeSettings.notification_settings.email_unsubscribed_events = updatedEmailUnsubscribedEventsByUser;
 
     // PUSH: Keep events unsubscribed from other notification types
-    const otherPushUnsubscribedEvents = (this.unsubscribedPushEventsByUser ?? []).filter(
+    const otherPushUnsubscribedEvents = (this.unsubscribedPushEventsByUser() ?? []).filter(
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
     // PUSH: Add events that are currently unsubscribed in this modal
     const currentlyPushUnsubscribedEvents = this.notifications
-      .filter((notification) => notification.push === false)
+      .filter((notification) => notification.mobile === false)
       .map((notification) => notification.eventEnum);
 
     const updatedPushUnsubscribedEventsByUser = [
@@ -208,14 +211,56 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   }
 
   updateEmployeeSettings(): void {
-    this.updateSaveText('Saving...');
+    this.saveChangesLoader = true;
     this.platformEmployeeSettingsService
       .post(this.employeeSettings)
       .pipe(
         tap(() => this.platformEmployeeSettingsService.clearEmployeeSettings()),
-        finalize(() => this.updateSaveText('Saved')),
+        finalize(() => {
+          this.saveChangesLoader = false;
+        }),
       )
-      .subscribe();
+      .subscribe({
+        next: () => {
+          this.showSuccessToast();
+          this.modalController.dismiss({ employeeSettingsUpdated: true });
+        },
+      });
+  }
+
+  private showSuccessToast(): void {
+    const message = this.translocoService.translate('emailNotifications.notificationsUpdatedSuccessMessage');
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', { message }),
+      panelClass: 'msb-success',
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  saveChanges(): void {
+    // Ensure notification settings are in sync with current UI state
+    this.updateNotificationSettings();
+
+    const emailUnsubscribedEvents =
+      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const pushUnsubscribedEvents =
+      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
+
+    this.updateEmployeeSettings();
+
+    this.trackingService.eventTrack('Email notifications updated from mobile app', {
+      unsubscribedEvents: emailUnsubscribedEvents,
+      pushUnsubscribedEvents,
+    });
+
+    this.hasChanges = false;
+  }
+
+  openDeviceSettings(): void {
+    this.nativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
   }
 
   saveChanges(): void {
@@ -261,40 +306,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
         isPushNotifUiEnabled &&
         isPushColumnSupportedForTitle &&
         permissionStatus.receive !== 'granted';
-
-      if (this.showMobilePushColumn && !this.isPushPermissionDenied) {
-        // Permission already granted – ensure device is registered for push notifications.
-        PushNotifications.register();
-      }
-
-      this.startAppStateListener(isPushColumnSupportedForTitle);
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.appStateChangeListener?.remove();
-    this.appStateChangeListener = null;
-  }
-
-  private startAppStateListener(isPushColumnSupportedForTitle: boolean): void {
-    if (this.appStateChangeListener) {
-      return;
-    }
-
-    this.appStateChangeListener = App.addListener('appStateChange', async ({ isActive }) => {
-      if (!isActive || !this.showMobilePushColumn || !isPushColumnSupportedForTitle) {
-        return;
-      }
-
-      const latestPermission = await PushNotifications.checkPermissions();
-      const hasPermission = latestPermission.receive === 'granted';
-
-      if (hasPermission && this.isPushPermissionDenied) {
-        this.isPushPermissionDenied = false;
-        await PushNotifications.register();
-      } else if (!hasPermission) {
-        this.isPushPermissionDenied = true;
-      }
     });
   }
 }
