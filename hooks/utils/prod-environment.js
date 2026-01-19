@@ -18,6 +18,5 @@ export const environment = {
   USE_MIXPANEL_PROXY: '${process.env.USE_MIXPANEL_PROXY}',
   ENABLE_MIXPANEL: '${process.env.ENABLE_MIXPANEL}',
   YODLEE_FAST_LINK_URL: '${process.env.YODLEE_FAST_LINK_URL}',
-  SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}'
 };
 `;

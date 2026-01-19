@@ -48,7 +48,6 @@ export class SmartlookService {
         ),
       )
       .subscribe(({ eou, deviceInfo }) => {
-        this.smartlook.setProjectKey({ key: environment.SMARTLOOK_API_KEY });
         this.smartlook.start();
         this.smartlook.setUserIdentifier({ identifier: eou.us.id });
         this.smartlook.setUserProperty({ propertyName: 'id', value: eou.us.id });
