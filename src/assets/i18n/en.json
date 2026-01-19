@@ -16,6 +16,7 @@
       "expenseAdded": "Expense added",
       "expensesAdded": "Expense(s) added",
       "expenseApproved": "Expense approved",
+      "typeAutomaticallyApproved": "{{type}} automatically approved",
       "expenseAutomaticallyMerged": "Expense automatically merged",
       "expenseIssues": "Expense issues",
       "expenseMatched": "Expense matched",

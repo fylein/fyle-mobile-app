@@ -72,6 +72,7 @@ describe('StatusService', () => {
         'services.status.reportClosed': 'Report closed',
         'services.status.reportNameChanged': 'Report name changed',
         'services.status.reportSubmitted': 'Report submitted',
+        'services.status.typeAutomaticallyApproved': '{{type}} automatically approved',
         'services.status.typeApproved': '{{type}} approved',
         'services.status.typeCreated': '{{type}} created',
         'services.status.typeEdited': '{{type}} edited',
@@ -312,6 +313,13 @@ describe('StatusService', () => {
     const comment = 'Expense report approved by admin';
     const result = statusService.getStatusCategory(comment, 'reports');
     expect(result.category).toBe('Reports approved');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense automatically approved" for automatically approved comments', () => {
+    const comment = 'Expense automatically approved by system';
+    const result = statusService.getStatusCategory(comment, 'Expense');
+    expect(result.category).toBe('Expense automatically approved');
     expect(result.icon).toBe('check');
   });
 
