@@ -4,7 +4,7 @@
     <div class="info-card__date">{{ autoSubmissionReportDate | date }}</div>
     <div class="info-card__sub-header">
       {{ 'autoSubmissionInfoCard.completeExpenses' | transloco }}
-      {{ showAutoApprovalInfo ? ('autoSubmissionInfoCard.autoApprovalInfo' | transloco) : '' }}
+      {{ showAutoApprovalInfo() ? ('autoSubmissionInfoCard.autoApprovalInfo' | transloco) : '' }}
     </div>
   </div>
 </div>

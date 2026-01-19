@@ -926,6 +926,11 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
       symbol_position: 'before',
     },
   },
+  auto_report_approval_settings: {
+    allowed: false,
+    enabled: false,
+    amount_threshold: 500,
+  },
 });
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
