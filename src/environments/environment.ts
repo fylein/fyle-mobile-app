@@ -19,6 +19,7 @@ export const environment = {
   USE_MIXPANEL_PROXY: '',
   ENABLE_MIXPANEL: '',
   YODLEE_FAST_LINK_URL: '',
+  SMARTLOOK_API_KEY: '',
 };
 
 /*
