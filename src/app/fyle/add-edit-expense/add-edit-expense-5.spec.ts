@@ -472,22 +472,19 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
 
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         component.setupFilteredCategories();
         tick(500);
 
-        component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
+        const secondProject = apiV2ResponseMultiple.data[1] || expectedProjectsResponse[1];
+        component.fg.controls.project.setValue(secondProject);
         fixture.detectChanges();
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
-          apiV2ResponseMultiple[1],
-          sortedCategory,
-          true,
-        );
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(secondProject, sortedCategory, true);
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
@@ -495,22 +492,19 @@ export function TestCases5(getTestBed) {
         component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.category.setValue(orgCategoryData);
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         component.setupFilteredCategories();
         tick(500);
 
-        component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
+        const secondProject = apiV2ResponseMultiple.data[1] || expectedProjectsResponse[1];
+        component.fg.controls.project.setValue(secondProject);
         fixture.detectChanges();
         tick(500);
 
         expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(
-          apiV2ResponseMultiple[1],
-          sortedCategory,
-          true,
-        );
+        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(secondProject, sortedCategory, true);
       }));
 
       it('should return all active categories when project is null', fakeAsync(() => {
@@ -614,7 +608,7 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
         component.recentCategoriesOriginal = recentUsedCategoriesRes;
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
 
         const projectWithRestrictions = {
@@ -640,7 +634,7 @@ export function TestCases5(getTestBed) {
         component.etxn$ = of(unflattenedTxnData);
         component.activeCategories$ = of(sortedCategory);
         component.recentCategoriesOriginal = null;
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
+        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
 
         const projectWithRestrictions = {
