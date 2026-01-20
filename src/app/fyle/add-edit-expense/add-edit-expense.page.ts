@@ -2786,7 +2786,7 @@ export class AddEditExpensePage implements OnInit {
           }),
           concatMap((project: ProjectV2 | null) => {
             if (!project) {
-              return of([]);
+              return this.activeCategories$.pipe(take(1));
             }
             return forkJoin([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
               map(([activeCategories, isProjectCategoryRestrictionsEnabled]) =>

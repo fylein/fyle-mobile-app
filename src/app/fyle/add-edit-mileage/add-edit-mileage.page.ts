@@ -617,7 +617,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       concatMap((project: ProjectV2 | null) => {
         if (!project) {
-          return of([]);
+          return this.subCategories$.pipe(take(1));
         }
         return combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
           map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
