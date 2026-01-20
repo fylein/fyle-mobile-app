@@ -2773,7 +2773,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
-          tap((project) => {
+          tap((project: ProjectV2 | null) => {
             if (!project) {
               this.fg.patchValue({ billable: false });
             } else {

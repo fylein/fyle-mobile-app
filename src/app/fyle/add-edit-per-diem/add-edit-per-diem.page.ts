@@ -776,7 +776,7 @@ export class AddEditPerDiemPage implements OnInit {
   setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
-        const selectedProject = this.fg.controls.project.value;
+        const selectedProject = this.fg.controls.project.value as ProjectV2 | null;
         if (!selectedProject) {
           this.fg.patchValue({ billable: false });
         } else {
