@@ -36,6 +36,8 @@ import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
@@ -687,6 +689,73 @@ export function TestCases5(getTestBed) {
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });
+    });
+
+    describe('setupFilteredCategories():', () => {
+      beforeEach(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.subCategories$ = of([]);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue([]);
+      });
+
+      it('should set billable to false when project is null', fakeAsync(() => {
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project with default_billable false is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when showBillable is false regardless of project default_billable', fakeAsync(() => {
+        component.showBillable = false;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
     });
   });
 }

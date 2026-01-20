@@ -529,6 +529,86 @@ export function TestCases5(getTestBed) {
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory, true);
       }));
 
+      it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project with default_billable false is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when project with default_billable null is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNullBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: null,
+        };
+        component.fg.controls.project.setValue(projectWithNullBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when showBillable is false regardless of project default_billable', fakeAsync(() => {
+        component.showBillable = false;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
       it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {
         component.isProjectCategoryRestrictionsEnabled$ = of(true);
         component.etxn$ = of(unflattenedTxnData);

@@ -10,7 +10,17 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonToolbar, ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonToolbar,
+  ModalController,
+  NavController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { isEmpty, isNumber } from 'lodash';
 import dayjs from 'dayjs';
 import { combineLatest, forkJoin, from, iif, Observable, of, Subject, Subscription, throwError } from 'rxjs';
@@ -104,7 +114,7 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
     MatIcon,
     NgClass,
     ReactiveFormsModule,
-    SlicePipe
+    SlicePipe,
   ],
 })
 export class SplitExpensePage implements OnDestroy {
@@ -327,7 +337,10 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setUpSplitExpenseBillable(splitExpense: SplitExpense): boolean {
-    if (splitExpense.project && this.txnFields?.billable?.is_enabled) {
+    if (!this.txnFields?.billable?.is_enabled) {
+      return false;
+    }
+    if (splitExpense.project) {
       return splitExpense.project.default_billable ?? false;
     }
     return this.transaction.billable ?? false;

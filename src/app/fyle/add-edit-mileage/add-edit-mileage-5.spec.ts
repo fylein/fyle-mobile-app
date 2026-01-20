@@ -1377,5 +1377,72 @@ export function TestCases5(getTestBed) {
         });
       });
     });
+
+    describe('setupFilteredCategories():', () => {
+      beforeEach(() => {
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.subCategories$ = of(unsortedCategories1);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(unsortedCategories1);
+      });
+
+      it('should set billable to false when project is null', fakeAsync(() => {
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project with default_billable false is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when showBillable is false regardless of project default_billable', fakeAsync(() => {
+        component.showBillable = false;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+    });
   });
 }
