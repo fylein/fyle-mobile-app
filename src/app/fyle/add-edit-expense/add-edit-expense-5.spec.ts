@@ -513,7 +513,7 @@ export function TestCases5(getTestBed) {
         );
       }));
 
-      it('should return null the expense does not have project id', fakeAsync(() => {
+      it('should return all active categories when project is null', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
         component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.reset();
@@ -526,7 +526,7 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(null, sortedCategory, true);
+        expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
       }));
 
       it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {

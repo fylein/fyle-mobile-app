@@ -2784,7 +2784,7 @@ export class AddEditExpensePage implements OnInit {
               });
             }
           }),
-          concatMap((project: ProjectV2 | null) => {
+          switchMap((project: ProjectV2 | null) => {
             if (!project) {
               return this.activeCategories$.pipe(take(1));
             }

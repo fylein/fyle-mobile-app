@@ -615,7 +615,7 @@ export class AddEditMileagePage implements OnInit {
           });
         }
       }),
-      concatMap((project: ProjectV2 | null) => {
+      switchMap((project: ProjectV2 | null) => {
         if (!project) {
           return this.subCategories$.pipe(take(1));
         }
