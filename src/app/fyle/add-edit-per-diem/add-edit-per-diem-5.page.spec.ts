@@ -36,7 +36,6 @@ import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
-import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
