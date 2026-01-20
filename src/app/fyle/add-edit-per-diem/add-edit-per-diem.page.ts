@@ -775,19 +775,21 @@ export class AddEditPerDiemPage implements OnInit {
 
   setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
-      tap(() => {
-        const selectedProject = this.fg.controls.project.value as ProjectV2 | null;
-        if (!selectedProject) {
+      startWith(this.fg.controls.project.value),
+      tap((project: ProjectV2 | null) => {
+        if (!project) {
           this.fg.patchValue({ billable: false });
         } else {
           this.fg.patchValue({
-            billable: !!(this.showBillable && selectedProject.default_billable),
+            billable: !!(this.showBillable && project.default_billable),
           });
         }
       }),
-      startWith(this.fg.controls.project.value),
-      concatMap((project: ProjectV2) =>
-        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+      concatMap((project: ProjectV2 | null) => {
+        if (!project) {
+          return of([]);
+        }
+        return combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
           map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
             this.projectsService.getAllowedOrgCategoryIds(
               project,
@@ -795,8 +797,8 @@ export class AddEditPerDiemPage implements OnInit {
               isProjectCategoryRestrictionsEnabled,
             ),
           ),
-        ),
-      ),
+        );
+      }),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category }))),
     );
 

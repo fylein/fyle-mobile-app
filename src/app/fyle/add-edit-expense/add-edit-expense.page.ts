@@ -2773,6 +2773,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
+          startWith(initialProject),
           tap((project: ProjectV2 | null) => {
             if (!project) {
               this.fg.patchValue({ billable: false });
@@ -2782,9 +2783,11 @@ export class AddEditExpensePage implements OnInit {
               });
             }
           }),
-          startWith(initialProject),
-          concatMap((project: ProjectV2) =>
-            forkJoin([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+          concatMap((project: ProjectV2 | null) => {
+            if (!project) {
+              return of([]);
+            }
+            return forkJoin([this.activeCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
               map(([activeCategories, isProjectCategoryRestrictionsEnabled]) =>
                 this.projectsService.getAllowedOrgCategoryIds(
                   project,
@@ -2792,8 +2795,8 @@ export class AddEditExpensePage implements OnInit {
                   isProjectCategoryRestrictionsEnabled,
                 ),
               ),
-            ),
-          ),
+            );
+          }),
           tap((categories) => this.handleCategoryValidation(categories)),
           map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
         ),
