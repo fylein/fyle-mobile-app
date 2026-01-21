@@ -147,6 +147,8 @@ export class EmailNotificationsComponent implements OnInit {
         this.hasChanges = false;
         this.modalController.dismiss({ employeeSettingsUpdated: false });
       }
+    } else {
+      this.modalController.dismiss({ employeeSettingsUpdated: false });
     }
   }
 
@@ -265,7 +267,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
-    this.isLongTitle = this.title.length > 25;
+    this.isLongTitle = this.title.length > 20;
     this.updateSelectAll();
 
     const isPushColumnSupportedForTitle =

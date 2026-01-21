@@ -2,7 +2,17 @@ import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonCol, IonGrid, IonRefresher, IonRefresherContent, IonRow, IonSkeletonText, ModalController, PopoverController, RefresherEventDetail } from '@ionic/angular/standalone';
+import {
+  IonCol,
+  IonGrid,
+  IonRefresher,
+  IonRefresherContent,
+  IonRow,
+  IonSkeletonText,
+  ModalController,
+  PopoverController,
+  RefresherEventDetail,
+} from '@ionic/angular/standalone';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
@@ -29,6 +39,7 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
@@ -64,7 +75,7 @@ import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/f
     IonSkeletonText,
     NgClass,
     TasksCardComponent,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class TasksComponent implements OnInit {
@@ -136,6 +147,8 @@ export class TasksComponent implements OnInit {
 
   autoSubmissionReportDate$: Observable<Date>;
 
+  orgSettings$: Observable<OrgSettings>;
+
   isVisaRTFEnabled$: Observable<boolean>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
@@ -159,6 +172,8 @@ export class TasksComponent implements OnInit {
     this.autoSubmissionReportDate$ = this.reportService
       .getReportAutoSubmissionDetails()
       .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
+
+    this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.tasks$ = combineLatest({
       taskFilters: this.loadData$,
