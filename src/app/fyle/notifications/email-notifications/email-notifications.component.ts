@@ -154,10 +154,10 @@ export class EmailNotificationsComponent implements OnInit {
 
   updateSelectAll(): void {
     this.selectAllEmail = this.notifications.every((n) => n.email);
-    this.selectAllMobile = this.notifications.every((n) => n.mobile ?? true);
+    this.selectAllMobile = this.notifications.every((n) => n.push ?? true);
   }
 
-  toggleAllNotifications(selectAll: boolean, type: 'email' | 'mobile'): void {
+  toggleAllNotifications(selectAll: boolean, type: 'email' | 'push'): void {
     const isSelected = selectAll;
     this.notifications = this.notifications.map((notification) => ({ ...notification, [type]: isSelected }));
     this.updateSelectAll();
@@ -165,7 +165,7 @@ export class EmailNotificationsComponent implements OnInit {
     this.updateNotificationSettings();
   }
 
-  toggleNotification(updatedNotification: NotificationEventItem, type: 'email' | 'mobile' = 'email'): void {
+  toggleNotification(updatedNotification: NotificationEventItem, type: 'email' | 'push' = 'email'): void {
     updatedNotification[type] = !updatedNotification[type];
     this.updateSelectAll();
     this.updateNotificationSettings();
@@ -198,7 +198,7 @@ export class EmailNotificationsComponent implements OnInit {
 
     // PUSH: Add events that are currently unsubscribed in this modal
     const currentlyPushUnsubscribedEvents = this.notifications
-      .filter((notification) => notification.mobile === false)
+      .filter((notification) => notification.push === false)
       .map((notification) => notification.eventEnum);
 
     const updatedPushUnsubscribedEventsByUser = [
