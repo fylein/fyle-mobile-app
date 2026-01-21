@@ -159,7 +159,7 @@ describe('CameraOptionsPopupComponent', () => {
 
     expect(component.onChangeCallback).toHaveBeenCalledOnceWith(nativeElement);
     expect(nativeElement.click).toHaveBeenCalledTimes(1);
-    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Edit Expense', Category: 'Camera' });
+    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Edit Expense', Category: 'File Upload' });
   }));
 
   describe('uploadFileCallback():', () => {
