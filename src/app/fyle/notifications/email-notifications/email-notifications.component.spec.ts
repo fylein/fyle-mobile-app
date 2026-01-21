@@ -173,6 +173,16 @@ describe('EmailNotificationsComponent', () => {
   });
 
   describe('closeModal():', () => {
+    it('should dismiss the modal directly when there are no unsaved changes', async () => {
+      component.hasChanges = false;
+
+      await component.closeModal();
+
+      expect(modalController.dismiss).toHaveBeenCalledWith({
+        employeeSettingsUpdated: false,
+      });
+    });
+
     it('should not dismiss the modal directly when there are unsaved changes', async () => {
       component.hasChanges = true;
 
