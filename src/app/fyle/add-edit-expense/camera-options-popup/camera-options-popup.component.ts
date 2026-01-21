@@ -92,7 +92,7 @@ export class CameraOptionsPopupComponent implements OnInit {
   async getImageFromImagePicker(): Promise<void> {
     const that = this;
     const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
-    this.trackingService.addAttachment({ Mode: mode, Category: 'Camera' });
+    this.trackingService.addAttachment({ Mode: mode, Category: 'File Upload' });
 
     const nativeElement = that.fileUpload.nativeElement;
 
