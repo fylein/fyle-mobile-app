@@ -89,17 +89,23 @@ export class CameraOptionsPopupComponent implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async getImageFromImagePicker(): Promise<void> {
-    const that = this;
+  // Kept synchronous intentionally - WebView 143+ blocks click() from async context
+  getImageFromImagePicker(): void {
     const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
     this.trackingService.addAttachment({ Mode: mode, Category: 'File Upload' });
 
-    const nativeElement = that.fileUpload.nativeElement;
+    const nativeElement = this.fileUpload.nativeElement;
 
-    nativeElement.onchange = async (): Promise<void> => {
-      that.onChangeCallback(nativeElement);
+    // Reset value to ensure change event fires even if same file is selected (WebView 143+ strict mode)
+    nativeElement.value = '';
+
+    // Use addEventListener with { once: true } instead of onchange property assignment
+    // WebView 143+ is more reliable with addEventListener for file input events
+    const handler = (): void => {
+      this.onChangeCallback(nativeElement);
     };
 
+    nativeElement.addEventListener('change', handler, { once: true });
     nativeElement.click();
   }
 
