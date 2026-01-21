@@ -295,13 +295,13 @@ describe('EmailNotificationsComponent', () => {
           eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
           event: 'Expense Created',
           email: true,
-          push: true,
+          mobile: true,
         } as any,
         {
           eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
           event: 'Expense Submitted',
           email: true,
-          push: false,
+          mobile: false,
         } as any,
       ];
 

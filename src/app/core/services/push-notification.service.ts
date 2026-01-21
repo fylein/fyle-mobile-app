@@ -30,10 +30,7 @@ export class PushNotificationService {
       const deviceToken = token?.value;
 
       if (deviceToken) {
-        this.orgUserService.sendDeviceToken(deviceToken).subscribe({
-          // Ignore errors for now; push registration should not block app startup
-          error: () => undefined,
-        });
+        this.orgUserService.sendDeviceToken(deviceToken).subscribe();
       }
     });
     PushNotifications.addListener('registrationError', () => undefined);
