@@ -181,7 +181,7 @@ describe('OrgUserService', () => {
     });
   });
 
-  it('should send device token to the backend', (done) => {
+  it('sendDeviceToken(): should send device token to the backend', (done) => {
     const token = 'test-device-token';
     apiService.post.and.returnValue(of({}));
 
