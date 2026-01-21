@@ -613,17 +613,6 @@
                 }
               </div>
             }
-            @if (isProjectsEnabled$ | async) {
-              <div>
-                @if (isProjectsVisible$ | async) {
-                  <div>
-                    @if (fg.controls.project.touched && !fg.controls.project.valid) {
-                      <div class="add-edit-expense--error">Please select a project.</div>
-                    }
-                  </div>
-                }
-              </div>
-            }
           }
           @if (txnFields$ | async; as txnFields) {
             @if (dependentFields$ | async; as dependentFields) {
