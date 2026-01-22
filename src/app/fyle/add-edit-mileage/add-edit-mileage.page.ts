@@ -92,7 +92,8 @@ import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transact
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
@@ -335,9 +336,9 @@ export class AddEditMileagePage implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  subCategories$: Observable<OrgCategory[]>;
+  subCategories$: Observable<PlatformCategory[]>;
 
-  filteredCategories$: Observable<OrgCategoryListItem[]>;
+  filteredCategories$: Observable<PlatformCategoryListItem[]>;
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
 
@@ -381,7 +382,7 @@ export class AddEditMileagePage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  projectCategories$: Observable<OrgCategory[]>;
+  projectCategories$: Observable<PlatformCategory[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -625,7 +626,7 @@ export class AddEditMileagePage implements OnInit {
         ),
       ),
       map((categories) =>
-        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category })),
+        categories.map((category: PlatformCategory) => ({ label: category.sub_category, value: category })),
       ),
     );
 
@@ -642,10 +643,10 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getProjectCategories(): Observable<OrgCategory[]> {
+  getProjectCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const mileageCategories = categories.filter((category) => category.fyle_category === 'Mileage');
+        const mileageCategories = categories.filter((category) => category.system_category === 'Mileage');
 
         return mileageCategories;
       }),
@@ -656,7 +657,10 @@ export class AddEditMileagePage implements OnInit {
     return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
-  getMileageCategories(): Observable<{ defaultMileageCategory: OrgCategory; mileageCategories: OrgCategory[] }> {
+  getMileageCategories(): Observable<{
+    defaultMileageCategory: PlatformCategory;
+    mileageCategories: PlatformCategory[];
+  }> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
@@ -665,7 +669,7 @@ export class AddEditMileagePage implements OnInit {
           (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
-        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
+        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.system_category) > -1);
 
         return {
           defaultMileageCategory,
@@ -797,13 +801,13 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getSubCategories(): Observable<OrgCategory[]> {
+  getSubCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
@@ -817,7 +821,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkMileageCategories(category: OrgCategory): Observable<OrgCategory> {
+  checkMileageCategories(category: PlatformCategory): Observable<PlatformCategory> {
     if (category && !isEmpty(category)) {
       return of(category);
     } else {
@@ -834,8 +838,8 @@ export class AddEditMileagePage implements OnInit {
 
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
-      switchMap((category: OrgCategory) => this.checkMileageCategories(category)),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => this.checkMileageCategories(category)),
+      switchMap((category: PlatformCategory) => {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
@@ -1104,7 +1108,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getCategories(etxn: Partial<UnflattenedTransaction>): Observable<OrgCategory> {
+  getCategories(etxn: Partial<UnflattenedTransaction>): Observable<PlatformCategory> {
     return this.categoriesService
       .getAll()
       .pipe(
