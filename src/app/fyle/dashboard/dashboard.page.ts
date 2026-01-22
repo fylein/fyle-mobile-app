@@ -66,7 +66,10 @@ import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-import { PushNotificationService } from 'src/app/core/services/push-notification.service';
+import {
+  PushNotificationService,
+} from 'src/app/core/services/push-notification.service';
+import { StorageService } from 'src/app/core/services/storage.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
@@ -167,6 +170,8 @@ export class DashboardPage {
   private popoverController = inject(PopoverController);
 
   private budgetsService = inject(BudgetsService);
+
+  private storageService = inject(StorageService);
 
   readonly areCardsEnabled = signal<boolean>(false);
 
@@ -686,8 +691,16 @@ export class DashboardPage {
     });
   }
 
+  private async initializePushNotificationsIfNeeded(): Promise<void> {
+    if (this.storageService.get(this.pushNotificationService.getPermissionStorageKey())) {
+      return;
+    }
+
+    await this.pushNotificationService.initializePushNotifications();
+  }
+
   ionViewWillEnter(): void {
-    this.pushNotificationService.initializePushNotifications();
+    void this.initializePushNotificationsIfNeeded();
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
@@ -787,7 +800,7 @@ export class DashboardPage {
             this.startNavbarWalkthrough(eou);
           }
           if (showPushNotifUi) {
-            this.pushNotificationService.initializePushNotifications();
+            void this.initializePushNotificationsIfNeeded();
           }
         },
         error: () => {
