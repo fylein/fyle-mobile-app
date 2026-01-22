@@ -18,11 +18,13 @@ export class PushNotificationService {
   async initializePushNotifications(): Promise<void> {
     const permission = await PushNotifications.requestPermissions();
 
+    if (permission.receive) {
+      this.storageService.set('push_notification_permission_set_once', true);
+    }
     if (permission.receive === 'granted') {
       this.initListeners();
       await PushNotifications.register();
     }
-    this.storageService.set('push_notification_permission_set_once', true);
   }
 
   setPermissionStorageKey(): void {
