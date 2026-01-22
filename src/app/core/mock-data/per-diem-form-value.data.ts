@@ -44,6 +44,8 @@ export const perDiemFormValuesData3: Partial<PerDiemFormValue> = deepFreeze({
     org_id: 'orrjqbDbeP9p',
     rate: 50,
     updated_at: new Date('2022-09-20T11:48:38.901Z'),
+    full_name: 'BulkTest2 (50 USD per day)',
+    readableRate: '$50.00 per day',
   },
 });
 
