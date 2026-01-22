@@ -24,6 +24,9 @@ export class PushNotificationService {
     this.listenersInitialized = true;
 
     PushNotifications.addListener('registration', (_token: Token) => {
+      console.log('token', _token);
+      const deviceToken = _token?.value;
+      console.log('deviceToken', deviceToken);
       // TODO: Integrate API for sending token to backend
     });
     PushNotifications.addListener('registrationError', () => undefined);
