@@ -8,6 +8,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformPerDiemRates } from '../models/platform/platform-per-diem-rates.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { EmployeeSettings } from '../models/employee-settings.model';
+import { DateService } from './platform/v1/shared/date.service';
 
 const perDiemsCacheBuster$ = new Subject<void>();
 
@@ -20,6 +21,8 @@ export class PerDiemService {
   private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   private platformEmployeeSettingsService = inject(PlatformEmployeeSettingsService);
+
+  private dateService = inject(DateService);
 
   @Cacheable({
     cacheBusterObserver: perDiemsCacheBuster$,
@@ -62,7 +65,7 @@ export class PerDiemService {
     };
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPerDiemRates[]>>('/per_diem_rates', data)
-      .pipe(map((res) => res.data[0]));
+      .pipe(map((res) => this.dateService.fixDates(res.data[0])));
   }
 
   getPerDiemRates(config: { offset: number; limit: number }): Observable<PlatformPerDiemRates[]> {
@@ -75,7 +78,7 @@ export class PerDiemService {
     };
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformPerDiemRates[]>>('/per_diem_rates', data)
-      .pipe(map((res) => res.data));
+      .pipe(map((res) => res.data.map((rate) => this.dateService.fixDates(rate))));
   }
 
   getActivePerDiemRatesCount(): Observable<number> {
