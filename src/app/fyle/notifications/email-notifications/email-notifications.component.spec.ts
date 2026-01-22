@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { ModalController, Platform } from '@ionic/angular/standalone';
+import { ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
@@ -10,6 +10,12 @@ import { EmailNotificationsComponent } from './email-notifications.component';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { TranslocoService } from '@jsverse/transloco';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { PushNotifications } from '@capacitor/push-notifications';
+import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 
 describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
@@ -18,6 +24,9 @@ describe('EmailNotificationsComponent', () => {
   let platform: jasmine.SpyObj<Platform>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let popoverController: jasmine.SpyObj<PopoverController>;
+  let translocoService: jasmine.SpyObj<TranslocoService>;
+  let matSnackBar: jasmine.SpyObj<MatSnackBar>;
 
   const mockNotifications: NotificationEventItem[] = [
     {
@@ -36,20 +45,44 @@ describe('EmailNotificationsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', [
       'post',
       'clearEmployeeSettings',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
+    const trackingServiceSpy = jasmine.createSpyObj<TrackingService>('TrackingService', [
+      'eventTrack',
+      'showToastMessage',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', [
+      'setSnackbarProperties',
+    ]);
+
+    translocoServiceSpy.translate.and.callFake((key: string) => key);
+    snackbarPropertiesServiceSpy.setSnackbarProperties.and.returnValue({});
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(false));
+
+    popoverControllerSpy.create.and.resolveTo({
+      present: () => Promise.resolve(),
+      onWillDismiss: () => Promise.resolve({ data: undefined }),
+    } as any);
+
+    spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
 
     TestBed.configureTestingModule({
-      imports: [EmailNotificationsComponent,
-        MatIconTestingModule],
+      imports: [EmailNotificationsComponent, MatIconTestingModule],
       providers: [
         {
           provide: ModalController,
           useValue: modalControllerSpy,
+        },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
         },
         {
           provide: Platform,
@@ -63,6 +96,22 @@ describe('EmailNotificationsComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: TranslocoService,
+          useValue: translocoServiceSpy,
+        },
+        {
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
+        },
+        {
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -71,11 +120,14 @@ describe('EmailNotificationsComponent', () => {
     component = fixture.componentInstance;
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
 
     component.title = 'Email Notifications';
     component.notifications = cloneDeep(mockNotifications);
@@ -118,39 +170,41 @@ describe('EmailNotificationsComponent', () => {
       component.updateSaveText('Saving...');
       expect(component.saveText).toBe('Saving...');
     });
-
-    it('should update save text to "Saved"', () => {
-      component.updateSaveText('Saved');
-      expect(component.saveText).toBe('Saved');
-    });
   });
 
   describe('closeModal():', () => {
-    it('should dismiss the modal with employeeSettingsUpdated as true when saveText is "Saved"', () => {
-      component.saveText = 'Saved';
+    it('should dismiss the modal directly when there are no unsaved changes', async () => {
+      component.hasChanges = false;
 
-      component.closeModal();
-
-      expect(modalController.dismiss).toHaveBeenCalledWith({
-        employeeSettingsUpdated: true,
-      });
-    });
-
-    it('should dismiss the modal with employeeSettingsUpdated as false when saveText is not "Saved"', () => {
-      component.saveText = 'Saving...';
-
-      component.closeModal();
+      await component.closeModal();
 
       expect(modalController.dismiss).toHaveBeenCalledWith({
         employeeSettingsUpdated: false,
       });
     });
 
-    it('should dismiss the modal with employeeSettingsUpdated as false when saveText is empty', () => {
-      component.saveText = '';
+    it('should not dismiss the modal directly when there are unsaved changes', async () => {
+      component.hasChanges = true;
 
-      component.closeModal();
+      await component.closeModal();
 
+      expect(modalController.dismiss).not.toHaveBeenCalled();
+    });
+
+    it('should reset changes and dismiss the modal when user chooses discard in unsaved changes popover', async () => {
+      component.hasChanges = true;
+
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.present.and.resolveTo();
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: { action: 'discard' },
+      } as any);
+
+      (popoverController.create as jasmine.Spy).and.resolveTo(popoverSpy);
+
+      await component.closeModal();
+
+      expect(component.hasChanges).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledWith({
         employeeSettingsUpdated: false,
       });
@@ -166,7 +220,7 @@ describe('EmailNotificationsComponent', () => {
 
       component.updateSelectAll();
 
-      expect(component.selectAll).toBeTrue();
+      expect(component.selectAllEmail).toBeTrue();
     });
 
     it('should set selectAll to false when not all notifications have email enabled', () => {
@@ -177,7 +231,7 @@ describe('EmailNotificationsComponent', () => {
 
       component.updateSelectAll();
 
-      expect(component.selectAll).toBeFalse();
+      expect(component.selectAllEmail).toBeFalse();
     });
   });
 
@@ -186,7 +240,7 @@ describe('EmailNotificationsComponent', () => {
       spyOn(component, 'updateSelectAll');
       spyOn(component, 'updateNotificationSettings');
 
-      component.toggleAllNotifications(true);
+      component.toggleAllNotifications(true, 'email');
 
       expect(component.notifications.every((n) => n.email)).toBeTrue();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
@@ -197,7 +251,7 @@ describe('EmailNotificationsComponent', () => {
       spyOn(component, 'updateSelectAll');
       spyOn(component, 'updateNotificationSettings');
 
-      component.toggleAllNotifications(false);
+      component.toggleAllNotifications(false, 'email');
 
       expect(component.notifications.every((n) => !n.email)).toBeTrue();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
@@ -226,32 +280,121 @@ describe('EmailNotificationsComponent', () => {
   });
 
   describe('updateNotificationSettings():', () => {
-    it('should update unsubscribed events and call tracking service', () => {
-      spyOn(component, 'updateEmployeeSettings');
-
+    it('should update unsubscribed events and mark changes as pending', () => {
       component.updateNotificationSettings();
 
       expect(component.employeeSettings.notification_settings.email_unsubscribed_events).toContain(
         NotificationEventsEnum.ERPTS_SUBMITTED,
       );
-      expect(trackingService.eventTrack).toHaveBeenCalledWith('Email notifications updated from mobile app', {
-        unsubscribedEvents: jasmine.any(Array),
+      expect(component.hasChanges).toBeTrue();
+    });
+
+    it('should merge other push-unsubscribed events with current modal selection', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: true,
+        } as any,
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          mobile: false,
+        } as any,
+      ];
+
+      Object.defineProperty(component, 'unsubscribedPushEventsByUser', {
+        value: () => ['some-other-event', NotificationEventsEnum.ERPTS_SUBMITTED],
+        configurable: true,
       });
-      expect(component.updateEmployeeSettings).toHaveBeenCalledTimes(1);
+      component.employeeSettings.notification_settings.push_unsubscribed_events = [];
+
+      component.updateNotificationSettings();
+
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).toEqual([
+        'some-other-event',
+        NotificationEventsEnum.ERPTS_SUBMITTED,
+      ]);
+      expect(component.hasChanges).toBeTrue();
     });
   });
 
   describe('updateEmployeeSettings():', () => {
-    it('should update employee settings and show save status', fakeAsync(() => {
-      spyOn(component, 'updateSaveText');
+    it('should update employee settings and dismiss the modal', fakeAsync(() => {
+      const showSuccessToastSpy = spyOn<any>(component as any, 'showSuccessToast');
 
       component.updateEmployeeSettings();
       tick();
 
       expect(platformEmployeeSettingsService.post).toHaveBeenCalledWith(component.employeeSettings);
       expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalledTimes(1);
-      expect(component.updateSaveText).toHaveBeenCalledWith('Saving...');
-      expect(component.updateSaveText).toHaveBeenCalledWith('Saved');
+      expect(showSuccessToastSpy).toHaveBeenCalledTimes(1);
+      expect(modalController.dismiss).toHaveBeenCalledWith({ employeeSettingsUpdated: true });
+      expect(component.saveChangesLoader).toBeFalse();
     }));
+  });
+
+  describe('showSuccessToast():', () => {
+    it('should show success toast with translated message and track it', () => {
+      (component as any).showSuccessToast();
+
+      expect(translocoService.translate).toHaveBeenCalledWith(
+        'emailNotifications.notificationsUpdatedSuccessMessage',
+      );
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledWith(
+        jasmine.any(Function),
+        jasmine.objectContaining({
+          panelClass: 'msb-success',
+        }),
+      );
+      expect(trackingService.showToastMessage).toHaveBeenCalledWith({
+        ToastContent: 'emailNotifications.notificationsUpdatedSuccessMessage',
+      });
+    });
+  });
+
+  describe('openDeviceSettings():', () => {
+    it('should open native app settings on the device', () => {
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']) as any;
+
+      component.openDeviceSettings();
+
+      expect(component.nativeSettings.open).toHaveBeenCalledWith({
+        optionAndroid: AndroidSettings.ApplicationDetails,
+        optionIOS: IOSSettings.App,
+      });
+    });
+  });
+
+  describe('saveChanges():', () => {
+    it('should update notification settings, persist changes and track event', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+
+      component.saveChanges();
+
+      expect(component.updateNotificationSettings).toHaveBeenCalledTimes(1);
+      expect(component.updateEmployeeSettings).toHaveBeenCalledTimes(1);
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('Email notifications updated from mobile app', {
+        unsubscribedEvents:
+          component.employeeSettings.notification_settings.email_unsubscribed_events,
+        pushUnsubscribedEvents:
+          component.employeeSettings.notification_settings.push_unsubscribed_events,
+      });
+      expect(component.hasChanges).toBeFalse();
+    });
+
+    it('should use empty array for pushUnsubscribedEvents when push_unsubscribed_events is undefined', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+      component.employeeSettings.notification_settings.push_unsubscribed_events = undefined as any;
+
+      component.saveChanges();
+
+      const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
+      expect(trackingCallArgs.pushUnsubscribedEvents).toEqual([]);
+    });
   });
 });

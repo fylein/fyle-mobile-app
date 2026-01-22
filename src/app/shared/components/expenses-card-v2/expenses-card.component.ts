@@ -59,6 +59,7 @@ import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
 import { ExactCurrencyPipe } from '../../pipes/exact-currency.pipe';
+import { AutoApprovalState } from 'src/app/core/models/platform/auto-approval-state.enum';
 
 @Component({
   selector: 'app-expense-card-v2',
@@ -265,6 +266,8 @@ export class ExpensesCardComponent implements OnInit {
   isDraft: boolean;
 
   vendorDetails: string;
+
+  readonly isAutoApproved = computed(() => this.expense()?.report_auto_approval_state === AutoApprovalState.AUTO_APPROVED);
 
   readonly isPendingGasCharge = signal<boolean>(false);
 

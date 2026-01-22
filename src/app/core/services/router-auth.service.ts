@@ -48,9 +48,14 @@ export class RouterAuthService {
 
   private trackingService = inject(TrackingService);
 
+  private getTrimmedEmail(email: string): string {
+    return email.trim().toLowerCase();
+  }
+
   checkEmailExists(email: string): Observable<EmailExistsResponse> {
+    const trimmedEmail = this.getTrimmedEmail(email);
     return this.routerApiService.post<EmailExistsResponse>('/auth/basic/email_exists', {
-      email,
+      email: trimmedEmail,
     });
   }
 
@@ -96,8 +101,9 @@ export class RouterAuthService {
   }
 
   sendResetPassword(email: string): Observable<{}> {
+    const trimmedEmail = this.getTrimmedEmail(email);
     return this.routerApiService.post<{}>('/auth/send_reset_password', {
-      email,
+      email: trimmedEmail,
     });
   }
 
@@ -110,9 +116,10 @@ export class RouterAuthService {
   }
 
   basicSignin(email: string, password: string): Observable<AuthResponse> {
+    const trimmedEmail = this.getTrimmedEmail(email);
     return this.routerApiService
       .post<AuthResponse>('/auth/basic/signin', {
-        email,
+        email: trimmedEmail,
         password,
       })
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
@@ -144,8 +151,9 @@ export class RouterAuthService {
   }
 
   resendVerificationLink(email: string, orgId: string): Observable<ResendEmailVerification> {
+    const trimmedEmail = this.getTrimmedEmail(email);
     return this.routerApiService.post<ResendEmailVerification>('/auth/resend_email_verification', {
-      email: email?.trim().toLowerCase(),
+      email: trimmedEmail,
       org_id: orgId,
     });
   }

@@ -44,6 +44,10 @@
 		"classpath": "com.capacitorjs.plugins.preferences.PreferencesPlugin"
 	},
 	{
+		"pkg": "@capacitor/push-notifications",
+		"classpath": "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin"
+	},
+	{
 		"pkg": "@capacitor/splash-screen",
 		"classpath": "com.capacitorjs.plugins.splashscreen.SplashScreenPlugin"
 	},
@@ -54,6 +58,10 @@
 	{
 		"pkg": "@capacitor/text-zoom",
 		"classpath": "com.capacitorjs.plugins.textzoom.TextZoomPlugin"
+	},
+	{
+		"pkg": "@capawesome/capacitor-app-shortcuts",
+		"classpath": "io.capawesome.capacitorjs.plugins.appshortcuts.AppShortcutsPlugin"
 	},
 	{
 		"pkg": "capacitor-native-settings",

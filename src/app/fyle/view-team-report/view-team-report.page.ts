@@ -3,7 +3,25 @@ import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rx
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IonButton, IonButtons, IonCol, IonContent, IonFooter, IonGrid, IonHeader, IonIcon, IonRow, IonSegment, IonSegmentButton, IonSkeletonText, IonSpinner, IonTitle, IonToolbar, PopoverController, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonFooter,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonSegment,
+  IonSegmentButton,
+  IonSkeletonText,
+  IonSpinner,
+  IonTitle,
+  IonToolbar,
+  PopoverController,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { NetworkService } from '../../core/services/network.service';
@@ -304,7 +322,8 @@ export class ViewTeamReportPage {
         isOthersComment: comment.isOthersComment,
         st_created_at: comment.created_at,
         st_id: comment.id,
-        st_diff: null,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        st_diff: comment.action_data || null,
       };
       return status;
     });
@@ -463,7 +482,6 @@ export class ViewTeamReportPage {
       const rpAmount = this.exactCurrency.transform({
         value: report.amount,
         currencyCode: report.currency,
-        skipSymbol: false,
       });
       const flaggedExpensesCount = expenses.filter((expense) => expense.is_policy_flagged).length;
       const popover = await this.popoverController.create({
@@ -724,7 +742,6 @@ export class ViewTeamReportPage {
     return this.exactCurrency.transform({
       value: amount,
       currencyCode,
-      skipSymbol: false,
     });
   }
 }

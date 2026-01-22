@@ -24,10 +24,9 @@
           </div>
           <!-- Total amount -->
           <div class="reports-card--amount-block ion-text-nowrap">
-            <span class="reports-card--currency">{{ reportCurrencySymbol }}</span>
-            <span class="reports-card--amount">
-              {{ { value: report.amount || 0, currencyCode: report.currency, skipSymbol: true } | exactCurrency }}
-            </span>
+            <div class="reports-card--amount">
+              {{ { value: report.amount || 0, currencyCode: report.currency } | exactCurrency }}
+            </div>
           </div>
         </div>
       </div>
@@ -37,6 +36,11 @@
           <div class="state-pill state-{{ report.state | reportState }}">
             {{ report.state | reportState | snakeCaseToSpaceCase }}
           </div>
+          @if (isAutoApproved()) {
+            <div class="reports-card--auto-approved-by-system">
+              {{ 'reportsCard.autoApprovedBySystem' | transloco }}
+            </div>
+          }
         </div>
       </div>
     </div>

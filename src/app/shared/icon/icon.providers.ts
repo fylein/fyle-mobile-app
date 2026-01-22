@@ -69,6 +69,7 @@ export function provideIcons(): EnvironmentProviders {
       'image.svg',
       'image.svg',
       'info-circle-fill.svg',
+      'info-circle-outline.svg',
       'info-gradient.svg',
       'info-circle-white.svg',
       'list-plus.svg',

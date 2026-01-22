@@ -1,40 +1,60 @@
 {
   "services": {
     "status": {
-      "expenseAutomaticallyMerged": "Expense automatically merged",
-      "expensesMergedToThisExpense": "{{count}} expenses merged to this expense",
-      "expenseMerged": "Expense merged",
-      "typeReversed": "{{type}} reversed",
-      "expenseRuleApplied": "Expense rule applied",
-      "typeCreated": "{{type}} created",
-      "typeEdited": "{{type}} edited",
-      "policyViolation": "Policy violation",
-      "criticalPolicyViolation": "Critical policy violation found",
-      "expenseAdded": "Expense added",
-      "receiptAttached": "Receipt attached",
-      "reportSubmitted": "Report submitted",
-      "receiptRemoved": "Receipt removed",
-      "expenseRemoved": "Expense removed",
-      "reportNameChanged": "Report name changed",
-      "report": "Report",
-      "unflagged": "Unflagged",
-      "flagged": "Flagged",
-      "failedToRunPolicies": "Failed to run policies",
-      "verified": "Verified",
-      "typeSentBack": "{{type}} sent back",
+      "approverAdded": "Approver added",
       "approverPending": "Approver pending",
-      "typeApproved": "{{type}} approved",
-      "processingPayment": "Processing payment",
-      "paid": "Paid",
-      "expenseIssues": "Expense issues",
-      "policiesRanSuccessfully": "Policies ran successfully",
+      "approverRemoved": "Approver removed",
+      "approvalsReset": "Approvals reset",
+      "cardExpenseRemoved": "Card expense removed",
+      "cardExpenseMerged": "Card expense merged",
       "cardTransactionMatched": "Card transaction matched",
-      "expenseUnmatched": "Expense unmatched",
-      "expenseMatched": "Expense matched",
+      "dataExtracted": "Data extracted",
+      "criticalPolicyViolation": "Critical policy violation found",
       "duplicateDetected": "Duplicate detected",
       "duplicateIssueResolved": "Duplicate(s) issue resolved",
+      "expense": "Expense",
+      "expenseAdded": "Expense added",
+      "expensesAdded": "Expense(s) added",
+      "expenseApproved": "Expense approved",
+      "typeAutomaticallyApproved": "{{type}} automatically approved",
+      "expenseAutomaticallyMerged": "Expense automatically merged",
+      "expenseIssues": "Expense issues",
+      "expenseMatched": "Expense matched",
+      "expenseMerged": "Expense merged",
+      "expenseReconciled": "Reconciled",
+      "expenseRemoved": "Expense removed",
+      "expenseReportApproved": "Expense report approved",
+      "expenseRuleApplied": "Expense rule applied",
+      "expenseSplit": "Expense split",
+      "expenseUnlinked": "Expense unlinked",
+      "expenseUnmatched": "Expense unmatched",
+      "expenseVerificationUndone": "Expense verification undone",
+      "expenseVerified": "Expense verified",
+      "expensesMergedToThisExpense": "{{count}} expenses merged to this expense",
+      "failedToRunPolicies": "Failed to run policies",
+      "flagged": "Flagged",
+      "invalidValueRemoved": "Invalid value removed",
       "others": "Others",
-      "expenseReconciled": "Reconciled"
+      "paid": "Paid",
+      "policyCappedAmount": "Policy capped amount",
+      "policiesRanSuccessfully": "Policies ran successfully",
+      "policyViolation": "Policy violation",
+      "policyViolationTriggered": "Policy violation triggered",
+      "processingPayment": "Processing payment",
+      "receiptAttached": "Receipt attached",
+      "receiptRemoved": "Receipt removed",
+      "reimbursements": "Reimbursements",
+      "report": "Report",
+      "reportClosed": "Report closed",
+      "reportNameChanged": "Report name changed",
+      "reportSubmitted": "Report submitted",
+      "typeApproved": "{{type}} approved",
+      "typeCreated": "{{type}} created",
+      "typeEdited": "{{type}} edited",
+      "typeReversed": "{{type}} reversed",
+      "typeSentBack": "{{type}} sent back",
+      "unflagged": "Unflagged",
+      "verified": "Verified"
     },
     "orgSettings": {
       "currencyLayer": "Currency Layer"
@@ -638,7 +658,8 @@
     "missing": "missing",
     "at": "at",
     "add": "Add",
-    "more": "more"
+    "more": "more",
+    "autoApprovedBySystem": "Auto-approved by system"
   },
   "transactionStatusInfoPopover": {
     "title": "Transaction status:",
@@ -756,7 +777,29 @@
     "save": "Save"
   },
   "fyAlertInfo": {
-    "action": "Action;"
+    "action": "Action;",
+    "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings."
+  },
+  "emailNotifications": {
+    "savingChanges": "Saving changes...",
+    "notificationsUpdatedSuccessMessage": "Notification preferences updated successfully.",
+    "emailHeader": "Email",
+    "eventsHeader": "Events",
+    "goToSettingsCta": "Go to Settings",
+    "mobilePushHeader": "Mobile push",
+    "pushNotificationsTurnedOff": "Push notifications are turned off. Turn them on in your device settings.",
+    "saveChanges": "Save changes",
+    "selectAllRowLabel": "Select all",
+    "unsavedChangesMessage": "You have unsaved changes. Are you sure you want to cancel?",
+    "unsavedChangesPrimaryCta": "Yes, cancel",
+    "unsavedChangesSecondaryCta": "No, go back",
+    "unsavedChangesTitle": "Unsaved changes"
+  },
+  "spenderOnboarding": {
+    "notificationsTitle": "Turn on notifications",
+    "notificationsMessage": "Stay updated on your expenses and approvals. Would you like to enable push notifications?",
+    "notificationsPrimaryCta": "Yes, enable",
+    "notificationsSecondaryCta": "Maybe later"
   },
   "mobileNumberCard": {
     "title": "Mobile number",
@@ -832,7 +875,8 @@
   },
   "reportsCard": {
     "expense": "Expense",
-    "expenses": "Expenses"
+    "expenses": "Expenses",
+    "autoApprovedBySystem": "Auto-approved by system"
   },
   "auditHistory": {
     "detailsLabel": "Details:",
@@ -1307,7 +1351,8 @@
   },
   "autoSubmissionInfoCard": {
     "nextSubmissionOn": "Next auto-submission of expense reports on",
-    "completeExpenses": "Add and complete your expenses for auto-submission"
+    "completeExpenses": "Add and complete your expenses for auto-submission",
+    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings."
   },
   "stats": {
     "myExpenses": "My expenses",
@@ -1764,7 +1809,28 @@
     "pendingTasks": "You have {{count}} pending tasks",
     "achSuspendedTitle": "ACH reimbursements suspended",
     "achSuspendedMessage": "ACH reimbursements for your account have been suspended due to an error. Please contact your admin to resolve this issue.",
-    "achSuspendedButton": "Got it"
+    "achSuspendedButton": "Got it",
+    "tasksTitle": "Tasks",
+    "homeTitle": "Home",
+    "addExpense": "Add expense",
+    "cardsTab": "Cards",
+    "budgetsTab": "Budgets"
+  },
+  "dashboardBudgets": {
+    "header": "My budgets",
+    "noBudgetsAvailable": "No budgets available",
+    "limit": "Limit",
+    "totalUtilization": "Total utilization",
+    "totalUtilizationInfoTooltip": "Total amount spent from the budget",
+    "remaining": "Remaining",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly",
+    "oneTime": "One-time"
+  },
+  "budgetTotalUtilisationInfoModal": {
+    "title": "Total utilisation",
+    "description": "Total amount spent by all employees in this budget."
   },
   "pendingGasChargeInfoModal": {
     "title": "Why am I seeing a $1 expense?",
@@ -1790,5 +1856,19 @@
     "message": "You'll notice our new name and logo across the app. Your workflows and data remain exactly the same - it's the same product you know and love, just with a new name.",
     "learnMore": "Learn More",
     "ok": "OK"
+  },
+  "infoCard": {
+    "beta": "Beta"
+  },
+  "myProfile": {
+    "magicMail": {
+      "title": "Magic mail",
+      "content": "Add this email in apps like Uber, or at checkout to automatically capture receipts and create expenses in Sage Expense Management."
+    },
+    "emailReceipts": {
+      "title": "Email receipts",
+      "content": "Forward receipts from your registered email to this email to automatically create expenses."
+    },
+    "emailCopiedSuccessfully": "Email copied successfully"
   }
 }

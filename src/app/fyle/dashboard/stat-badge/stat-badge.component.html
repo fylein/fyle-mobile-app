@@ -46,11 +46,10 @@
               <ion-col class="stat-badge--grid-col">
                 @if (!loading) {
                   <div class="stat-badge--amount">
-                    {{ currencySymbol }}
                     @if (shouldDisplayExact) {
-                      {{ { value: value, currencyCode: currency, skipSymbol: true } | exactCurrency }}
+                      {{ { value: value, currencyCode: currency } | exactCurrency }}
                     } @else {
-                      {{ value | humanizeCurrency: currency : true }}
+                      {{ value | humanizeCurrency: currency }}
                     }
                   </div>
                 }

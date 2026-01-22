@@ -700,6 +700,10 @@ export class TrackingService {
     this.eventTrack('SMS Deep Link Opened', properties);
   }
 
+  appShortcutUsed(properties: { action: string }): void {
+    this.eventTrack('App Shortcut Used', properties);
+  }
+
   cardUnenrolled(properties: CardUnenrolledProperties): void {
     this.eventTrack('Card Unenrolled', properties);
   }
