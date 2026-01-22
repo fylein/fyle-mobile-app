@@ -5,7 +5,7 @@ import { Injectable, inject } from '@angular/core';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { Cacheable } from 'ts-cacheable';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 
 const employeeSettingsCacheBuster$ = new Subject<void>();
 
@@ -37,7 +37,7 @@ export class PlatformEmployeeSettingsService {
   @Cacheable({
     cacheBusterObserver: employeeSettingsCacheBuster$,
   })
-  getAllowedCostCentersByEmployeeId(employeeId: string): Observable<CostCenter[]> {
+  getAllowedCostCentersByEmployeeId(employeeId: string): Observable<PlatformCostCenter[]> {
     return this.getByEmployeeId(employeeId).pipe(
       switchMap((employeeSettings) => {
         if (employeeSettings?.cost_center_ids?.length > 0) {
@@ -51,7 +51,7 @@ export class PlatformEmployeeSettingsService {
               ),
             );
         }
-        return of([] as CostCenter[]);
+        return of([] as PlatformCostCenter[]);
       }),
     );
   }
