@@ -99,16 +99,6 @@ export class OrgUserService {
     );
   }
 
-  sendDeviceToken(token: string): Observable<unknown> {
-    const payload = {
-      data: {
-        token,
-      },
-    };
-
-    return this.apiService.post('/spender/users/device_token', payload);
-  }
-
   getUserById(userId: string): Observable<EouApiResponse> {
     return this.apiService.get('/eous/' + userId);
   }

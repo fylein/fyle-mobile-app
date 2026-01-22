@@ -84,7 +84,7 @@ export class EmailNotificationsComponent implements OnInit {
 
   saveText: '' | 'Saved' | 'Saving...' = '';
 
-  showMobilePushColumn = true;
+  showMobilePushColumn = false;
 
   hasChanges = false;
 
@@ -270,6 +270,18 @@ export class EmailNotificationsComponent implements OnInit {
     this.isLongTitle = this.title.length > 20;
     this.updateSelectAll();
 
-      this.showMobilePushColumn = true;
+    const isPushColumnSupportedForTitle =
+      this.title === 'Expense notifications' || this.title === 'Expense report notifications';
+
+    forkJoin({
+      isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
+      permissionStatus: from(PushNotifications.checkPermissions()),
+    }).subscribe(({ isPushNotifUiEnabled, permissionStatus }) => {
+      this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
+      this.isPushPermissionDenied =
+        isPushNotifUiEnabled &&
+        isPushColumnSupportedForTitle &&
+        permissionStatus.receive !== 'granted';
+    });
   }
 }

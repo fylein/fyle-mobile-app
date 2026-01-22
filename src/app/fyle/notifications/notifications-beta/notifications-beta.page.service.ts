@@ -155,7 +155,7 @@ export class NotificationsBetaPageService {
         .map((notification) => ({
           ...notification,
           email: !unsubscribedEmailEventsByUser.includes(notification.eventEnum),
-          mobile: !unsubscribedPushEventsByUser.includes(notification.eventEnum),
+          push: !unsubscribedPushEventsByUser.includes(notification.eventEnum),
         }));
 
     const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou));
