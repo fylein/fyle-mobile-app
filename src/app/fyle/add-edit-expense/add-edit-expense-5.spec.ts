@@ -523,6 +523,67 @@ export function TestCases5(getTestBed) {
         expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
       }));
 
+      it('should not reset billable when project is null and user has not interacted with the project', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when user clears the project', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should use project default_billable when user changes project even if expenseLevelBillable is true', fakeAsync(() => {
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+        component.expenseLevelBillable = true;
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
       it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
         component.showBillable = true;
         component.recentCategoriesOriginal = [];

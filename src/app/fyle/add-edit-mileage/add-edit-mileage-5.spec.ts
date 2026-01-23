@@ -1386,7 +1386,7 @@ export function TestCases5(getTestBed) {
         projectsService.getAllowedOrgCategoryIds.and.returnValue(unsortedCategories1);
       });
 
-      it('should set billable to false when project is null', fakeAsync(() => {
+      it('should set billable to false when user clears the project', fakeAsync(() => {
         component.setupFilteredCategories();
         tick(500);
 
@@ -1396,6 +1396,20 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not reset billable when project is null and user has not interacted with the project', fakeAsync(() => {
+        component.showBillable = true;
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
       }));
 
       it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
@@ -1440,6 +1454,26 @@ export function TestCases5(getTestBed) {
           default_billable: true,
         };
         component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should use project default_billable when user changes project even if expenseLevelBillable is true', fakeAsync(() => {
+        component.showBillable = true;
+        component.expenseLevelBillable = true;
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.project.setValue(projectWithNonBillable);
         fixture.detectChanges();
         tick(500);
 
