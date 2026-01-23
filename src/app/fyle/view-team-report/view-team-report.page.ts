@@ -252,6 +252,19 @@ export class ViewTeamReportPage {
 
   canApproveReport = false;
 
+  private addSystemApproverName(approval: ReportApprovals): ReportApprovals {
+    if (approval?.approver_type === 'SYSTEM' && approval?.approver_user) {
+      return {
+        ...approval,
+        approver_user: {
+          ...approval.approver_user,
+          full_name: 'SYSTEM',
+        },
+      };
+    }
+    return approval;
+  }
+
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
@@ -291,6 +304,7 @@ export class ViewTeamReportPage {
     this.approvals = report?.approvals?.filter((approval) =>
       [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
     );
+    this.approvals = this.approvals?.map((approval) => this.addSystemApproverName(approval));
     if (this.showViewApproverModal) {
       this.approvals.sort((a, b) => a.approver_order - b.approver_order);
       this.setupApproverToShow(report);
