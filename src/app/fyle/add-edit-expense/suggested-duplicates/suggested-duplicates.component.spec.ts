@@ -8,7 +8,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { of } from 'rxjs';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
@@ -24,7 +24,11 @@ import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v
   template: '<div></div>',
   imports: [],
 })
-class MockExpensesCardComponent {}
+class MockExpensesCardComponent {
+  @Input() expense: any;
+  @Input() previousExpenseTxnDate: unknown;
+  @Input() previousExpenseCreatedAt: unknown;
+}
 
 describe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
@@ -43,12 +47,7 @@ describe('SuggestedDuplicatesComponent', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     TestBed.configureTestingModule({
-      imports: [
-        MatIconTestingModule,
-        NoopAnimationsModule,
-        SuggestedDuplicatesComponent,
-        getTranslocoTestingModule(),
-      ],
+      imports: [MatIconTestingModule, NoopAnimationsModule, SuggestedDuplicatesComponent, getTranslocoTestingModule()],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
@@ -61,15 +60,15 @@ describe('SuggestedDuplicatesComponent', () => {
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
     })
-    .overrideComponent(SuggestedDuplicatesComponent, {
-      remove: {
-        imports: [ExpensesCardComponent],
-      },
-      add: {
-        imports: [MockExpensesCardComponent],
-      },
-    })
-    .compileComponents();
+      .overrideComponent(SuggestedDuplicatesComponent, {
+        remove: {
+          imports: [ExpensesCardComponent],
+        },
+        add: {
+          imports: [MockExpensesCardComponent],
+        },
+      })
+      .compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;

@@ -337,13 +337,10 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   setUpSplitExpenseBillable(splitExpense: SplitExpense): boolean {
-    if (!this.txnFields?.billable?.is_enabled) {
-      return false;
+    if (splitExpense.project && this.txnFields?.billable?.is_enabled) {
+      return this.transaction.billable ?? splitExpense.project.default_billable ?? false;
     }
-    if (splitExpense.project) {
-      return splitExpense.project.default_billable ?? false;
-    }
-    return this.transaction.billable ?? false;
+    return this.transaction.billable;
   }
 
   setUpSplitExpenseTax(splitExpense: SplitExpense): number {

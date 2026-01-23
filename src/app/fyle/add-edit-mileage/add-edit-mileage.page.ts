@@ -437,7 +437,7 @@ export class AddEditMileagePage implements OnInit {
 
   formInitializedFlag = false;
 
-  billableDefaultValue: boolean;
+  expenseLevelBillable: boolean | null = null;
 
   isRedirectedFromReport = false;
 
@@ -607,12 +607,26 @@ export class AddEditMileagePage implements OnInit {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       startWith(this.fg.controls.project.value),
       tap((project: ProjectV2 | null) => {
+        const projectControl = this.fg.controls.project;
+        const billableControl = this.fg.controls.billable;
+
         if (!project) {
-          this.fg.patchValue({ billable: false });
+          if (projectControl.dirty) {
+            billableControl.patchValue(false, { emitEvent: false });
+          }
+          return;
+        }
+
+        if (this.showBillable) {
+          if (projectControl.dirty) {
+            billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+          } else {
+            billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+              emitEvent: false,
+            });
+          }
         } else {
-          this.fg.patchValue({
-            billable: !!(this.showBillable && project.default_billable),
-          });
+          billableControl.patchValue(false, { emitEvent: false });
         }
       }),
       switchMap((project: ProjectV2 | null) => {
@@ -711,6 +725,25 @@ export class AddEditMileagePage implements OnInit {
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
           this.showBillable = expenseFieldsMap.billable?.is_enabled;
+
+          const project = this.fg.controls.project.value as ProjectV2 | null;
+          const projectControl = this.fg.controls.project;
+          const billableControl = this.fg.controls.billable;
+
+          if (!billableControl.dirty) {
+            if (this.showBillable && project) {
+              if (projectControl.dirty) {
+                billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+              } else {
+                billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+                  emitEvent: false,
+                });
+              }
+            } else {
+              billableControl.patchValue(false, { emitEvent: false });
+            }
+          }
+
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -740,7 +773,7 @@ export class AddEditMileagePage implements OnInit {
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
             // skipped distance unit, location 1 and location 2 - confirm this these are not used at all
-            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'];
+            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
@@ -754,26 +787,17 @@ export class AddEditMileagePage implements OnInit {
     );
 
     tfcValues$.subscribe((defaultValues) => {
-      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
         txn_dt: this.fg.controls.dateOfSpend,
-        billable: this.fg.controls.billable,
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+          if (control && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (
-            !control.touched &&
-            this.fg.controls.project.value &&
-            defaultValueColumn === 'billable' &&
-            (control.value === null || control.value === undefined)
-          ) {
-            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -1943,6 +1967,8 @@ export class AddEditMileagePage implements OnInit {
           recentCostCenters,
           commuteDeductionDetails,
         }) => {
+          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+
           if (project) {
             this.selectedProject$.next(project);
           }
@@ -2093,7 +2119,7 @@ export class AddEditMileagePage implements OnInit {
               etxn.tx.distance_unit,
             );
           }
-          this.fg.patchValue({
+          const formPatch: Record<string, unknown> & { billable?: boolean | null } = {
             mileage_rate_name,
             dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
@@ -2103,11 +2129,16 @@ export class AddEditMileagePage implements OnInit {
               distance: etxn.tx.distance,
               roundTrip: etxn.tx.mileage_is_round_trip,
             },
-            billable: etxn.tx.billable,
             sub_category: subCategory,
             costCenter,
             report,
-          });
+          };
+
+          if (etxn.tx.id) {
+            formPatch.billable = etxn.tx.billable;
+          }
+
+          this.fg.patchValue(formPatch);
 
           this.fg.patchValue({ project }, { emitEvent: false });
 

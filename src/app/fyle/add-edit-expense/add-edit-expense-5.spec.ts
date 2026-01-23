@@ -464,6 +464,7 @@ export function TestCases5(getTestBed) {
 
     describe('setupFilteredCategories():', () => {
       beforeEach(() => {
+        component.mode = 'add';
         component.isProjectCategoryRestrictionsEnabled$ = of(true);
         component.txnFields$ = of(expenseFieldObjData);
       });
@@ -519,7 +520,6 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
         tick(500);
 
-        expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getAllowedOrgCategoryIds).not.toHaveBeenCalled();
       }));
 
@@ -601,6 +601,55 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not override saved expense billable with project default_billable in edit mode', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        component.expenseLevelBillable = false;
+        component.fg.controls.billable.setValue(null);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable from project default_billable in edit mode when billable is unset', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.recentCategoriesOriginal = [];
+        component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
+
+        component.fg.controls.billable.setValue(null);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
       }));
 
       it('should filter recentCategories based on project_org_category_ids when restrictions are enabled', fakeAsync(() => {

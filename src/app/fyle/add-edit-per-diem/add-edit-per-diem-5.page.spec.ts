@@ -692,6 +692,7 @@ export function TestCases5(getTestBed) {
 
     describe('setupFilteredCategories():', () => {
       beforeEach(() => {
+        component.mode = 'add';
         component.isProjectCategoryRestrictionsEnabled$ = of(true);
         component.subCategories$ = of([]);
         projectsService.getAllowedOrgCategoryIds.and.returnValue([]);
@@ -701,6 +702,7 @@ export function TestCases5(getTestBed) {
         component.setupFilteredCategories();
         tick(500);
 
+        component.fg.controls.project.markAsDirty();
         component.fg.controls.project.setValue(null);
         fixture.detectChanges();
         tick(500);
@@ -754,6 +756,45 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not override saved expense billable with project default_billable in edit mode', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.expenseLevelBillable = false;
+        component.fg.controls.billable.setValue(false);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable from project default_billable in edit mode when billable is unset', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.fg.controls.billable.setValue(null);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
       }));
     });
   });

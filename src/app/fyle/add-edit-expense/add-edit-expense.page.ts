@@ -581,8 +581,6 @@ export class AddEditExpensePage implements OnInit {
 
   actionSheetOptions$: Observable<{ text: string; handler: () => void }[]>;
 
-  billableDefaultValue: boolean;
-
   taxGroups$: Observable<TaxGroup[]>;
 
   taxGroupsOptions$: Observable<{ label: string; value: TaxGroup }[]>;
@@ -666,6 +664,8 @@ export class AddEditExpensePage implements OnInit {
   vendorOptions: string[] = [];
 
   showBillable = false;
+
+  expenseLevelBillable: boolean | null = null;
 
   isLoading = true;
 
@@ -1932,6 +1932,7 @@ export class AddEditExpensePage implements OnInit {
           recentCostCenters,
           taxGroups,
         }) => {
+          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
           this.recentCategoriesOriginal = recentCategories;
 
           if (project) {
@@ -2120,38 +2121,37 @@ export class AddEditExpensePage implements OnInit {
 
           const expenseCategory = category?.enabled ? category : null;
 
-          this.fg.patchValue(
-            {
-              project,
-              category: expenseCategory,
-              dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
-              vendor_id: etxn.tx.vendor
-                ? {
-                    display_name: etxn.tx.vendor,
-                  }
-                : null,
-              purpose: etxn.tx.purpose,
-              report,
-              tax_amount: etxn.tx.tax_amount,
-              location_1: etxn.tx.locations[0],
-              location_2: etxn.tx.locations[1],
-              from_dt: etxn.tx.from_dt && dayjs(etxn.tx.from_dt).format('YYYY-MM-DD'),
-              to_dt: etxn.tx.to_dt && dayjs(etxn.tx.to_dt).format('YYYY-MM-DD'),
-              flight_journey_travel_class: etxn.tx.flight_journey_travel_class,
-              flight_return_travel_class: etxn.tx.flight_return_travel_class,
-              train_travel_class: etxn.tx.train_travel_class,
-              bus_travel_class: etxn.tx.bus_travel_class,
-              distance: etxn.tx.distance,
-              distance_unit: etxn.tx.distance_unit,
-              billable: etxn.tx.billable,
-              custom_inputs: customInputValues,
+          const formPatch: Record<string, unknown> & { billable?: boolean | null } = {
+            project,
+            category: expenseCategory,
+            dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
+            vendor_id: etxn.tx.vendor
+              ? {
+                  display_name: etxn.tx.vendor,
+                }
+              : null,
+            purpose: etxn.tx.purpose,
+            report,
+            tax_amount: etxn.tx.tax_amount,
+            location_1: etxn.tx.locations[0],
+            location_2: etxn.tx.locations[1],
+            from_dt: etxn.tx.from_dt && dayjs(etxn.tx.from_dt).format('YYYY-MM-DD'),
+            to_dt: etxn.tx.to_dt && dayjs(etxn.tx.to_dt).format('YYYY-MM-DD'),
+            flight_journey_travel_class: etxn.tx.flight_journey_travel_class,
+            flight_return_travel_class: etxn.tx.flight_return_travel_class,
+            train_travel_class: etxn.tx.train_travel_class,
+            bus_travel_class: etxn.tx.bus_travel_class,
+            distance: etxn.tx.distance,
+            distance_unit: etxn.tx.distance_unit,
+            custom_inputs: customInputValues,
+            hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided,
+          };
 
-              hotel_is_breakfast_provided: etxn.tx.hotel_is_breakfast_provided,
-            },
-            {
-              emitEvent: false,
-            },
-          );
+          if (etxn.tx.id) {
+            formPatch.billable = etxn.tx.billable;
+          }
+
+          this.fg.patchValue(formPatch, { emitEvent: false });
 
           this.fg.patchValue({
             costCenter,
@@ -2483,11 +2483,28 @@ export class AddEditExpensePage implements OnInit {
         switchMap(() => txnFieldsMap$),
         tap((txnFields) => {
           this.showBillable = txnFields?.billable?.is_enabled;
+
+          const projectControl = this.fg.controls.project;
+          const billableControl = this.fg.controls.billable;
+          const project = projectControl.value as ProjectV2 | null;
+
+          if (!billableControl.dirty) {
+            if (this.showBillable && project) {
+              if (projectControl.dirty) {
+                billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+              } else {
+                billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+                  emitEvent: false,
+                });
+              }
+            } else {
+              billableControl.patchValue(false, { emitEvent: false });
+            }
+          }
         }),
         map((txnFields) => this.expenseFieldsService.getDefaultTxnFieldValues(txnFields)),
       )
       .subscribe((defaultValues) => {
-        this.billableDefaultValue = defaultValues.billable;
         const keyToControlMap: {
           [id: string]: AbstractControl;
         } = {
@@ -2505,7 +2522,6 @@ export class AddEditExpensePage implements OnInit {
           flight_return_travel_class: this.fg.controls.flight_return_travel_class,
           train_travel_class: this.fg.controls.train_travel_class,
           bus_travel_class: this.fg.controls.bus_travel_class,
-          billable: this.fg.controls.billable,
           tax_group_id: this.fg.controls.tax_group,
         };
 
@@ -2513,24 +2529,16 @@ export class AddEditExpensePage implements OnInit {
           if (defaultValues.hasOwnProperty(defaultValueColumn)) {
             const control = keyToControlMap[defaultValueColumn];
 
-            if (
-              !['vendor_id', 'billable', 'tax_group_id'].includes(defaultValueColumn) &&
-              !control.value &&
-              !control.touched
-            ) {
+            if (!control) {
+              continue;
+            }
+
+            if (!['vendor_id', 'tax_group_id'].includes(defaultValueColumn) && !control.value && !control.touched) {
               control.patchValue(defaultValues[defaultValueColumn]);
             } else if (defaultValueColumn === 'vendor_id' && !control.value && !control.touched) {
               control.patchValue({
                 display_name: defaultValues[defaultValueColumn],
               });
-            } else if (
-              defaultValueColumn === 'billable' &&
-              this.fg.controls.project.value &&
-              (control.value === null || control.value === undefined) &&
-              !control.touched
-            ) {
-              const project = this.fg.controls.project.value as ProjectV2;
-              control.patchValue(this.showBillable ? !!project.default_billable : false);
             } else if (
               defaultValueColumn === 'tax_group_id' &&
               !control.value &&
@@ -2684,6 +2692,11 @@ export class AddEditExpensePage implements OnInit {
         for (const txnFieldKey of Object.keys(txnFieldsCopy)) {
           const control = keyToControlMap[txnFieldKey];
           const expenseField = txnFieldsCopy[txnFieldKey] as ExpenseField;
+
+          if (!control) {
+            continue;
+          }
+
           if (expenseField.is_mandatory) {
             if (txnFieldKey === 'vendor_id') {
               if (isConnected) {
@@ -2774,14 +2787,28 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((initialProject) =>
         this.fg.controls.project.valueChanges.pipe(
-          startWith(initialProject),
+          startWith(this.fg.controls.project.value || initialProject),
           tap((project: ProjectV2 | null) => {
+            const projectControl = this.fg.controls.project;
+            const billableControl = this.fg.controls.billable;
+
             if (!project) {
-              this.fg.patchValue({ billable: false });
+              if (projectControl.dirty) {
+                billableControl.patchValue(false, { emitEvent: false });
+              }
+              return;
+            }
+
+            if (this.showBillable) {
+              if (projectControl.dirty) {
+                billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+              } else {
+                billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+                  emitEvent: false,
+                });
+              }
             } else {
-              this.fg.patchValue({
-                billable: !!(this.showBillable && project.default_billable),
-              });
+              billableControl.patchValue(false, { emitEvent: false });
             }
           }),
           switchMap((project: ProjectV2 | null) => {
