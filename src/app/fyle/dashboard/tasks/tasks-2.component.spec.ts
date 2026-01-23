@@ -212,7 +212,8 @@ export function TestCases2(getTestBed) {
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
         popoverController.create.and.resolveTo(addCardPopoverSpy);
-        spyOn(component, 'handleEnrollmentSuccess');
+        corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+        spyOn(component, 'handleEnrollmentSuccess').and.stub();
 
         fixture.detectChanges();
         component.onAddCorporateCardClick();
@@ -234,7 +235,8 @@ export function TestCases2(getTestBed) {
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: null });
         popoverController.create.and.resolveTo(addCardPopoverSpy);
-        const enrollmentSuccessSpy = spyOn(component, 'handleEnrollmentSuccess');
+        corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+        const enrollmentSuccessSpy = spyOn(component, 'handleEnrollmentSuccess').and.stub();
 
         fixture.detectChanges();
         component.onAddCorporateCardClick();
