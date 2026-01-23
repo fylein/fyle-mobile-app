@@ -77,7 +77,9 @@ export class OrgUserService {
 
   postUser(user: User): Observable<User> {
     globalCacheBusterNotifier.next();
-    return this.apiService.post('/users', user);
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<User>>('/users', { data: user })
+      .pipe(map((res) => res.data));
   }
 
   postOrgUser(orgUser: Partial<OrgUser>): Observable<Partial<OrgUser>> {

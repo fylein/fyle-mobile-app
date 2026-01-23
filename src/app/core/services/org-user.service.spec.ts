@@ -143,9 +143,13 @@ describe('OrgUserService', () => {
   });
 
   it('should be able to post user', (done) => {
-    apiService.post.and.returnValue(of(postUserResponse));
+    const platformResponse = { data: postUserResponse };
+    spenderPlatformV1ApiService.post.and.returnValue(of(platformResponse));
     orgUserService.postUser(postUserParam).subscribe((res) => {
       expect(res).toEqual(postUserResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/users', {
+        data: postUserParam,
+      });
       done();
     });
   });
