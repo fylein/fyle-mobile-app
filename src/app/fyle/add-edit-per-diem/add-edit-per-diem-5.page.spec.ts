@@ -831,5 +831,85 @@ export function TestCases5(getTestBed) {
         expect(component.fg.controls.billable.value).toBeTrue();
       }));
     });
+
+    describe('getTransactionFields(): billable defaulting', () => {
+      beforeEach(() => {
+        (expenseFieldsService.getAllMap as jasmine.Spy).and.returnValue(of({} as any));
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(of({} as any));
+        spyOn(component as any, 'getPerDiemCategories').and.returnValue(of({ defaultPerDiemCategory: {} } as any));
+      });
+
+      it('should set billable to false when billable is disabled at org level', fakeAsync(() => {
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: false } } as any),
+        );
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: true });
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should use project default_billable when user changes project (project control is dirty)', fakeAsync(() => {
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = true;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: false });
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not override billable when user has interacted with billable control (billable control is dirty)', fakeAsync(() => {
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = false;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: false });
+        component.fg.controls.billable.setValue(true);
+        component.fg.controls.billable.markAsDirty();
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project default_billable is null and user changes project', fakeAsync(() => {
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = true;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: null });
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when expenseLevelBillable and project default_billable are null', fakeAsync(() => {
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = null;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: null });
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+    });
   });
 }
