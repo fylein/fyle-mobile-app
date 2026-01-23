@@ -181,6 +181,19 @@ describe('OrgUserService', () => {
     });
   });
 
+  it('sendDeviceToken(): should send device token to the backend', (done) => {
+    const token = 'test-device-token';
+    spenderPlatformV1ApiService.post.and.returnValue(of({}));
+
+    orgUserService.sendDeviceToken(token).subscribe((res) => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/users/device_token', {
+        data: { token },
+      });
+      expect(res).toEqual({});
+      done();
+    });
+  });
+
   it('should return false if the user is not switched to a delegator', (done) => {
     jwtHelperService.decodeToken.and.returnValue(accessTokenData);
     // This token contains the user details such as user id, org id, org user id, roles, scopes, etc.
