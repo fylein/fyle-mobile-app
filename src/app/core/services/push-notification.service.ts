@@ -66,9 +66,9 @@ export class PushNotificationService {
 
   private addNotificationClickListener(): void {
     PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
-      const data = (event?.notification?.data as { url?: string; actionType?: string } | undefined) ?? {};
-      const url = data.url;
-      const actionType = data.actionType;
+      const data = (event?.notification?.data as { cta_url?: string; notification_type?: string } | undefined) ?? {};
+      const url = data.cta_url;
+      const actionType = data.notification_type;
 
       if (!url || typeof url !== 'string') {
         return;
