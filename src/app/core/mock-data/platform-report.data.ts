@@ -15,6 +15,7 @@ export const mockQueryParamsForCount: ReportsQueryParams = deepFreeze({
 });
 
 export const platformReportData: Report = deepFreeze({
+  auto_approval_state: null,
   amount: 0,
   comments: [],
   approvals: [
@@ -109,6 +110,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
+      auto_approval_state: null,
       amount: 100,
       comments: [
         {
@@ -228,6 +230,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       user_id: 'usvKA4X8Ugcr',
     },
     {
+      auto_approval_state: null,
       amount: 200,
       approvals: [],
       comments: [],
@@ -298,6 +301,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
   count: 4,
   data: [
     {
+      auto_approval_state: null,
       amount: 100,
       comments: [],
       approvals: [
@@ -382,6 +386,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       user_id: 'usvKA4X8Ugcr',
     },
     {
+      auto_approval_state: null,
       amount: 200,
       comments: [],
       approvals: [],
@@ -452,6 +457,7 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
+      auto_approval_state: null,
       amount: 200,
       comments: [],
       approvals: [],
@@ -522,6 +528,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
+      auto_approval_state: null,
       amount: 300,
       comments: [],
       approvals: [],
@@ -585,6 +592,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       user_id: 'usvKA4X8Ugcr',
     },
     {
+      auto_approval_state: null,
       amount: 400,
       comments: [],
       approvals: [],
@@ -652,6 +660,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
 });
 
 export const submittedReportData: Report = deepFreeze({
+  auto_approval_state: null,
   amount: 300,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
@@ -769,6 +778,7 @@ export const submittedReportData: Report = deepFreeze({
 });
 
 export const submittedReportDataWithApproval: Report = deepFreeze({
+  auto_approval_state: null,
   amount: 300,
   comments: [],
   approvals: [

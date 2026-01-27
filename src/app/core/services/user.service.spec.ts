@@ -3,10 +3,10 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { User } from '../models/user.model';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { userPasswordStatus } from '../mock-data/user-password-status.data';
 import { UserService } from './user.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
 const currentUserResponse = {
   id: 'usvKA4X8Ugcr',
@@ -149,11 +149,11 @@ const userPropertiesRes = {
 describe('UserService', () => {
   let userService: UserService;
   let authService: jasmine.SpyObj<AuthService>;
-  let apiService: jasmine.SpyObj<ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -163,14 +163,16 @@ describe('UserService', () => {
           useValue: authServiceSpy,
         },
         {
-          provide: ApiService,
-          useValue: apiServiceSpy,
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
       ],
     });
     userService = TestBed.inject(UserService);
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService,
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -198,10 +200,10 @@ describe('UserService', () => {
   });
 
   it('getUserPasswordStatus() :should get the user password status', (done) => {
-    apiService.get.and.returnValue(of(userPasswordStatus));
+    spenderPlatformV1ApiService.get.and.returnValue(of({ data: userPasswordStatus }));
     userService.getUserPasswordStatus().subscribe((res) => {
       expect(userPasswordStatus).toEqual(res);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/users/password_required');
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/users/password_required');
       done();
     });
   });
