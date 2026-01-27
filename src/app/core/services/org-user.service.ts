@@ -104,7 +104,7 @@ export class OrgUserService {
   sendDeviceToken(token: string): Observable<unknown> {
     const payload = {
       data: {
-        token,
+        tokens: [token],
       },
     };
 
