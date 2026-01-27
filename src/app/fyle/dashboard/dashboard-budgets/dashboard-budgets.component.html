@@ -51,7 +51,6 @@
               </div>
 
               <!-- Budget info -->
-              <!-- TODO: @SahilK-027 to Humanize amount max values -->
               <div class="dashboard-budgets__item-info">
                 <div class="dashboard-budgets__item-info-container">
                   <!-- limit -->
@@ -62,7 +61,7 @@
                     <div>
                       @if (homeCurrency(); as homeCurrency) {
                         <span class="dashboard-budgets__item-info-stat-value">{{
-                          budget.amount_limit | currency: homeCurrency
+                          budget.amount_limit | humanizeCurrency: homeCurrency
                         }}</span>
                       } @else {
                         <div class="dashboard-budgets__item-info-stat-shimmer">
@@ -97,7 +96,7 @@
                     <div>
                       @if (homeCurrency(); as homeCurrency) {
                         <span class="dashboard-budgets__item-info-stat-value">{{
-                          budget.amount_spent | currency: homeCurrency
+                          budget.amount_spent | humanizeCurrency: homeCurrency
                         }}</span>
                       } @else {
                         <div class="dashboard-budgets__item-info-stat-shimmer">
@@ -116,7 +115,7 @@
                     <div>
                       @if (homeCurrency(); as homeCurrency) {
                         <span class="dashboard-budgets__item-info-stat-value">{{
-                          budget.amount_remaining | currency: homeCurrency
+                          budget.amount_remaining | humanizeCurrency: homeCurrency
                         }}</span>
                       } @else {
                         <div class="dashboard-budgets__item-info-stat-shimmer">

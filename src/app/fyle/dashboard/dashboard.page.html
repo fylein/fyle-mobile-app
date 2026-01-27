@@ -102,7 +102,7 @@
       }
       <app-stats></app-stats>
       @if (areDashboardTabsEnabled()) {
-        <ion-segment class="dashboard--segment" (ionChange)="onTabChange($event)" [value]="activeTabState()">
+        <ion-segment mode="md" class="dashboard--segment" (ionChange)="onTabChange($event)" [value]="activeTabState()">
           <ion-segment-button value="cards" class="text-capitalize"
             >{{ 'dashboard.cardsTab' | transloco }} ({{ cardCount() }})</ion-segment-button
           >
