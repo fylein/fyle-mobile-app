@@ -471,7 +471,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
-    if (!this.platform.is('ios')) {
+    if (this.platform.is('ios')) {
       const nativeElement = this.fileUpload().nativeElement;
       nativeElement.onchange = async (): Promise<void> => {
         this.onChangeCallback(nativeElement);
@@ -517,7 +517,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       }
       if (receiptDetails && receiptDetails.dataUrl) {
         this.dataUrls.push({
-          type: receiptDetails.type,
+          type: receiptDetails.type === 'application/pdf' || receiptDetails.type === 'pdf' ? 'pdf' : 'image',
           url: receiptDetails.dataUrl,
           thumbnail: receiptDetails.dataUrl,
         });
