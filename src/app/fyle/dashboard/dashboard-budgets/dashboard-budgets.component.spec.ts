@@ -10,6 +10,7 @@ import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testin
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetTotalUtilisationInfoModalComponent } from './budget-total-utilisation-info-modal/budget-total-utilisation-info-modal.component';
 import { cloneDeep } from 'lodash';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 
 describe('DashboardBudgetsComponent', () => {
   let component: DashboardBudgetsComponent;
@@ -54,6 +55,7 @@ describe('DashboardBudgetsComponent', () => {
       providers: [
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
+        FyCurrencyPipe,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],

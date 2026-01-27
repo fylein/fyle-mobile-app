@@ -10,6 +10,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
 import { BudgetTotalUtilisationInfoModalComponent } from './budget-total-utilisation-info-modal/budget-total-utilisation-info-modal.component';
+import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -18,7 +19,7 @@ SwiperCore.use([Pagination]);
   selector: 'app-dashboard-budgets',
   templateUrl: './dashboard-budgets.component.html',
   styleUrls: ['./dashboard-budgets.component.scss'],
-  imports: [TranslocoPipe, SwiperModule, IonSkeletonText, CommonModule, MatIcon],
+  imports: [TranslocoPipe, SwiperModule, IonSkeletonText, CommonModule, MatIcon, HumanizeCurrencyPipe],
 })
 export class DashboardBudgetsComponent implements OnDestroy {
   readonly budgets = input<Budget[]>([]);
