@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, DebugElement } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { PopoverController } from '@ionic/angular/standalone';
@@ -22,7 +22,7 @@ describe('CameraOptionsPopupComponent', () => {
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'addAttachmentPickerError']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
@@ -32,29 +32,13 @@ describe('CameraOptionsPopupComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule, CameraOptionsPopupComponent,
-        MatIconTestingModule],
+      imports: [TranslocoModule, CameraOptionsPopupComponent, MatIconTestingModule],
       providers: [
-        {
-          provide: PopoverController,
-          useValue: popoverControllerSpy,
-        },
-        {
-          provide: FileService,
-          useValue: fileServiceSpy,
-        },
-        {
-          provide: TrackingService,
-          useValue: trackingServiceSpy,
-        },
-        {
-          provide: LoaderService,
-          useValue: loaderServiceSpy,
-        },
-        {
-          provide: TranslocoService,
-          useValue: translocoServiceSpy,
-        },
+        { provide: PopoverController, useValue: popoverControllerSpy },
+        { provide: FileService, useValue: fileServiceSpy },
+        { provide: TrackingService, useValue: trackingServiceSpy },
+        { provide: LoaderService, useValue: loaderServiceSpy },
+        { provide: TranslocoService, useValue: translocoServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -76,6 +60,8 @@ describe('CameraOptionsPopupComponent', () => {
         'cameraOptionsPopup.addMoreUsing': 'Add more using',
         'cameraOptionsPopup.clickPicture': 'Click picture',
         'cameraOptionsPopup.uploadFiles': 'Upload files',
+        'cameraOptionsPopup.uploadFile': 'Upload file',
+        'cameraOptionsPopup.uploadImage': 'Upload image',
         'cameraOptionsPopup.loaderMessage': 'Please wait...',
       };
       return translations[key] || key;
@@ -89,77 +75,32 @@ describe('CameraOptionsPopupComponent', () => {
 
   it('closeClicked(): dismiss popover', () => {
     component.closeClicked();
-
     expect(popoverController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   it('getImageFromPicture(): should get an image from the popover', fakeAsync(() => {
     popoverController.dismiss.and.resolveTo(true);
-
+    fixture.componentRef.setInput('mode', 'Edit Expense');
     component.getImageFromPicture();
     tick(500);
-
     expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ option: 'camera' });
-    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Add Expense', Category: 'Camera' });
+    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Edit Expense', Category: 'Camera' });
   }));
 
   it('showSizeLimitExceededPopover(): should show size limit exceed popup to the user', fakeAsync(() => {
     const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
     popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
-
     component.showSizeLimitExceededPopover(11534337);
     tick(500);
-
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: PopupAlertComponent,
       componentProps: {
         title: 'Size limit exceeded',
         message: 'The uploaded file is greater than 11MB in size. Please reduce the file size and try again.',
-        primaryCta: {
-          text: 'OK',
-        },
+        primaryCta: { text: 'OK' },
       },
       cssClass: 'pop-up-in-center',
     });
-  }));
-
-  it('onChangeCallback(): should call upload file callback', fakeAsync(() => {
-    spyOn(component, 'uploadFileCallback');
-
-    const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-    const mockNativeElement = {
-      files: [mockFile],
-    } as unknown as HTMLInputElement;
-
-    component.onChangeCallback(mockNativeElement);
-    tick(500);
-
-    expect(component.uploadFileCallback).toHaveBeenCalledOnceWith(mockFile);
-  }));
-
-  it('getImageFromImagePicker():', fakeAsync(() => {
-    spyOn(component, 'onChangeCallback');
-
-    const dummyNativeElement = document.createElement('input');
-
-    component.fileUpload = {
-      nativeElement: dummyNativeElement,
-    } as DebugElement;
-
-    component.mode = 'edit';
-
-    const nativeElement = component.fileUpload.nativeElement;
-    spyOn(nativeElement, 'click').and.callThrough();
-
-    component.getImageFromImagePicker();
-    fixture.detectChanges();
-    tick(500);
-
-    nativeElement.dispatchEvent(new Event('change'));
-
-    expect(component.onChangeCallback).toHaveBeenCalledOnceWith(nativeElement);
-    expect(nativeElement.click).toHaveBeenCalledTimes(1);
-    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Edit Expense', Category: 'Camera' });
   }));
 
   describe('uploadFileCallback():', () => {
@@ -167,10 +108,8 @@ describe('CameraOptionsPopupComponent', () => {
       fileService.readFile.and.resolveTo('file');
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
-
       component.uploadFileCallback(file);
       tick(500);
-
       expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
         type: file.type,
@@ -183,13 +122,10 @@ describe('CameraOptionsPopupComponent', () => {
       const newSize = MAX_FILE_SIZE + 1;
       const myBlob = new Blob([new ArrayBuffer(newSize)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
-
       spyOn(component, 'closeClicked');
       spyOn(component, 'showSizeLimitExceededPopover');
-
       component.uploadFileCallback(file);
       tick(500);
-
       expect(component.closeClicked).toHaveBeenCalledTimes(1);
       expect(component.showSizeLimitExceededPopover).toHaveBeenCalledTimes(1);
     }));
@@ -197,10 +133,8 @@ describe('CameraOptionsPopupComponent', () => {
     it('should take no action if file is not present', fakeAsync(() => {
       spyOn(component, 'closeClicked');
       spyOn(component, 'showSizeLimitExceededPopover');
-
       component.uploadFileCallback(null);
       tick(500);
-
       expect(fileService.readFile).not.toHaveBeenCalled();
       expect(popoverController.dismiss).not.toHaveBeenCalled();
       expect(component.closeClicked).toHaveBeenCalledTimes(1);
@@ -208,27 +142,19 @@ describe('CameraOptionsPopupComponent', () => {
     }));
 
     it('should show loader if file reading takes more than 300ms', fakeAsync(() => {
-      // Setup delayed file read response
-      let resolveFileRead;
+      let resolveFileRead: (v: string) => void;
       const fileReadPromise: Promise<string> = new Promise((resolve) => {
         resolveFileRead = resolve;
       });
       fileService.readFile.and.returnValue(fileReadPromise);
       loaderService.showLoader.and.resolveTo();
-
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
-
       component.uploadFileCallback(file);
-
-      // Fast-forward just beyond the 300ms threshold
       tick(301);
       expect(loaderService.showLoader).toHaveBeenCalledWith('Please wait...', 5000);
-
-      // Resolve file read and complete the operation
-      resolveFileRead('file-data');
+      resolveFileRead!('file-data');
       tick(100);
-
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
         type: file.type,

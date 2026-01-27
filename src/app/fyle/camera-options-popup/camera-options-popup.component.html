@@ -1,0 +1,35 @@
+<div class="camera-options">
+  @if (showHeader()) {
+    <div class="camera-options--header-container">
+      <div class="camera-options--header-container__header">{{ 'cameraOptionsPopup.addMoreUsing' | transloco }}</div>
+    </div>
+  }
+  <div class="camera-options--element camera-options--element-first" matRipple (click)="getImageFromPicture()">
+    <div class="camera-options--icon-container">
+      <mat-icon
+        class="camera-options--icon-container__icon camera-options--icon-container__icon--camera"
+        svgIcon="camera"
+      ></mat-icon>
+    </div>
+    <div class="camera-options--content">{{ 'cameraOptionsPopup.clickPicture' | transloco }}</div>
+  </div>
+  <div class="camera-options--element camera-options--element-second" data-testid="upload-file-button" matRipple (click)="getFileFromFilePicker()">
+    <div class="camera-options--icon-container">
+      <mat-icon
+        class="camera-options--icon-container__icon camera-options--icon-container__icon--gallery"
+        svgIcon="file-pdf"
+      ></mat-icon>
+    </div>
+    <div class="camera-options--content">{{ 'cameraOptionsPopup.uploadFile' | transloco }}</div>
+  </div>
+  <div class="camera-options--element" data-testid="upload-image-button" matRipple (click)="getImageFromImagePicker()">
+    <div class="camera-options--icon-container">
+      <mat-icon
+        class="camera-options--icon-container__icon camera-options--icon-container__icon--gallery"
+        svgIcon="image"
+      ></mat-icon>
+    </div>
+    <div class="camera-options--content">{{ 'cameraOptionsPopup.uploadImage' | transloco }}</div>
+  </div>
+  <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
+</div>

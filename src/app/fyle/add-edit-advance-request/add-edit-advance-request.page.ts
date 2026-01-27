@@ -20,7 +20,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -468,10 +468,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async addAttachments(event: Event): Promise<void> {
+  async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
-    if (this.platform.is('ios')) {
+    if (!this.platform.is('ios')) {
       const nativeElement = this.fileUpload().nativeElement;
       nativeElement.onchange = async (): Promise<void> => {
         this.onChangeCallback(nativeElement);
@@ -481,6 +481,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       const cameraOptionsPopup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
+        componentProps: {
+          mode: this.mode === 'edit' ? 'Edit Advance Request' : 'Add Advance Request',
+          showHeader: isAddMore,
+        },
       });
 
       await cameraOptionsPopup.present();

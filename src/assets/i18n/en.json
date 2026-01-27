@@ -1261,6 +1261,8 @@
   "cameraOptionsPopup": {
     "clickAPicture": "Click a picture",
     "uploadFiles": "Upload files",
+    "uploadFile": "Upload file",
+    "uploadImage": "Upload image",
     "loaderMessage": "Please wait...",
     "sizeLimitExceededTitle": "Size limit exceeded",
     "sizeLimitExceededMessage": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
