@@ -275,7 +275,7 @@
                 </div>
               }
 
-              @if (!isPendingGasCharge()) {
+              @if (isPendingGasCharge()) {
                 <app-pending-gas-charge-info [isExpenseListView]="true"></app-pending-gas-charge-info>
               }
             </div>
