@@ -2,8 +2,8 @@
 import { Component, ElementRef, input, OnInit, viewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
-import { FilePicker } from '@whiteguru/capacitor-plugin-file-picker';
 import { FileService } from 'src/app/core/services/file.service';
+import { FilePickerService } from 'src/app/core/services/file-picker.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
@@ -29,6 +29,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   private loaderService = inject(LoaderService);
 
   private translocoService = inject(TranslocoService);
+
+  private filePickerService = inject(FilePickerService);
 
   /** Label for tracking: 'Add Expense' | 'Edit Expense' | 'Add Advance Request' | 'Edit Advance Request' */
   readonly mode = input<string>();
@@ -121,7 +123,7 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   private async pickAndUpload(mimes: string[], category: string): Promise<void> {
     try {
-      const result = await FilePicker.pick({
+      const result = await this.filePickerService.pick({
         multiple: false,
         mimes,
       });
