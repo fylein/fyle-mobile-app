@@ -108,7 +108,7 @@ export class OrgUserService {
       },
     };
 
-    return this.spenderPlatformV1ApiService.post('/users/device_token', payload);
+    return this.spenderPlatformV1ApiService.post('/device_token', payload);
   }
 
   getUserById(userId: string): Observable<EouApiResponse> {
