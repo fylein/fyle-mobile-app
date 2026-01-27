@@ -1260,7 +1260,6 @@
   },
   "cameraOptionsPopup": {
     "clickAPicture": "Click a picture",
-    "uploadFiles": "Upload files",
     "uploadFile": "Upload file",
     "uploadImage": "Upload image",
     "loaderMessage": "Please wait...",
