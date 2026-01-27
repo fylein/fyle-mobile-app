@@ -1,5 +1,5 @@
 // component will be used only for android
-import { Component, ElementRef, input, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, input, OnInit, viewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { FilePicker } from '@whiteguru/capacitor-plugin-file-picker';
@@ -36,7 +36,7 @@ export class CameraOptionsPopupComponent implements OnInit {
   /** Show "Add more using" header when true (e.g. edit mode and a receipt is already present) */
   readonly showHeader = input<boolean>(false);
 
-  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
   ngOnInit(): void {
     return;
@@ -105,7 +105,7 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   private triggerFileInput(accept: string): void {
-    const input = this.fileUpload?.nativeElement;
+    const input = this.fileUpload()?.nativeElement;
     if (!input) return;
     input.accept = accept;
     input.onchange = (): void => {
@@ -133,7 +133,8 @@ export class CameraOptionsPopupComponent implements OnInit {
 
       const file = await this.pickedFileToFile(picked);
       await this.uploadFileCallback(file);
-    } catch (error) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
       this.trackingService.filePickerError({ Mode: this.mode(), Category: category, error });
       // User cancelled or picker failed – no-op, popover stays open
     }

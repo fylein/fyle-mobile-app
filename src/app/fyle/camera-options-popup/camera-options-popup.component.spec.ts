@@ -22,7 +22,7 @@ describe('CameraOptionsPopupComponent', () => {
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'addAttachmentPickerError']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'filePickerError']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {

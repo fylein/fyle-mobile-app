@@ -478,50 +478,54 @@ export class AddEditAdvanceRequestPage implements OnInit {
       };
       nativeElement.click();
     } else {
-      const cameraOptionsPopup = await this.popoverController.create({
-        component: CameraOptionsPopupComponent,
-        cssClass: 'camera-options-popover',
+      await this.openAndroidAttachmentPopover(isAddMore);
+    }
+  }
+
+  private async openAndroidAttachmentPopover(isAddMore: boolean): Promise<void> {
+    const cameraOptionsPopup = await this.popoverController.create({
+      component: CameraOptionsPopupComponent,
+      cssClass: 'camera-options-popover',
+      componentProps: {
+        mode: this.mode === 'edit' ? 'Edit Advance Request' : 'Add Advance Request',
+        showHeader: isAddMore,
+      },
+    });
+
+    await cameraOptionsPopup.present();
+
+    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
+      dataUrl: string;
+      type: string;
+      option?: string;
+    }>();
+
+    if (receiptDetails && receiptDetails.option === 'camera') {
+      const captureReceiptModal = await this.modalController.create({
+        component: CaptureReceiptComponent,
         componentProps: {
-          mode: this.mode === 'edit' ? 'Edit Advance Request' : 'Add Advance Request',
-          showHeader: isAddMore,
+          isModal: true,
+          allowGalleryUploads: false,
+          allowBulkFyle: false,
         },
+        cssClass: 'hide-modal',
       });
+      await captureReceiptModal.present();
+      this.isCameraPreviewStarted = true;
 
-      await cameraOptionsPopup.present();
+      const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
+      this.isCameraPreviewStarted = false;
 
-      let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
-        dataUrl: string;
-        type: string;
-        option?: string;
-      }>();
-
-      if (receiptDetails && receiptDetails.option === 'camera') {
-        const captureReceiptModal = await this.modalController.create({
-          component: CaptureReceiptComponent,
-          componentProps: {
-            isModal: true,
-            allowGalleryUploads: false,
-            allowBulkFyle: false,
-          },
-          cssClass: 'hide-modal',
-        });
-        await captureReceiptModal.present();
-        this.isCameraPreviewStarted = true;
-
-        const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
-        this.isCameraPreviewStarted = false;
-
-        if (data && data.dataUrl) {
-          receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
-        }
+      if (data && data.dataUrl) {
+        receiptDetails = { ...data, type: this.fileService.getImageTypeFromDataUrl(data.dataUrl) };
       }
-      if (receiptDetails && receiptDetails.dataUrl) {
-        this.dataUrls.push({
-          type: receiptDetails.type === 'application/pdf' || receiptDetails.type === 'pdf' ? 'pdf' : 'image',
-          url: receiptDetails.dataUrl,
-          thumbnail: receiptDetails.dataUrl,
-        });
-      }
+    }
+    if (receiptDetails && receiptDetails.dataUrl) {
+      this.dataUrls.push({
+        type: receiptDetails.type === 'application/pdf' || receiptDetails.type === 'pdf' ? 'pdf' : 'image',
+        url: receiptDetails.dataUrl,
+        thumbnail: receiptDetails.dataUrl,
+      });
     }
   }
 
