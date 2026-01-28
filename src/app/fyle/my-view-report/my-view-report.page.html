@@ -243,6 +243,15 @@
               </div>
             }
           </div>
+          @if (showArsManualExpensesAlert$ | async) {
+            <div class="view-reports--ars-alert" (click)="onArsAlertClick($event)">
+              <app-fy-alert-info
+                type="information"
+                [allowHtml]="true"
+                [message]="'myViewReport.arsManualExpensesAlertMessage' | transloco"
+              ></app-fy-alert-info>
+            </div>
+          }
           <div class="view-reports--segment-block-container">
             <div class="view-reports--segment-block-container__btn-wrapper">
               <ion-segment
