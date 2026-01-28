@@ -23,6 +23,8 @@ export class FileService {
 
   private approverService = inject(ApproverService);
 
+  private heic2any = heic2any;
+
   private findByAdvanceRequestIdWithService(
     advanceRequestId: string,
     service: SpenderService | ApproverService,
@@ -177,7 +179,7 @@ export class FileService {
   readFile(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       if (file.type === 'image/heic') {
-        heic2any({
+        this.heic2any({
           blob: file,
           toType: 'image/jpeg',
           quality: 50,
