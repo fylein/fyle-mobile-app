@@ -72,6 +72,7 @@
     "@types/google.maps": "^3.49.2",
     "@types/hammerjs": "^2.0.41",
     "@typescript-eslint/rule-tester": "^8.39.0",
+    "@whiteguru/capacitor-plugin-file-picker": "^7.0.1",
     "capacitor-native-settings": "^7.0.0",
     "capacitor-secure-storage-plugin": "0.11.0",
     "cordova-plugin-googleplus": "^8.5.2",
