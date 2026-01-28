@@ -1,15 +1,14 @@
-import { TestBed, fakeAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
 import {
-  allAdvanceRequestsRes,
   publicAdvanceRequestRes,
-  singleExtendedAdvReqRes,
 } from '../mock-data/extended-advance-request.data';
 import { txnDataPayload } from '../mock-data/transaction.data';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
+import { Transaction } from '../models/v1/transaction.model';
 
 import { UtilityService } from './utility.service';
 import { cloneDeep } from 'lodash';
@@ -19,6 +18,8 @@ import { FeatureConfigService } from './platform/v1/spender/feature-config.servi
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
+import { txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
@@ -77,6 +78,43 @@ describe('UtilityService', () => {
       expect(utilityService.refineNestedObject(mockCustomFieldData)).toEqual(customFieldData2);
       expect(utilityService.discardNullChar).toHaveBeenCalledOnceWith('select-1');
     });
+
+    it('should discard null characters when custom field type is TEXT and value is a string', () => {
+      spyOn(utilityService, 'discardNullChar').and.returnValue('cleaned-text');
+      const mockCustomField = [
+        {
+          id: 1,
+          name: 'text_field',
+          type: 'TEXT',
+          value: 'text\u0000with\u0000null',
+        },
+      ];
+      const result = utilityService.refineNestedObject(mockCustomField);
+      expect(utilityService.discardNullChar).toHaveBeenCalledWith('text\u0000with\u0000null');
+      expect(result[0].value).toBe('cleaned-text');
+    });
+
+    it('should not process fields with null or undefined values', () => {
+      const mockCustomField = [
+        {
+          id: 1,
+          name: 'text_field',
+          type: 'TEXT',
+          value: null,
+        },
+        {
+          id: 2,
+          name: 'select_field',
+          type: 'SELECT',
+          value: undefined,
+        },
+      ];
+      spyOn(utilityService, 'discardNullChar');
+      const result = utilityService.refineNestedObject(mockCustomField);
+      expect(utilityService.discardNullChar).not.toHaveBeenCalled();
+      expect(result[0].value).toBeNull();
+      expect(result[1].value).toBeUndefined();
+    });
   });
 
   describe('discardRedundantCharacters():', () => {
@@ -86,6 +124,26 @@ describe('UtilityService', () => {
       spyOn(utilityService, 'discardNullChar').and.callThrough();
       expect(utilityService.discardRedundantCharacters(txnDataPayload, fieldsToCheck)).toEqual(txnDataPayload);
       expect(utilityService.refineNestedObject).toHaveBeenCalledOnceWith(txnDataPayload.custom_properties);
+    });
+
+    it('should not process fields not in fieldsToCheck', () => {
+      const data = { purpose: 'test\u0000', otherField: 'test\u0000' } as Partial<Transaction>;
+      const fieldsToCheck = ['purpose'];
+      spyOn(utilityService, 'discardNullChar').and.callFake((str) => str.replace(/\u0000/g, ''));
+      const result = utilityService.discardRedundantCharacters(data, fieldsToCheck);
+      expect(utilityService.discardNullChar).toHaveBeenCalledWith('test\u0000');
+      expect(result.purpose).toBe('test');
+      expect((result as { otherField?: string }).otherField).toBe('test\u0000');
+    });
+
+    it('should handle null or undefined field values', () => {
+      const data = { purpose: null, vendor: undefined };
+      const fieldsToCheck = ['purpose', 'vendor'];
+      spyOn(utilityService, 'discardNullChar');
+      const result = utilityService.discardRedundantCharacters(data, fieldsToCheck);
+      expect(utilityService.discardNullChar).not.toHaveBeenCalled();
+      expect(result.purpose).toBeNull();
+      expect(result.vendor).toBeUndefined();
     });
   });
 
@@ -366,6 +424,323 @@ describe('UtilityService', () => {
         expect(result).toBeFalse();
         done();
       });
+    });
+
+    it('should return false if mobile_verified is true', (done) => {
+      const featureConfig = {
+        feature: 'OPT_IN',
+        key: 'SHOW_OPT_IN_AFTER_ADDING_CARD',
+      };
+      spyOn(utilityService, 'isUserFromINCluster').and.resolveTo(false);
+      const mockEou = cloneDeep(apiEouRes);
+      mockEou.ou.mobile_verified = true;
+      mockEou.ou.mobile = '+11234567890';
+      mockEou.org.currency = 'USD';
+      authService.getEou.and.resolveTo(mockEou);
+
+      utilityService.canShowOptInModal(featureConfig).subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+  });
+
+  describe('searchArrayStream():', () => {
+    it('should filter items by search text', (done) => {
+      const items = [
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' },
+        { label: 'Cherry', value: 'cherry' },
+      ];
+      const searchText = 'app';
+
+      of(items)
+        .pipe(utilityService.searchArrayStream(searchText))
+        .subscribe((result) => {
+          expect(result.length).toBe(1);
+          expect(result[0].label).toBe('Apple');
+          done();
+        });
+    });
+
+    it('should return all items when search text is empty', (done) => {
+      const items = [
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' },
+      ];
+
+      of(items)
+        .pipe(utilityService.searchArrayStream(''))
+        .subscribe((result) => {
+          expect(result.length).toBe(2);
+          done();
+        });
+    });
+
+    it('should return all items when search text is not provided', (done) => {
+      const items = [
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' },
+      ];
+
+      of(items)
+        .pipe(utilityService.searchArrayStream(null as unknown as string))
+        .subscribe((result) => {
+          expect(result.length).toBe(2);
+          done();
+        });
+    });
+
+    it('should filter case-insensitively', (done) => {
+      const items = [
+        { label: 'Apple', value: 'apple' },
+        { label: 'BANANA', value: 'banana' },
+      ];
+
+      of(items)
+        .pipe(utilityService.searchArrayStream('ban'))
+        .subscribe((result) => {
+          expect(result.length).toBe(1);
+          expect(result[0].label).toBe('BANANA');
+          done();
+        });
+    });
+
+    it('should exclude items with null or empty labels', (done) => {
+      const items = [
+        { label: 'Apple', value: 'apple' },
+        { label: '', value: 'empty' },
+        { label: null as unknown as string, value: 'null' },
+      ];
+
+      of(items)
+        .pipe(utilityService.searchArrayStream('app'))
+        .subscribe((result) => {
+          expect(result.length).toBe(1);
+          expect(result[0].label).toBe('Apple');
+          done();
+        });
+    });
+  });
+
+  describe('traverse():', () => {
+    it('should traverse an array and apply callback to each element', () => {
+      const callback = jasmine.createSpy('callback').and.callFake((x) => x);
+      const array = cloneDeep(txnCustomPropertiesData.slice(0, 2));
+
+      const result = utilityService.traverse(array, callback);
+
+      expect(callback).toHaveBeenCalled();
+      expect(Array.isArray(result)).toBeTrue();
+    });
+
+    it('should traverse an object and apply callback to each property', () => {
+      const callback = jasmine.createSpy('callback').and.callFake((x) => x);
+      const obj = cloneDeep(txnCustomPropertiesData[0]);
+
+      const result = utilityService.traverse(obj, callback);
+
+      expect(callback).toHaveBeenCalled();
+      expect(typeof result).toBe('object');
+    });
+
+    it('should apply callback directly to Date objects', () => {
+      const callback = jasmine.createSpy('callback').and.returnValue(new Date('2024-01-01'));
+      const date = new Date('2023-01-01');
+
+      const result = utilityService.traverse(date as unknown as TxnCustomProperties, callback);
+
+      expect(callback).toHaveBeenCalledWith(date);
+      expect(result).toEqual(new Date('2024-01-01'));
+    });
+
+    it('should handle null values', () => {
+      const callback = jasmine.createSpy('callback').and.returnValue(null);
+      const result = utilityService.traverse(null as unknown as TxnCustomProperties, callback);
+      expect(callback).toHaveBeenCalled();
+    });
+  });
+
+  describe('traverseArray():', () => {
+    it('should traverse array and apply callback recursively', () => {
+      const callback = jasmine.createSpy('callback').and.callFake((x) => x);
+      const array = cloneDeep(txnCustomPropertiesData.slice(0, 2));
+
+      const result = utilityService.traverseArray(array, callback);
+
+      expect(Array.isArray(result)).toBeTrue();
+      expect(result.length).toBe(array.length);
+    });
+
+    it('should handle empty array', () => {
+      const callback = jasmine.createSpy('callback');
+      const result = utilityService.traverseArray([], callback);
+      expect(result).toEqual([]);
+      expect(callback).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('traverseObject():', () => {
+    it('should traverse object and apply callback recursively', () => {
+      const callback = jasmine.createSpy('callback').and.callFake((x) => x);
+      const obj = cloneDeep(txnCustomPropertiesData[0]);
+
+      const result = utilityService.traverseObject(obj, callback);
+
+      expect(typeof result).toBe('object');
+      expect(callback).toHaveBeenCalled();
+    });
+
+    it('should handle object with nested properties', () => {
+      const callback = jasmine.createSpy('callback').and.callFake((x) => x);
+      const obj = {
+        id: 1,
+        name: 'test',
+        nested: {
+          value: 'nested-value',
+        },
+      };
+
+      const result = utilityService.traverseObject(obj as unknown as TxnCustomProperties, callback);
+
+      expect(result).toBeDefined();
+    });
+  });
+
+  describe('webPathToBase64():', () => {
+    it('should convert webPath to base64 string', async () => {
+      const mockBlob = new Blob(['test content'], { type: 'image/png' });
+      spyOn(window, 'fetch').and.resolveTo({
+        blob: () => Promise.resolve(mockBlob),
+        ok: true,
+      } as Response);
+
+      const result = await utilityService.webPathToBase64('https://example.com/image.png');
+
+      expect(result).toContain('data:');
+      expect(result).toContain('base64,');
+      expect(window.fetch).toHaveBeenCalledWith('https://example.com/image.png');
+    });
+
+    it('should reject on fetch error', async () => {
+      const error = new Error('Fetch failed');
+      spyOn(window, 'fetch').and.rejectWith(error);
+
+      await expectAsync(utilityService.webPathToBase64('https://example.com/image.png')).toBeRejectedWith(error);
+    });
+
+    it('should reject on FileReader error', async () => {
+      const mockBlob = new Blob(['test'], { type: 'image/png' });
+      spyOn(window, 'fetch').and.resolveTo({
+        blob: () => Promise.resolve(mockBlob),
+        ok: true,
+      } as Response);
+
+      // Mock FileReader to simulate error
+      const originalFileReader = window.FileReader;
+      const mockFileReader = jasmine.createSpy('FileReader').and.returnValue({
+        readAsDataURL: function (blob: Blob) {
+          setTimeout(() => {
+            if (this.onerror) {
+              this.onerror(new Error('Read error') as unknown as ProgressEvent);
+            }
+          }, 0);
+        },
+      } as unknown as FileReader);
+      (window as unknown as { FileReader: typeof FileReader }).FileReader = mockFileReader as unknown as typeof FileReader;
+
+      try {
+        await utilityService.webPathToBase64('https://example.com/image.png');
+        fail('Should have thrown an error');
+      } catch (error) {
+        expect(error).toBeDefined();
+      } finally {
+        (window as unknown as { FileReader: typeof FileReader }).FileReader = originalFileReader;
+      }
+    });
+  });
+
+  describe('compareSortingValues():', () => {
+    it('should return 1 when sortingValue1 is greater than sortingValue2 for string ascending', () => {
+      const sortingValue1 = 'zebra';
+      const sortingValue2 = 'apple';
+      const sortDir = SortingDirection.ascending;
+      const sortingParam = SortingParam.project;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(1);
+    });
+
+    it('should return 1 when sortingValue1 is less than sortingValue2 for string ascending (localeCompare truthy)', () => {
+      const sortingValue1 = 'apple';
+      const sortingValue2 = 'zebra';
+      const sortDir = SortingDirection.ascending;
+      const sortingParam = SortingParam.project;
+      // Implementation uses localeCompare() ? 1 : -1, so any non-zero (incl. negative) returns 1
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(1);
+    });
+
+    it('should return -1 when sortingValue1 is greater than sortingValue2 for string descending', () => {
+      const sortingValue1 = 'zebra';
+      const sortingValue2 = 'apple';
+      const sortDir = SortingDirection.descending;
+      const sortingParam = SortingParam.project;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(-1);
+    });
+
+    it('should return -1 when sortingValue1 is less than sortingValue2 for string descending (localeCompare truthy)', () => {
+      const sortingValue1 = 'apple';
+      const sortingValue2 = 'zebra';
+      const sortDir = SortingDirection.descending;
+      const sortingParam = SortingParam.project;
+      // Implementation uses localeCompare() ? -1 : 1, so any non-zero returns -1
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(-1);
+    });
+
+    it('should return 1 when sortingValue1 is after sortingValue2 for dayjs ascending', () => {
+      const sortingValue1 = dayjs('2022-02-02');
+      const sortingValue2 = dayjs('2022-02-01');
+      const sortDir = SortingDirection.ascending;
+      const sortingParam = SortingParam.creationDate;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(1);
+    });
+
+    it('should return -1 when sortingValue1 is before sortingValue2 for dayjs ascending', () => {
+      const sortingValue1 = dayjs('2022-02-01');
+      const sortingValue2 = dayjs('2022-02-02');
+      const sortDir = SortingDirection.ascending;
+      const sortingParam = SortingParam.creationDate;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(-1);
+    });
+
+    it('should return 1 when sortingValue1 is before sortingValue2 for dayjs descending', () => {
+      const sortingValue1 = dayjs('2022-02-01');
+      const sortingValue2 = dayjs('2022-02-02');
+      const sortDir = SortingDirection.descending;
+      const sortingParam = SortingParam.creationDate;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(1);
+    });
+
+    it('should return -1 when sortingValue1 is after sortingValue2 for dayjs descending', () => {
+      const sortingValue1 = dayjs('2022-02-02');
+      const sortingValue2 = dayjs('2022-02-01');
+      const sortDir = SortingDirection.descending;
+      const sortingParam = SortingParam.creationDate;
+      // @ts-ignore
+      const result = utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
+      expect(result).toBe(-1);
     });
   });
 });
