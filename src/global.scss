@@ -78,6 +78,11 @@ textarea:focus {
   --ion-safe-area-bottom: 0;
 }
 
+.view-reports--ars-alert-link {
+  color: colors.$brand-primary;
+  text-decoration: underline;
+}
+
 ion-popover.error-popover {
   &::part(content) {
     top: 72% !important;

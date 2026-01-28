@@ -1009,7 +1009,8 @@
     "submitReportMessage": "The expense report will be sent to your approver for review. You will be notified once they have taken action on it.<br/><br/>Do you want to continue?",
     "submitReportConfirm": "Yes, submit",
     "submitReportCancel": "No, go back",
-    "addExpense": "Add expense"
+    "addExpense": "Add expense",
+    "arsManualExpensesAlertMessage": "This report includes expenses that were submitted manually by the user. Please check the <span class=\"view-reports--ars-alert-link\">history</span> for details."
   },
   "viewDependentFields": {
     "unspecified": "Unspecified",
