@@ -649,7 +649,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetailsaRes = {
         dataUrl,
         type: 'image/png',
-        actionSource: 'upload',
       };
       const fileObj: FileObject = {
         name: '000.jpeg',
@@ -699,7 +698,6 @@ describe('ExpensesCardComponent', () => {
     expect(component.attachReceipt).toHaveBeenCalledOnceWith({
       type: 'image/png',
       dataUrl,
-      actionSource: 'gallery_upload',
     });
   }));
 
@@ -738,7 +736,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: ' data.dataUrl',
-        actionSource: 'camera',
         option: 'camera',
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
@@ -766,14 +763,12 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: 'mockDataUrl.png',
-        actionSource: 'camera',
       };
 
       const dataRes = {
         data: {
           type: 'png',
           dataUrl: 'mockDataUrl.png',
-          actionSource: 'camera',
           option: 'camera',
         },
       };

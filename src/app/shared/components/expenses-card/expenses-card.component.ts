@@ -392,7 +392,6 @@ export class ExpensesCardV1Component implements OnInit {
       receiptDetails = {
         type: file.type,
         dataUrl,
-        actionSource: 'gallery_upload',
       };
       this.attachReceipt(receiptDetails);
     } else {
@@ -422,7 +421,6 @@ export class ExpensesCardV1Component implements OnInit {
           data: {
             option?: string;
             type?: string;
-            actionSource?: string;
             dataUrl?: string;
           };
         };
@@ -452,7 +450,6 @@ export class ExpensesCardV1Component implements OnInit {
             receiptDetails = {
               type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
               dataUrl: data.dataUrl,
-              actionSource: 'camera',
             };
           }
         }
