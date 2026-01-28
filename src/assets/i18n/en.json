@@ -1353,7 +1353,11 @@
   "autoSubmissionInfoCard": {
     "nextSubmissionOn": "Next auto-submission of expense reports on",
     "completeExpenses": "Add and complete your expenses for auto-submission",
-    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings."
+    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings.",
+    "detailedHeader": "Your expense reports will be:",
+    "groupedBy": "Grouped by \"<strong>{{dimension}}</strong>\".",
+    "autoSubmittedOn": "Automatically submitted on {{date}}.",
+    "autoApprovedIf": "Auto approved (If <{{amount}} and no policy/rule/duplicate flags.)"
   },
   "stats": {
     "myExpenses": "My expenses",
