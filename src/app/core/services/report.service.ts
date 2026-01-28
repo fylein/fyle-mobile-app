@@ -7,6 +7,7 @@ import { OrgSettings } from '../models/org-settings.model';
 import { Report } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
+import { ReportApprovals } from '../models/platform/report-approvals.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { PermissionsService } from './permissions.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -52,6 +53,27 @@ export class ReportService {
   })
   clearTransactionCache(): Observable<null> {
     return this.transactionService.clearCache();
+  }
+
+  addSystemApproverName(approval: ReportApprovals): ReportApprovals {
+    if (approval?.approver_type === 'SYSTEM' && approval?.approver_user) {
+      return {
+        ...approval,
+        approver_user: {
+          ...approval.approver_user,
+          full_name: 'SYSTEM',
+        },
+      };
+    }
+    return approval;
+  }
+
+  normalizeApprovalsForDisplay(approvals: ReportApprovals[] | null | undefined): ReportApprovals[] {
+    if (!approvals?.length) {
+      return [];
+    }
+
+    return approvals.map((approval) => this.addSystemApproverName(approval));
   }
 
   @CacheBuster({

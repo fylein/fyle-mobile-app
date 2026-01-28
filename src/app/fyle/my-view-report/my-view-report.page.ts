@@ -406,18 +406,21 @@ export class MyViewReportPage {
         ),
       ),
       map((report) => {
-        this.setupComments(report);
-        this.approvals = report?.approvals;
+        const normalizedApprovals = this.reportService.normalizeApprovalsForDisplay(report?.approvals);
+        const normalizedReport = report ? { ...report, approvals: normalizedApprovals } : report;
+
+        this.setupComments(normalizedReport);
+        this.approvals = normalizedReport?.approvals;
         // filtering out disabled approvals from my view report page
         this.approvals =
-          report?.approvals?.filter((approval) =>
+          normalizedReport?.approvals?.filter((approval) =>
             [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
           ) || [];
         if (this.showViewApproverModal) {
           this.approvals.sort((a, b) => a.approver_order - b.approver_order);
-          this.setupApproverToShow(report);
+          this.setupApproverToShow(normalizedReport);
         }
-        return report;
+        return normalizedReport;
       }),
       shareReplay(1),
     );

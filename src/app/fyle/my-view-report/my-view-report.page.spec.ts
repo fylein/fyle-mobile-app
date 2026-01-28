@@ -91,7 +91,11 @@ describe('MyViewReportPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
+      'updateReportPurpose',
+      'normalizeApprovalsForDisplay',
+    ]);
+    reportServiceSpy.normalizeApprovalsForDisplay.and.callFake((approvals) => approvals || []);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
