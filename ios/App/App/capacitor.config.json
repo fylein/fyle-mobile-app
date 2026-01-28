@@ -12,6 +12,13 @@
 			"style": "LIGHT",
 			"resizeOnFullScreen": true
 		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"alert",
+				"sound",
+				"badge"
+			]
+		},
 		"AppShortcuts": {
 			"shortcuts": [
 				{

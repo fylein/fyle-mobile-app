@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { finalize, forkJoin, from, map, Observable, tap } from 'rxjs';
@@ -20,6 +20,9 @@ import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { App } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -39,7 +42,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
     TranslocoPipe
   ],
 })
-export class NotificationsBetaPage implements OnInit {
+export class NotificationsBetaPage implements OnInit, OnDestroy {
   selectedPreference: 'onlyMe' | 'onlyDelegate' | 'both';
 
   isDelegateePresent$: Observable<boolean>;
@@ -73,6 +76,8 @@ export class NotificationsBetaPage implements OnInit {
   isPushPermissionDenied = false;
 
   showMobilePushColumn = false;
+
+  appStateChangeListener: PluginListenerHandle | null = null;
 
   private router = inject(Router);
 
@@ -113,6 +118,36 @@ export class NotificationsBetaPage implements OnInit {
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
+      this.startAppStateListener();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.appStateChangeListener?.remove();
+    this.appStateChangeListener = null;
+  }
+
+  private startAppStateListener(): void {
+    if (this.appStateChangeListener) {
+      return;
+    }
+
+    App.addListener('appStateChange', async ({ isActive }) => {
+      if (!isActive || !this.showMobilePushColumn) {
+        return;
+      }
+
+      const latestPermission = await PushNotifications.checkPermissions();
+      const hasPermission = latestPermission.receive === 'granted';
+
+      if (hasPermission && this.isPushPermissionDenied) {
+        this.isPushPermissionDenied = false;
+        await PushNotifications.register();
+      } else if (!hasPermission) {
+        this.isPushPermissionDenied = true;
+      }
+    }).then((listener) => {
+      this.appStateChangeListener = listener;
     });
   }
 

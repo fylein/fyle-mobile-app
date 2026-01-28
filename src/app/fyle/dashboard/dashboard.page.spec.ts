@@ -64,6 +64,7 @@ import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboar
 import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
 import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
 // mocks
 @Component({
@@ -121,6 +122,7 @@ describe('DashboardPage', () => {
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let budgetsService: jasmine.SpyObj<BudgetsService>;
   let smartlookService: jasmine.SpyObj<SmartlookService>;
+  let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -181,6 +183,9 @@ describe('DashboardPage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
     const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
+      'initializePushNotifications',
+    ]);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -246,6 +251,10 @@ describe('DashboardPage', () => {
           provide: SmartlookService,
           useValue: smartlookServiceSpy,
         },
+        {
+          provide: PushNotificationService,
+          useValue: pushNotificationServiceSpy,
+        },
         ...getFormatPreferenceProviders(),
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -306,6 +315,10 @@ describe('DashboardPage', () => {
     budgetsService = TestBed.inject(BudgetsService) as jasmine.SpyObj<BudgetsService>;
     budgetsService.getSpenderBudgetByParams.and.returnValue(of([]));
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
+    pushNotificationService = TestBed.inject(
+      PushNotificationService,
+    ) as jasmine.SpyObj<PushNotificationService>;
+    pushNotificationService.initializePushNotifications.and.returnValue(Promise.resolve());
     fixture.detectChanges();
   }));
 

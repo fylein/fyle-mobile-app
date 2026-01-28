@@ -66,6 +66,7 @@ import { DashboardEmailOptInComponent } from '../../shared/components/dashboard-
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
@@ -108,6 +109,8 @@ SwiperCore.use([Pagination, Autoplay]);
 })
 export class DashboardPage {
   private currencyService = inject(CurrencyService);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   private networkService = inject(NetworkService);
 
@@ -684,6 +687,7 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
+    this.pushNotificationService.initializePushNotifications();
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
@@ -731,7 +735,7 @@ export class DashboardPage {
           const isCCCEnabled =
             orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
           this.areCardsEnabled.set(isCCCEnabled);
-          this.userName = eou.us.full_name;
+      this.userName = eou.us.full_name;
 
           this.isBudgetsLoading.set(true);
           return this.budgetsService.getSpenderBudgetByParams({}).pipe(
@@ -761,17 +765,18 @@ export class DashboardPage {
         }
 
         this.isDashboardConfigReady.set(true);
-      });
+    });
 
     forkJoin({
       optInBanner: optInBanner$,
       emailOptInBanner: emailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
+      showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
     })
       .pipe(take(1))
       .subscribe({
-        next: ({ showRebrandingPopup, eou }) => {
+        next: ({ showRebrandingPopup, eou, showPushNotifUi }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
             this.showRebrandingPopup().then(() => {
@@ -780,6 +785,9 @@ export class DashboardPage {
           } else {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
+          }
+          if (showPushNotifUi) {
+            this.pushNotificationService.initializePushNotifications();
           }
         },
         error: () => {

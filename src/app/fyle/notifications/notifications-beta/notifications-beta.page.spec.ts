@@ -31,6 +31,7 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PushNotifications } from '@capacitor/push-notifications';
+import { App } from '@capacitor/app';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('NotificationsBetaPage', () => {
@@ -70,6 +71,12 @@ describe('NotificationsBetaPage', () => {
     platformEmployeeSettingsServiceSpy.clearEmployeeSettings.and.returnValue(of(null));
 
     spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
+    spyOn(PushNotifications as any, 'register').and.resolveTo();
+    spyOn(App as any, 'addListener').and.returnValue(
+      Promise.resolve({
+        remove: jasmine.createSpy('remove'),
+      } as any),
+    );
     launchDarklyServiceSpy.getVariation.and.returnValue(of(true));
 
     TestBed.configureTestingModule({
