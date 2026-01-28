@@ -10,7 +10,7 @@ import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { cloneDeep } from 'lodash';
 
-fdescribe('FileService', () => {
+describe('FileService', () => {
   let fileService: FileService;
   let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let spenderService: jasmine.SpyObj<SpenderService>;
