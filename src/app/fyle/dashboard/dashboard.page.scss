@@ -17,7 +17,7 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background: colors.$white;
+    background: colors.$pure-white;
   }
 
   &--body {
@@ -28,52 +28,6 @@
   &--tabs {
     .mat-mdc-tab-header {
       display: none;
-    }
-  }
-
-  &--segment {
-    ion-segment-button {
-      --indicator-color: transparent;
-      --color: #{colors.$black-light};
-      --color-checked: #{colors.$black-light};
-      --background: transparent;
-      --background-checked: transparent;
-      --border-radius: 0;
-      --border-width: 0;
-      --border-style: none;
-      --padding-start: 0;
-      --padding-end: 0;
-      --margin-start: 0;
-      --margin-end: 16px;
-      min-width: auto;
-      font-size: 14px;
-      font-weight: 500;
-      text-transform: capitalize;
-
-      &::part(indicator-background) {
-        background: transparent;
-      }
-
-      &.segment-button-checked {
-        --color: #{colors.$black-light};
-        color: colors.$black-light !important;
-        margin: 0;
-        padding: 0;
-
-        &::part(indicator-background) {
-          background: transparent;
-        }
-      }
-
-      &.segment-button-checked::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: colors.$brand-primary;
-      }
     }
   }
 
@@ -184,6 +138,11 @@
         transform: rotate(0deg);
       }
     }
+  }
+
+  &--segment-wrapper {
+    padding: 0 16px;
+    box-sizing: border-box;
   }
 }
 
