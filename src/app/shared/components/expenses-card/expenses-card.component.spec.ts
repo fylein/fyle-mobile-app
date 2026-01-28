@@ -31,7 +31,7 @@ import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data'
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { cloneDeep } from 'lodash';
 import dayjs from 'dayjs';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';

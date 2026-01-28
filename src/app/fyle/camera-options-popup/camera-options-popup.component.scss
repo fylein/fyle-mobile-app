@@ -1,4 +1,4 @@
-@use '../../../../theme/colors.scss';
+@use '../../../theme/colors.scss';
 $details-color: #ababab;
 
 .camera-options {
@@ -6,9 +6,10 @@ $details-color: #ababab;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  padding: 0 24px 4px;
+  padding-bottom: 4px;
 
   &--header-container {
+    padding: 0 24px;
     &__header {
       color: colors.$grey-light;
       padding-top: 24px;
@@ -17,12 +18,13 @@ $details-color: #ababab;
   }
 
   &--element {
+    padding: 0 24px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     height: 35%;
 
-    &-first {
+    &-first, &-second {
       border-bottom: 1px solid colors.$grey;
     }
   }

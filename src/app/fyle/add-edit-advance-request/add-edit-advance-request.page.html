@@ -77,7 +77,7 @@
         @if (dataUrls && dataUrls.length > 0) {
           <app-receipt-preview-thumbnail
             [attachments]="dataUrls"
-            (addMoreAttachments)="addAttachments($event)"
+            (addMoreAttachments)="addAttachments($event, true)"
             (viewAttachments)="viewAttachments()"
             [canEdit]="true"
           >

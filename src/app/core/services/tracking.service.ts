@@ -215,6 +215,10 @@ export class TrackingService {
     this.eventTrack('Add Attachment', properties);
   }
 
+  filePickerError(properties: Partial<AddAttachmentProperties>): void {
+    this.eventTrack('File Picker Error', properties);
+  }
+
   addMoreFilesClicked(properties = {}): void {
     this.eventTrack('Add More Files Clicked', properties);
   }

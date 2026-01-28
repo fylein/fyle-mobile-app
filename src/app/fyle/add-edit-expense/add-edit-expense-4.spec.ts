@@ -73,7 +73,7 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import {
   transformedExpenseData,
   transformedExpenseDataWithReportId,
@@ -343,7 +343,8 @@ export function TestCases4(getTestBed) {
           component: CameraOptionsPopupComponent,
           cssClass: 'camera-options-popover',
           componentProps: {
-            mode: component.mode,
+            mode: component.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+            showHeader: false,
           },
         });
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -368,6 +369,26 @@ export function TestCases4(getTestBed) {
         );
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Receipt added to expense successfully',
+        });
+      }));
+
+      it('should show header when addAttachments is called with isAddMore true in edit mode', fakeAsync(() => {
+        platform.is.and.returnValue(false);
+        const popupSpy = jasmine.createSpyObj('popup', ['present', 'onWillDismiss']);
+        popupSpy.onWillDismiss.and.resolveTo({ data: {} });
+        popoverController.create.and.resolveTo(popupSpy);
+
+        component.mode = 'edit';
+        component.addAttachments(new Event('click'), true);
+        tick(500);
+
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: CameraOptionsPopupComponent,
+          cssClass: 'camera-options-popover',
+          componentProps: {
+            mode: 'Edit Expense',
+            showHeader: true,
+          },
         });
       }));
     });

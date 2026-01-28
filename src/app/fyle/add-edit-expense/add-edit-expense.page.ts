@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
@@ -152,7 +152,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -365,8 +365,6 @@ export class AddEditExpensePage implements OnInit {
   private snackbarProperties = inject(SnackbarPropertiesService);
 
   platform = inject(Platform);
-
-  private titleCasePipe = inject(TitleCasePipe);
 
   private paymentModesService = inject(PaymentModesService);
 
@@ -5070,7 +5068,7 @@ export class AddEditExpensePage implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async addAttachments(event: Event): Promise<void> {
+  async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
@@ -5085,7 +5083,8 @@ export class AddEditExpensePage implements OnInit {
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
         componentProps: {
-          mode: this.mode,
+          mode: this.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+          showHeader: isAddMore,
         },
       });
 
