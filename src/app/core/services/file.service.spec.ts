@@ -93,6 +93,7 @@ describe('FileService', () => {
       expect(res.content).toBe('dGVzdCBjb250ZW50');
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith([fileId]);
       expect(globalThis.fetch).toHaveBeenCalledOnceWith(mockDownloadUrl);
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledOnceWith(mockBlob);
       done();
     });
   });
@@ -422,25 +423,12 @@ describe('FileService', () => {
       const mockBlob = new Blob(['test content'], { type: 'image/jpeg' });
       const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
 
-      // Mock the FileReader to work properly
-      const mockFileReader = {
-        readAsDataURL: jasmine.createSpy('readAsDataURL'),
-        result: mockDataUrl,
-        onload: null as any,
-        onerror: null as any,
-      };
-
-      spyOn(window, 'FileReader').and.returnValue(mockFileReader as any);
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
-      const resultPromise = fileService.readFile(mockBlob);
+      const result = await fileService.readFile(mockBlob);
 
-      // Simulate the FileReader success
-      mockFileReader.onload();
-
-      const result = await resultPromise;
       expect(result).toBe(mockDataUrl);
-      expect(mockFileReader.readAsDataURL).toHaveBeenCalledWith(mockBlob);
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledWith(mockBlob);
     });
 
     it('should read a HEIC file and convert to JPEG', async () => {
