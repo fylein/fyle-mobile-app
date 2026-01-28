@@ -182,8 +182,8 @@ export class FileService {
           toType: 'image/jpeg',
           quality: 50,
         })
-          .then((result) => {
-            this.getDataUrlFromBlob(result as Blob).then((dataUrl) => {
+          .then((result: Blob) => {
+            this.getDataUrlFromBlob(result).then((dataUrl) => {
               resolve(dataUrl);
             });
           })
@@ -191,12 +191,7 @@ export class FileService {
             reject(err);
           });
       } else {
-        const fileReader = new FileReader();
-        fileReader.onload = async (): Promise<void> => {
-          return resolve(fileReader.result.toString());
-        };
-        fileReader.readAsDataURL(file);
-        fileReader.onerror = (error): void => reject(error);
+        this.getDataUrlFromBlob(file).then(resolve).catch(reject);
       }
     });
   }
