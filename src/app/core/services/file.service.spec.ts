@@ -446,7 +446,7 @@ describe('FileService', () => {
       const mockJpegBlob = new Blob(['jpeg content'], { type: 'image/jpeg' });
       const mockDataUrl = 'data:image/jpeg;base64,Y29udmVydGVkIGNvbnRlbnQ=';
 
-      spyOn(fileService as any, 'heic2any').and.returnValue(Promise.resolve(mockJpegBlob));
+      spyOn(fileService as any, 'heic2any').and.resolveTo(mockJpegBlob);
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
       const result = await fileService.readFile(mockHeicBlob);
@@ -464,7 +464,7 @@ describe('FileService', () => {
       const mockHeicBlob = new Blob(['heic content'], { type: 'image/heic' });
       const heicError = new Error('HEIC conversion failed');
 
-      spyOn(fileService as any, 'heic2any').and.returnValue(Promise.reject(heicError));
+      spyOn(fileService as any, 'heic2any').and.rejectWith(heicError);
       spyOn(fileService, 'getDataUrlFromBlob');
 
       await expectAsync(fileService.readFile(mockHeicBlob)).toBeRejectedWith(heicError);
