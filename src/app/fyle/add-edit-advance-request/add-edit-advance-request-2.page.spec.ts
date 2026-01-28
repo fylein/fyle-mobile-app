@@ -36,7 +36,7 @@ import {
   fileObject9,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileData3 } from 'src/app/core/mock-data/file.data';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import {
   modalControllerParams3,
@@ -242,6 +242,10 @@ export function TestCases2(getTestBed) {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
+        componentProps: {
+          mode: component.mode === 'edit' ? 'Edit Advance Request' : 'Add Advance Request',
+          showHeader: false,
+        },
       });
       expect(cameraOptionsPopupSpy.present).toHaveBeenCalledTimes(1);
       expect(cameraOptionsPopupSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -252,6 +256,26 @@ export function TestCases2(getTestBed) {
         '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
       );
       expect(component.dataUrls).toEqual(expectedFileData2);
+    }));
+
+    it('addAttachments(): should pass showHeader true when isAddMore true in edit mode', fakeAsync(() => {
+      const cameraOptionsPopupSpy = jasmine.createSpyObj('cameraOptionsPopup', ['present', 'onWillDismiss']);
+      cameraOptionsPopupSpy.onWillDismiss.and.resolveTo({ data: {} });
+      popoverController.create.and.resolveTo(cameraOptionsPopupSpy);
+
+      component.mode = 'edit';
+      const event = jasmine.createSpyObj('event', ['stopPropagation', 'preventDefault']);
+      component.addAttachments(event, true);
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+        componentProps: {
+          mode: 'Edit Advance Request',
+          showHeader: true,
+        },
+      });
     }));
 
     it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {

@@ -64,6 +64,10 @@
 		"classpath": "io.capawesome.capacitorjs.plugins.appshortcuts.AppShortcutsPlugin"
 	},
 	{
+		"pkg": "@whiteguru/capacitor-plugin-file-picker",
+		"classpath": "com.whiteguru.capacitor.plugin.filepicker.FilePickerPlugin"
+	},
+	{
 		"pkg": "capacitor-native-settings",
 		"classpath": "nl.raphael.settings.NativeSettingsPlugin"
 	},
