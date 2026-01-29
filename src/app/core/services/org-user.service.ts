@@ -101,14 +101,25 @@ export class OrgUserService {
     );
   }
 
-  sendDeviceToken(token: string): Observable<unknown> {
-    const payload = {
-      data: {
-        tokens: [token],
-      },
-    };
+  getDeviceTokens(): Observable<string[]> {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<{ tokens: string[] }>>('/users/device_token')
+      .pipe(map((response) => response.data?.tokens ?? []));
+  }
 
-    return this.spenderPlatformV1ApiService.post('/device_token', payload);
+  sendDeviceToken(token: string): Observable<unknown> {
+    return this.getDeviceTokens().pipe(
+      map((existingTokens) => {
+        const tokens = existingTokens ?? [];
+        tokens.push(token);
+        return tokens;
+      }),
+      switchMap((tokens) =>
+        this.spenderPlatformV1ApiService.post('/users/device_token', {
+          data: { tokens },
+        }),
+      ),
+    );
   }
 
   getUserById(userId: string): Observable<EouApiResponse> {
