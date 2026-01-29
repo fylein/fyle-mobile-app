@@ -13,6 +13,7 @@
       type="text"
       [placeholder]="placeholder() || ('fyLocation.selectLocation' | transloco: { label: label() })"
       [ngModel]="displayValue"
+      readonly
       (blur)="onBlur()"
       (click)="openModal()"
     />
