@@ -184,7 +184,7 @@ export class FileService {
           toType: 'image/jpeg',
           quality: 50,
         })
-          .then((result: Blob) => this.getDataUrlFromBlob(result).then(resolve).catch(reject));
+          .then((result: Blob) => this.getDataUrlFromBlob(result)).then(resolve).catch(reject)
       } else {
         this.getDataUrlFromBlob(file).then(resolve).catch(reject);
       }
