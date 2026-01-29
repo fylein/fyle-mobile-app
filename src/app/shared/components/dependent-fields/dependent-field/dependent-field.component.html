@@ -11,6 +11,7 @@
       type="text"
       [placeholder]="placeholder || ('dependentField.selectLabel' | transloco: { label: label })"
       [ngModel]="displayValue"
+      readonly
       (blur)="onBlur()"
       (click)="openModal()"
     />
