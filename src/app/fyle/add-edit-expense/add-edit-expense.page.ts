@@ -4924,7 +4924,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
+  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer }): void {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -5033,7 +5033,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async uploadFileCallback(file: File): Promise<void> {
-    let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
+    let fileData: { type: string; dataUrl: string | ArrayBuffer };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
         const fileRead$ = from(this.fileService.readFile(file));
@@ -5049,7 +5049,6 @@ export class AddEditExpensePage implements OnInit {
               fileData = {
                 type: file.type,
                 dataUrl,
-                actionSource: 'gallery_upload',
               };
               this.attachReceipts(fileData);
               this.trackingService.addAttachment({ type: file.type });
@@ -5095,7 +5094,6 @@ export class AddEditExpensePage implements OnInit {
           option?: string;
           type: string;
           dataUrl: string;
-          actionSource?: string;
         };
       };
 
@@ -5124,7 +5122,6 @@ export class AddEditExpensePage implements OnInit {
           receiptDetails = {
             type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
-            actionSource: 'camera',
           };
         }
       }

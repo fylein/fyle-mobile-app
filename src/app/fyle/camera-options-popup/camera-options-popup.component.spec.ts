@@ -24,7 +24,7 @@ describe('CameraOptionsPopupComponent', () => {
   let translocoService: TranslocoService;
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'dismiss']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['readFile', 'getImageTypeFromDataUrl']);
     const filePickerServiceSpy = jasmine.createSpyObj('FilePickerService', ['pick']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addAttachment', 'filePickerError']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -112,16 +112,14 @@ describe('CameraOptionsPopupComponent', () => {
   describe('uploadFileCallback():', () => {
     it('should read file if the size is less than the maximum file size limit', fakeAsync(() => {
       fileService.readFile.and.resolveTo('file');
+      fileService.getImageTypeFromDataUrl.and.returnValue('image/jpeg');
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
       component.uploadFileCallback(file);
       tick(500);
       expect(fileService.readFile).toHaveBeenCalledOnceWith(file);
-      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
-        type: file.type,
-        dataUrl: 'file',
-        actionSource: 'gallery_upload',
-      });
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith('file');
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ dataUrl: 'file', type: 'image/jpeg' });
     }));
 
     it('should show warning popup to the user when the file size exceeds the maximum file size limit  allowed', fakeAsync(() => {
@@ -153,6 +151,7 @@ describe('CameraOptionsPopupComponent', () => {
         resolveFileRead = resolve;
       });
       fileService.readFile.and.returnValue(fileReadPromise);
+      fileService.getImageTypeFromDataUrl.and.returnValue('image/png');
       loaderService.showLoader.and.resolveTo();
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
@@ -162,11 +161,8 @@ describe('CameraOptionsPopupComponent', () => {
       resolveFileRead!('file-data');
       tick(100);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({
-        type: file.type,
-        dataUrl: 'file-data',
-        actionSource: 'gallery_upload',
-      });
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith('file-data');
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ dataUrl: 'file-data', type: 'image/png' });
     }));
   });
 
@@ -292,10 +288,9 @@ describe('CameraOptionsPopupComponent', () => {
 
       expect(uploadFileCallbackSpy).toHaveBeenCalled();
       if (uploadFileCallbackSpy.calls.any()) {
-        const fileArg = uploadFileCallbackSpy.calls.mostRecent().args[0];
-        expect(fileArg).toBeInstanceOf(File);
-        expect(fileArg.name).toBe('doc.pdf');
-        expect(fileArg.type).toBe('application/pdf');
+        const blobArg = uploadFileCallbackSpy.calls.mostRecent().args[0];
+        expect(blobArg).toBeInstanceOf(Blob);
+        expect(blobArg.type).toBe('application/pdf');
       }
     }));
 
@@ -336,8 +331,8 @@ describe('CameraOptionsPopupComponent', () => {
     }));
   });
 
-  describe('pickedFileToFile():', () => {
-    it('returns a File with correct name, type and content from picked object', fakeAsync(() => {
+  describe('pickedFileToBlob():', () => {
+    it('returns a Blob with correct type and content from picked object', fakeAsync(() => {
       const mockBlob = new Blob(['content'], { type: 'image/png' });
       spyOn(window, 'fetch').and.resolveTo({
         blob: () => Promise.resolve(mockBlob),
@@ -346,19 +341,16 @@ describe('CameraOptionsPopupComponent', () => {
       const picked = {
         path: '/path/photo.png',
         webPath: 'https://example.com/photo.png',
-        name: 'photo.png',
-        extension: 'png',
       };
 
       const resultPromise = (component as unknown as {
-        pickedFileToFile: (p: typeof picked) => Promise<File>;
-      }).pickedFileToFile(picked);
-      let result: File | undefined;
-      resultPromise.then((f) => (result = f));
+        pickedFileToBlob: (p: typeof picked) => Promise<Blob>;
+      }).pickedFileToBlob(picked);
+      let result: Blob | undefined;
+      resultPromise.then((b) => (result = b));
       tick();
 
-      expect(result).toBeInstanceOf(File);
-      expect(result?.name).toBe('photo.png');
+      expect(result).toBeInstanceOf(Blob);
       expect(result?.type).toBe('image/png');
     }));
 
@@ -369,15 +361,12 @@ describe('CameraOptionsPopupComponent', () => {
         blob: () => Promise.resolve(mockBlob),
         ok: true,
       } as Response);
-      // webPath must be undefined (or null) so that ?? triggers Capacitor.convertFileSrc; '' would not
       const picked = {
         path: '/native/path/doc.pdf',
         webPath: undefined as unknown as string,
-        name: 'doc.pdf',
-        extension: 'pdf',
       };
 
-      (component as unknown as { pickedFileToFile: (p: typeof picked) => Promise<File> }).pickedFileToFile(
+      (component as unknown as { pickedFileToBlob: (p: typeof picked) => Promise<Blob> }).pickedFileToBlob(
         picked,
       );
       flush();
