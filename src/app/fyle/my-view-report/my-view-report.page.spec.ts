@@ -60,6 +60,7 @@ import { TIMEZONE } from 'src/app/constants';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
 import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
+import { DwollaCustomer } from 'src/app/core/models/dwolla-customer.model';
 
 // mock for expenses card component
 @Component({
@@ -68,7 +69,7 @@ import { getFormatPreferenceProviders } from 'src/app/core/testing/format-prefer
 })
 class MockExpensesCardComponent {}
 
-describe('MyViewReportPage', () => {
+fdescribe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1158,6 +1159,50 @@ describe('MyViewReportPage', () => {
       component.addExpensesToReport(['tx1']);
 
       expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    });
+
+    it('should show ACH suspension popup if customer is suspended', () => {
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(
+        of({
+          ...orgSettingsData,
+          ach_settings: {
+            allowed: true,
+            enabled: true,
+          },
+        }),
+      );
+      orgUserService.getDwollaCustomer.and.returnValue(of({ is_customer_suspended: true } as DwollaCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledTimes(1);
+      expect(component.showAchSuspensionPopup).toHaveBeenCalledTimes(1);
+      expect((component as any).performAddExpenses).not.toHaveBeenCalled();
+    });
+
+    it('should add expenses directly when customer is not suspended', () => {
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(
+        of({
+          ...orgSettingsData,
+          ach_settings: {
+            allowed: true,
+            enabled: true,
+          },
+        }),
+      );
+      orgUserService.getDwollaCustomer.and.returnValue(of({ is_customer_suspended: false } as DwollaCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledTimes(1);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     });
   });
