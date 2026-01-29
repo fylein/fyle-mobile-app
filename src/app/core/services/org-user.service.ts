@@ -103,7 +103,7 @@ export class OrgUserService {
 
   getDeviceTokens(): Observable<string[]> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<{ tokens: string[] }>>('/users/device_token')
+      .get<PlatformApiResponse<{ tokens: string[] }>>('/device_token')
       .pipe(map((response) => response.data?.tokens ?? []));
   }
 
@@ -115,7 +115,7 @@ export class OrgUserService {
         return tokens;
       }),
       switchMap((tokens) =>
-        this.spenderPlatformV1ApiService.post('/users/device_token', {
+        this.spenderPlatformV1ApiService.post('/device_token', {
           data: { tokens },
         }),
       ),
