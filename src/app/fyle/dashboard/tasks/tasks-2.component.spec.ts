@@ -120,6 +120,7 @@ export function TestCases2(getTestBed) {
     describe('init():', () => {
       beforeEach(() => {
         reportService.getReportAutoSubmissionDetails.and.returnValue(of(apiReportAutoSubmissionDetails));
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
         orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
         orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
         tasksService.getTasks.and.returnValue(of(dashboardTasksData));
@@ -211,7 +212,8 @@ export function TestCases2(getTestBed) {
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
         popoverController.create.and.resolveTo(addCardPopoverSpy);
-        spyOn(component, 'handleEnrollmentSuccess');
+        corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+        spyOn(component, 'handleEnrollmentSuccess').and.stub();
 
         fixture.detectChanges();
         component.onAddCorporateCardClick();
@@ -233,7 +235,8 @@ export function TestCases2(getTestBed) {
         addCardPopoverSpy.present.and.resolveTo();
         addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: null });
         popoverController.create.and.resolveTo(addCardPopoverSpy);
-        const enrollmentSuccessSpy = spyOn(component, 'handleEnrollmentSuccess');
+        corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+        const enrollmentSuccessSpy = spyOn(component, 'handleEnrollmentSuccess').and.stub();
 
         fixture.detectChanges();
         component.onAddCorporateCardClick();

@@ -1,5 +1,8 @@
 import UIKit
 import Capacitor
+import FirebaseCore
+import FirebaseMessaging
+import CapawesomeCapacitorAppShortcuts
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -57,6 +60,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Feel free to add additional processing here, but if you want the App API to support
     // tracking app url opens, make sure to keep this call
     return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
+  }
+
+  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Override point for customization after application launch.
+    FirebaseApp.configure()
+
+    // Handle shortcut from cold start
+    if let shortcutItem = launchOptions?[.shortcutItem] as? UIApplicationShortcutItem {
+      NotificationCenter.default.post(
+        name: NSNotification.Name(AppShortcutsPlugin.notificationName),
+        object: nil,
+        userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
+      )
+    }
+
+    return true
+  }
+
+  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    Messaging.messaging().apnsToken = deviceToken
+    Messaging.messaging().token(completion: { (token, error) in
+      if let error = error {
+          NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+      } else if let token = token {
+          NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
+      }
+    })
+  }
+
+  func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+  }
+  // MARK: - App Shortcuts (Home Screen Quick Actions)
+    
+  func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+    // Handle shortcut when app is running in background
+    NotificationCenter.default.post(
+      name: NSNotification.Name(AppShortcutsPlugin.notificationName),
+      object: nil,
+      userInfo: [AppShortcutsPlugin.userInfoShortcutItemKey: shortcutItem]
+    )
+    completionHandler(true)
   }
 }
 

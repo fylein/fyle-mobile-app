@@ -52,6 +52,7 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { WalkthroughService } from 'src/app/core/services/walkthrough.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
 import { DriveStep } from 'driver.js';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
@@ -62,6 +63,7 @@ import { FyMenuIconComponent } from 'src/app/shared/components/fy-menu-icon/fy-m
 import { DashboardEmailOptInComponent } from 'src/app/shared/components/dashboard-email-opt-in/dashboard-email-opt-in.component';
 import { DashboardOptInComponent } from 'src/app/shared/components/dashboard-opt-in/dashboard-opt-in.component';
 import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
+import { SmartlookService } from 'src/app/core/services/smartlook.service';
 
 // mocks
 @Component({
@@ -117,6 +119,8 @@ describe('DashboardPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+  let budgetsService: jasmine.SpyObj<BudgetsService>;
+  let smartlookService: jasmine.SpyObj<SmartlookService>;
   beforeEach(waitForAsync(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -175,6 +179,8 @@ describe('DashboardPage', () => {
     ]);
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['getDwollaCustomer']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
+    const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -231,6 +237,14 @@ describe('DashboardPage', () => {
         {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
+        },
+        {
+          provide: BudgetsService,
+          useValue: budgetsServiceSpy,
+        },
+        {
+          provide: SmartlookService,
+          useValue: smartlookServiceSpy,
         },
         ...getFormatPreferenceProviders(),
       ],
@@ -289,6 +303,9 @@ describe('DashboardPage', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    budgetsService = TestBed.inject(BudgetsService) as jasmine.SpyObj<BudgetsService>;
+    budgetsService.getSpenderBudgetByParams.and.returnValue(of([]));
+    smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     fixture.detectChanges();
   }));
 
@@ -401,10 +418,11 @@ describe('DashboardPage', () => {
       featureConfigService.saveConfiguration.and.returnValue(of(null));
     });
 
-    it('should call setupNetworkWatcher, registerBackButtonAction once', () => {
+    it('should call setupNetworkWatcher, registerBackButtonAction once, smartlookService.init once', () => {
       component.ionViewWillEnter();
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.registerBackButtonAction).toHaveBeenCalledTimes(1);
+      expect(smartlookService.init).toHaveBeenCalledTimes(1);
     });
 
     it('should set currentStateIndex to 1 if queryParams.state is tasks', () => {
@@ -452,7 +470,6 @@ describe('DashboardPage', () => {
     it('should call init method of statsComponent and tasksComponent', () => {
       component.ionViewWillEnter();
       expect(component.statsComponent.init).toHaveBeenCalledTimes(1);
-      expect(component.cardStatsComponent.init).toHaveBeenCalledTimes(1);
       expect(component.tasksComponent.init).toHaveBeenCalledTimes(1);
     });
 

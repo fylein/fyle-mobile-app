@@ -193,9 +193,7 @@
                 <div class="expenses-card--currency-amount-container">
                   <span class="expenses-card--amount">
                     @if (expense().currency) {
-                      {{
-                        { value: expense().amount, currencyCode: expense().currency } | exactCurrency
-                      }}
+                      {{ { value: expense().amount, currencyCode: expense().currency } | exactCurrency }}
                     }
                     @if (!expense().currency) {
                       {{ { value: expense().amount, currencyCode: homeCurrency } | exactCurrency }}
@@ -237,9 +235,7 @@
                 <div class="expenses-card--currency-amount-container">
                   <span class="expenses-card--amount">
                     @if (expense().currency) {
-                      {{
-                        { value: expense().amount, currencyCode: expense().currency } | exactCurrency
-                      }}
+                      {{ { value: expense().amount, currencyCode: expense().currency } | exactCurrency }}
                     }
                     @if (!expense().currency) {
                       {{ { value: expense().amount, currencyCode: homeCurrency } | exactCurrency }}
@@ -266,20 +262,28 @@
             class="expenses-card--default-view-container"
             [ngClass]="{ 'is-pending-gas-charge': isPendingGasCharge }"
           >
-            <div class="expenses-card--state-container state-pill state-{{ expense().state | expenseState }}">
-              <span>
-                {{ expense().state | expenseState | titlecase }}
-              </span>
-            </div>
-            <!-- TODO: Should remove this after switching to newer -->
-            @if (isCriticalPolicyViolated) {
-              <div class="expenses-card--critical-policy-violations">
-                {{ 'expensesCard.criticalPolicyViolations' | transloco }}
+            <div class="expenses-card--state-container-container">
+              <div class="expenses-card--state-container state-pill state-{{ expense().state | expenseState }}">
+                <span>
+                  {{ expense().state | expenseState | titlecase }}
+                </span>
               </div>
-            }
+              <!-- TODO: Should remove this after switching to newer -->
+              @if (isCriticalPolicyViolated) {
+                <div class="expenses-card--critical-policy-violations">
+                  {{ 'expensesCard.criticalPolicyViolations' | transloco }}
+                </div>
+              }
 
-            @if (isPendingGasCharge()) {
-              <app-pending-gas-charge-info [isExpenseListView]="true"></app-pending-gas-charge-info>
+              @if (isPendingGasCharge()) {
+                <app-pending-gas-charge-info [isExpenseListView]="true"></app-pending-gas-charge-info>
+              }
+            </div>
+
+            @if (isAutoApproved()) {
+              <div class="expenses-card--auto-approved-by-system">
+                {{ 'expensesCard.autoApprovedBySystem' | transloco }}
+              </div>
             }
           </div>
         </ng-template>

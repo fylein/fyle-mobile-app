@@ -43,13 +43,7 @@ describe('FyPolicyViolationInfoComponent', () => {
       handle: false,
     });
     TestBed.configureTestingModule({
-      imports: [
-        
-        MatIconModule,
-        MatIconTestingModule,
-        TranslocoModule,
-        FyPolicyViolationInfoComponent,
-      ],
+      imports: [MatIconModule, MatIconTestingModule, TranslocoModule, FyPolicyViolationInfoComponent],
       providers: [
         {
           provide: ModalController,
@@ -106,6 +100,14 @@ describe('FyPolicyViolationInfoComponent', () => {
     component.criticalPolicyViolated = true;
     component.ngOnInit();
     expect(component.showPolicyInfo).toBeTrue();
+  });
+
+  it('ngOnInit(): should set policyViolations to empty array when policyDetails is undefined', () => {
+    component.policyDetails = undefined;
+    component.criticalPolicyViolated = false;
+    component.ngOnInit();
+    expect(component.policyViolations).toEqual([]);
+    expect(component.showPolicyInfo).toBeFalse();
   });
 
   it('should show policy violation for a single violation', fakeAsync(() => {
@@ -191,6 +193,34 @@ describe('FyPolicyViolationInfoComponent', () => {
         breakpoints: [0, 1],
         handle: false,
       });
+    });
+
+    it('should open critical modal for UnflattenedTransaction with UNREPORTABLE state', async () => {
+      component.criticalPolicyViolated = false;
+      component.expense = { tx: { state: 'UNREPORTABLE' } } as any;
+      fixture.detectChanges();
+
+      await component.openPolicyViolationDetails();
+
+      expect(modalController.create).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          component: FyCriticalPolicyViolationComponent,
+        }),
+      );
+    });
+
+    it('should open critical modal for Expense with UNREPORTABLE state', async () => {
+      component.criticalPolicyViolated = false;
+      component.expense = { state: 'UNREPORTABLE' } as any;
+      fixture.detectChanges();
+
+      await component.openPolicyViolationDetails();
+
+      expect(modalController.create).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          component: FyCriticalPolicyViolationComponent,
+        }),
+      );
     });
   });
 });

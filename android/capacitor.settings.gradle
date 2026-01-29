@@ -35,6 +35,9 @@ project(':capacitor-network').projectDir = new File('../node_modules/@capacitor/
 include ':capacitor-preferences'
 project(':capacitor-preferences').projectDir = new File('../node_modules/@capacitor/preferences/android')
 
+include ':capacitor-push-notifications'
+project(':capacitor-push-notifications').projectDir = new File('../node_modules/@capacitor/push-notifications/android')
+
 include ':capacitor-splash-screen'
 project(':capacitor-splash-screen').projectDir = new File('../node_modules/@capacitor/splash-screen/android')
 
@@ -43,6 +46,12 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 
 include ':capacitor-text-zoom'
 project(':capacitor-text-zoom').projectDir = new File('../node_modules/@capacitor/text-zoom/android')
+
+include ':capawesome-capacitor-app-shortcuts'
+project(':capawesome-capacitor-app-shortcuts').projectDir = new File('../node_modules/@capawesome/capacitor-app-shortcuts/android')
+
+include ':whiteguru-capacitor-plugin-file-picker'
+project(':whiteguru-capacitor-plugin-file-picker').projectDir = new File('../node_modules/@whiteguru/capacitor-plugin-file-picker/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')

@@ -338,23 +338,6 @@
                     <img class="add-edit-expense--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
                   </div>
                 }
-                @if (attachedReceiptsCount > 0 && !attachmentUploadInProgress) {
-                  <div (click)="viewAttachments()" class="add-edit-expense--receipt-image">
-                    <mat-icon class="add-edit-expense--receipt-background" svgIcon="list"></mat-icon>
-                    <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
-                      {{ attachedReceiptsCount }}
-                    </div>
-                    <mat-icon
-                      (click)="addAttachments($event)"
-                      class="add-edit-expense--receipt-image-icon add-edit-expense--receipt-add-more-icon"
-                    >
-                      add_circle
-                    </mat-icon>
-                    @if (isIos) {
-                      <input type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
-                    }
-                  </div>
-                }
               </div>
             }
           }
@@ -390,7 +373,7 @@
         @if (newExpenseDataUrls && newExpenseDataUrls.length > 0) {
           <app-receipt-preview-thumbnail
             [attachments]="newExpenseDataUrls"
-            (addMoreAttachments)="addAttachments($event)"
+            (addMoreAttachments)="addAttachments($event, true)"
             (viewAttachments)="viewAttachments()"
             [canEdit]="true"
             [mode]="mode"
@@ -404,7 +387,7 @@
           @if (attachments.length > 0) {
             <app-receipt-preview-thumbnail
               [attachments]="attachments"
-              (addMoreAttachments)="addAttachments($event)"
+              (addMoreAttachments)="addAttachments($event, true)"
               (viewAttachments)="viewAttachments()"
               [isUploading]="attachmentUploadInProgress"
               [canEdit]="true"
@@ -608,17 +591,6 @@
                           </div>
                         }
                       </div>
-                    }
-                  </div>
-                }
-              </div>
-            }
-            @if (isProjectsEnabled$ | async) {
-              <div>
-                @if (isProjectsVisible$ | async) {
-                  <div>
-                    @if (fg.controls.project.touched && !fg.controls.project.valid) {
-                      <div class="add-edit-expense--error">Please select a project.</div>
                     }
                   </div>
                 }

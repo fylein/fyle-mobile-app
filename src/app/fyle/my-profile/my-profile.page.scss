@@ -141,17 +141,14 @@
   }
 
   &__info-card-container {
-    background-color: colors.$pure-white;
-    border-radius: 8px;
     margin-bottom: 24px;
 
     &__card {
-      margin: 0 16px;
-      border-bottom: 1px solid colors.$grey;
-
-      &--last {
-        border-bottom: none;
-      }
+      background-color: colors.$pure-white;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
   }
 

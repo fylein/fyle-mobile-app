@@ -401,6 +401,8 @@ export class MyExpensesPage implements OnInit {
       this.setAllExpensesCountAndAmount();
     } else {
       this.headerState = HeaderState.multiselect;
+      // Reset search bar focus so footer buttons are visible in selection mode
+      this.isSearchBarFocused = false;
       // setting Expense amount & count stats to zero on select init
       this.allExpensesStats$ = of({
         count: 0,
@@ -429,6 +431,8 @@ export class MyExpensesPage implements OnInit {
       this.setOutboxExpenseStatsOnSelect();
     } else {
       this.headerState = HeaderState.multiselect;
+      // Reset search bar focus so footer buttons are visible in selection mode
+      this.isSearchBarFocused = false;
       // setting Expense amount & count stats to zero on select init
       this.allExpensesStats$ = of({
         count: 0,

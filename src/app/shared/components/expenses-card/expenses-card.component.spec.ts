@@ -31,7 +31,7 @@ import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data'
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { cloneDeep } from 'lodash';
 import dayjs from 'dayjs';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
@@ -649,7 +649,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetailsaRes = {
         dataUrl,
         type: 'image/png',
-        actionSource: 'upload',
       };
       const fileObj: FileObject = {
         name: '000.jpeg',
@@ -699,7 +698,6 @@ describe('ExpensesCardComponent', () => {
     expect(component.attachReceipt).toHaveBeenCalledOnceWith({
       type: 'image/png',
       dataUrl,
-      actionSource: 'gallery_upload',
     });
   }));
 
@@ -738,7 +736,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: ' data.dataUrl',
-        actionSource: 'camera',
         option: 'camera',
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
@@ -766,14 +763,12 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: 'mockDataUrl.png',
-        actionSource: 'camera',
       };
 
       const dataRes = {
         data: {
           type: 'png',
           dataUrl: 'mockDataUrl.png',
-          actionSource: 'camera',
           option: 'camera',
         },
       };

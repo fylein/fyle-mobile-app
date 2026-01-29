@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
-import { finalize, forkJoin, from, map, Observable, switchMap, tap } from 'rxjs';
+import { finalize, forkJoin, from, map, Observable, tap } from 'rxjs';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -18,6 +18,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { MatIcon } from '@angular/material/icon';
 import { AsyncPipe } from '@angular/common';
+import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -33,7 +35,8 @@ import { AsyncPipe } from '@angular/common';
     IonSkeletonText,
     IonTitle,
     IonToolbar,
-    MatIcon
+    MatIcon,
+    TranslocoPipe
   ],
 })
 export class NotificationsBetaPage implements OnInit {
@@ -67,6 +70,10 @@ export class NotificationsBetaPage implements OnInit {
 
   isInitialLoading: boolean;
 
+  isPushPermissionDenied = false;
+
+  showMobilePushColumn = false;
+
   private router = inject(Router);
 
   private notificationsBetaPageService = inject(NotificationsBetaPageService);
@@ -87,13 +94,22 @@ export class NotificationsBetaPage implements OnInit {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
+  nativeSettings = NativeSettings;
+
   ngOnInit(): void {
     this.isInitialLoading = true;
-    this.getOrgSettings().subscribe(({ orgSettings, employeeSettings, currentEou }) => {
+    forkJoin({
+      orgData: this.getOrgSettings(),
+      isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
+    }).subscribe(({ orgData, isPushNotifUiEnabled }) => {
+      const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
+
+      this.showMobilePushColumn = isPushNotifUiEnabled;
+      this.isPushPermissionDenied = isPushNotifUiEnabled;
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
@@ -154,18 +170,38 @@ export class NotificationsBetaPage implements OnInit {
   async openNotificationModal(notificationConfig: NotificationConfig): Promise<void> {
     const unsubscribedEventsByUser: string[] =
       this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const unsubscribedPushEventsByUser: string[] =
+      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
+
+    // Take a deep copy of the current notification settings so we can restore
+    // them if the modal is closed without saving.
+    const originalNotificationSettings: EmployeeSettings['notification_settings'] = {
+      email_allowed: this.employeeSettings.notification_settings.email_allowed,
+      email_enabled: this.employeeSettings.notification_settings.email_enabled,
+      email_unsubscribed_events: [...this.employeeSettings.notification_settings.email_unsubscribed_events],
+      push_allowed: this.employeeSettings.notification_settings.push_allowed,
+      push_enabled: this.employeeSettings.notification_settings.push_enabled,
+      push_unsubscribed_events: [...this.employeeSettings.notification_settings.push_unsubscribed_events],
+      notify_user: this.employeeSettings.notification_settings.notify_user,
+      notify_delegatee: this.employeeSettings.notification_settings.notify_delegatee,
+    };
+
+    // Use a cloned notifications array so changes inside the modal don't mutate
+    // the cached config on this page unless the user actually saves.
+    const clonedNotifications = notificationConfig.notifications.map((notification) => ({ ...notification }));
 
     const emailNotificationsModal = await this.modalController.create({
       component: EmailNotificationsComponent,
       componentProps: {
         title: notificationConfig.title,
-        notifications: notificationConfig.notifications,
+        notifications: clonedNotifications,
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
+        unsubscribedPushEventsByUser,
       },
       ...this.modalPropertiesService.getModalDefaultProperties(),
-      initialBreakpoint: 0.5,
-      breakpoints: [0, 0.5, 1],
+      initialBreakpoint: 1,
+      breakpoints: [0, 1],
     });
 
     await emailNotificationsModal.present();
@@ -173,7 +209,15 @@ export class NotificationsBetaPage implements OnInit {
       employeeSettingsUpdated: boolean;
     }>;
     if (data?.employeeSettingsUpdated) {
-      this.ngOnInit();
+      // Refetch fresh employee settings (cache is already busted by the POST)
+      this.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
+        this.employeeSettings = employeeSettings;
+        this.initializeEmailNotificationsConfig();
+        this.initializeDelegateNotification();
+      });
+    } else {
+      this.employeeSettings.notification_settings = originalNotificationSettings;
+      this.platformEmployeeSettingsService.clearEmployeeSettings().subscribe();
     }
   }
 
@@ -208,5 +252,12 @@ export class NotificationsBetaPage implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
+  }
+
+  openDeviceSettings(): void {
+    this.nativeSettings.open({
+      optionAndroid: AndroidSettings.ApplicationDetails,
+      optionIOS: IOSSettings.App,
+    });
   }
 }

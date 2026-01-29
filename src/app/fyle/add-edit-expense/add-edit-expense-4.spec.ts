@@ -21,11 +21,6 @@ import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { platformPersonalCardTxns } from 'src/app/core/mock-data/personal-card-txns.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import {
-  createExpenseProperties,
-  createExpenseProperties2,
-} from 'src/app/core/mock-data/track-expense-properties.data';
-import { expenseStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { paymentModeDataAdvanceWallet } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
   editUnflattenedTransactionPlatform,
@@ -37,7 +32,6 @@ import {
 import {
   expectedUnflattendedTxnData3,
   expectedUnflattendedTxnData4,
-  trackAddExpenseWoCurrency,
   trackCreateExpData,
   trackCreateExpDataWoCurrency,
   unflattenedTransactionDataPersonalCard,
@@ -79,7 +73,7 @@ import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender
 import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import {
   transformedExpenseData,
   transformedExpenseDataWithReportId,
@@ -258,7 +252,6 @@ export function TestCases4(getTestBed) {
         expect(component.attachReceipts).toHaveBeenCalledOnceWith({
           type: file.type,
           dataUrl: 'base',
-          actionSource: 'gallery_upload',
         });
       }));
 
@@ -349,7 +342,8 @@ export function TestCases4(getTestBed) {
           component: CameraOptionsPopupComponent,
           cssClass: 'camera-options-popover',
           componentProps: {
-            mode: component.mode,
+            mode: component.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+            showHeader: false,
           },
         });
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -365,7 +359,6 @@ export function TestCases4(getTestBed) {
         expect(component.attachReceipts).toHaveBeenCalledOnceWith({
           dataUrl: 'data-url',
           type: 'png',
-          actionSource: 'camera',
         });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Receipt added to expense successfully' },
@@ -376,41 +369,25 @@ export function TestCases4(getTestBed) {
           ToastContent: 'Receipt added to expense successfully',
         });
       }));
-    });
 
-    describe('trackAddExpense():', () => {
-      it('should track adding expense', fakeAsync(() => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
-        spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = expectedUnflattendedTxnData4.tx.category_id;
-        component.presetProjectId = expectedUnflattendedTxnData4.tx.project_id;
-        component.presetCostCenterId = expectedUnflattendedTxnData4.tx.cost_center_id;
-        component.presetCurrency = expectedUnflattendedTxnData4.tx.currency;
-        fixture.detectChanges();
+      it('should show header when addAttachments is called with isAddMore true in edit mode', fakeAsync(() => {
+        platform.is.and.returnValue(false);
+        const popupSpy = jasmine.createSpyObj('popup', ['present', 'onWillDismiss']);
+        popupSpy.onWillDismiss.and.resolveTo({ data: {} });
+        popoverController.create.and.resolveTo(popupSpy);
 
-        component.trackAddExpense();
+        component.mode = 'edit';
+        component.addAttachments(new Event('click'), true);
         tick(500);
-        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties);
-      }));
 
-      it('should track adding expense where original currency is same as the preset currency', fakeAsync(() => {
-        spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(trackAddExpenseWoCurrency));
-        spyOn(component, 'getTimeSpentOnPage').and.returnValue(300);
-        component.presetCategoryId = trackAddExpenseWoCurrency.tx.category_id;
-        component.presetProjectId = trackAddExpenseWoCurrency.tx.project_id;
-        component.presetCostCenterId = trackAddExpenseWoCurrency.tx.cost_center_id;
-        component.presetCurrency = trackAddExpenseWoCurrency.tx.orig_currency;
-        fixture.detectChanges();
-
-        component.trackAddExpense();
-        tick(500);
-        expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-        expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-        expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties2);
+        expect(popoverController.create).toHaveBeenCalledOnceWith({
+          component: CameraOptionsPopupComponent,
+          cssClass: 'camera-options-popover',
+          componentProps: {
+            mode: 'Edit Expense',
+            showHeader: true,
+          },
+        });
       }));
     });
 
@@ -436,7 +413,6 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
-        spyOn(component, 'trackAddExpense');
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
@@ -452,7 +428,6 @@ export function TestCases4(getTestBed) {
             expect(res).toEqual(outboxQueueData1[0]);
           });
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
@@ -467,7 +442,6 @@ export function TestCases4(getTestBed) {
       it('should add expense to queue in offline mode', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         component.isConnected$ = of(false);
-        spyOn(component, 'trackAddExpense');
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         const mockEtxn = cloneDeep({
           ...unflattenedTxnData,
@@ -482,7 +456,6 @@ export function TestCases4(getTestBed) {
         component.addExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-          expect(component.trackAddExpense).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledWith(component.etxn$, jasmine.any(Observable));
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -497,7 +470,6 @@ export function TestCases4(getTestBed) {
 
       it('should add expense with critical policy violation', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'trackAddExpense');
         const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
@@ -514,7 +486,6 @@ export function TestCases4(getTestBed) {
         component.addExpense('SAVE_EXPENSE').subscribe((res) => {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -537,7 +508,6 @@ export function TestCases4(getTestBed) {
 
       it('should add expense with policy violations', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'trackAddExpense');
         const mockEtxn = cloneDeep(expectedUnflattendedTxnData4);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
@@ -559,7 +529,6 @@ export function TestCases4(getTestBed) {
         component.addExpense('SAVE_AND_NEW_EXPENSE').subscribe((res) => {
           expect(res).toBeNull();
           expect(component.getCustomFields).toHaveBeenCalledOnceWith();
-          expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           expect(component.checkPolicyViolation).toHaveBeenCalledTimes(1);
           expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
           expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
@@ -584,13 +553,11 @@ export function TestCases4(getTestBed) {
       it('should thow error if expense cannot be generated', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'generateEtxnFromFg').and.returnValue(throwError(() => new Error('error')));
-        spyOn(component, 'trackAddExpense');
 
         component.addExpense('SAVE_EXPENSE').subscribe({
           next: () => {
             expect(component.getCustomFields).toHaveBeenCalledOnceWith();
             expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, jasmine.any(Observable));
-            expect(component.trackAddExpense).toHaveBeenCalledOnceWith();
           },
           error: (err) => expect(err).toBeTruthy(),
         });

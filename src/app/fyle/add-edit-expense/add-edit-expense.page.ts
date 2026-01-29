@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
@@ -152,7 +152,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -365,8 +365,6 @@ export class AddEditExpensePage implements OnInit {
   private snackbarProperties = inject(SnackbarPropertiesService);
 
   platform = inject(Platform);
-
-  private titleCasePipe = inject(TitleCasePipe);
 
   private paymentModesService = inject(PaymentModesService);
 
@@ -4500,31 +4498,6 @@ export class AddEditExpensePage implements OnInit {
     return (expenseEndTime - this.expenseStartTime) / 1000;
   }
 
-  trackAddExpense(): void {
-    const customFields$ = this.getCustomFields();
-    const isInstaFyleExpense = !!this.activatedRoute.snapshot.params.dataUrl;
-    this.generateEtxnFromFg(this.etxn$, customFields$).subscribe((etxn) => {
-      this.trackingService.createExpense({
-        Type: 'Receipt',
-        Amount: etxn.tx.amount,
-        Currency: etxn.tx.currency,
-        Category: etxn.tx.org_category,
-        Time_Spent: this.getTimeSpentOnPage() + ' secs',
-        Used_Autofilled_Category:
-          etxn.tx.category_id && this.presetCategoryId && etxn.tx.category_id === this.presetCategoryId,
-        Used_Autofilled_Project:
-          etxn.tx.project_id && this.presetProjectId && etxn.tx.project_id === this.presetProjectId,
-        Used_Autofilled_CostCenter:
-          etxn.tx.cost_center_id && this.presetCostCenterId && etxn.tx.cost_center_id === this.presetCostCenterId,
-        Used_Autofilled_Currency:
-          (etxn.tx.currency || etxn.tx.orig_currency) &&
-          this.presetCurrency &&
-          (etxn.tx.currency === this.presetCurrency || etxn.tx.orig_currency === this.presetCurrency),
-        Instafyle: isInstaFyleExpense,
-      });
-    });
-  }
-
   criticalPolicyViolationErrorHandler(
     err: {
       status?: number;
@@ -4635,8 +4608,6 @@ export class AddEditExpensePage implements OnInit {
     this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
-
-    this.trackAddExpense();
     return this.generateEtxnFromFg(this.etxn$, customFields$).pipe(
       switchMap((etxn) =>
         this.isConnected$.pipe(
@@ -4955,7 +4926,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
+  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer }): void {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -5064,7 +5035,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async uploadFileCallback(file: File): Promise<void> {
-    let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
+    let fileData: { type: string; dataUrl: string | ArrayBuffer };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
         const fileRead$ = from(this.fileService.readFile(file));
@@ -5080,7 +5051,6 @@ export class AddEditExpensePage implements OnInit {
               fileData = {
                 type: file.type,
                 dataUrl,
-                actionSource: 'gallery_upload',
               };
               this.attachReceipts(fileData);
               this.trackingService.addAttachment({ type: file.type });
@@ -5099,7 +5069,7 @@ export class AddEditExpensePage implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async addAttachments(event: Event): Promise<void> {
+  async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
@@ -5114,7 +5084,8 @@ export class AddEditExpensePage implements OnInit {
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
         componentProps: {
-          mode: this.mode,
+          mode: this.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+          showHeader: isAddMore,
         },
       });
 
@@ -5125,7 +5096,6 @@ export class AddEditExpensePage implements OnInit {
           option?: string;
           type: string;
           dataUrl: string;
-          actionSource?: string;
         };
       };
 
@@ -5154,7 +5124,6 @@ export class AddEditExpensePage implements OnInit {
           receiptDetails = {
             type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
-            actionSource: 'camera',
           };
         }
       }
