@@ -15,7 +15,8 @@ import { cloneDeep } from 'lodash';
 import { TokenService } from './token.service';
 import { AuthService } from './auth.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { FileService } from './file.service';
+import { BehaviorSubject, of } from 'rxjs';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { featureConfigOptInData } from '../mock-data/feature-config.data';
 import { txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
@@ -26,11 +27,13 @@ describe('UtilityService', () => {
   let tokenService: jasmine.SpyObj<TokenService>;
   let authService: jasmine.SpyObj<AuthService>;
   let featureConfigService: jasmine.SpyObj<FeatureConfigService>;
+  let fileService: jasmine.SpyObj<FileService>;
 
   beforeEach(() => {
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', ['getConfiguration']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['getDataUrlFromBlob']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -47,12 +50,17 @@ describe('UtilityService', () => {
           provide: FeatureConfigService,
           useValue: featureConfigServiceSpy,
         },
+        {
+          provide: FileService,
+          useValue: fileServiceSpy,
+        },
       ],
     });
     utilityService = TestBed.inject(UtilityService);
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
   });
 
   it('should be created', () => {
@@ -610,16 +618,18 @@ describe('UtilityService', () => {
   describe('webPathToBase64():', () => {
     it('should convert webPath to base64 string', async () => {
       const mockBlob = new Blob(['test content'], { type: 'image/png' });
+      const mockDataUrl = 'data:image/png;base64,dGVzdCBjb250ZW50';
       spyOn(window, 'fetch').and.resolveTo({
         blob: () => Promise.resolve(mockBlob),
         ok: true,
       } as Response);
+      fileService.getDataUrlFromBlob.and.resolveTo(mockDataUrl);
 
       const result = await utilityService.webPathToBase64('https://example.com/image.png');
 
-      expect(result).toContain('data:');
-      expect(result).toContain('base64,');
+      expect(result).toBe(mockDataUrl);
       expect(window.fetch).toHaveBeenCalledWith('https://example.com/image.png');
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledWith(mockBlob);
     });
 
     it('should reject on fetch error', async () => {
@@ -629,34 +639,16 @@ describe('UtilityService', () => {
       await expectAsync(utilityService.webPathToBase64('https://example.com/image.png')).toBeRejectedWith(error);
     });
 
-    it('should reject on FileReader error', async () => {
+    it('should reject when getDataUrlFromBlob fails', async () => {
       const mockBlob = new Blob(['test'], { type: 'image/png' });
+      const readError = new Error('Read error');
       spyOn(window, 'fetch').and.resolveTo({
         blob: () => Promise.resolve(mockBlob),
         ok: true,
       } as Response);
+      fileService.getDataUrlFromBlob.and.rejectWith(readError);
 
-      // Mock FileReader to simulate error
-      const originalFileReader = window.FileReader;
-      const mockFileReader = jasmine.createSpy('FileReader').and.returnValue({
-        readAsDataURL: function (blob: Blob) {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror(new Error('Read error') as unknown as ProgressEvent);
-            }
-          }, 0);
-        },
-      } as unknown as FileReader);
-      (window as unknown as { FileReader: typeof FileReader }).FileReader = mockFileReader as unknown as typeof FileReader;
-
-      try {
-        await utilityService.webPathToBase64('https://example.com/image.png');
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeDefined();
-      } finally {
-        (window as unknown as { FileReader: typeof FileReader }).FileReader = originalFileReader;
-      }
+      await expectAsync(utilityService.webPathToBase64('https://example.com/image.png')).toBeRejectedWith(readError);
     });
   });
 
