@@ -252,7 +252,6 @@ export function TestCases4(getTestBed) {
         expect(component.attachReceipts).toHaveBeenCalledOnceWith({
           type: file.type,
           dataUrl: 'base',
-          actionSource: 'gallery_upload',
         });
       }));
 
@@ -360,7 +359,6 @@ export function TestCases4(getTestBed) {
         expect(component.attachReceipts).toHaveBeenCalledOnceWith({
           dataUrl: 'data-url',
           type: 'png',
-          actionSource: 'camera',
         });
         expect(component.showSnackBarToast).toHaveBeenCalledOnceWith(
           { message: 'Receipt added to expense successfully' },
