@@ -50,6 +50,9 @@ project(':capacitor-text-zoom').projectDir = new File('../node_modules/@capacito
 include ':capawesome-capacitor-app-shortcuts'
 project(':capawesome-capacitor-app-shortcuts').projectDir = new File('../node_modules/@capawesome/capacitor-app-shortcuts/android')
 
+include ':whiteguru-capacitor-plugin-file-picker'
+project(':whiteguru-capacitor-plugin-file-picker').projectDir = new File('../node_modules/@whiteguru/capacitor-plugin-file-picker/android')
+
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')
 

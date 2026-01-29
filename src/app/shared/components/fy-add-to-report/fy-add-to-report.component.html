@@ -13,6 +13,7 @@
       type="text"
       [placeholder]="'fyAddToReport.selectExpenseReport' | transloco"
       [ngModel]="displayValue"
+      readonly
       (blur)="onBlur()"
       (click)="openModal()"
       [ngClass]="{ 'fy-select--input-disabled': disabled() }"

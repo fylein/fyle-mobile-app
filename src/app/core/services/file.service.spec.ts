@@ -93,6 +93,7 @@ describe('FileService', () => {
       expect(res.content).toBe('dGVzdCBjb250ZW50');
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith([fileId]);
       expect(globalThis.fetch).toHaveBeenCalledOnceWith(mockDownloadUrl);
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledOnceWith(mockBlob);
       done();
     });
   });
@@ -422,65 +423,52 @@ describe('FileService', () => {
       const mockBlob = new Blob(['test content'], { type: 'image/jpeg' });
       const mockDataUrl = 'data:image/jpeg;base64,dGVzdCBjb250ZW50';
 
-      // Mock the FileReader to work properly
-      const mockFileReader = {
-        readAsDataURL: jasmine.createSpy('readAsDataURL'),
-        result: mockDataUrl,
-        onload: null as any,
-        onerror: null as any,
-      };
-
-      spyOn(window, 'FileReader').and.returnValue(mockFileReader as any);
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
-      const resultPromise = fileService.readFile(mockBlob);
+      const result = await fileService.readFile(mockBlob);
 
-      // Simulate the FileReader success
-      mockFileReader.onload();
-
-      const result = await resultPromise;
       expect(result).toBe(mockDataUrl);
-      expect(mockFileReader.readAsDataURL).toHaveBeenCalledWith(mockBlob);
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledWith(mockBlob);
     });
 
-    it('should read a HEIC file and convert to JPEG', async () => {
+    it('should reject when getDataUrlFromBlob fails', async () => {
+      const mockBlob = new Blob(['test content'], { type: 'text/plain' });
+      const mockError = new Error('Read error');
+
+      spyOn(fileService, 'getDataUrlFromBlob').and.rejectWith(mockError);
+
+      await expectAsync(fileService.readFile(mockBlob)).toBeRejectedWith(mockError);
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledWith(mockBlob);
+    });
+
+    it('should read a HEIC file and return data URL via heic2any and getDataUrlFromBlob', async () => {
       const mockHeicBlob = new Blob(['heic content'], { type: 'image/heic' });
-
-      // Since heic2any is an external library that's hard to mock in tests,
-      // let's test the method structure and behavior without triggering the actual conversion
-      // We'll verify that the method exists and can handle HEIC files
-
-      // Mock the getDataUrlFromBlob method to avoid the actual conversion
+      const mockJpegBlob = new Blob(['jpeg content'], { type: 'image/jpeg' });
       const mockDataUrl = 'data:image/jpeg;base64,Y29udmVydGVkIGNvbnRlbnQ=';
+
+      spyOn(fileService as any, 'heic2any').and.resolveTo(mockJpegBlob);
       spyOn(fileService, 'getDataUrlFromBlob').and.resolveTo(mockDataUrl);
 
-      // Test that the method exists and is callable
-      expect(typeof fileService.readFile).toBe('function');
+      const result = await fileService.readFile(mockHeicBlob);
 
-      // The actual heic2any call will fail in tests due to missing native libraries,
-      // but we can verify the method structure and that it's designed to handle HEIC files
-      expect(mockHeicBlob.type).toBe('image/heic');
+      expect(result).toBe(mockDataUrl);
+      expect((fileService as any).heic2any).toHaveBeenCalledWith({
+        blob: mockHeicBlob,
+        toType: 'image/jpeg',
+        quality: 50,
+      });
+      expect(fileService.getDataUrlFromBlob).toHaveBeenCalledWith(mockJpegBlob);
     });
 
-    it('should handle FileReader errors', async () => {
-      const mockBlob = new Blob(['test content'], { type: 'text/plain' });
-      const mockError = new Error('FileReader error');
+    it('should reject when heic2any fails for HEIC image', async () => {
+      const mockHeicBlob = new Blob(['heic content'], { type: 'image/heic' });
+      const heicError = new Error('HEIC conversion failed');
 
-      // Create a mock FileReader that will trigger the error
-      const mockFileReader = {
-        readAsDataURL: jasmine.createSpy('readAsDataURL'),
-        onload: null as any,
-        onerror: null as any,
-      };
+      spyOn(fileService as any, 'heic2any').and.rejectWith(heicError);
+      spyOn(fileService, 'getDataUrlFromBlob');
 
-      spyOn(window, 'FileReader').and.returnValue(mockFileReader as any);
-
-      const resultPromise = fileService.readFile(mockBlob);
-
-      // Simulate the error
-      mockFileReader.onerror(mockError);
-
-      await expectAsync(resultPromise).toBeRejectedWith(mockError);
+      await expectAsync(fileService.readFile(mockHeicBlob)).toBeRejectedWith(heicError);
+      expect(fileService.getDataUrlFromBlob).not.toHaveBeenCalled();
     });
   });
 });

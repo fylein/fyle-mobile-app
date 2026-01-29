@@ -1,6 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 import { ProjectV1 } from '../models/v1/extended-project.model';
-import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
+import { PlatformCategoryListItem } from '../models/platform/platform-category-list-item.model';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 
 export const apiResponseActiveOnly = deepFreeze([
@@ -141,15 +142,15 @@ export const apiV2ResponseSingle = deepFreeze({
   url: '/v2/projects',
 });
 
-export const testActiveCategoryListOptions: OrgCategoryListItem[] = deepFreeze([
+export const testActiveCategoryListOptions: PlatformCategoryListItem[] = deepFreeze([
   {
     label: 'Snacks',
     value: {
       code: '4060340',
       created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
-      displayName: 'Snacks',
-      enabled: true,
-      fyle_category: 'Food',
+      display_name: 'Snacks',
+      is_enabled: true,
+      system_category: 'Food',
       id: 16560,
       name: 'Snacks',
       org_id: 'orNVthTo2Zyo',
@@ -162,9 +163,9 @@ export const testActiveCategoryListOptions: OrgCategoryListItem[] = deepFreeze([
     value: {
       code: '4060337',
       created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-      displayName: 'Train / Induction',
-      enabled: true,
-      fyle_category: 'Train',
+      display_name: 'Train / Induction',
+      is_enabled: true,
+      system_category: 'Train',
       id: 201949,
       name: 'Train',
       org_id: 'orNVthTo2Zyo',
@@ -177,9 +178,9 @@ export const testActiveCategoryListOptions: OrgCategoryListItem[] = deepFreeze([
     value: {
       code: 'Cell phone',
       created_at: new Date('2021-03-19T04:44:55.627307+00:00'),
-      displayName: 'Cell phone',
-      enabled: true,
-      fyle_category: null,
+      display_name: 'Cell phone',
+      is_enabled: true,
+      system_category: null,
       id: 130361,
       name: 'Cell phone',
       org_id: 'orNVthTo2Zyo',
@@ -189,13 +190,13 @@ export const testActiveCategoryListOptions: OrgCategoryListItem[] = deepFreeze([
   },
 ]);
 
-export const testActiveCategoryList: OrgCategory[] = deepFreeze([
+export const testActiveCategoryList: PlatformCategory[] = deepFreeze([
   {
     code: '4060340',
     created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
-    displayName: 'Snacks',
-    enabled: true,
-    fyle_category: 'Food',
+    display_name: 'Snacks',
+    is_enabled: true,
+    system_category: 'Food',
     id: 16560,
     name: 'Snacks',
     org_id: 'orNVthTo2Zyo',
@@ -205,9 +206,9 @@ export const testActiveCategoryList: OrgCategory[] = deepFreeze([
   {
     code: '4060337',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Train / Induction',
-    enabled: true,
-    fyle_category: 'Train',
+    display_name: 'Train / Induction',
+    is_enabled: true,
+    system_category: 'Train',
     id: 201949,
     name: 'Train',
     org_id: 'orNVthTo2Zyo',
@@ -217,9 +218,9 @@ export const testActiveCategoryList: OrgCategory[] = deepFreeze([
   {
     code: 'Cell phone',
     created_at: new Date('2021-03-19T04:44:55.627307+00:00'),
-    displayName: 'Cell phone',
-    enabled: true,
-    fyle_category: null,
+    display_name: 'Cell phone',
+    is_enabled: true,
+    system_category: null,
     id: 130361,
     name: 'Cell phone',
     org_id: 'orNVthTo2Zyo',
@@ -228,13 +229,13 @@ export const testActiveCategoryList: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const allowedActiveCategories: OrgCategory[] = deepFreeze([
+export const allowedActiveCategories: PlatformCategory[] = deepFreeze([
   {
     code: '4060340',
     created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
-    displayName: 'Snacks',
-    enabled: true,
-    fyle_category: 'Food',
+    display_name: 'Snacks',
+    is_enabled: true,
+    system_category: 'Food',
     id: 16560,
     name: 'Snacks',
     org_id: 'orNVthTo2Zyo',
@@ -244,9 +245,9 @@ export const allowedActiveCategories: OrgCategory[] = deepFreeze([
   {
     code: '4060337',
     created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-    displayName: 'Train / Induction',
-    enabled: true,
-    fyle_category: 'Train',
+    display_name: 'Train / Induction',
+    is_enabled: true,
+    system_category: 'Train',
     id: 201949,
     name: 'Train',
     org_id: 'orNVthTo2Zyo',
@@ -255,15 +256,15 @@ export const allowedActiveCategories: OrgCategory[] = deepFreeze([
   },
 ]);
 
-export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = deepFreeze([
+export const allowedActiveCategoriesListOptions: PlatformCategoryListItem[] = deepFreeze([
   {
     label: 'Snacks',
     value: {
       code: '4060340',
       created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
-      displayName: 'Snacks',
-      enabled: true,
-      fyle_category: 'Food',
+      display_name: 'Snacks',
+      is_enabled: true,
+      system_category: 'Food',
       id: 16560,
       name: 'Snacks',
       org_id: 'orNVthTo2Zyo',
@@ -276,9 +277,9 @@ export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = deepFre
     value: {
       code: '4060337',
       created_at: new Date('2022-07-05T07:52:00.417939+00:00'),
-      displayName: 'Train / Induction',
-      enabled: true,
-      fyle_category: 'Train',
+      display_name: 'Train / Induction',
+      is_enabled: true,
+      system_category: 'Train',
       id: 201949,
       name: 'Train',
       org_id: 'orNVthTo2Zyo',
