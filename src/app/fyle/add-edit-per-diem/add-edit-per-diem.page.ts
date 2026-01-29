@@ -104,7 +104,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { PlatformPerDiemRates } from 'src/app/core/models/platform/platform-per-diem-rates.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
@@ -1051,7 +1051,7 @@ export class AddEditPerDiemPage implements OnInit {
             perDiemRates$,
           ),
         ),
-        map((rates) => rates.filter((rate) => rate.active)),
+        map((rates) => rates.filter((rate) => rate.is_enabled)),
         map((rates) =>
           rates.map((rate) => {
             rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
@@ -1304,7 +1304,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PlatformPerDiemRates>,
       this.fg.controls.num_days.valueChanges,
       this.homeCurrency$,
     )
@@ -1330,7 +1330,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PlatformPerDiemRates>,
       this.fg.controls.num_days.valueChanges as Observable<number>,
       this.homeCurrency$,
     )
@@ -1344,20 +1344,22 @@ export class AddEditPerDiemPage implements OnInit {
             .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res])),
         ),
       )
-      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]: [PerDiemRates, number, string, number]) => {
-        this.fg.controls.currencyObj.setValue({
-          currency: homeCurrency,
-          amount: this.currencyService.getAmountWithCurrencyFraction(
-            perDiemRate.rate * numDays * exchangeRate,
-            homeCurrency,
-          ),
-          orig_currency: perDiemRate.currency,
-          orig_amount: this.currencyService.getAmountWithCurrencyFraction(
-            perDiemRate.rate * numDays,
-            perDiemRate.currency,
-          ),
-        });
-      });
+      .subscribe(
+        ([perDiemRate, numDays, homeCurrency, exchangeRate]: [PlatformPerDiemRates, number, string, number]) => {
+          this.fg.controls.currencyObj.setValue({
+            currency: homeCurrency,
+            amount: this.currencyService.getAmountWithCurrencyFraction(
+              perDiemRate.rate * numDays * exchangeRate,
+              homeCurrency,
+            ),
+            orig_currency: perDiemRate.currency,
+            orig_amount: this.currencyService.getAmountWithCurrencyFraction(
+              perDiemRate.rate * numDays,
+              perDiemRate.currency,
+            ),
+          });
+        },
+      );
 
     const selectedProject$ = this.etxn$.pipe(
       switchMap((etxn) => {
