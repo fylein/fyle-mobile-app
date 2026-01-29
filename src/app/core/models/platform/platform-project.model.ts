@@ -10,4 +10,5 @@ export interface PlatformProject {
   description: string;
   is_enabled: boolean;
   category_ids: number[];
+  default_billable?: boolean | null;
 }
