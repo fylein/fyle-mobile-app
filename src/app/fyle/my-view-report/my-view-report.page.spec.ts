@@ -69,7 +69,7 @@ import { DwollaCustomer } from 'src/app/core/models/dwolla-customer.model';
 })
 class MockExpensesCardComponent {}
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
