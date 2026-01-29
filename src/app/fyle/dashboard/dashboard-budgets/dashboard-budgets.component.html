@@ -1,0 +1,135 @@
+<div class="dashboard-budgets dashboard-budgets__tabs-enabled">
+  @if (isLoading()) {
+    <div class="dashboard-budgets__shimmers">
+      <ion-skeleton-text data-testid="shimmer" animated class="dashboard-budgets__shimmers__card"></ion-skeleton-text>
+    </div>
+  } @else {
+    @if (budgets().length > 0) {
+      @if (!areDashboardTabsEnabled()) {
+        <div class="dashboard-budgets__header">
+          {{ 'dashboardBudgets.header' | transloco }}
+          @if (budgets().length > 0) {
+            <span class="budget-count"> ({{ budgets().length }})</span>
+          }
+        </div>
+      }
+      <swiper
+        #swiper
+        class="dashboard-budgets__swiper"
+        [slidesPerView]="1.1"
+        [spaceBetween]="16"
+        [pagination]="pagination"
+        [centeredSlides]="budgets().length === 1"
+      >
+        @for (budget of budgets(); track budget.id) {
+          <ng-template swiperSlide>
+            <div class="dashboard-budgets__item">
+              <!-- Header -->
+              <div class="dashboard-budgets__item-header">
+                <div class="dashboard-budgets__item-header-container">
+                  {{ budget.name }} <span class="dashboard-budgets__item-dot"> · </span>
+                  <span class="dashboard-budgets__item-type">
+                    {{ getCurrentBudgetType(budget) }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Utilization -->
+              <div class="dashboard-budgets__item-utilization">
+                <div class="dashboard-budgets__item-utilization-bar">
+                  <div
+                    [ngClass]="{
+                      'dashboard-budgets__item-utilization-bar-value--green': budget?.utilisation_percentage <= 50,
+                      'dashboard-budgets__item-utilization-bar-value--yellow':
+                        budget?.utilisation_percentage > 50 && budget?.utilisation_percentage < 100,
+                      'dashboard-budgets__item-utilization-bar-value--red': budget?.utilisation_percentage >= 100,
+                    }"
+                    [style.width.%]="budget?.utilisation_percentage < 100 ? budget?.utilisation_percentage : 100"
+                    class="dashboard-budgets__item-utilization-bar-value"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Budget info -->
+              <div class="dashboard-budgets__item-info">
+                <div class="dashboard-budgets__item-info-container">
+                  <!-- limit -->
+                  <div class="dashboard-budgets__item-info-stat dashboard-budgets__item-info-stat--limit">
+                    <div class="dashboard-budgets__item-info-stat-label">
+                      {{ 'dashboardBudgets.limit' | transloco }}
+                    </div>
+                    <div>
+                      @if (homeCurrency(); as homeCurrency) {
+                        <span class="dashboard-budgets__item-info-stat-value">{{
+                          budget.amount_limit | humanizeCurrency: homeCurrency
+                        }}</span>
+                      } @else {
+                        <div class="dashboard-budgets__item-info-stat-shimmer">
+                          <ui-shimmers [height]="18" [width]="74"></ui-shimmers>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <!-- Divider -->
+                  <div class="dashboard-budgets__item-info-divider"></div>
+                  <!-- Total Utilization -->
+                  <div class="dashboard-budgets__item-info-stat dashboard-budgets__item-info-stat--utilization">
+                    <div class="dashboard-budgets__item-info-stat-header">
+                      <span
+                        class="dashboard-budgets__item-info-indicator"
+                        [ngClass]="{
+                          'dashboard-budgets__item-info-indicator--green': budget?.utilisation_percentage <= 50,
+                          'dashboard-budgets__item-info-indicator--yellow':
+                            budget?.utilisation_percentage > 50 && budget?.utilisation_percentage < 100,
+                          'dashboard-budgets__item-info-indicator--red': budget?.utilisation_percentage >= 100,
+                        }"
+                      ></span>
+                      <span class="dashboard-budgets__item-info-stat-label">{{
+                        'dashboardBudgets.totalUtilization' | transloco
+                      }}</span>
+                      <mat-icon
+                        class="dashboard-budgets__item-info-tooltip"
+                        svgIcon="info-circle-outline"
+                        (click)="openTotalUtilisationInfoModal($event)"
+                      ></mat-icon>
+                    </div>
+                    <div>
+                      @if (homeCurrency(); as homeCurrency) {
+                        <span class="dashboard-budgets__item-info-stat-value">{{
+                          budget.amount_spent | humanizeCurrency: homeCurrency
+                        }}</span>
+                      } @else {
+                        <div class="dashboard-budgets__item-info-stat-shimmer">
+                          <ui-shimmers [height]="18" [width]="74"></ui-shimmers>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                  <!-- Divider -->
+                  <div class="dashboard-budgets__item-info-divider"></div>
+                  <!-- Remaining -->
+                  <div class="dashboard-budgets__item-info-stat dashboard-budgets__item-info-stat--remaining">
+                    <div class="dashboard-budgets__item-info-stat-label">
+                      {{ 'dashboardBudgets.remaining' | transloco }}
+                    </div>
+                    <div>
+                      @if (homeCurrency(); as homeCurrency) {
+                        <span class="dashboard-budgets__item-info-stat-value">{{
+                          budget.amount_remaining | humanizeCurrency: homeCurrency
+                        }}</span>
+                      } @else {
+                        <div class="dashboard-budgets__item-info-stat-shimmer">
+                          <ui-shimmers [height]="18" [width]="74"></ui-shimmers>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        }
+      </swiper>
+    }
+  }
+</div>

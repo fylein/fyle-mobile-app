@@ -7,7 +7,6 @@ export interface IdentifyUserPayload {
     company_id: string;
     region: string;
   };
-  source: string;
   is_admin: 'T' | 'F';
   action_name: string;
 }

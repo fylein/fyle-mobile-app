@@ -215,6 +215,10 @@ export class TrackingService {
     this.eventTrack('Add Attachment', properties);
   }
 
+  filePickerError(properties: Partial<AddAttachmentProperties>): void {
+    this.eventTrack('File Picker Error', properties);
+  }
+
   addMoreFilesClicked(properties = {}): void {
     this.eventTrack('Add More Files Clicked', properties);
   }
@@ -699,6 +703,10 @@ export class TrackingService {
 
   smsDeepLinkOpened(properties = {}): void {
     this.eventTrack('SMS Deep Link Opened', properties);
+  }
+
+  appShortcutUsed(properties: { action: string }): void {
+    this.eventTrack('App Shortcut Used', properties);
   }
 
   cardUnenrolled(properties: CardUnenrolledProperties): void {

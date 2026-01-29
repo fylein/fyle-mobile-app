@@ -4,12 +4,13 @@
       @if (cardDetails$ | async; as cardDetails) {
         @if (isVirtualCardsEnabled$ | async; as isVirtualCardsEnabled) {
           @if (cardDetails?.length) {
-            <div class="card-stats__header">
-              {{ 'cardStats.myCards' | transloco }}
-              @if (cardDetails?.length > 0) {
+            @if (!areDashboardTabsEnabled()) {
+              <div class="card-stats__header">
+                {{ 'cardStats.myCards' | transloco }}
                 <span class="card-count"> ({{ cardDetails.length }})</span>
-              }
-            </div>
+              </div>
+            }
+
             @if (isVirtualCardsEnabled.enabled === false) {
               <app-spent-cards
                 [cardDetails]="cardDetails"

@@ -49,7 +49,7 @@
     (activeIndexChange)="getActiveIndex()"
     (onSwiper)="getActiveIndex()"
   >
-    @for (attachment of attachments; track attachment.id) {
+    @for (attachment of attachments; track attachment.id ?? $index) {
       <ng-template swiperSlide>
         <div>
           @if (attachment?.type !== 'pdf') {

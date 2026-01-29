@@ -29,6 +29,8 @@ describe('StatusService', () => {
         'services.status.approverAdded': 'Approver added',
         'services.status.approverPending': 'Approver pending',
         'services.status.approverRemoved': 'Approver removed',
+        'services.status.approvalsReset': 'Approvals reset',
+        'services.status.cardExpenseMerged': 'Card expense merged',
         'services.status.cardExpenseRemoved': 'Card expense removed',
         'services.status.cardTransactionMatched': 'Card transaction matched',
         'services.status.criticalPolicyViolation': 'Critical policy violation found',
@@ -37,6 +39,7 @@ describe('StatusService', () => {
         'services.status.duplicateIssueResolved': 'Duplicate(s) issue resolved',
         'services.status.expense': 'Expense',
         'services.status.expenseAdded': 'Expense added',
+        'services.status.expenseApproved': 'Expense approved',
         'services.status.expenseAutomaticallyMerged': 'Expense automatically merged',
         'services.status.expenseIssues': 'Expense issues',
         'services.status.expenseMatched': 'Expense matched',
@@ -45,10 +48,12 @@ describe('StatusService', () => {
         'services.status.expenseRemoved': 'Expense removed',
         'services.status.expenseReportApproved': 'Expense report approved',
         'services.status.expenseRuleApplied': 'Expense rule applied',
+        'services.status.expenseSplit': 'Expense split',
         'services.status.expenseUnlinked': 'Expense unlinked',
         'services.status.expenseUnmatched': 'Expense unmatched',
         'services.status.expenseVerificationUndone': 'Expense verification undone',
         'services.status.expenseVerified': 'Expense verified',
+        'services.status.expensesAdded': 'Expense(s) added',
         'services.status.expensesMergedToThisExpense': '{{count}} expenses merged to this expense',
         'services.status.failedToRunPolicies': 'Failed to run policies',
         'services.status.flagged': 'Flagged',
@@ -67,6 +72,7 @@ describe('StatusService', () => {
         'services.status.reportClosed': 'Report closed',
         'services.status.reportNameChanged': 'Report name changed',
         'services.status.reportSubmitted': 'Report submitted',
+        'services.status.typeAutomaticallyApproved': '{{type}} automatically approved',
         'services.status.typeApproved': '{{type}} approved',
         'services.status.typeCreated': '{{type}} created',
         'services.status.typeEdited': '{{type}} edited',
@@ -247,10 +253,10 @@ describe('StatusService', () => {
     expect(result.icon).toBe('check');
   });
 
-  it('should return "Expense" for matched by comments', () => {
+  it('should return "Expense matched" for matched by comments', () => {
     const comment = 'Expense matched by John Doe john@example.com';
     const result = statusService.getStatusCategory(comment, 'transactions');
-    expect(result.category).toBe('Expense');
+    expect(result.category).toBe('Expense matched');
     expect(result.icon).toBe('check');
   });
 
@@ -303,10 +309,17 @@ describe('StatusService', () => {
     expect(result.icon).toBe('check');
   });
 
-  it('should return "Expense report approved" for approved by admin comments', () => {
+  it('should return "Reports approved" for approved by admin comments', () => {
     const comment = 'Expense report approved by admin';
     const result = statusService.getStatusCategory(comment, 'reports');
-    expect(result.category).toBe('Expense report approved');
+    expect(result.category).toBe('Reports approved');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense automatically approved" for automatically approved comments', () => {
+    const comment = 'Expense automatically approved by system';
+    const result = statusService.getStatusCategory(comment, 'Expense');
+    expect(result.category).toBe('Expense automatically approved');
     expect(result.icon).toBe('check');
   });
 
@@ -344,5 +357,124 @@ describe('StatusService', () => {
     expect(result.st_diff).toEqual({ Amount: 5.72, Category: 'Office Supplies', Merchant: 'Enroll' });
     expect(result.us_full_name).toBeNull();
     expect(result.us_email).toBeNull();
+  });
+
+  it('should return "Expense merged" for generic merged comments', () => {
+    const comment = 'Expense merged by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense merged');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Card expense merged" for expense merged automatically comments', () => {
+    const comment = 'Expense merged automatically by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Card expense merged');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense(s) added" for expense(s) added to report comments', () => {
+    const comment = 'expense(s) added to report by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Expense(s) added');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Report name changed" for name was changed from comments', () => {
+    const comment = 'Report name was changed from "Old Name" to "New Name"';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Report name changed');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Unflagged" for unflagged comments', () => {
+    const comment = 'Expense unflagged by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Unflagged');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Flagged" for flagged comments', () => {
+    const comment = 'Expense flagged by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Flagged');
+    expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Expense split" for expense split comments', () => {
+    const comment = 'Expense split by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense split');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Verified" for generic verified comments', () => {
+    const comment = 'Report verified by admin@example.com';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Verified');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Approvals reset" for approvals reset comments', () => {
+    const comment = 'Approvals reset by admin@example.com';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Approvals reset');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Policies ran successfully" for policies ran successfully comments', () => {
+    const comment = 'Policies ran successfully on this expense';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Policies ran successfully');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Card transaction matched" for auto-matched by comments', () => {
+    const comment = 'Expense auto-matched by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Card transaction matched');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense unmatched" for unmatched by comments', () => {
+    const comment = 'Expense unmatched by user@example.com';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense unmatched');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Approver pending" for approver_pending comments', () => {
+    const comment = 'approver_pending status set by system';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Approver pending');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Processing payment" for payment_processing comments', () => {
+    const comment = 'payment_processing status set by system';
+    const result = statusService.getStatusCategory(comment, 'reports');
+    expect(result.category).toBe('Processing payment');
+    expect(result.icon).toBe('check');
+  });
+
+  it('should return "Expense issues" for expense issues comments', () => {
+    const comment = 'Expense issues detected by system';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Expense issues');
+    expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Duplicate detected" for expense is a possible duplicate comments', () => {
+    const comment = 'This expense is a possible duplicate of another expense';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Duplicate detected');
+    expect(result.icon).toBe('danger-outline');
+  });
+
+  it('should return "Duplicate(s) issue resolved" for duplicate expense(s) with similar details comments', () => {
+    const comment = 'duplicate expense(s) with similar details have been resolved';
+    const result = statusService.getStatusCategory(comment, 'transactions');
+    expect(result.category).toBe('Duplicate(s) issue resolved');
+    expect(result.icon).toBe('check');
   });
 });

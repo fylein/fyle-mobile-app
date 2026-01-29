@@ -1,0 +1,203 @@
+@use '../../../../theme/colors.scss';
+
+.dashboard-budgets {
+  user-select: none;
+
+  &__tabs-enabled {
+    margin-bottom: 40px;
+  }
+
+  &__header {
+    font-size: 14px;
+    line-height: 18px;
+    color: colors.$black-light;
+    font-weight: 500;
+    margin: 16px;
+    margin-bottom: 0;
+  }
+
+  .budget-count {
+    margin-left: 2px;
+  }
+
+  &__shimmers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &__card {
+      height: 180px;
+      width: 90%;
+      border-radius: 16px;
+      margin-right: 24px;
+      margin: 50px 0;
+    }
+
+    &__card-lg {
+      height: 220px;
+      width: 80%;
+      border-radius: 16px;
+      margin-right: 24px;
+      bottom: 50px;
+    }
+  }
+
+  &__swiper {
+    padding: 0 16px;
+  }
+
+  &__item {
+    padding: 16px;
+    border: 1px solid colors.$navy-50;
+    border-radius: 8px;
+    background-color: colors.$pure-white;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__item-header {
+    color: colors.$blue-black;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  &__item-dot {
+    padding: 0 4px;
+  }
+
+  &__item-type {
+    color: colors.$black-light;
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  &__empty {
+    padding: 32px;
+    text-align: center;
+    color: colors.$grey-8;
+  }
+
+  &__item-utilization {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: 4px;
+    gap: 12px;
+  }
+
+  &__item-utilization-bar {
+    border-radius: 4px;
+    background-color: colors.$grey-7;
+    width: 100%;
+
+    &-value {
+      border-radius: 4px;
+      height: 8px;
+
+      &--green {
+        background-color: colors.$green-500;
+      }
+
+      &--yellow {
+        background-color: colors.$caution-500;
+      }
+
+      &--red {
+        background-color: colors.$negative-500;
+      }
+    }
+  }
+
+  &__item-info {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &__item-info-container {
+    display: flex;
+    justify-content: space-evenly;
+  }
+
+  &__item-info-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    &--limit {
+      padding-right: 8px;
+    }
+
+    &--utilization {
+      padding: 0 8px;
+    }
+
+    &--remaining {
+      padding: 0 8px;
+    }
+  }
+
+  &__item-info-stat-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__item-info-stat-label {
+    color: colors.$black-light;
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  &__item-info-stat-value {
+    color: colors.$blue-black;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  &__item-info-stat-shimmer {
+    display: block;
+    margin-top: 8px;
+  }
+
+  &__item-info-divider {
+    width: 1px;
+    height: 100%;
+    background-color: colors.$border-tertiary;
+  }
+
+  &__item-info-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+
+    &--green {
+      background-color: colors.$green-500;
+    }
+
+    &--yellow {
+      background-color: colors.$caution-500;
+    }
+
+    &--red {
+      background-color: colors.$negative-500;
+    }
+  }
+
+  &__item-info-tooltip {
+    width: 14px;
+    height: 14px;
+    display: flex;
+    color: colors.$sage-text-tertiary;
+    cursor: pointer;
+  }
+
+  &__item-info-status {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+}
