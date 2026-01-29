@@ -188,6 +188,7 @@ describe('OrgUserService', () => {
   it('sendDeviceToken(): should fetch existing tokens and append new token when sending to backend', (done) => {
     const token = 'test-device-token';
     const existingTokens: string[] = ['existing-token-1'];
+    const expectedTokens = [...existingTokens, token];
 
     spenderPlatformV1ApiService.get.and.returnValue(of({ data: { tokens: existingTokens } } as any));
     spenderPlatformV1ApiService.post.and.returnValue(of({}));
@@ -195,7 +196,7 @@ describe('OrgUserService', () => {
     orgUserService.sendDeviceToken(token).subscribe((res) => {
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/users/device_token');
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/users/device_token', {
-        data: { tokens: [...existingTokens, token] },
+        data: { tokens: expectedTokens },
       });
       expect(res).toEqual({});
       done();
