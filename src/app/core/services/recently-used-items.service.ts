@@ -8,7 +8,8 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
+import { PlatformCategoryListItem } from '../models/platform/platform-category-list-item.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 @Injectable({
@@ -44,7 +45,7 @@ export class RecentlyUsedItemsService {
     eou: ExtendedOrgUser;
     categoryIds: string[];
     isProjectCategoryRestrictionsEnabled: boolean;
-    activeCategoryList?: OrgCategory[];
+    activeCategoryList?: PlatformCategory[];
   }): Observable<ProjectV2[]> {
     if (
       config.recentValues &&
@@ -110,9 +111,9 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCategories(
-    filteredCategories: OrgCategoryListItem[],
+    filteredCategories: PlatformCategoryListItem[],
     recentValues: RecentlyUsed,
-  ): Observable<OrgCategoryListItem[]> {
+  ): Observable<PlatformCategoryListItem[]> {
     if (
       filteredCategories &&
       filteredCategories.length > 0 &&
@@ -120,7 +121,7 @@ export class RecentlyUsedItemsService {
       recentValues.category_ids &&
       recentValues.category_ids.length > 0
     ) {
-      const categoriesMap: { [key: string]: OrgCategoryListItem } = {};
+      const categoriesMap: { [key: string]: PlatformCategoryListItem } = {};
       filteredCategories.forEach((category) => {
         categoriesMap[category.value.id] = category;
       });

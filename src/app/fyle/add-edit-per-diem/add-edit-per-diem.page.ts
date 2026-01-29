@@ -105,7 +105,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { PlatformPerDiemRates } from 'src/app/core/models/platform/platform-per-diem-rates.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
@@ -302,7 +302,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   txnFields$: Observable<Partial<ExpenseFieldsObj>>;
 
-  subCategories$: Observable<OrgCategory[]>;
+  subCategories$: Observable<PlatformCategory[]>;
 
   isAmountDisabled = false;
 
@@ -334,9 +334,9 @@ export class AddEditPerDiemPage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  projectCategories$: Observable<OrgCategory[]>;
+  projectCategories$: Observable<PlatformCategory[]>;
 
-  filteredCategories$: Observable<{ label: string; value: OrgCategory }[]>;
+  filteredCategories$: Observable<{ label: string; value: PlatformCategory }[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -581,7 +581,7 @@ export class AddEditPerDiemPage implements OnInit {
   getTransactionFields(): Observable<Partial<ExpenseFieldsObj>> {
     return this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue: { sub_category: OrgCategory }) =>
+      switchMap((formValue: { sub_category: PlatformCategory }) =>
         forkJoin({
           expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
@@ -617,7 +617,7 @@ export class AddEditPerDiemPage implements OnInit {
   setupTfcDefaultValues(): void {
     const tfcValues$ = this.fg.valueChanges.pipe(
       startWith({}),
-      switchMap((formValue: { sub_category: OrgCategory }) =>
+      switchMap((formValue: { sub_category: PlatformCategory }) =>
         forkJoin({
           expenseFieldsMap: this.expenseFieldsService.getAllMap(),
           perDiemCategoriesContainer: this.getPerDiemCategories(),
@@ -686,13 +686,13 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getSubCategories(): Observable<OrgCategory[]> {
+  getSubCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'per diem';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
@@ -700,10 +700,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getProjectCategories(): Observable<OrgCategory[]> {
+  getProjectCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const perDiemCategories = categories.filter((category) => category.fyle_category === 'Per Diem');
+        const perDiemCategories = categories.filter((category) => category.system_category === 'Per Diem');
 
         return perDiemCategories;
       }),
@@ -715,8 +715,8 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getPerDiemCategories(): Observable<{
-    defaultPerDiemCategory: OrgCategory;
-    perDiemCategories: OrgCategory[];
+    defaultPerDiemCategory: PlatformCategory;
+    perDiemCategories: PlatformCategory[];
   }> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
@@ -725,7 +725,7 @@ export class AddEditPerDiemPage implements OnInit {
           (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
-        const perDiemCategories = categories.filter((category) => ['Per Diem'].indexOf(category.fyle_category) > -1);
+        const perDiemCategories = categories.filter((category) => ['Per Diem'].indexOf(category.system_category) > -1);
 
         return {
           defaultPerDiemCategory,

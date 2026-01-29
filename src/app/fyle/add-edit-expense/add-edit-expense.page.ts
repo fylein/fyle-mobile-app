@@ -106,7 +106,8 @@ import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transact
 import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
@@ -211,7 +212,7 @@ type FormValue = {
   };
   paymentMode: PlatformAccount;
   project: ProjectV2;
-  category: OrgCategory;
+  category: PlatformCategory;
   dateOfSpend: Date;
   vendor_id: {
     display_name: string;
@@ -432,7 +433,7 @@ export class AddEditExpensePage implements OnInit {
 
   fg: UntypedFormGroup;
 
-  filteredCategories$: Observable<OrgCategoryListItem[]>;
+  filteredCategories$: Observable<PlatformCategoryListItem[]>;
 
   minDate: string;
 
@@ -542,12 +543,12 @@ export class AddEditExpensePage implements OnInit {
 
   isExpenseBankTxn = false;
 
-  recentCategories: OrgCategoryListItem[];
+  recentCategories: PlatformCategoryListItem[];
 
   // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
 
-  recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
+  recentlyUsedCategories$: Observable<PlatformCategoryListItem[]>;
 
   clusterDomain: string;
 
@@ -645,17 +646,17 @@ export class AddEditExpensePage implements OnInit {
 
   _isExpandedView = false;
 
-  recentCategoriesOriginal: OrgCategoryListItem[];
+  recentCategoriesOriginal: PlatformCategoryListItem[];
 
   isRTFEnabled$: Observable<boolean>;
 
   pendingTransactionAllowedToReportAndSplit = true;
 
-  allCategories$: Observable<OrgCategory[]>;
+  allCategories$: Observable<PlatformCategory[]>;
 
-  activeCategories$: Observable<OrgCategory[]>;
+  activeCategories$: Observable<PlatformCategory[]>;
 
-  selectedCategory$: Observable<OrgCategory>;
+  selectedCategory$: Observable<PlatformCategory>;
 
   isProjectEnabled: boolean;
 
@@ -1461,7 +1462,7 @@ export class AddEditExpensePage implements OnInit {
         (dependencies: {
           orgSettings: OrgSettings;
           employeeSettings: EmployeeSettings;
-          extractedCategory: OrgCategory;
+          extractedCategory: PlatformCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
           imageData: InstaFyleResponse;
@@ -1610,7 +1611,7 @@ export class AddEditExpensePage implements OnInit {
 
             if (extractedCategory) {
               etxn.tx.category_id = extractedCategory.id;
-              etxn.tx.fyle_category = extractedCategory.fyle_category;
+              etxn.tx.fyle_category = extractedCategory.system_category;
             }
           }
 
@@ -1663,7 +1664,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCategory(): Observable<OrgCategory> {
+  getSelectedCategory(): Observable<PlatformCategory> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         // filter out unspecified category as it is not a valid category
@@ -2116,7 +2117,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          const expenseCategory = category?.enabled ? category : null;
+          const expenseCategory = category?.is_enabled ? category : null;
 
           this.fg.patchValue(
             {
@@ -2188,10 +2189,10 @@ export class AddEditExpensePage implements OnInit {
   getAutofillCategory(config: {
     isAutofillsEnabled: boolean;
     recentValue: RecentlyUsed;
-    recentCategories: OrgCategoryListItem[];
+    recentCategories: PlatformCategoryListItem[];
     etxn: Partial<UnflattenedTransaction>;
-    category: OrgCategory;
-  }): OrgCategory {
+    category: PlatformCategory;
+  }): PlatformCategory {
     const { isAutofillsEnabled, recentValue, recentCategories, etxn } = config;
 
     let category = config.category;
@@ -2227,7 +2228,7 @@ export class AddEditExpensePage implements OnInit {
     return category;
   }
 
-  getCategoryOnEdit(category: OrgCategory): Observable<OrgCategory | null> {
+  getCategoryOnEdit(category: PlatformCategory): Observable<PlatformCategory | null> {
     return forkJoin({
       employeeSettings: this.platformEmployeeSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
@@ -2246,7 +2247,7 @@ export class AddEditExpensePage implements OnInit {
           employeeSettings: EmployeeSettings;
           orgSettings: OrgSettings;
           recentValues: RecentlyUsed;
-          recentCategories: OrgCategoryListItem[];
+          recentCategories: PlatformCategoryListItem[];
           etxn: Partial<UnflattenedTransaction>;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
@@ -2268,7 +2269,7 @@ export class AddEditExpensePage implements OnInit {
             recentValues,
             recentCategories,
             etxn,
-            selectedCategory: null as OrgCategory,
+            selectedCategory: null as PlatformCategory,
           });
         },
       ),
@@ -2310,7 +2311,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory> {
+  getCategoryOnAdd(category: PlatformCategory): Observable<PlatformCategory> {
     if (category) {
       return of(category);
     } else {
@@ -2360,17 +2361,17 @@ export class AddEditExpensePage implements OnInit {
       switchMap((category) =>
         iif(
           () => this.mode === 'add',
-          this.getCategoryOnAdd(categoryControl.value as OrgCategory),
-          this.getCategoryOnEdit(categoryControl.value as OrgCategory),
+          this.getCategoryOnAdd(categoryControl.value as PlatformCategory),
+          this.getCategoryOnEdit(categoryControl.value as PlatformCategory),
         ),
       ),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => {
         if (!category) {
           // set to unspecified category if no category is selected
           return this.allCategories$.pipe(
             map((categories) => {
               const unspecifiedCategory = categories.find(
-                (category) => category.fyle_category?.toLowerCase() === 'unspecified',
+                (category) => category.system_category?.toLowerCase() === 'unspecified',
               );
               return unspecifiedCategory;
             }),
@@ -2379,7 +2380,7 @@ export class AddEditExpensePage implements OnInit {
           return of(category);
         }
       }),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => {
         const formValue = this.fg.value as {
           custom_inputs: CustomInput[];
         };
@@ -2390,7 +2391,7 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category?.enabled && category.id),
+              this.customInputsService.filterByCategory(customFields, category?.is_enabled && category.id),
             ),
           ),
         );
@@ -2702,8 +2703,8 @@ export class AddEditExpensePage implements OnInit {
             ) {
               if (
                 formValues.category &&
-                formValues.category.fyle_category &&
-                this.systemCategories?.includes(formValues.category.fyle_category) &&
+                formValues.category.system_category &&
+                this.systemCategories?.includes(formValues.category.system_category) &&
                 isConnected
               ) {
                 // eslint-disable-next-line max-depth
@@ -2718,8 +2719,8 @@ export class AddEditExpensePage implements OnInit {
             } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
               if (
                 formValues.category &&
-                formValues.category.fyle_category &&
-                ['Taxi'].includes(formValues.category.fyle_category) &&
+                formValues.category.system_category &&
+                ['Taxi'].includes(formValues.category.system_category) &&
                 isConnected
               ) {
                 control.setValidators(Validators.required);
@@ -2791,7 +2792,7 @@ export class AddEditExpensePage implements OnInit {
             ),
           ),
           tap((categories) => this.handleCategoryValidation(categories)),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+          map((categories) => categories.map((category) => ({ label: category.display_name, value: category }))),
         ),
       ),
       shareReplay(1),
@@ -2830,7 +2831,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  handleCategoryValidation(categories: OrgCategory[]): void {
+  handleCategoryValidation(categories: PlatformCategory[]): void {
     this.txnFields$.pipe(takeUntil(this.onPageExit$)).subscribe((txnFields) => {
       const isMandatory = txnFields?.org_category_id?.is_mandatory;
       const categoryControl = this.fg.controls.category;
@@ -3585,7 +3586,7 @@ export class AddEditExpensePage implements OnInit {
           filteredCategories,
           recentValues,
         }: {
-          filteredCategories: OrgCategoryListItem[];
+          filteredCategories: PlatformCategoryListItem[];
           recentValues: RecentlyUsed;
         }) => this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues),
       ),
@@ -3747,7 +3748,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFyleCategory(): string {
-    return this.getFormValues()?.category?.fyle_category;
+    return this.getFormValues()?.category?.system_category;
   }
 
   getDisplayName(): string {
@@ -3826,7 +3827,7 @@ export class AddEditExpensePage implements OnInit {
           return customProperty;
         });
         const unspecifiedCategory = res.allCategories.find(
-          (category) => category.fyle_category?.toLowerCase() === 'unspecified',
+          (category) => category.system_category?.toLowerCase() === 'unspecified',
         );
 
         const formValues = this.getFormValues();
@@ -4917,7 +4918,8 @@ export class AddEditExpensePage implements OnInit {
         ) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find(
-            (orgCategory: { value: { fyle_category: string } }) => orgCategory.value.fyle_category === categoryName,
+            (platformCategory: { value: { system_category: string | null } }) =>
+              platformCategory.value.system_category?.toLowerCase() === categoryName.toLowerCase(),
           );
           this.fg.patchValue({
             category: category && category.value,
