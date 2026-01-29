@@ -4,6 +4,7 @@ import { DeepLinkService } from './deep-link.service';
 import { TrackingService } from './tracking.service';
 import { UserEventService } from './user-event.service';
 import { OrgUserService } from './org-user.service';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,6 +20,8 @@ export class PushNotificationService {
 
   private orgUserService: OrgUserService = inject(OrgUserService);
 
+  private storageService: StorageService = inject(StorageService);
+
   constructor() {
     this.userEventService.onLogout(() => {
       void this.unregister();
@@ -26,13 +29,23 @@ export class PushNotificationService {
   }
 
   initializePushNotifications(): Promise<void> {
-    return PushNotifications.requestPermissions().then((permission) => {
-      if (permission.receive === 'granted') {
-        this.initListeners();
-        return this.register();
+    return this.storageService.get<boolean>('push_notifications_permission_requested').then((alreadyRequested) => {
+      if (alreadyRequested) {
+        return;
       }
 
-      return;
+      return PushNotifications.requestPermissions().then((permission) => {
+        if (permission.receive) {
+          void this.storageService.set('push_notifications_permission_requested', true);
+        }
+
+        if (permission.receive === 'granted') {
+          this.initListeners();
+          return this.register();
+        }
+
+        return;
+      });
     });
   }
 

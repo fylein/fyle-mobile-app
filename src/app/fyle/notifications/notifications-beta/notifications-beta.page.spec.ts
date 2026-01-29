@@ -33,6 +33,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { App } from '@capacitor/app';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
 describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
@@ -47,6 +48,7 @@ describe('NotificationsBetaPage', () => {
   let modalPropertiesService: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
+  let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -67,6 +69,11 @@ describe('NotificationsBetaPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
+      'checkPermissions',
+      'addRegistrationListener',
+      'register',
+    ]);
 
     platformEmployeeSettingsServiceSpy.clearEmployeeSettings.and.returnValue(of(null));
 
@@ -78,6 +85,7 @@ describe('NotificationsBetaPage', () => {
       } as any),
     );
     launchDarklyServiceSpy.getVariation.and.returnValue(of(true));
+    pushNotificationServiceSpy.checkPermissions.and.returnValue(Promise.resolve({ receive: 'granted' } as any));
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage, MatIconTestingModule],
@@ -126,6 +134,10 @@ describe('NotificationsBetaPage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
+        {
+          provide: PushNotificationService,
+          useValue: pushNotificationServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -147,6 +159,7 @@ describe('NotificationsBetaPage', () => {
     modalPropertiesService = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
 
     // Setup default mock responses
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));

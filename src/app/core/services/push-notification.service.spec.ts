@@ -6,6 +6,7 @@ import { OrgUserService } from './org-user.service';
 import { PushNotificationService } from './push-notification.service';
 import { TrackingService } from './tracking.service';
 import { UserEventService } from './user-event.service';
+import { StorageService } from './storage.service';
 
 describe('PushNotificationService', () => {
   let service: PushNotificationService;
@@ -14,12 +15,14 @@ describe('PushNotificationService', () => {
   let userEventService: jasmine.SpyObj<UserEventService>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let logoutCallback: () => void;
+  let storageService: jasmine.SpyObj<StorageService>;
 
   beforeEach(() => {
     deepLinkService = jasmine.createSpyObj('DeepLinkService', ['getJsonFromUrl', 'redirect']);
     trackingService = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     orgUserService = jasmine.createSpyObj('OrgUserService', ['sendDeviceToken']);
     userEventService = jasmine.createSpyObj('UserEventService', ['onLogout']);
+    storageService = jasmine.createSpyObj('StorageService', ['get', 'set']);
 
     userEventService.onLogout.and.callFake((cb: () => void) => {
       logoutCallback = cb;
@@ -27,6 +30,9 @@ describe('PushNotificationService', () => {
     });
 
     orgUserService.sendDeviceToken.and.returnValue(of(null));
+    // By default, pretend we have never requested permissions.
+    storageService.get.and.resolveTo(false);
+    storageService.set.and.resolveTo();
 
     TestBed.configureTestingModule({
       providers: [
@@ -35,6 +41,7 @@ describe('PushNotificationService', () => {
         { provide: TrackingService, useValue: trackingService },
         { provide: OrgUserService, useValue: orgUserService },
         { provide: UserEventService, useValue: userEventService },
+        { provide: StorageService, useValue: storageService },
       ],
     });
 
@@ -46,6 +53,7 @@ describe('PushNotificationService', () => {
   });
 
   it('initializePushNotifications(): should request permission and register when granted', async () => {
+    storageService.get.and.resolveTo(false);
     const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo(
       { receive: 'granted' } as any,
     );
@@ -63,6 +71,7 @@ describe('PushNotificationService', () => {
   });
 
   it('initializePushNotifications(): should not register when permission is not granted', async () => {
+    storageService.get.and.resolveTo(false);
     const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo(
       { receive: 'denied' } as any,
     );
