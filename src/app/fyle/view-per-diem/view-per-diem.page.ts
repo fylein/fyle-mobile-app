@@ -7,7 +7,20 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, filter, take } from 'rxjs/operators';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -21,7 +34,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { PlatformPerDiemRates } from 'src/app/core/models/platform/platform-per-diem-rates.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -66,7 +79,7 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
     NgClass,
     SnakeCaseToSpaceCase,
     TitleCasePipe,
-    ViewDependentFieldsComponent
+    ViewDependentFieldsComponent,
   ],
 })
 export class ViewPerDiemPage {
@@ -112,7 +125,7 @@ export class ViewPerDiemPage {
 
   perDiemCustomFields$: Observable<CustomField[]>;
 
-  perDiemRate$: Observable<PerDiemRates>;
+  perDiemRate$: Observable<PlatformPerDiemRates>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
@@ -330,7 +343,9 @@ export class ViewPerDiemPage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(
+              expense.state,
+            ),
       ),
     );
 

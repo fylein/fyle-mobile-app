@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
@@ -103,7 +103,7 @@ import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.m
 import { PlatformAccount } from 'src/app/core/models/platform-account.model';
 
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
@@ -153,7 +153,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -233,7 +233,7 @@ type FormValue = {
   distance_unit: string;
   custom_inputs: CustomInput[];
   billable: boolean;
-  costCenter: CostCenter;
+  costCenter: PlatformCostCenter;
   hotel_is_breakfast_provided: boolean;
   project_dependent_fields: TxnCustomProperties[];
   cost_center_dependent_fields: TxnCustomProperties[];
@@ -366,8 +366,6 @@ export class AddEditExpensePage implements OnInit {
   private snackbarProperties = inject(SnackbarPropertiesService);
 
   platform = inject(Platform);
-
-  private titleCasePipe = inject(TitleCasePipe);
 
   private paymentModesService = inject(PaymentModesService);
 
@@ -566,11 +564,11 @@ export class AddEditExpensePage implements OnInit {
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   presetCurrency: string;
 
@@ -642,7 +640,7 @@ export class AddEditExpensePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter | null>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter | null>;
 
   showReceiptMandatoryError = false;
 
@@ -1276,7 +1274,7 @@ export class AddEditExpensePage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters: CostCenter[]) =>
+      map((costCenters: PlatformCostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
@@ -1781,7 +1779,7 @@ export class AddEditExpensePage implements OnInit {
   getRecentCostCenters(): Observable<
     {
       label: string;
-      value: CostCenter;
+      value: PlatformCostCenter;
       selected?: boolean;
     }[]
   > {
@@ -1806,7 +1804,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter> {
+  getSelectedCostCenters(): Observable<PlatformCostCenter> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
@@ -3094,7 +3092,7 @@ export class AddEditExpensePage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -3109,9 +3107,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
-      this.selectedCostCenter$.next(costCenter);
-    });
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter: PlatformCostCenter) => {
+        this.selectedCostCenter$.next(costCenter);
+      });
   }
 
   getCCCpaymentMode(): void {
@@ -4928,7 +4928,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
+  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer }): void {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -5037,7 +5037,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async uploadFileCallback(file: File): Promise<void> {
-    let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
+    let fileData: { type: string; dataUrl: string | ArrayBuffer };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
         const fileRead$ = from(this.fileService.readFile(file));
@@ -5053,7 +5053,6 @@ export class AddEditExpensePage implements OnInit {
               fileData = {
                 type: file.type,
                 dataUrl,
-                actionSource: 'gallery_upload',
               };
               this.attachReceipts(fileData);
               this.trackingService.addAttachment({ type: file.type });
@@ -5072,7 +5071,7 @@ export class AddEditExpensePage implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async addAttachments(event: Event): Promise<void> {
+  async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
@@ -5087,7 +5086,8 @@ export class AddEditExpensePage implements OnInit {
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
         componentProps: {
-          mode: this.mode,
+          mode: this.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+          showHeader: isAddMore,
         },
       });
 
@@ -5098,7 +5098,6 @@ export class AddEditExpensePage implements OnInit {
           option?: string;
           type: string;
           dataUrl: string;
-          actionSource?: string;
         };
       };
 
@@ -5127,7 +5126,6 @@ export class AddEditExpensePage implements OnInit {
           receiptDetails = {
             type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
-            actionSource: 'camera',
           };
         }
       }

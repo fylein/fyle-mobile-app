@@ -79,7 +79,8 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
-import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
+import { CostCenters } from 'src/app/core/models/cost-centers.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -103,8 +104,8 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
-import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformPerDiemRates } from 'src/app/core/models/platform/platform-per-diem-rates.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
@@ -369,11 +370,11 @@ export class AddEditPerDiemPage implements OnInit {
 
   presetProjectId: number;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   isProjectVisible$: Observable<boolean>;
 
@@ -397,7 +398,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter>;
 
   private _isExpandedView = false;
 
@@ -929,7 +930,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -988,7 +989,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+      .subscribe((costCenter: PlatformCostCenter) => this.selectedCostCenter$.next(costCenter));
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get<boolean>('isExpandedViewPerDiem')).subscribe((expandedView) => {
@@ -1050,7 +1051,7 @@ export class AddEditPerDiemPage implements OnInit {
             perDiemRates$,
           ),
         ),
-        map((rates) => rates.filter((rate) => rate.active)),
+        map((rates) => rates.filter((rate) => rate.is_enabled)),
         map((rates) =>
           rates.map((rate) => {
             rate.full_name = `${rate.name} (${rate.rate} ${rate.currency} per day)`;
@@ -1152,7 +1153,7 @@ export class AddEditPerDiemPage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters: CostCenter[]) =>
+      map((costCenters: PlatformCostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
@@ -1303,7 +1304,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PlatformPerDiemRates>,
       this.fg.controls.num_days.valueChanges,
       this.homeCurrency$,
     )
@@ -1329,7 +1330,7 @@ export class AddEditPerDiemPage implements OnInit {
       });
 
     combineLatest(
-      this.fg.controls.per_diem_rate.valueChanges as Observable<PerDiemRates>,
+      this.fg.controls.per_diem_rate.valueChanges as Observable<PlatformPerDiemRates>,
       this.fg.controls.num_days.valueChanges as Observable<number>,
       this.homeCurrency$,
     )
@@ -1343,20 +1344,22 @@ export class AddEditPerDiemPage implements OnInit {
             .pipe(map((res) => [perDiemRate, numDays, homeCurrency, res])),
         ),
       )
-      .subscribe(([perDiemRate, numDays, homeCurrency, exchangeRate]: [PerDiemRates, number, string, number]) => {
-        this.fg.controls.currencyObj.setValue({
-          currency: homeCurrency,
-          amount: this.currencyService.getAmountWithCurrencyFraction(
-            perDiemRate.rate * numDays * exchangeRate,
-            homeCurrency,
-          ),
-          orig_currency: perDiemRate.currency,
-          orig_amount: this.currencyService.getAmountWithCurrencyFraction(
-            perDiemRate.rate * numDays,
-            perDiemRate.currency,
-          ),
-        });
-      });
+      .subscribe(
+        ([perDiemRate, numDays, homeCurrency, exchangeRate]: [PlatformPerDiemRates, number, string, number]) => {
+          this.fg.controls.currencyObj.setValue({
+            currency: homeCurrency,
+            amount: this.currencyService.getAmountWithCurrencyFraction(
+              perDiemRate.rate * numDays * exchangeRate,
+              homeCurrency,
+            ),
+            orig_currency: perDiemRate.currency,
+            orig_amount: this.currencyService.getAmountWithCurrencyFraction(
+              perDiemRate.rate * numDays,
+              perDiemRate.currency,
+            ),
+          });
+        },
+      );
 
     const selectedProject$ = this.etxn$.pipe(
       switchMap((etxn) => {

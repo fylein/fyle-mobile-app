@@ -57,7 +57,8 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
+import { CostCenters } from 'src/app/core/models/cost-centers.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
@@ -1082,7 +1083,7 @@ export class SplitExpensePage implements OnDestroy {
             return of([]);
           }
         }),
-        map((costCenters: CostCenter[]) =>
+        map((costCenters: PlatformCostCenter[]) =>
           costCenters.map((costCenter) => ({
             label: costCenter.name,
             value: costCenter,
