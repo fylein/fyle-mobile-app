@@ -4,7 +4,7 @@ import { AdvanceWallet } from './platform/v1/advance-wallet.model';
 import { PlatformAccount } from './platform-account.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { PlatformCostCenter } from './platform/platform-cost-center.model';
-import { OrgCategory } from './v1/org-category.model';
+import { PlatformCategory } from './platform/platform-category.model';
 import { PlatformPerDiemRates } from './platform/platform-per-diem-rates.model';
 import { ProjectV2 } from './v2/project-v2.model';
 
@@ -17,7 +17,7 @@ export interface PerDiemFormValue {
   };
   paymentMode: PlatformAccount | AdvanceWallet;
   project: ProjectV2;
-  sub_category: OrgCategory;
+  sub_category: PlatformCategory;
   purpose: string;
   num_days: number;
   report: Report;

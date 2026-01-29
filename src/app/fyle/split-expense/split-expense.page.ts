@@ -46,7 +46,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -177,7 +178,7 @@ export class SplitExpensePage implements OnDestroy {
 
   destroy$ = new Subject<void>();
 
-  filteredCategoriesArray: Observable<{ label: string; value: OrgCategory }[]>[] = [];
+  filteredCategoriesArray: Observable<{ label: string; value: PlatformCategory }[]>[] = [];
 
   costCenterDisabledStates: boolean[] = [];
 
@@ -193,9 +194,9 @@ export class SplitExpensePage implements OnDestroy {
 
   homeCurrency: string;
 
-  categories$: Observable<OrgCategoryListItem[]>;
+  categories$: Observable<PlatformCategoryListItem[]>;
 
-  filteredCategories$: Observable<OrgCategoryListItem[]>;
+  filteredCategories$: Observable<PlatformCategoryListItem[]>;
 
   costCenters$: Observable<CostCenters[]>;
 
@@ -227,7 +228,7 @@ export class SplitExpensePage implements OnDestroy {
 
   completeTxnIds: string[];
 
-  categoryList: OrgCategory[];
+  categoryList: PlatformCategory[];
 
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
@@ -237,7 +238,7 @@ export class SplitExpensePage implements OnDestroy {
 
   formattedSplitExpense: Transaction[];
 
-  unspecifiedCategory: OrgCategory = null;
+  unspecifiedCategory: PlatformCategory = null;
 
   isReviewModalOpen = false;
 
@@ -995,7 +996,7 @@ export class SplitExpensePage implements OnDestroy {
     }
   }
 
-  getActiveCategories(): Observable<OrgCategory[]> {
+  getActiveCategories(): Observable<PlatformCategory[]> {
     const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
@@ -1053,7 +1054,7 @@ export class SplitExpensePage implements OnDestroy {
             return of(activeCategories);
           }),
           tap((categories) => this.updateCategoryMandatoryStatus(categories)),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+          map((categories) => categories.map((category) => ({ label: category.display_name, value: category }))),
         ),
       ),
     );
@@ -1105,7 +1106,7 @@ export class SplitExpensePage implements OnDestroy {
     );
   }
 
-  updateCategoryMandatoryStatus(categories: OrgCategory[]): void {
+  updateCategoryMandatoryStatus(categories: PlatformCategory[]): void {
     if (categories.length === 0) {
       this.categoryDisableMsg = 'No category is assigned. Please contact admin for further help.';
       if (this.splitConfig.category.is_mandatory) {
@@ -1208,8 +1209,8 @@ export class SplitExpensePage implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(([categories, currentCategory]) => {
         if (
-          (currentCategory as OrgCategory)?.id &&
-          !categories.some((category) => category.value.id === (currentCategory as OrgCategory).id)
+          (currentCategory as PlatformCategory)?.id &&
+          !categories.some((category) => category.value.id === (currentCategory as PlatformCategory).id)
         ) {
           splitForm.get('category').reset();
           this.onCategoryChange(index);
@@ -1224,10 +1225,10 @@ export class SplitExpensePage implements OnDestroy {
     services,
   }: {
     projectControl: AbstractControl;
-    getActiveCategories: () => Observable<OrgCategory[]>;
+    getActiveCategories: () => Observable<PlatformCategory[]>;
     isProjectCategoryRestrictionsEnabled$: Observable<boolean>;
     services: { launchDarklyService: LaunchDarklyService; projectsService: ProjectsService };
-  }): Observable<{ label: string; value: OrgCategory }[]> {
+  }): Observable<{ label: string; value: PlatformCategory }[]> {
     const activeCategories$ = getActiveCategories().pipe(shareReplay(1));
 
     return combineLatest([
@@ -1238,7 +1239,7 @@ export class SplitExpensePage implements OnDestroy {
       switchMap(
         ([project, activeCategories, isProjectCategoryRestrictionsEnabled]: [
           Partial<ProjectV2> | null,
-          OrgCategory[],
+          PlatformCategory[],
           boolean,
         ]) => {
           if (!project?.project_id) {
@@ -1268,11 +1269,11 @@ export class SplitExpensePage implements OnDestroy {
   // eslint-disable-next-line max-params-no-constructor/max-params-no-constructor
   getAllowedCategories(
     projectId: string,
-    activeCategories: OrgCategory[],
+    activeCategories: PlatformCategory[],
     isProjectCategoryRestrictionsEnabled: boolean,
     showProjectMappedCategories: boolean,
     services: { projectsService: ProjectsService },
-  ): Observable<OrgCategory[]> {
+  ): Observable<PlatformCategory[]> {
     if (!showProjectMappedCategories && !isProjectCategoryRestrictionsEnabled) {
       return of(activeCategories);
     }
@@ -1290,8 +1291,8 @@ export class SplitExpensePage implements OnDestroy {
       );
   }
 
-  formatCategories(categories: OrgCategory[]): Observable<{ label: string; value: OrgCategory }[]> {
-    return of(categories.map((category) => ({ label: category.displayName, value: category })));
+  formatCategories(categories: PlatformCategory[]): Observable<{ label: string; value: PlatformCategory }[]> {
+    return of(categories.map((category) => ({ label: category.display_name, value: category })));
   }
 
   handleCategoryValidation(index: number, splitForm: AbstractControl): void {
@@ -1319,7 +1320,7 @@ export class SplitExpensePage implements OnDestroy {
     }
     const isCostCenterMandatory = this.splitConfig.costCenter.is_mandatory;
     const splitForm = this.splitExpensesFormArray.at(index);
-    const categoryControl = splitForm.get('category').value as OrgCategory;
+    const categoryControl = splitForm.get('category').value as PlatformCategory;
     const costCenterControl = splitForm.get('cost_center');
 
     if (!categoryControl) {
@@ -1420,7 +1421,7 @@ export class SplitExpensePage implements OnDestroy {
 
   handleInitialconfig(isFirstSplit: boolean): void {
     if (isFirstSplit && this.splitConfig.category.is_visible) {
-      const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as OrgCategory | null;
+      const firstSplitCategory = this.splitExpensesFormArray.at(0)?.get('category')?.value as PlatformCategory | null;
       const firstSplitProject = this.splitExpensesFormArray.at(0)?.get('project');
       this.filteredCategoriesArray[0] = this.categories$;
       if (firstSplitProject?.value) {
