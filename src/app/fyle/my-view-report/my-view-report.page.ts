@@ -259,12 +259,9 @@ export class MyViewReportPage {
   }
 
   private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
-    return expenses.some((expense) => {
-      if (!expense.added_to_report_at) {
-        return false;
-      }
-      return new Date(expense.added_to_report_at).getTime() > submittedAtTime;
-    });
+    return expenses.some(
+      (expense) => expense.added_to_report_at && new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+    );
   }
 
   private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
@@ -876,12 +873,7 @@ export class MyViewReportPage {
   }
 
   onArsAlertClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement | null;
-    if (!target) {
-      return;
-    }
-
-    const linkElement = target.closest('.view-reports--ars-alert-link');
+    const linkElement = (event.target as HTMLElement).closest('.view-reports--ars-alert-link');
     if (linkElement) {
       this.openHistorySegment();
     }
