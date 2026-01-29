@@ -21,6 +21,7 @@ import { NavController } from '@ionic/angular/standalone';
 import { UserEventService } from './core/services/user-event.service';
 import { DeviceService } from './core/services/device.service';
 import { GmapsService } from './core/services/gmaps.service';
+import { PushNotificationService } from './core/services/push-notification.service';
 
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
@@ -73,6 +74,7 @@ describe('AppComponent', () => {
   let gmapsService: jasmine.SpyObj<GmapsService>;
   let menuController: jasmine.SpyObj<MenuController>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
+  let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
   beforeEach(waitForAsync(() => {
     // Mock Capacitor plugins before component creation
     // Create spies that return resolved promises
@@ -155,6 +157,7 @@ describe('AppComponent', () => {
     const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['unregister']);
 
     // Configure tracking service with missing methods
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
@@ -190,6 +193,7 @@ describe('AppComponent', () => {
         { provide: GmapsService, useValue: gmapsServiceSpy },
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
+        { provide: PushNotificationService, useValue: pushNotificationServiceSpy },
       ],
     })
       .overrideComponent(AppComponent, {
@@ -220,6 +224,7 @@ describe('AppComponent', () => {
     gmapsService = TestBed.inject(GmapsService) as jasmine.SpyObj<GmapsService>;
     menuController = TestBed.inject(MenuController) as jasmine.SpyObj<MenuController>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
+    pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
   }));
 
   describe('ngAfterViewInit', () => {

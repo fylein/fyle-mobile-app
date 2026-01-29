@@ -1,5 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
+import { DeepLinkService } from './deep-link.service';
+import { TrackingService } from './tracking.service';
+import { UserEventService } from './user-event.service';
+import { OrgUserService } from './org-user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -7,13 +11,41 @@ import { PushNotifications, Token } from '@capacitor/push-notifications';
 export class PushNotificationService {
   private listenersInitialized = false;
 
-  async initializePushNotifications(): Promise<void> {
-    const permission = await PushNotifications.requestPermissions();
+  private deepLinkService: DeepLinkService = inject(DeepLinkService);
 
-    if (permission.receive === 'granted') {
-      this.initListeners();
-      await PushNotifications.register();
-    }
+  private trackingService: TrackingService = inject(TrackingService);
+
+  private userEventService: UserEventService = inject(UserEventService);
+
+  private orgUserService: OrgUserService = inject(OrgUserService);
+
+  constructor() {
+    this.userEventService.onLogout(() => {
+      void this.unregister();
+    });
+  }
+
+  initializePushNotifications(): Promise<void> {
+    return PushNotifications.requestPermissions().then((permission) => {
+      if (permission.receive === 'granted') {
+        this.initListeners();
+        return this.register();
+      }
+
+      return;
+    });
+  }
+
+  checkPermissions(): Promise<{ receive: string }> {
+    return PushNotifications.checkPermissions();
+  }
+
+  unregister(): Promise<void> {
+    return PushNotifications.unregister();
+  }
+
+  register(): Promise<void> {
+    return PushNotifications.register();
   }
 
   private initListeners(): void {
@@ -23,14 +55,40 @@ export class PushNotificationService {
 
     this.listenersInitialized = true;
 
-    PushNotifications.addListener('registration', (_token: Token) => {
-      console.log('token', _token);
-      const deviceToken = _token?.value;
-      console.log('deviceToken', deviceToken);
-      // TODO: Integrate API for sending token to backend
+    this.addRegistrationListener();
+    this.addRegistrationErrorListener();
+    this.addNotificationClickListener();
+  }
+
+  addRegistrationListener(): void {
+    PushNotifications.addListener('registration', (token: Token) => {
+      const tokenValue = token?.value;
+      if (tokenValue) {
+        this.orgUserService.sendDeviceToken(tokenValue).subscribe();
+      }
+      this.trackingService.eventTrack('Push Notification Registered');
     });
+  }
+
+  private addRegistrationErrorListener(): void {
     PushNotifications.addListener('registrationError', () => undefined);
-    PushNotifications.addListener('pushNotificationActionPerformed', () => undefined);
+  }
+
+  private addNotificationClickListener(): void {
+    PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
+      const data = (event?.notification?.data as { cta_url?: string; notification_type?: string } | undefined) ?? {};
+      const url = data.cta_url;
+      const actionType = data.notification_type;
+
+      if (!url || typeof url !== 'string') {
+        return;
+      }
+
+      this.trackingService.eventTrack('Push Notification Clicked', { actionType });
+
+      const redirectParams = this.deepLinkService.getJsonFromUrl(url);
+      this.deepLinkService.redirect(redirectParams);
+    });
   }
 }
 

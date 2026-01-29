@@ -9,6 +9,7 @@ import { TaxGroup } from './tax-group.model';
 import { TransactionMandatoryFields } from './transaction-mandatory-fields.model';
 import { User } from './user.model';
 import { OrgUserMandatoryFields } from './org-user-mandatory-fields.model';
+import { MobilePushNotificationSettings } from './mobile-push-notification-settings.model';
 
 export enum EmailEvents {
   DELEGATOR_SUBSCRIPTION = 'DELEGATOR_SUBSCRIPTION',
@@ -600,4 +601,5 @@ export interface OrgSettings {
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
+  mobile_push_notification?: MobilePushNotificationSettings;
 }

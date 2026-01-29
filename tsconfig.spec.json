@@ -7,7 +7,12 @@
       "node",
       "google.maps",
       "lodash"
-    ]
+    ],
+    "paths": {
+      "@capacitor/*": [
+        "__mocks__/@capacitor/*"
+      ]
+    }
   },
   "files": [
     "src/test.ts",

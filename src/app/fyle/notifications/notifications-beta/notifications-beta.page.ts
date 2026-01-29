@@ -23,6 +23,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { App } from '@capacitor/app';
 import type { PluginListenerHandle } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
 @Component({
   selector: 'app-notifications-beta',
@@ -99,6 +100,8 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   private launchDarklyService = inject(LaunchDarklyService);
 
+  private pushNotificationService = inject(PushNotificationService);
+
   nativeSettings = NativeSettings;
 
   ngOnInit(): void {
@@ -106,15 +109,16 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     forkJoin({
       orgData: this.getOrgSettings(),
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-    }).subscribe(({ orgData, isPushNotifUiEnabled }) => {
+      permissionStatus: from(this.pushNotificationService.checkPermissions()),
+    }).subscribe(({ orgData, isPushNotifUiEnabled, permissionStatus }) => {
       const { orgSettings, employeeSettings, currentEou } = orgData;
       this.orgSettings = orgSettings;
       this.employeeSettings = employeeSettings;
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-      this.showMobilePushColumn = isPushNotifUiEnabled;
-      this.isPushPermissionDenied = isPushNotifUiEnabled;
+      this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_push_notification?.enabled && this.orgSettings.mobile_push_notification?.allowed;
+      this.isPushPermissionDenied = this.showMobilePushColumn && permissionStatus.receive !== 'granted';
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
@@ -132,20 +136,24 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       return;
     }
 
-    App.addListener('appStateChange', async ({ isActive }) => {
+    App.addListener('appStateChange', ({ isActive }) => {
       if (!isActive || !this.showMobilePushColumn) {
         return;
       }
 
-      const latestPermission = await PushNotifications.checkPermissions();
-      const hasPermission = latestPermission.receive === 'granted';
+      return this.pushNotificationService.checkPermissions().then((latestPermission) => {
+        const hasPermission = latestPermission.receive === 'granted';
 
-      if (hasPermission && this.isPushPermissionDenied) {
-        this.isPushPermissionDenied = false;
-        await PushNotifications.register();
-      } else if (!hasPermission) {
-        this.isPushPermissionDenied = true;
-      }
+        if (hasPermission && this.isPushPermissionDenied) {
+          this.isPushPermissionDenied = false;
+          this.pushNotificationService.addRegistrationListener();
+          return this.pushNotificationService.register();
+        } else if (!hasPermission) {
+          this.isPushPermissionDenied = true;
+        }
+
+        return;
+      });
     }).then((listener) => {
       this.appStateChangeListener = listener;
     });
