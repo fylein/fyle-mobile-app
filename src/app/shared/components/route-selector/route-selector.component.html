@@ -106,6 +106,7 @@
               class="route-selector--input smartlook-show"
               type="text"
               [placeholder]="'routeSelector.enterRoute' | transloco"
+              readonly
               (click)="openModal()"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
               [disabled]="form.controls.mileageLocations.disabled"

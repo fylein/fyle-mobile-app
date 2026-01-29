@@ -13,6 +13,7 @@
       type="text"
       [placeholder]="placeholder() || ('fySelectVendor.select' | transloco) + ' ' + label"
       [ngModel]="displayValue"
+      readonly
       (blur)="onBlur()"
       (click)="openModal()"
     />
