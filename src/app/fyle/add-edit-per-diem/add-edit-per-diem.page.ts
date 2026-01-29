@@ -79,7 +79,8 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
-import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
+import { CostCenters } from 'src/app/core/models/cost-centers.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -369,11 +370,11 @@ export class AddEditPerDiemPage implements OnInit {
 
   presetProjectId: number;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   isProjectVisible$: Observable<boolean>;
 
@@ -397,7 +398,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter>;
 
   private _isExpandedView = false;
 
@@ -929,7 +930,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.MEDIUM,
@@ -988,7 +989,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+      .subscribe((costCenter: PlatformCostCenter) => this.selectedCostCenter$.next(costCenter));
 
     // If User has already clicked on See More he need not to click again and again
     from(this.storageService.get<boolean>('isExpandedViewPerDiem')).subscribe((expandedView) => {
@@ -1152,7 +1153,7 @@ export class AddEditPerDiemPage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters: CostCenter[]) =>
+      map((costCenters: PlatformCostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,

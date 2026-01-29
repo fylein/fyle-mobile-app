@@ -63,11 +63,9 @@ describe('CostCentersService', () => {
       },
     };
 
-    spyOn(costCentersService, 'transformFrom').and.returnValue(costCentersData);
     costCentersService.getCostCenters({ offset: 0, limit: 4 }).subscribe((res) => {
-      expect(res).toEqual(costCentersData);
+      expect(res).toEqual(platformCostCenterMultipleRes.data);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/cost_centers', data);
-      expect(costCentersService.transformFrom).toHaveBeenCalledOnceWith(platformCostCenterMultipleRes.data);
       done();
     });
   });
@@ -96,10 +94,5 @@ describe('CostCentersService', () => {
       expect(costCentersService.getActiveCostCentersCount).toHaveBeenCalledTimes(1);
       expect(costCentersService.getCostCenters).toHaveBeenCalledTimes(2);
     });
-  });
-
-  it('transformFrom(): should transform all the data', () => {
-    const transformResult = costCentersService.transformFrom(platformCostCenterMultipleRes.data);
-    expect(transformResult).toEqual(costCentersData);
   });
 });
