@@ -25,17 +25,27 @@ export class PushNotificationService {
     });
   }
 
-  async initializePushNotifications(): Promise<void> {
-    const permission = await PushNotifications.requestPermissions();
+  initializePushNotifications(): Promise<void> {
+    return PushNotifications.requestPermissions().then((permission) => {
+      if (permission.receive === 'granted') {
+        this.initListeners();
+        return this.register();
+      }
 
-    if (permission.receive === 'granted') {
-      this.initListeners();
-      await PushNotifications.register();
-    }
+      return;
+    });
   }
 
-  async unregister(): Promise<void> {
-    await PushNotifications.unregister();
+  checkPermissions(): Promise<{ receive: string }> {
+    return PushNotifications.checkPermissions();
+  }
+
+  unregister(): Promise<void> {
+    return PushNotifications.unregister();
+  }
+
+  register(): Promise<void> {
+    return PushNotifications.register();
   }
 
   private initListeners(): void {
@@ -50,7 +60,7 @@ export class PushNotificationService {
     this.addNotificationClickListener();
   }
 
-  private addRegistrationListener(): void {
+  addRegistrationListener(): void {
     PushNotifications.addListener('registration', (token: Token) => {
       const tokenValue = token?.value;
       console.log('tokenValue', tokenValue);

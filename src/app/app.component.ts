@@ -33,6 +33,8 @@ import { FyConnectionComponent } from './shared/components/fy-connection/fy-conn
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { PushNotificationService } from './core/services/push-notification.service';
+import { registerPlugin } from '@capacitor/core';
+import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-root',
@@ -245,7 +247,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
     });
-
     // This was done as a security fix for appknox
     // eslint-disable-next-line
     if ((window as any) && (window as any).localStorage) {
