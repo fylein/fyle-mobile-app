@@ -105,7 +105,7 @@ import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { StorageService } from 'src/app/core/services/storage.service';
 import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
 import { PlatformPerDiemRates } from 'src/app/core/models/platform/platform-per-diem-rates.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
