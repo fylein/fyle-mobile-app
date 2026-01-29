@@ -125,6 +125,11 @@ export class FyMultiselectComponent implements OnInit, ControlValueAccessor {
     if (data?.selected) {
       this.value = data.selected.map((selection) => selection.value);
     }
+
+    // Blur active element to prevent auto-focus after modal closes
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 
   onBlur(): void {

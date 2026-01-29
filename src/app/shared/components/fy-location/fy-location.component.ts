@@ -105,6 +105,11 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
       if (data) {
         this.value = data.selection;
       }
+
+      // Blur active element to prevent auto-focus after modal closes
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
     }
   }
 

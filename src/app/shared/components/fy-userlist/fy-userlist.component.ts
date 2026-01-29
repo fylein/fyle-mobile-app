@@ -110,6 +110,11 @@ export class FyUserlistComponent implements OnInit {
     if (data) {
       this.value = data.selected;
     }
+
+    // Blur active element to prevent auto-focus after modal closes
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   }
 
   onBlur() {
