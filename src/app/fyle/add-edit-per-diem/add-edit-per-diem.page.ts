@@ -1255,6 +1255,7 @@ export class AddEditPerDiemPage implements OnInit {
             const control = keyToControlMap[txnFieldKey];
             const expenseField = txnFields[txnFieldKey] as ExpenseField;
 
+            // Skip fields that are not in keyToControlMap to prevent errors
             if (!control) {
               continue;
             }
@@ -1578,7 +1579,7 @@ export class AddEditPerDiemPage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
-          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+          this.expenseLevelBillable = etxn?.tx?.billable ?? null;
 
           if (project) {
             this.selectedProject$.next(project);

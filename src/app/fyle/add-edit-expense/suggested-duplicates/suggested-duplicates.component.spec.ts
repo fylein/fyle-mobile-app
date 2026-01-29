@@ -12,6 +12,7 @@ import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 import { of } from 'rxjs';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { CurrencyPipe } from '@angular/common';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -25,9 +26,9 @@ import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v
   imports: [],
 })
 class MockExpensesCardComponent {
-  @Input() expense: any;
-  @Input() previousExpenseTxnDate: unknown;
-  @Input() previousExpenseCreatedAt: unknown;
+  @Input() expense: Expense;
+  @Input() previousExpenseTxnDate: string | Date;
+  @Input() previousExpenseCreatedAt: string | Date;
 }
 
 describe('SuggestedDuplicatesComponent', () => {

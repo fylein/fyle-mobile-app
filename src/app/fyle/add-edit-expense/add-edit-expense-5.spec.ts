@@ -493,12 +493,12 @@ export function TestCases5(getTestBed) {
         component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.category.setValue(orgCategoryData);
-        projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple.data[0]));
+        projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
         component.setupFilteredCategories();
         tick(500);
 
-        const secondProject = apiV2ResponseMultiple.data[1] || expectedProjectsResponse[1];
+        const secondProject = expectedProjectsResponse[1];
         component.fg.controls.project.setValue(secondProject);
         fixture.detectChanges();
         tick(500);
@@ -775,6 +775,7 @@ export function TestCases5(getTestBed) {
         });
         component.fg.controls.billable.setValue(true);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: false } } as any));
         tick(1);
 
@@ -785,6 +786,7 @@ export function TestCases5(getTestBed) {
         component.fg.controls.project.setValue(null);
         component.fg.controls.billable.setValue(true);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 
@@ -802,6 +804,7 @@ export function TestCases5(getTestBed) {
         component.fg.controls.project.markAsDirty();
         component.fg.controls.billable.setValue(false);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 
@@ -818,6 +821,7 @@ export function TestCases5(getTestBed) {
         });
         component.fg.controls.billable.setValue(false);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 
@@ -835,6 +839,7 @@ export function TestCases5(getTestBed) {
         component.fg.controls.billable.setValue(true);
         component.fg.controls.billable.markAsDirty();
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 
@@ -852,6 +857,7 @@ export function TestCases5(getTestBed) {
         component.fg.controls.project.markAsDirty();
         component.fg.controls.billable.setValue(true);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 
@@ -868,6 +874,7 @@ export function TestCases5(getTestBed) {
         });
         component.fg.controls.billable.setValue(true);
 
+        // Using 'as any' to pass partial ExpenseField for testing
         component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
         tick(1);
 

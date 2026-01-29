@@ -1932,7 +1932,7 @@ export class AddEditExpensePage implements OnInit {
           recentCostCenters,
           taxGroups,
         }) => {
-          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+          this.expenseLevelBillable = etxn?.tx?.billable ?? null;
           this.recentCategoriesOriginal = recentCategories;
 
           if (project) {
@@ -2529,6 +2529,7 @@ export class AddEditExpensePage implements OnInit {
           if (defaultValues.hasOwnProperty(defaultValueColumn)) {
             const control = keyToControlMap[defaultValueColumn];
 
+            // Skip fields that are not in keyToControlMap to prevent errors
             if (!control) {
               continue;
             }
@@ -2693,6 +2694,7 @@ export class AddEditExpensePage implements OnInit {
           const control = keyToControlMap[txnFieldKey];
           const expenseField = txnFieldsCopy[txnFieldKey] as ExpenseField;
 
+          // Skip fields that are not in keyToControlMap to prevent errors
           if (!control) {
             continue;
           }

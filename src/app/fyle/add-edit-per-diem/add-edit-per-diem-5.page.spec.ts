@@ -840,6 +840,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should set billable to false when billable is disabled at org level', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
         (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
           of({ billable: { is_enabled: false } } as any),
         );
@@ -853,6 +854,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should use project default_billable when user changes project (project control is dirty)', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
         (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
           of({ billable: { is_enabled: true } } as any),
         );
@@ -868,6 +870,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should not override billable when user has interacted with billable control (billable control is dirty)', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
         (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
           of({ billable: { is_enabled: true } } as any),
         );
@@ -883,6 +886,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should set billable to false when project default_billable is null and user changes project', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
         (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
           of({ billable: { is_enabled: true } } as any),
         );
@@ -898,6 +902,7 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should set billable to false when expenseLevelBillable and project default_billable are null', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
         (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
           of({ billable: { is_enabled: true } } as any),
         );
