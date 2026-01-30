@@ -22,6 +22,7 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { TranslocoPipe } from '@jsverse/transloco';
 import { App } from '@capacitor/app';
 import type { PluginListenerHandle } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
@@ -133,6 +134,12 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   private startAppStateListener(): void {
     if (this.appStateChangeListener) {
+      return;
+    }
+
+    // Only register native app state listeners on native platforms.
+    // In web (including unit tests), skip to avoid loading Capacitor web chunks.
+    if (Capacitor.getPlatform() !== 'web') {
       return;
     }
 
