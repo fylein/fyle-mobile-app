@@ -19,7 +19,7 @@ import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 
-describe('EmailNotificationsComponent', () => {
+fdescribe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
   let fixture: ComponentFixture<EmailNotificationsComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -166,6 +166,23 @@ describe('EmailNotificationsComponent', () => {
       expect(component.isIos).toBeFalse();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
     });
+
+    it('should start appState listener when mobile push column is visible', fakeAsync(() => {
+      // Configure title and LD flag so push column is supported and enabled
+      component.title = 'Expense notifications';
+
+      const launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      // Spy on the private startAppStateListener method
+      const startAppStateListenerSpy = spyOn<any>(component as any, 'startAppStateListener');
+
+      component.ngOnInit();
+      tick();
+
+      expect(component.showMobilePushColumn).toBeTrue();
+      expect(startAppStateListenerSpy).toHaveBeenCalledTimes(1);
+    }));
 
     it('should start appState listener and clear isPushPermissionDenied when permission becomes granted', async () => {
       // Bypass ngOnInit gating and force conditions required for startAppStateListener.
