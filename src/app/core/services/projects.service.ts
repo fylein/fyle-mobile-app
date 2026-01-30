@@ -6,7 +6,7 @@ import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
-import { OrgCategory } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
 import { PlatformProject } from '../models/platform/platform-project.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
@@ -22,7 +22,7 @@ export class ProjectsService {
   getByParamsUnformatted(
     projectParams: PlatformProjectArgs,
     isProjectCategoryRestrictionsEnabled: boolean,
-    activeCategoryList?: OrgCategory[],
+    activeCategoryList?: PlatformCategory[],
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
@@ -59,7 +59,7 @@ export class ProjectsService {
   @Cacheable()
   getProjectCount(
     params: { categoryIds: string[] } = { categoryIds: [] },
-    activeCategoryList?: OrgCategory[],
+    activeCategoryList?: PlatformCategory[],
   ): Observable<number> {
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
     return this.getAllActive(activeCategoryList).pipe(
@@ -106,12 +106,12 @@ export class ProjectsService {
 
   getAllowedOrgCategoryIds(
     project: ProjectParams | ProjectV2,
-    activeCategoryList: OrgCategory[],
+    activeCategoryList: PlatformCategory[],
     isProjectCategoryRestrictionsEnabled: boolean,
-  ): OrgCategory[] {
-    let categoryList: OrgCategory[] = [];
+  ): PlatformCategory[] {
+    let categoryList: PlatformCategory[] = [];
     if (project && isProjectCategoryRestrictionsEnabled && project.project_org_category_ids) {
-      categoryList = activeCategoryList.filter((category: OrgCategory) => {
+      categoryList = activeCategoryList.filter((category: PlatformCategory) => {
         const catId = category.id;
         return project.project_org_category_ids.indexOf(catId as never) > -1;
       });
@@ -122,7 +122,7 @@ export class ProjectsService {
     return categoryList;
   }
 
-  getAllActive(activeCategoryList?: OrgCategory[]): Observable<ProjectV1[]> {
+  getAllActive(activeCategoryList?: PlatformCategory[]): Observable<ProjectV1[]> {
     const data = {
       params: {
         is_enabled: `eq.true`,
@@ -134,7 +134,7 @@ export class ProjectsService {
       .pipe(map((res) => this.transformToV1Response(res.data, activeCategoryList)));
   }
 
-  getbyId(projectId: number | string, activeCategoryList?: OrgCategory[]): Observable<ProjectV2> {
+  getbyId(projectId: number | string, activeCategoryList?: PlatformCategory[]): Observable<ProjectV2> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params: {
@@ -144,7 +144,7 @@ export class ProjectsService {
       .pipe(map((res) => this.transformToV2Response(res.data, activeCategoryList)[0]));
   }
 
-  transformToV1Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV1[] {
+  transformToV1Response(platformProject: PlatformProject[], activeCategoryList?: PlatformCategory[]): ProjectV1[] {
     const allCategoryIDs = activeCategoryList?.map((category) => category.id);
 
     const projectV1 = platformProject.map((platformProject) => ({
@@ -162,7 +162,7 @@ export class ProjectsService {
     return projectV1;
   }
 
-  transformToV2Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV2[] {
+  transformToV2Response(platformProject: PlatformProject[], activeCategoryList?: PlatformCategory[]): ProjectV2[] {
     const allCategoryIDs = activeCategoryList?.map((category) => category.id);
 
     const projectV2 = platformProject.map((platformProject) => ({

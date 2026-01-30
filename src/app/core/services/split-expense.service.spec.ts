@@ -133,7 +133,7 @@ describe('SplitExpenseService', () => {
       const model = 141295;
 
       expect(splitExpenseService.formatDisplayName(model, transformedOrgCategories)).toEqual(
-        transformedOrgCategories[0].displayName,
+        transformedOrgCategories[0].display_name,
       );
       expect(categoriesService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(model, transformedOrgCategories);
     });

@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { TitleCasePipe, NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
+import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, signal, ViewChild, inject } from '@angular/core';
 import {
   AbstractControl,
@@ -103,10 +103,11 @@ import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.m
 import { PlatformAccount } from 'src/app/core/models/platform-account.model';
 
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
@@ -152,7 +153,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { CorporateCreditCardExpenseService } from '../../core/services/corporate-credit-card-expense.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from '../camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -211,7 +212,7 @@ type FormValue = {
   };
   paymentMode: PlatformAccount;
   project: ProjectV2;
-  category: OrgCategory;
+  category: PlatformCategory;
   dateOfSpend: Date;
   vendor_id: {
     display_name: string;
@@ -232,7 +233,7 @@ type FormValue = {
   distance_unit: string;
   custom_inputs: CustomInput[];
   billable: boolean;
-  costCenter: CostCenter;
+  costCenter: PlatformCostCenter;
   hotel_is_breakfast_provided: boolean;
   project_dependent_fields: TxnCustomProperties[];
   cost_center_dependent_fields: TxnCustomProperties[];
@@ -366,8 +367,6 @@ export class AddEditExpensePage implements OnInit {
 
   platform = inject(Platform);
 
-  private titleCasePipe = inject(TitleCasePipe);
-
   private paymentModesService = inject(PaymentModesService);
 
   private taxGroupService = inject(TaxGroupService);
@@ -434,7 +433,7 @@ export class AddEditExpensePage implements OnInit {
 
   fg: UntypedFormGroup;
 
-  filteredCategories$: Observable<OrgCategoryListItem[]>;
+  filteredCategories$: Observable<PlatformCategoryListItem[]>;
 
   minDate: string;
 
@@ -544,12 +543,12 @@ export class AddEditExpensePage implements OnInit {
 
   isExpenseBankTxn = false;
 
-  recentCategories: OrgCategoryListItem[];
+  recentCategories: PlatformCategoryListItem[];
 
   // Todo: Rename all `selected` to `isSelected`
   presetCategoryId: number;
 
-  recentlyUsedCategories$: Observable<OrgCategoryListItem[]>;
+  recentlyUsedCategories$: Observable<PlatformCategoryListItem[]>;
 
   clusterDomain: string;
 
@@ -565,11 +564,11 @@ export class AddEditExpensePage implements OnInit {
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   presetCurrency: string;
 
@@ -641,23 +640,23 @@ export class AddEditExpensePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter | null>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter | null>;
 
   showReceiptMandatoryError = false;
 
   _isExpandedView = false;
 
-  recentCategoriesOriginal: OrgCategoryListItem[];
+  recentCategoriesOriginal: PlatformCategoryListItem[];
 
   isRTFEnabled$: Observable<boolean>;
 
   pendingTransactionAllowedToReportAndSplit = true;
 
-  allCategories$: Observable<OrgCategory[]>;
+  allCategories$: Observable<PlatformCategory[]>;
 
-  activeCategories$: Observable<OrgCategory[]>;
+  activeCategories$: Observable<PlatformCategory[]>;
 
-  selectedCategory$: Observable<OrgCategory>;
+  selectedCategory$: Observable<PlatformCategory>;
 
   isProjectEnabled: boolean;
 
@@ -1275,7 +1274,7 @@ export class AddEditExpensePage implements OnInit {
           return of([]);
         }
       }),
-      map((costCenters: CostCenter[]) =>
+      map((costCenters: PlatformCostCenter[]) =>
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
@@ -1463,7 +1462,7 @@ export class AddEditExpensePage implements OnInit {
         (dependencies: {
           orgSettings: OrgSettings;
           employeeSettings: EmployeeSettings;
-          extractedCategory: OrgCategory;
+          extractedCategory: PlatformCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
           imageData: InstaFyleResponse;
@@ -1612,7 +1611,7 @@ export class AddEditExpensePage implements OnInit {
 
             if (extractedCategory) {
               etxn.tx.category_id = extractedCategory.id;
-              etxn.tx.fyle_category = extractedCategory.fyle_category;
+              etxn.tx.fyle_category = extractedCategory.system_category;
             }
           }
 
@@ -1665,7 +1664,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCategory(): Observable<OrgCategory> {
+  getSelectedCategory(): Observable<PlatformCategory> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         // filter out unspecified category as it is not a valid category
@@ -1780,7 +1779,7 @@ export class AddEditExpensePage implements OnInit {
   getRecentCostCenters(): Observable<
     {
       label: string;
-      value: CostCenter;
+      value: PlatformCostCenter;
       selected?: boolean;
     }[]
   > {
@@ -1805,7 +1804,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter> {
+  getSelectedCostCenters(): Observable<PlatformCostCenter> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {
@@ -2118,7 +2117,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          const expenseCategory = category?.enabled ? category : null;
+          const expenseCategory = category?.is_enabled ? category : null;
 
           this.fg.patchValue(
             {
@@ -2190,10 +2189,10 @@ export class AddEditExpensePage implements OnInit {
   getAutofillCategory(config: {
     isAutofillsEnabled: boolean;
     recentValue: RecentlyUsed;
-    recentCategories: OrgCategoryListItem[];
+    recentCategories: PlatformCategoryListItem[];
     etxn: Partial<UnflattenedTransaction>;
-    category: OrgCategory;
-  }): OrgCategory {
+    category: PlatformCategory;
+  }): PlatformCategory {
     const { isAutofillsEnabled, recentValue, recentCategories, etxn } = config;
 
     let category = config.category;
@@ -2229,7 +2228,7 @@ export class AddEditExpensePage implements OnInit {
     return category;
   }
 
-  getCategoryOnEdit(category: OrgCategory): Observable<OrgCategory | null> {
+  getCategoryOnEdit(category: PlatformCategory): Observable<PlatformCategory | null> {
     return forkJoin({
       employeeSettings: this.platformEmployeeSettingsService.get(),
       orgSettings: this.orgSettingsService.get(),
@@ -2248,7 +2247,7 @@ export class AddEditExpensePage implements OnInit {
           employeeSettings: EmployeeSettings;
           orgSettings: OrgSettings;
           recentValues: RecentlyUsed;
-          recentCategories: OrgCategoryListItem[];
+          recentCategories: PlatformCategoryListItem[];
           etxn: Partial<UnflattenedTransaction>;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
@@ -2270,7 +2269,7 @@ export class AddEditExpensePage implements OnInit {
             recentValues,
             recentCategories,
             etxn,
-            selectedCategory: null as OrgCategory,
+            selectedCategory: null as PlatformCategory,
           });
         },
       ),
@@ -2312,7 +2311,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getCategoryOnAdd(category: OrgCategory): Observable<OrgCategory> {
+  getCategoryOnAdd(category: PlatformCategory): Observable<PlatformCategory> {
     if (category) {
       return of(category);
     } else {
@@ -2362,17 +2361,17 @@ export class AddEditExpensePage implements OnInit {
       switchMap((category) =>
         iif(
           () => this.mode === 'add',
-          this.getCategoryOnAdd(categoryControl.value as OrgCategory),
-          this.getCategoryOnEdit(categoryControl.value as OrgCategory),
+          this.getCategoryOnAdd(categoryControl.value as PlatformCategory),
+          this.getCategoryOnEdit(categoryControl.value as PlatformCategory),
         ),
       ),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => {
         if (!category) {
           // set to unspecified category if no category is selected
           return this.allCategories$.pipe(
             map((categories) => {
               const unspecifiedCategory = categories.find(
-                (category) => category.fyle_category?.toLowerCase() === 'unspecified',
+                (category) => category.system_category?.toLowerCase() === 'unspecified',
               );
               return unspecifiedCategory;
             }),
@@ -2381,7 +2380,7 @@ export class AddEditExpensePage implements OnInit {
           return of(category);
         }
       }),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => {
         const formValue = this.fg.value as {
           custom_inputs: CustomInput[];
         };
@@ -2392,7 +2391,7 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category?.enabled && category.id),
+              this.customInputsService.filterByCategory(customFields, category?.is_enabled && category.id),
             ),
           ),
         );
@@ -2704,8 +2703,8 @@ export class AddEditExpensePage implements OnInit {
             ) {
               if (
                 formValues.category &&
-                formValues.category.fyle_category &&
-                this.systemCategories?.includes(formValues.category.fyle_category) &&
+                formValues.category.system_category &&
+                this.systemCategories?.includes(formValues.category.system_category) &&
                 isConnected
               ) {
                 // eslint-disable-next-line max-depth
@@ -2720,8 +2719,8 @@ export class AddEditExpensePage implements OnInit {
             } else if (['distance', 'distance_unit'].includes(txnFieldKey)) {
               if (
                 formValues.category &&
-                formValues.category.fyle_category &&
-                ['Taxi'].includes(formValues.category.fyle_category) &&
+                formValues.category.system_category &&
+                ['Taxi'].includes(formValues.category.system_category) &&
                 isConnected
               ) {
                 control.setValidators(Validators.required);
@@ -2793,7 +2792,7 @@ export class AddEditExpensePage implements OnInit {
             ),
           ),
           tap((categories) => this.handleCategoryValidation(categories)),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+          map((categories) => categories.map((category) => ({ label: category.display_name, value: category }))),
         ),
       ),
       shareReplay(1),
@@ -2832,7 +2831,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  handleCategoryValidation(categories: OrgCategory[]): void {
+  handleCategoryValidation(categories: PlatformCategory[]): void {
     this.txnFields$.pipe(takeUntil(this.onPageExit$)).subscribe((txnFields) => {
       const isMandatory = txnFields?.org_category_id?.is_mandatory;
       const categoryControl = this.fg.controls.category;
@@ -3093,7 +3092,7 @@ export class AddEditExpensePage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -3108,9 +3107,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupSelectedCostCenterObservable(): void {
-    this.fg.controls.costCenter.valueChanges.pipe(takeUntil(this.onPageExit$)).subscribe((costCenter: CostCenter) => {
-      this.selectedCostCenter$.next(costCenter);
-    });
+    this.fg.controls.costCenter.valueChanges
+      .pipe(takeUntil(this.onPageExit$))
+      .subscribe((costCenter: PlatformCostCenter) => {
+        this.selectedCostCenter$.next(costCenter);
+      });
   }
 
   getCCCpaymentMode(): void {
@@ -3585,7 +3586,7 @@ export class AddEditExpensePage implements OnInit {
           filteredCategories,
           recentValues,
         }: {
-          filteredCategories: OrgCategoryListItem[];
+          filteredCategories: PlatformCategoryListItem[];
           recentValues: RecentlyUsed;
         }) => this.recentlyUsedItemsService.getRecentCategories(filteredCategories, recentValues),
       ),
@@ -3747,7 +3748,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFyleCategory(): string {
-    return this.getFormValues()?.category?.fyle_category;
+    return this.getFormValues()?.category?.system_category;
   }
 
   getDisplayName(): string {
@@ -3826,7 +3827,7 @@ export class AddEditExpensePage implements OnInit {
           return customProperty;
         });
         const unspecifiedCategory = res.allCategories.find(
-          (category) => category.fyle_category?.toLowerCase() === 'unspecified',
+          (category) => category.system_category?.toLowerCase() === 'unspecified',
         );
 
         const formValues = this.getFormValues();
@@ -4917,7 +4918,8 @@ export class AddEditExpensePage implements OnInit {
         ) {
           const categoryName = extractedData.category || 'Unspecified';
           const category = filteredCategories.find(
-            (orgCategory: { value: { fyle_category: string } }) => orgCategory.value.fyle_category === categoryName,
+            (platformCategory: { value: { system_category: string | null } }) =>
+              platformCategory.value.system_category?.toLowerCase() === categoryName.toLowerCase(),
           );
           this.fg.patchValue({
             category: category && category.value,
@@ -4926,7 +4928,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer; actionSource?: string }): void {
+  attachReceipts(data: { type: string; dataUrl: string | ArrayBuffer }): void {
     if (data) {
       const fileInfo = {
         type: data.type,
@@ -5035,7 +5037,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async uploadFileCallback(file: File): Promise<void> {
-    let fileData: { type: string; dataUrl: string | ArrayBuffer; actionSource: string };
+    let fileData: { type: string; dataUrl: string | ArrayBuffer };
     if (file) {
       if (file.size < MAX_FILE_SIZE) {
         const fileRead$ = from(this.fileService.readFile(file));
@@ -5051,7 +5053,6 @@ export class AddEditExpensePage implements OnInit {
               fileData = {
                 type: file.type,
                 dataUrl,
-                actionSource: 'gallery_upload',
               };
               this.attachReceipts(fileData);
               this.trackingService.addAttachment({ type: file.type });
@@ -5070,7 +5071,7 @@ export class AddEditExpensePage implements OnInit {
     this.uploadFileCallback(file);
   }
 
-  async addAttachments(event: Event): Promise<void> {
+  async addAttachments(event: Event, isAddMore = false): Promise<void> {
     event.stopPropagation();
 
     if (this.platform.is('ios')) {
@@ -5085,7 +5086,8 @@ export class AddEditExpensePage implements OnInit {
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
         componentProps: {
-          mode: this.mode,
+          mode: this.mode === 'edit' ? 'Edit Expense' : 'Add Expense',
+          showHeader: isAddMore,
         },
       });
 
@@ -5096,7 +5098,6 @@ export class AddEditExpensePage implements OnInit {
           option?: string;
           type: string;
           dataUrl: string;
-          actionSource?: string;
         };
       };
 
@@ -5125,7 +5126,6 @@ export class AddEditExpensePage implements OnInit {
           receiptDetails = {
             type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
             dataUrl: data.dataUrl,
-            actionSource: 'camera',
           };
         }
       }

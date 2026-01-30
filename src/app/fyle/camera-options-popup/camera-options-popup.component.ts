@@ -1,7 +1,10 @@
-import { Component, ElementRef, Input, OnInit, ViewChild, inject } from '@angular/core';
+// component will be used only for android
+import { Component, ElementRef, input, OnInit, viewChild, inject } from '@angular/core';
 import { PopoverController } from '@ionic/angular/standalone';
+import { Capacitor } from '@capacitor/core';
 import { FileService } from 'src/app/core/services/file.service';
-import { TrackingService } from '../../../core/services/tracking.service';
+import { FilePickerService } from 'src/app/core/services/file-picker.service';
+import { TrackingService } from '../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -27,13 +30,15 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   private translocoService = inject(TranslocoService);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() mode: string;
+  private filePickerService = inject(FilePickerService);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the query. This prevents migration.
-  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
+  /** Label for tracking: 'Add Expense' | 'Edit Expense' | 'Add Advance Request' | 'Edit Advance Request' */
+  readonly mode = input<string>();
+
+  /** Show "Add more using" header when true (e.g. edit mode and a receipt is already present) */
+  readonly showHeader = input<boolean>(false);
+
+  readonly fileUpload = viewChild<ElementRef<HTMLInputElement>>('fileUpload');
 
   ngOnInit(): void {
     return;
@@ -44,12 +49,11 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture(): Promise<void> {
-    const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
-    this.trackingService.addAttachment({ Mode: mode, Category: 'Camera' });
+    this.trackingService.addAttachment({ Mode: this.mode(), Category: 'Camera' });
     this.popoverController.dismiss({ option: 'camera' });
   }
 
-  async uploadFileCallback(file: File): Promise<void> {
+  async uploadFileCallback(file: Blob): Promise<void> {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
@@ -66,11 +70,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         .pipe(
           raceWith(delayedLoader$),
           map((dataUrl) => {
-            this.popoverController.dismiss({
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            });
+            this.popoverController.dismiss({ dataUrl, type: this.fileService.getImageTypeFromDataUrl(dataUrl) });
           }),
           finalize(() => this.loaderService.hideLoader()),
         )
@@ -84,23 +84,67 @@ export class CameraOptionsPopupComponent implements OnInit {
     }
   }
 
-  async onChangeCallback(nativeElement: HTMLInputElement): Promise<void> {
-    const file = nativeElement.files[0];
-    this.uploadFileCallback(file);
+  async getFileFromFilePicker(): Promise<void> {
+    this.trackingService.addAttachment({ Mode: this.mode(), Category: 'Upload File' });
+    if (Capacitor.isNativePlatform()) {
+      await this.pickAndUpload(['application/pdf'], 'Upload File');
+    } else {
+      this.triggerFileInput('application/pdf');
+    }
   }
 
   async getImageFromImagePicker(): Promise<void> {
-    const that = this;
-    const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
-    this.trackingService.addAttachment({ Mode: mode, Category: 'Camera' });
+    this.trackingService.addAttachment({ Mode: this.mode(), Category: 'Upload Image' });
+    if (Capacitor.isNativePlatform()) {
+      await this.pickAndUpload(['image/*'], 'Upload Image');
+    } else {
+      this.triggerFileInput('image/*');
+    }
+  }
 
-    const nativeElement = that.fileUpload.nativeElement;
-
-    nativeElement.onchange = async (): Promise<void> => {
-      that.onChangeCallback(nativeElement);
+  private triggerFileInput(accept: string): void {
+    const input = this.fileUpload()?.nativeElement;
+    if (!input) return;
+    input.accept = accept;
+    input.onchange = (): void => {
+      const file = input.files?.[0];
+      if (file) {
+        this.uploadFileCallback(file);
+      }
+      input.value = '';
+      input.onchange = null;
     };
+    input.click();
+  }
 
-    nativeElement.click();
+  private async pickAndUpload(mimes: string[], category: string): Promise<void> {
+    try {
+      const result = await this.filePickerService.pick({
+        multiple: false,
+        mimes,
+      });
+
+      const picked = result.files?.[0];
+      if (!picked) {
+        return;
+      }
+
+      const blob = await this.pickedFileToBlob(picked);
+      await this.uploadFileCallback(blob);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      this.trackingService.filePickerError({ Mode: this.mode(), Category: category, error });
+      // User cancelled or picker failed – no-op, popover stays open
+    }
+  }
+
+  private async pickedFileToBlob(picked: {
+    path: string;
+    webPath: string;
+  }): Promise<Blob> {
+    const url = picked.webPath ?? Capacitor.convertFileSrc(picked.path);
+    const response = await fetch(url);
+    return response.blob();
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {

@@ -132,6 +132,8 @@ PODS:
   - nanopb/encode (2.30908.0)
   - PromisesObjC (1.2.12)
   - SwiftKeychainWrapper (4.0.1)
+  - WhiteguruCapacitorPluginFilePicker (7.0.1):
+    - Capacitor
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -157,6 +159,7 @@ DEPENDENCIES:
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
+  - "WhiteguruCapacitorPluginFilePicker (from `../../node_modules/@whiteguru/capacitor-plugin-file-picker`)"
 
 SPEC REPOS:
   trunk:
@@ -221,6 +224,8 @@ EXTERNAL SOURCES:
     :path: "../capacitor-cordova-ios-plugins"
   CordovaPluginsStatic:
     :path: "../capacitor-cordova-ios-plugins"
+  WhiteguruCapacitorPluginFilePicker:
+    :path: "../../node_modules/@whiteguru/capacitor-plugin-file-picker"
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
@@ -260,7 +265,8 @@ SPEC CHECKSUMS:
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
+  WhiteguruCapacitorPluginFilePicker: 2a56042cdc8764ed011c672917edc33a95f9d4f4
 
-PODFILE CHECKSUM: e8d2d5b2c4afd01caa869215f1a8143a4bb26265
+PODFILE CHECKSUM: 3bfe50c70173259abe6c00635d38652737b9b836
 
 COCOAPODS: 1.16.2

@@ -34,10 +34,12 @@ export const perDiemFormValuesData2: Partial<PerDiemFormValue> = deepFreeze({
 export const perDiemFormValuesData3: Partial<PerDiemFormValue> = deepFreeze({
   ...perDiemFormValuesData1,
   per_diem_rate: {
-    active: true,
+    code: null,
     created_at: new Date('2020-08-12T16:09:14.551Z'),
     currency: 'USD',
+    description: null,
     id: 4213,
+    is_enabled: true,
     name: 'BulkTest2',
     org_id: 'orrjqbDbeP9p',
     rate: 50,
@@ -119,6 +121,7 @@ export const perDiemFormValuesData9: PerDiemFormValue = deepFreeze({
 
 export const perDiemFormValuesData10: PerDiemFormValue = deepFreeze({
   ...perDiemFormValuesData8,
+  per_diem_rate: perDiemRatesData1,
   custom_inputs: [
     {
       id: 218266,

@@ -14,6 +14,7 @@ import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
+import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -107,7 +108,12 @@ describe('FyViewAttachmentComponent', () => {
       ],
       imports: [getTranslocoTestingModule(), FyViewAttachmentComponent, MatIconTestingModule],
       schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
+    }).overrideComponent(FyViewAttachmentComponent, {
+      remove: {
+        imports: [PdfViewerModule]
+      }
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(FyViewAttachmentComponent);
     component = fixture.componentInstance;
