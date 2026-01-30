@@ -91,15 +91,42 @@ describe('PushNotificationService', () => {
     expect(registerSpy).not.toHaveBeenCalled();
   });
 
-  it('checkPermissions(): should delegate to PushNotifications.checkPermissions', async () => {
-    const permission = { receive: 'denied' } as any;
-    const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
+  describe('checkPermissions():', () => {
+    it('should return the permission status', async () => {
+      const permission = { receive: 'denied' } as any;
+      const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
 
-    const result = await service.checkPermissions();
+      const result = await service.checkPermissions();
 
-    expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
-    expect(result).toBe(permission);
+      expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
+      expect(result).toBe(permission);
+    });
+
+    it('should delegate to PushNotifications.checkPermissions', async () => {
+      const permission = { receive: 'denied' } as any;
+      const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
+  
+      const result = await service.checkPermissions();
+  
+      expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
+      expect(result).toBe(permission);
+    });
+
+    it('should init listeners and register when permission is granted', async () => {
+      const permission = { receive: 'granted' } as any;
+      const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
+      const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
+      const initListenersSpy = spyOn<any>(service as any, 'initListeners').and.callThrough();
+  
+      const result = await service.checkPermissions();
+  
+      expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
+      expect(initListenersSpy).toHaveBeenCalledTimes(1);
+      expect(registerSpy).toHaveBeenCalledTimes(1);
+      expect(result).toBe(permission);
+    });
   });
+
 
   it('register(): should delegate to PushNotifications.register', async () => {
     const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();

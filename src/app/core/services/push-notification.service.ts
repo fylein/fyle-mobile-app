@@ -87,8 +87,6 @@ export class PushNotificationService {
         this.orgUserService.sendDeviceToken(tokenValue).subscribe(() => {
           this.trackingService.eventTrack('Push Notification Registered');
         });
-      } else {
-        this.trackingService.eventTrack('Push Notification Registered');
       }
     });
   }
@@ -99,7 +97,7 @@ export class PushNotificationService {
 
   private addNotificationClickListener(): void {
     PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
-      const data = (event?.notification?.data as { cta_url?: string; notification_type?: string } | undefined) ?? {};
+      const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
       const url = data.cta_url;
       const actionType = data.notification_type;
 
