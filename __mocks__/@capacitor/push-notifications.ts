@@ -7,7 +7,6 @@ export interface Token {
   value?: string;
 }
 
-// Keep a very loose event shape to avoid type coupling in tests.
 export interface PushNotificationEvent {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;

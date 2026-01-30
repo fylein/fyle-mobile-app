@@ -434,6 +434,8 @@ fdescribe('NotificationsBetaPage', () => {
 
       (component as any).startAppStateListener();
 
+      await addListenerSpy.calls.mostRecent().returnValue;
+
       expect(addListenerSpy).toHaveBeenCalledWith('appStateChange', jasmine.any(Function));
       expect(component.appStateChangeListener).toBeTruthy();
     });

@@ -16,6 +16,7 @@ fdescribe('PushNotificationService', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let logoutCallback: () => void;
   let storageService: jasmine.SpyObj<StorageService>;
+  let unregisterSpy: jasmine.Spy;
 
   beforeEach(() => {
     deepLinkService = jasmine.createSpyObj('DeepLinkService', ['getJsonFromUrl', 'redirect']);
@@ -33,6 +34,13 @@ fdescribe('PushNotificationService', () => {
     // By default, pretend we have never requested permissions.
     storageService.get.and.resolveTo(false);
     storageService.set.and.resolveTo();
+
+    // Ensure we never hit the real Capacitor proxy in this suite.
+    unregisterSpy = jasmine.createSpy('unregister').and.resolveTo();
+    Object.defineProperty(PushNotifications, 'unregister', {
+      value: unregisterSpy,
+      writable: true,
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -54,13 +62,11 @@ fdescribe('PushNotificationService', () => {
 
   it('initializePushNotifications(): should request permission and register when granted', async () => {
     storageService.get.and.resolveTo(false);
-    const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo(
-      { receive: 'granted' } as any,
-    );
+    const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo({
+      receive: 'granted',
+    } as any);
     const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
-    spyOn(PushNotifications, 'addListener').and.resolveTo(
-      { remove: jasmine.createSpy('remove') } as any,
-    );
+    spyOn(PushNotifications, 'addListener').and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
     const initListenersSpy = spyOn<any>(service as any, 'initListeners').and.callThrough();
 
     await service.initializePushNotifications();
@@ -72,9 +78,9 @@ fdescribe('PushNotificationService', () => {
 
   it('initializePushNotifications(): should not register when permission is not granted', async () => {
     storageService.get.and.resolveTo(false);
-    const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo(
-      { receive: 'denied' } as any,
-    );
+    const requestPermissionsSpy = spyOn(PushNotifications, 'requestPermissions').and.resolveTo({
+      receive: 'denied',
+    } as any);
     const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
     const initListenersSpy = spyOn<any>(service as any, 'initListeners').and.callThrough();
 
@@ -87,9 +93,7 @@ fdescribe('PushNotificationService', () => {
 
   it('checkPermissions(): should delegate to PushNotifications.checkPermissions', async () => {
     const permission = { receive: 'denied' } as any;
-    const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(
-      permission,
-    );
+    const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
 
     const result = await service.checkPermissions();
 
@@ -106,7 +110,6 @@ fdescribe('PushNotificationService', () => {
   });
 
   it('unregister(): should delegate to PushNotifications.unregister', async () => {
-    const unregisterSpy = spyOn(PushNotifications, 'unregister').and.resolveTo();
 
     await service.unregister();
 
@@ -198,7 +201,6 @@ fdescribe('PushNotificationService', () => {
   });
 
   it('should unregister push notifications on user logout', async () => {
-    const unregisterSpy = spyOn(PushNotifications, 'unregister').and.resolveTo();
     const serviceUnregisterSpy = spyOn(service, 'unregister').and.callThrough();
 
     logoutCallback();
