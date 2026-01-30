@@ -479,6 +479,7 @@ export interface OrgSettingsResponse {
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
+  mobile_notification_settings?: MobilePushNotificationSettings;
 }
 
 export interface UiPolicySettings {
@@ -601,5 +602,5 @@ export interface OrgSettings {
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
-  mobile_push_notification?: MobilePushNotificationSettings;
+  mobile_notification_settings?: MobilePushNotificationSettings;
 }

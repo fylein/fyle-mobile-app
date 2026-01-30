@@ -139,8 +139,8 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     });
   }
 
-  private handleAppStateChange(state: { isActive: boolean }): Promise<void> | void {
-    const { isActive } = state;
+  private handleAppStateChange(state: { [key: string]: any }): Promise<void> | void {
+    const isActive = !!state.isActive;
 
     if (!isActive || !this.showMobilePushColumn) {
       return;
