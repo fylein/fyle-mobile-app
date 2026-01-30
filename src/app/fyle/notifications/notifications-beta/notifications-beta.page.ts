@@ -133,7 +133,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     this.appStateChangeListener = null;
   }
 
-  private startAppStateListener(): void {
+  startAppStateListener(): void {
     App.addListener('appStateChange', (state) => this.handleAppStateChange(state)).then((listener) => {
       this.appStateChangeListener = listener;
     });

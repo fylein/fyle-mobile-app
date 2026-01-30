@@ -936,6 +936,11 @@ export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
     enabled: false,
     amount_threshold: 500,
   },
+  mobile_notification_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [],
+  },
 });
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({

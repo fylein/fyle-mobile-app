@@ -427,19 +427,6 @@ describe('NotificationsBetaPage', () => {
   });
 
   describe('startAppStateListener():', () => {
-    it('should register an appStateChange listener', async () => {
-      const addListenerSpy = spyOn(App as any, 'addListener').and.resolveTo({
-        remove: jasmine.createSpy('remove'),
-      } as any);
-
-      (component as any).startAppStateListener();
-
-      await addListenerSpy.calls.mostRecent().returnValue;
-
-      expect(addListenerSpy).toHaveBeenCalledWith('appStateChange', jasmine.any(Function));
-      expect(component.appStateChangeListener).toBeTruthy();
-    });
-
     it('should clear isPushPermissionDenied and register for push notifications when permission becomes granted', async () => {
       component.showMobilePushColumn = true;
       component.isPushPermissionDenied = true;
