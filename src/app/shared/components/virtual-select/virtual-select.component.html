@@ -14,6 +14,7 @@
       type="text"
       [placeholder]="!disabled() ? placeholder() || ('virtualSelect.placeholder' | transloco: { label: label }) : ''"
       [ngModel]="displayValue"
+      readonly
       (blur)="onBlur()"
       (click)="openModal()"
       [ngClass]="{ 'fy-select--input-disabled': disabled() }"

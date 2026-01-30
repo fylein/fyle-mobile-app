@@ -53,7 +53,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     this.popoverController.dismiss({ option: 'camera' });
   }
 
-  async uploadFileCallback(file: File): Promise<void> {
+  async uploadFileCallback(file: Blob): Promise<void> {
     if (file?.size < MAX_FILE_SIZE) {
       const fileRead$ = from(this.fileService.readFile(file));
       const delayedLoader$ = timer(300).pipe(
@@ -70,11 +70,7 @@ export class CameraOptionsPopupComponent implements OnInit {
         .pipe(
           raceWith(delayedLoader$),
           map((dataUrl) => {
-            this.popoverController.dismiss({
-              type: file.type,
-              dataUrl,
-              actionSource: 'gallery_upload',
-            });
+            this.popoverController.dismiss({ dataUrl, type: this.fileService.getImageTypeFromDataUrl(dataUrl) });
           }),
           finalize(() => this.loaderService.hideLoader()),
         )
@@ -133,8 +129,8 @@ export class CameraOptionsPopupComponent implements OnInit {
         return;
       }
 
-      const file = await this.pickedFileToFile(picked);
-      await this.uploadFileCallback(file);
+      const blob = await this.pickedFileToBlob(picked);
+      await this.uploadFileCallback(blob);
     } catch (err: unknown) {
       const error = err instanceof Error ? err : new Error(String(err));
       this.trackingService.filePickerError({ Mode: this.mode(), Category: category, error });
@@ -142,27 +138,13 @@ export class CameraOptionsPopupComponent implements OnInit {
     }
   }
 
-  private async pickedFileToFile(picked: {
+  private async pickedFileToBlob(picked: {
     path: string;
     webPath: string;
-    name: string;
-    extension: string;
-  }): Promise<File> {
+  }): Promise<Blob> {
     const url = picked.webPath ?? Capacitor.convertFileSrc(picked.path);
     const response = await fetch(url);
-    const blob = await response.blob();
-    const ext = (picked.extension || '').toLowerCase();
-    const mimeType =
-      {
-        pdf: 'application/pdf',
-        jpg: 'image/jpeg',
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-        gif: 'image/gif',
-        heic: 'image/heic',
-        webp: 'image/webp',
-      }[ext] ?? blob.type ?? '';
-    return new File([blob], picked.name ?? `file.${ext}`, { type: mimeType });
+    return response.blob();
   }
 
   async showSizeLimitExceededPopover(maxFileSize: number): Promise<void> {
