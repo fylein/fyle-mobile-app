@@ -19,7 +19,7 @@ import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 
-fdescribe('EmailNotificationsComponent', () => {
+describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
   let fixture: ComponentFixture<EmailNotificationsComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
