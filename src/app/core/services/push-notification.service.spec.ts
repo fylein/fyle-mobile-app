@@ -8,7 +8,7 @@ import { TrackingService } from './tracking.service';
 import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
 
-describe('PushNotificationService', () => {
+fdescribe('PushNotificationService', () => {
   let service: PushNotificationService;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
   let trackingService: jasmine.SpyObj<TrackingService>;

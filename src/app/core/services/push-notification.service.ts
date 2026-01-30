@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotifications, Token, PermissionStatus } from '@capacitor/push-notifications';
 import { DeepLinkService } from './deep-link.service';
 import { TrackingService } from './tracking.service';
 import { UserEventService } from './user-event.service';
@@ -49,8 +49,15 @@ export class PushNotificationService {
     });
   }
 
-  checkPermissions(): Promise<{ receive: string }> {
-    return PushNotifications.checkPermissions();
+  checkPermissions(): Promise<PermissionStatus> {
+    return PushNotifications.checkPermissions().then((permission: PermissionStatus) => {
+      if (permission.receive === 'granted') {
+        this.initListeners();
+        void this.register();
+      }
+
+      return permission;
+    });
   }
 
   unregister(): Promise<void> {
@@ -73,16 +80,16 @@ export class PushNotificationService {
     this.addNotificationClickListener();
   }
 
-  addRegistrationListener(): void {
-    // The Capacitor PushNotifications plugin will pass a token-like object that
-    // includes a `value` field for the device token. We keep the parameter
-    // type broad here to stay compatible with both native and web mocks.
-    PushNotifications.addListener('registration', (token: any) => {
-      const tokenValue = (token as { value?: string })?.value;
+  addRegistrationListener(): Promise<{ remove: () => void }> {
+    return PushNotifications.addListener('registration', (token: Token) => {
+      const tokenValue = token?.value;
       if (tokenValue) {
-        this.orgUserService.sendDeviceToken(tokenValue).subscribe();
+        this.orgUserService.sendDeviceToken(tokenValue).subscribe(() => {
+          this.trackingService.eventTrack('Push Notification Registered');
+        });
+      } else {
+        this.trackingService.eventTrack('Push Notification Registered');
       }
-      this.trackingService.eventTrack('Push Notification Registered');
     });
   }
 

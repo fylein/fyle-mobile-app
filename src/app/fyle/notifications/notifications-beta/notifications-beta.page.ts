@@ -117,12 +117,14 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-      this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_push_notification?.enabled && this.orgSettings.mobile_push_notification?.allowed;
+      this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_notification_settings?.enabled && this.orgSettings.mobile_notification_settings?.allowed;
       this.isPushPermissionDenied = this.showMobilePushColumn && permissionStatus.receive !== 'granted';
 
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
-      this.startAppStateListener();
+      if (this.showMobilePushColumn) {
+        this.startAppStateListener();
+      }
     });
   }
 
@@ -132,30 +134,30 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
   }
 
   private startAppStateListener(): void {
-    if (this.appStateChangeListener) {
+    App.addListener('appStateChange', (state) => this.handleAppStateChange(state)).then((listener) => {
+      this.appStateChangeListener = listener;
+    });
+  }
+
+  private handleAppStateChange(state: { isActive: boolean }): Promise<void> | void {
+    const { isActive } = state;
+
+    if (!isActive || !this.showMobilePushColumn) {
       return;
     }
 
-    App.addListener('appStateChange', ({ isActive }) => {
-      if (!isActive || !this.showMobilePushColumn) {
-        return;
+    return this.pushNotificationService.checkPermissions().then((latestPermission) => {
+      const hasPermission = latestPermission.receive === 'granted';
+
+      if (hasPermission && this.isPushPermissionDenied) {
+        this.isPushPermissionDenied = false;
+        this.pushNotificationService.addRegistrationListener();
+        return this.pushNotificationService.register();
+      } else if (!hasPermission) {
+        this.isPushPermissionDenied = true;
       }
 
-      return this.pushNotificationService.checkPermissions().then((latestPermission) => {
-        const hasPermission = latestPermission.receive === 'granted';
-
-        if (hasPermission && this.isPushPermissionDenied) {
-          this.isPushPermissionDenied = false;
-          this.pushNotificationService.addRegistrationListener();
-          return this.pushNotificationService.register();
-        } else if (!hasPermission) {
-          this.isPushPermissionDenied = true;
-        }
-
-        return;
-      });
-    }).then((listener) => {
-      this.appStateChangeListener = listener;
+      return;
     });
   }
 

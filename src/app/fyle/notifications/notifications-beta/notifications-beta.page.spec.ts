@@ -79,11 +79,6 @@ fdescribe('NotificationsBetaPage', () => {
 
     spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
     spyOn(PushNotifications as any, 'register').and.resolveTo();
-    spyOn(App as any, 'addListener').and.returnValue(
-      Promise.resolve({
-        remove: jasmine.createSpy('remove'),
-      } as any),
-    );
     launchDarklyServiceSpy.getVariation.and.returnValue(of(true));
     pushNotificationServiceSpy.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
 
@@ -432,31 +427,24 @@ fdescribe('NotificationsBetaPage', () => {
   });
 
   describe('startAppStateListener():', () => {
+    it('should register an appStateChange listener', async () => {
+      const addListenerSpy = spyOn(App as any, 'addListener').and.resolveTo({
+        remove: jasmine.createSpy('remove'),
+      } as any);
+
+      (component as any).startAppStateListener();
+
+      expect(addListenerSpy).toHaveBeenCalledWith('appStateChange', jasmine.any(Function));
+      expect(component.appStateChangeListener).toBeTruthy();
+    });
+
     it('should clear isPushPermissionDenied and register for push notifications when permission becomes granted', async () => {
       component.showMobilePushColumn = true;
       component.isPushPermissionDenied = true;
 
-      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
-      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: unknown) => {
-        if (eventName === 'appStateChange') {
-          appStateCallback = cb as (state: { isActive: boolean }) => Promise<void> | void;
-        }
-        return Promise.resolve({
-          remove: jasmine.createSpy('remove'),
-        } as any);
-      });
-
       pushNotificationService.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
 
-      (component as any).startAppStateListener();
-
-      expect(appStateCallback).toBeDefined();
-      if (!appStateCallback) {
-        fail('appStateChange listener was not registered');
-        return;
-      }
-
-      await appStateCallback({ isActive: true });
+      await (component as any).handleAppStateChange({ isActive: true });
 
       expect(component.isPushPermissionDenied).toBeFalse();
       expect(pushNotificationService.addRegistrationListener).toHaveBeenCalledTimes(1);
@@ -467,27 +455,9 @@ fdescribe('NotificationsBetaPage', () => {
       component.showMobilePushColumn = true;
       component.isPushPermissionDenied = false;
 
-      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
-      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: unknown) => {
-        if (eventName === 'appStateChange') {
-          appStateCallback = cb as (state: { isActive: boolean }) => Promise<void> | void;
-        }
-        return Promise.resolve({
-          remove: jasmine.createSpy('remove'),
-        } as any);
-      });
-
       pushNotificationService.checkPermissions.and.resolveTo({ receive: 'denied' } as any);
 
-      (component as any).startAppStateListener();
-
-      expect(appStateCallback).toBeDefined();
-      if (!appStateCallback) {
-        fail('appStateChange listener was not registered');
-        return;
-      }
-
-      await appStateCallback({ isActive: true });
+      await (component as any).handleAppStateChange({ isActive: true });
 
       expect(component.isPushPermissionDenied).toBeTrue();
       expect(pushNotificationService.addRegistrationListener).not.toHaveBeenCalled();

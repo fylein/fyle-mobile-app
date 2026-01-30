@@ -21,9 +21,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
@@ -32,6 +32,7 @@ import { FormButtonValidationDirective } from 'src/app/shared/directive/form-but
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -92,7 +93,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   isPushPermissionDenied = false;
 
-  appStateChangeListener: { remove: () => void } | null = null;
+  appStateChangeListener: PluginListenerHandle | null = null;
 
   private platform = inject(Platform);
 
@@ -113,6 +114,8 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   private matSnackBar = inject(MatSnackBar);
 
   private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
@@ -279,12 +282,11 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
     forkJoin({
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-      permissionStatus: from(PushNotifications.checkPermissions()),
+      permissionStatus: from(this.pushNotificationService.checkPermissions()),
     }).subscribe(({ isPushNotifUiEnabled, permissionStatus }) => {
       this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
       this.isPushPermissionDenied =
         isPushNotifUiEnabled && isPushColumnSupportedForTitle && permissionStatus.receive !== 'granted';
-
       if (this.showMobilePushColumn) {
         this.startAppStateListener();
       }
@@ -293,7 +295,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.appStateChangeListener?.remove();
-    this.appStateChangeListener = null;
   }
 
   private startAppStateListener(): void {
@@ -302,7 +303,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     }
 
     // Only register native app state listeners on native platforms.
-    if (typeof (Capacitor as any).isNativePlatform === 'function' && !Capacitor.isNativePlatform()) {
+    if (!Capacitor.isNativePlatform()) {
       return;
     }
 
@@ -311,17 +312,14 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      return PushNotifications.checkPermissions().then((latestPermission) => {
+      this.pushNotificationService.checkPermissions().then((latestPermission) => {
         const hasPermission = latestPermission.receive === 'granted';
 
         if (hasPermission && this.isPushPermissionDenied) {
           this.isPushPermissionDenied = false;
-          return PushNotifications.register();
         } else if (!hasPermission) {
           this.isPushPermissionDenied = true;
         }
-
-        return;
       });
     }).then((listener) => {
       this.appStateChangeListener = listener;
