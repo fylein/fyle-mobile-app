@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { PushNotifications, Token } from '@capacitor/push-notifications';
+import { PushNotifications } from '@capacitor/push-notifications';
 import { DeepLinkService } from './deep-link.service';
 import { TrackingService } from './tracking.service';
 import { UserEventService } from './user-event.service';
@@ -74,8 +74,11 @@ export class PushNotificationService {
   }
 
   addRegistrationListener(): void {
-    PushNotifications.addListener('registration', (token: Token) => {
-      const tokenValue = token?.value;
+    // The Capacitor PushNotifications plugin will pass a token-like object that
+    // includes a `value` field for the device token. We keep the parameter
+    // type broad here to stay compatible with both native and web mocks.
+    PushNotifications.addListener('registration', (token: any) => {
+      const tokenValue = (token as { value?: string })?.value;
       if (tokenValue) {
         this.orgUserService.sendDeviceToken(tokenValue).subscribe();
       }

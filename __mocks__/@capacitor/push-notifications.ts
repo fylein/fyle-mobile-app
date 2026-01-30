@@ -1,17 +1,16 @@
+// The interfaces are still maintained in the same file to make the tests pass
 export interface PermissionStatus {
   receive: string;
 }
 
 export interface Token {
   value?: string;
-  // Allow additional properties so the type is flexible in tests.
-  [key: string]: any;
 }
 
+// Keep a very loose event shape to avoid type coupling in tests.
 export interface PushNotificationEvent {
-  notification?: {
-    data?: any;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
 }
 
 export type PushNotificationListener = (event: PushNotificationEvent) => void;
@@ -33,10 +32,8 @@ export const PushNotifications = {
     return Promise.resolve();
   },
 
-  addListener(
-    _eventName: string,
-    _listener: PushNotificationListener,
-  ): Promise<{ remove: () => void }> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  addListener(_eventName: string, _listener: any): Promise<{ remove: () => void }> {
     return Promise.resolve({ remove: () => {} });
   },
 };

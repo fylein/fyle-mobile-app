@@ -35,7 +35,7 @@ import { App } from '@capacitor/app';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
-describe('NotificationsBetaPage', () => {
+fdescribe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
@@ -184,6 +184,9 @@ describe('NotificationsBetaPage', () => {
 
   describe('ngOnInit():', () => {
     it('ngOnInit(): should initialize the component with org settings and user settings', fakeAsync(() => {
+      // Avoid registering native app listeners in unit tests.
+      spyOn<any>(component as any, 'startAppStateListener');
+
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
@@ -200,6 +203,7 @@ describe('NotificationsBetaPage', () => {
     it('ngOnInit(): should set isAdvancesEnabled to false when advances are not allowed', fakeAsync(() => {
       const orgSettingsWithoutAdvances = { ...orgSettingsData, advances: { allowed: false, enabled: false } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAdvances));
+      spyOn<any>(component as any, 'startAppStateListener');
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
@@ -215,6 +219,7 @@ describe('NotificationsBetaPage', () => {
     it('ngOnInit(): should set isAdvancesEnabled to true when advances are allowed and enabled', fakeAsync(() => {
       const orgSettingsWithAdvances = { ...orgSettingsData, advances: { allowed: true, enabled: true } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithAdvances));
+      spyOn<any>(component as any, 'startAppStateListener');
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 

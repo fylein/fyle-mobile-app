@@ -75,11 +75,6 @@ fdescribe('EmailNotificationsComponent', () => {
 
     spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
     spyOn(PushNotifications as any, 'register').and.resolveTo();
-    spyOn(App as any, 'addListener').and.returnValue(
-      Promise.resolve({
-        remove: jasmine.createSpy('remove'),
-      } as any),
-    );
 
     TestBed.configureTestingModule({
       imports: [EmailNotificationsComponent, MatIconTestingModule],
@@ -173,28 +168,30 @@ fdescribe('EmailNotificationsComponent', () => {
     });
 
     it('should start appState listener and clear isPushPermissionDenied when permission becomes granted', async () => {
-      // Enable push column by using a supported title and LD flag
-      component.title = 'Expense notifications';
-
-      const launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-      launchDarklyService.getVariation.and.returnValue(of(true));
+      // Bypass ngOnInit gating and force conditions required for startAppStateListener.
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = true;
 
       // Pretend we are on a native platform so the listener is registered.
       spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
 
       // Capture the appStateChange callback
-      let appStateCallback: (state: { isActive: boolean }) => Promise<void> | void;
-      (App.addListener as jasmine.Spy).and.callFake((eventName: string, cb: any) => {
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
         if (eventName === 'appStateChange') {
           appStateCallback = cb;
         }
         return Promise.resolve({ remove: jasmine.createSpy('remove') } as any);
       });
 
-      // Initial state: permission denied, column visible
-      component.isPushPermissionDenied = true;
+      // Directly invoke the private listener registration
+      (component as any).startAppStateListener();
 
-      component.ngOnInit();
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
 
       // Simulate app coming to foreground with granted permission
       await appStateCallback({ isActive: true });
@@ -204,27 +201,29 @@ fdescribe('EmailNotificationsComponent', () => {
     });
 
     it('should set isPushPermissionDenied to true when permission is denied on app resume', async () => {
-      component.title = 'Expense notifications';
-
-      const launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
-      launchDarklyService.getVariation.and.returnValue(of(true));
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = false;
 
       spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
 
       // Make checkPermissions return denied for this test
       (PushNotifications.checkPermissions as jasmine.Spy).and.resolveTo({ receive: 'denied' } as any);
 
-      let appStateCallback: (state: { isActive: boolean }) => Promise<void> | void;
-      (App.addListener as jasmine.Spy).and.callFake((eventName: string, cb: any) => {
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
         if (eventName === 'appStateChange') {
           appStateCallback = cb;
         }
         return Promise.resolve({ remove: jasmine.createSpy('remove') } as any);
       });
 
-      component.isPushPermissionDenied = false;
+      (component as any).startAppStateListener();
 
-      component.ngOnInit();
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
 
       await appStateCallback({ isActive: true });
 

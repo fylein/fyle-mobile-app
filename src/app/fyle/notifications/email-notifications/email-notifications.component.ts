@@ -24,7 +24,6 @@ import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy
 import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { App } from '@capacitor/app';
-import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
@@ -93,7 +92,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   isPushPermissionDenied = false;
 
-  appStateChangeListener: PluginListenerHandle | null = null;
+  appStateChangeListener: { remove: () => void } | null = null;
 
   private platform = inject(Platform);
 
