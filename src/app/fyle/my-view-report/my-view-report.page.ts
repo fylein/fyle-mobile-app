@@ -396,7 +396,7 @@ export class MyViewReportPage {
 
   setupApproverToShow(report: Report): void {
     const filteredApprover = this.approvals.filter(
-      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id,
+      (approver) => report.next_approver_user_ids?.[0] === approver?.approver_user?.id,
     );
     const highestRankApprover = this.approvals.reduce(
       (max, approver) => (approver.approver_order > max.approver_order ? approver : max),
