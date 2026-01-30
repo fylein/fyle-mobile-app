@@ -21,6 +21,7 @@ import { AsyncPipe } from '@angular/common';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { App } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
 import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
@@ -78,9 +79,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   showMobilePushColumn = false;
 
-  // We only rely on a remove() method; type it loosely to avoid tight coupling
-  // to the Capacitor PluginListenerHandle definition across environments.
-  appStateChangeListener: { remove: () => void } | null = null;
+  appStateChangeListener: PluginListenerHandle | null = null;
 
   private router = inject(Router);
 

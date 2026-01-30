@@ -85,7 +85,7 @@ describe('NotificationsBetaPage', () => {
       } as any),
     );
     launchDarklyServiceSpy.getVariation.and.returnValue(of(true));
-    pushNotificationServiceSpy.checkPermissions.and.returnValue(Promise.resolve({ receive: 'granted' } as any));
+    pushNotificationServiceSpy.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, ReactiveFormsModule, NotificationsBetaPage, MatIconTestingModule],
@@ -184,9 +184,6 @@ describe('NotificationsBetaPage', () => {
 
   describe('ngOnInit():', () => {
     it('ngOnInit(): should initialize the component with org settings and user settings', fakeAsync(() => {
-      // Avoid registering native app listeners in unit tests.
-      spyOn<any>(component as any, 'startAppStateListener');
-
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
@@ -203,7 +200,6 @@ describe('NotificationsBetaPage', () => {
     it('ngOnInit(): should set isAdvancesEnabled to false when advances are not allowed', fakeAsync(() => {
       const orgSettingsWithoutAdvances = { ...orgSettingsData, advances: { allowed: false, enabled: false } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAdvances));
-      spyOn<any>(component as any, 'startAppStateListener');
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
@@ -219,7 +215,6 @@ describe('NotificationsBetaPage', () => {
     it('ngOnInit(): should set isAdvancesEnabled to true when advances are allowed and enabled', fakeAsync(() => {
       const orgSettingsWithAdvances = { ...orgSettingsData, advances: { allowed: true, enabled: true } };
       orgSettingsService.get.and.returnValue(of(orgSettingsWithAdvances));
-      spyOn<any>(component as any, 'startAppStateListener');
       spyOn(component, 'initializeEmailNotificationsConfig');
       spyOn(component, 'initializeDelegateNotification');
 
@@ -433,6 +428,70 @@ describe('NotificationsBetaPage', () => {
       component.selectPreference('onlyMe');
       expect(component.selectedPreference).toBe('onlyMe');
       expect(component.updateDelegateNotificationPreference).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('startAppStateListener():', () => {
+    it('should clear isPushPermissionDenied and register for push notifications when permission becomes granted', async () => {
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = true;
+
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: unknown) => {
+        if (eventName === 'appStateChange') {
+          appStateCallback = cb as (state: { isActive: boolean }) => Promise<void> | void;
+        }
+        return Promise.resolve({
+          remove: jasmine.createSpy('remove'),
+        } as any);
+      });
+
+      pushNotificationService.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
+
+      (component as any).startAppStateListener();
+
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
+
+      await appStateCallback({ isActive: true });
+
+      expect(component.isPushPermissionDenied).toBeFalse();
+      expect(pushNotificationService.addRegistrationListener).toHaveBeenCalledTimes(1);
+      expect(pushNotificationService.register).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isPushPermissionDenied to true when permission is denied on app resume', async () => {
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = false;
+
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: unknown) => {
+        if (eventName === 'appStateChange') {
+          appStateCallback = cb as (state: { isActive: boolean }) => Promise<void> | void;
+        }
+        return Promise.resolve({
+          remove: jasmine.createSpy('remove'),
+        } as any);
+      });
+
+      pushNotificationService.checkPermissions.and.resolveTo({ receive: 'denied' } as any);
+
+      (component as any).startAppStateListener();
+
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
+
+      await appStateCallback({ isActive: true });
+
+      expect(component.isPushPermissionDenied).toBeTrue();
+      expect(pushNotificationService.addRegistrationListener).not.toHaveBeenCalled();
+      expect(pushNotificationService.register).not.toHaveBeenCalled();
     });
   });
 });
