@@ -1,4 +1,4 @@
-import { Component, Input, output, input, computed, inject, signal } from '@angular/core';
+import { Component, Input, output, input, computed, inject, signal, OnInit } from '@angular/core';
 import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
@@ -13,7 +13,7 @@ import { take } from 'rxjs/operators';
   styleUrls: ['./auto-submission-info-card.component.scss'],
   imports: [AsyncPipe, CurrencyPipe, DatePipe, MatIcon, TranslocoPipe],
 })
-export class AutoSubmissionInfoCardComponent {
+export class AutoSubmissionInfoCardComponent implements OnInit {
   private currencyService = inject(CurrencyService);
 
   private expenseFieldsService = inject(ExpenseFieldsService);
@@ -70,7 +70,7 @@ export class AutoSubmissionInfoCardComponent {
     return enabledCount >= 2;
   }
 
-  constructor() {
+  ngOnInit(): void {
     this.expenseFieldsService
       .getAllMap()
       .pipe(take(1))
