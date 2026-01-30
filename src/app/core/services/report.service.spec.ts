@@ -17,7 +17,6 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { ApprovalState } from '../models/platform/approval-state.enum';
 describe('ReportService', () => {
   let reportService: ReportService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -203,43 +202,6 @@ describe('ReportService', () => {
         );
         done();
       });
-    });
-  });
-
-  describe('normalizeApprovalsForDisplay()', () => {
-    it('should return empty array when approvals is null/undefined', () => {
-      expect(reportService.normalizeApprovalsForDisplay(undefined)).toEqual([]);
-      expect(reportService.normalizeApprovalsForDisplay(null)).toEqual([]);
-    });
-
-    it('should set approver full_name to SYSTEM when approver_type is SYSTEM', () => {
-      const approvals: any[] = [
-        {
-          approver_user_id: 'us_system',
-          approver_type: 'SYSTEM',
-          approver_user: { id: 'us_system', email: 'system@fyle.in', full_name: 'Some Name' },
-          state: ApprovalState.APPROVAL_PENDING,
-          approver_order: 1,
-        },
-      ];
-
-      const normalized = reportService.normalizeApprovalsForDisplay(approvals);
-      expect(normalized[0].approver_user.full_name).toBe('SYSTEM');
-    });
-
-    it('should not change approver full_name when approver_type is USER', () => {
-      const approvals: any[] = [
-        {
-          approver_user_id: 'us_user',
-          approver_type: 'USER',
-          approver_user: { id: 'us_user', email: 'user@fyle.in', full_name: 'User Name' },
-          state: ApprovalState.APPROVAL_PENDING,
-          approver_order: 1,
-        },
-      ];
-
-      const normalized = reportService.normalizeApprovalsForDisplay(approvals);
-      expect(normalized[0].approver_user.full_name).toBe('User Name');
     });
   });
 });

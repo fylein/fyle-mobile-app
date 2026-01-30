@@ -97,11 +97,7 @@ describe('ViewTeamReportPageV2', () => {
       'getExpenses',
       'getExpensesCount',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'approverUpdateReportPurpose',
-      'normalizeApprovalsForDisplay',
-    ]);
-    reportServiceSpy.normalizeApprovalsForDisplay.and.callFake((approvals) => approvals || []);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['approverUpdateReportPurpose']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -586,25 +582,6 @@ describe('ViewTeamReportPageV2', () => {
     const result = component.getApproverEmails(allReportsPaginatedWithApproval.data[0].approvals);
 
     expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fyle.in']);
-  });
-
-  it('setupReportData(): should normalize approvals via ReportService', () => {
-    const reportWithSystemApprover = {
-      ...platformReportData,
-      approvals: [
-        {
-          ...platformReportData.approvals[0],
-          approver_type: 'SYSTEM',
-          approver_user: { ...platformReportData.approvals[0].approver_user, full_name: 'AB' },
-        },
-      ],
-    } as any;
-
-    spyOn(component, 'setupComments');
-    component.showViewApproverModal = false;
-    component.setupReportData(reportWithSystemApprover);
-
-    expect(reportService.normalizeApprovalsForDisplay).toHaveBeenCalledOnceWith(component.approvals);
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {

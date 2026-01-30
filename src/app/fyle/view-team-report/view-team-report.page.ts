@@ -291,7 +291,6 @@ export class ViewTeamReportPage {
     this.approvals = report?.approvals?.filter((approval) =>
       [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state),
     );
-    this.approvals = this.reportService.normalizeApprovalsForDisplay(this.approvals);
     if (this.showViewApproverModal) {
       this.approvals.sort((a, b) => a.approver_order - b.approver_order);
       this.setupApproverToShow(report);
