@@ -469,6 +469,11 @@ export const orgSettingsGetData: OrgSettings = deepFreeze({
     enabled: false,
     allowed: false,
   },
+  mobile_notification_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [],
+  },
 });
 
 export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
