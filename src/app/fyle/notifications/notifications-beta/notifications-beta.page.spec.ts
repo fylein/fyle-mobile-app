@@ -35,7 +35,7 @@ import { App } from '@capacitor/app';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 
-fdescribe('NotificationsBetaPage', () => {
+describe('NotificationsBetaPage', () => {
   let component: NotificationsBetaPage;
   let fixture: ComponentFixture<NotificationsBetaPage>;
   let router: jasmine.SpyObj<Router>;
