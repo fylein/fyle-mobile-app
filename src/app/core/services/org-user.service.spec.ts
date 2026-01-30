@@ -194,8 +194,8 @@ describe('OrgUserService', () => {
     spenderPlatformV1ApiService.post.and.returnValue(of({}));
 
     orgUserService.sendDeviceToken(token).subscribe((res) => {
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/users/device_token');
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/users/device_token', {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/device_token');
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledWith('/device_token', {
         data: { tokens: expectedTokens },
       });
       expect(res).toEqual({});
