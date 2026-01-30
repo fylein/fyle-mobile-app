@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, of } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, of, combineLatest } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, take, finalize, catchError } from 'rxjs/operators';
@@ -67,6 +67,7 @@ import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum'
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
 import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/expenses-card.component';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
@@ -92,6 +93,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     ExpensesCardComponent,
     FormButtonValidationDirective,
     FormsModule,
+    FyAlertInfoComponent,
     FyLoadingScreenComponent,
     FyZeroStateComponent,
     IonBackButton,
@@ -174,6 +176,8 @@ export class MyViewReportPage {
 
   expenses$: Observable<Expense[]>;
 
+  showArsManualExpensesAlert$: Observable<boolean>;
+
   canEdit$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
@@ -246,6 +250,18 @@ export class MyViewReportPage {
 
   get Segment(): typeof ReportPageSegment {
     return ReportPageSegment;
+  }
+
+  private isArsReport(report: Report): boolean {
+    const reportSource = report?.source?.toUpperCase?.() || '';
+    const arsSources = ['WORKFLOWS', 'AUTO_REPORT', 'AUTO_SUBMISSION', 'AUTOMATED'];
+    return arsSources.includes(reportSource) && report?.state !== ReportState.DRAFT;
+  }
+
+  private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
+    return expenses.some(
+      (expense) => expense.added_to_report_at && new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+    );
   }
 
   private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
@@ -439,6 +455,23 @@ export class MyViewReportPage {
       switchMap(() =>
         this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false))),
       ),
+      shareReplay(1),
+    );
+
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
+      map(([report, expenses]) => {
+        if (!this.isArsReport(report) || !expenses?.length) {
+          return false;
+        }
+
+        const submittedAt = report.last_resubmitted_at || report.last_submitted_at;
+        if (!submittedAt) {
+          return false;
+        }
+
+        const submittedAtTime = new Date(submittedAt).getTime();
+        return this.hasExpenseAddedAfterSubmission(expenses, submittedAtTime);
+      }),
       shareReplay(1),
     );
 
@@ -832,6 +865,17 @@ export class MyViewReportPage {
   segmentChanged(event: SegmentCustomEvent): void {
     if (isNumber(event?.detail?.value)) {
       this.segmentValue = event.detail.value;
+    }
+  }
+
+  openHistorySegment(): void {
+    this.segmentValue = ReportPageSegment.HISTORY;
+  }
+
+  onArsAlertClick(event: MouseEvent): void {
+    const linkElement = (event.target as HTMLElement).closest('.view-reports--ars-alert-link');
+    if (linkElement) {
+      this.openHistorySegment();
     }
   }
 
