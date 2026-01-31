@@ -1,4 +1,4 @@
-// The interfaces are still maintained in the same file to make the tests pass
+/* eslint-disable */
 export interface PermissionStatus {
   receive: string;
 }
@@ -31,7 +31,6 @@ export const PushNotifications = {
     return Promise.resolve();
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addListener(_eventName: string, _listener: any): Promise<{ remove: () => void }> {
     return Promise.resolve({ remove: () => {} });
   },

@@ -33,8 +33,6 @@ import { FyConnectionComponent } from './shared/components/fy-connection/fy-conn
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { PushNotificationService } from './core/services/push-notification.service';
-import { registerPlugin } from '@capacitor/core';
-import { PushNotifications } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-root',

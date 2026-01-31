@@ -1,5 +1,5 @@
-/* eslint-disable custom-rules/one-interface-per-file */
-/* eslint-disable custom-rules/prefer-semantic-extension-name */
+
+/* eslint-disable */
 export interface AppState {
   isActive: boolean;
 }

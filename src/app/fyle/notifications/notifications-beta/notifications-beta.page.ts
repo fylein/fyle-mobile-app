@@ -104,6 +104,15 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
 
   nativeSettings = NativeSettings;
 
+  setMobilePushConditions(isPushNotifUiEnabled: boolean, permissionStatus: PermissionStatus): void {
+    this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_notification_settings?.enabled && this.orgSettings.mobile_notification_settings?.allowed;
+    this.isPushPermissionDenied = this.showMobilePushColumn && permissionStatus.receive !== 'granted';
+
+    if (this.showMobilePushColumn) {
+      this.startAppStateListener();
+    }
+  }
+
   ngOnInit(): void {
     this.isInitialLoading = true;
     forkJoin({
@@ -117,14 +126,9 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-      this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_notification_settings?.enabled && this.orgSettings.mobile_notification_settings?.allowed;
-      this.isPushPermissionDenied = this.showMobilePushColumn && permissionStatus.receive !== 'granted';
-
       this.initializeEmailNotificationsConfig();
       this.initializeDelegateNotification();
-      if (this.showMobilePushColumn) {
-        this.startAppStateListener();
-      }
+      this.setMobilePushConditions(isPushNotifUiEnabled, permissionStatus);
     });
   }
 
@@ -134,6 +138,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
   }
 
   startAppStateListener(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     App.addListener('appStateChange', (state) => this.handleAppStateChange(state)).then((listener) => {
       this.appStateChangeListener = listener;
     });
