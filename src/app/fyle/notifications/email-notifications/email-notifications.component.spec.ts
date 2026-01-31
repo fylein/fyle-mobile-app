@@ -324,6 +324,17 @@ describe('EmailNotificationsComponent', () => {
 
       expect(component.selectAllEmail).toBeFalse();
     });
+
+    it('should treat missing mobile values as selected', () => {
+      component.notifications = [
+        { eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN, event: 'Expense Created', email: true },
+        { eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED, event: 'Expense Submitted', email: true, mobile: undefined },
+      ];
+
+      component.updateSelectAll();
+
+      expect(component.selectAllMobile).toBeTrue();
+    });
   });
 
   describe('toggleAllNotifications():', () => {
@@ -410,6 +421,30 @@ describe('EmailNotificationsComponent', () => {
       ]);
       expect(component.hasChanges).toBeTrue();
     });
+
+    it('should default push unsubscribed events when input is undefined', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: false,
+        } as any,
+      ];
+
+      Object.defineProperty(component, 'unsubscribedPushEventsByUser', {
+        value: () => undefined,
+        configurable: true,
+      });
+      component.employeeSettings.notification_settings.push_unsubscribed_events = [];
+
+      component.updateNotificationSettings();
+
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).toEqual([
+        NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+      ]);
+      expect(component.hasChanges).toBeTrue();
+    });
   });
 
   describe('updateEmployeeSettings():', () => {
@@ -486,6 +521,37 @@ describe('EmailNotificationsComponent', () => {
 
       const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
       expect(trackingCallArgs.pushUnsubscribedEvents).toEqual([]);
+    });
+
+    it('should use empty array for unsubscribedEvents when email_unsubscribed_events is undefined', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+      component.employeeSettings.notification_settings.email_unsubscribed_events = undefined as any;
+
+      component.saveChanges();
+
+      const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
+      expect(trackingCallArgs.unsubscribedEvents).toEqual([]);
+    });
+  });
+
+  describe('startAppStateListener():', () => {
+    it('should return early when listener already exists', async () => {
+      component.appStateChangeListener = { remove: jasmine.createSpy('remove') };
+      const addListenerSpy = spyOn(App as any, 'addListener');
+
+      await (component as any).startAppStateListener();
+
+      expect(addListenerSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return early on non-native platforms', async () => {
+      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      const addListenerSpy = spyOn(App as any, 'addListener');
+
+      await (component as any).startAppStateListener();
+
+      expect(addListenerSpy).not.toHaveBeenCalled();
     });
   });
 });

@@ -244,6 +244,23 @@ describe('NotificationsBetaPage', () => {
       );
       expect(component.advanceNotificationsConfig).toEqual(mockEmailNotificationsConfig2.advanceNotificationsConfig);
     });
+
+    it('should mark notifications as disabled when all configs are empty', () => {
+      const emptyConfig = {
+        expenseNotificationsConfig: { title: 'Expense', notifications: [] },
+        expenseReportNotificationsConfig: { title: 'Report', notifications: [] },
+        advanceNotificationsConfig: { title: 'Advance', notifications: [] },
+      };
+      notificationsBetaPageService.getEmailNotificationsConfig.and.returnValue(emptyConfig as any);
+
+      component.orgSettings = orgSettingsData;
+      component.employeeSettings = employeeSettingsData;
+      component.currentEou = apiEouRes;
+
+      component.initializeEmailNotificationsConfig();
+
+      expect(component.isNotificationsDisabled).toBeTrue();
+    });
   });
 
   describe('getOrgSettings():', () => {
@@ -296,6 +313,18 @@ describe('NotificationsBetaPage', () => {
         expect(isDelegateePresent).toBeFalse();
         expect(employeesService.getByParams).toHaveBeenCalledWith({ user_id: `eq.${apiEouRes.us.id}` });
         expect(component.initializeSelectedPreference).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should set delegatee presence to false when user data is missing', (done) => {
+      component.currentEou = null as any;
+
+      component.initializeDelegateNotification();
+
+      component.isDelegateePresent$.subscribe((isDelegateePresent) => {
+        expect(isDelegateePresent).toBeFalse();
+        expect(employeesService.getByParams).not.toHaveBeenCalled();
         done();
       });
     });
@@ -415,6 +444,44 @@ describe('NotificationsBetaPage', () => {
       expect(notificationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.ngOnInit).not.toHaveBeenCalled();
     }));
+
+    it('should refresh employee settings when modal updates settings', fakeAsync(() => {
+      const notificationModalSpy = jasmine.createSpyObj('notificationModal', ['present', 'onWillDismiss']);
+      notificationModalSpy.onWillDismiss.and.resolveTo({
+        data: { employeeSettingsUpdated: true },
+      });
+      modalController.create.and.resolveTo(notificationModalSpy);
+      spyOn(component, 'initializeEmailNotificationsConfig');
+      spyOn(component, 'initializeDelegateNotification');
+      const refreshedSettings = cloneDeep(employeeSettingsData);
+      refreshedSettings.notification_settings.notify_user = false;
+      platformEmployeeSettingsService.get.and.returnValue(of(refreshedSettings));
+
+      component.openNotificationModal(mockEmailNotificationsConfig.expenseNotificationsConfig);
+      tick(100);
+
+      expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.employeeSettings).toEqual(refreshedSettings);
+      expect(component.initializeEmailNotificationsConfig).toHaveBeenCalledTimes(1);
+      expect(component.initializeDelegateNotification).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should restore notification settings and clear cache when modal closes without saving', fakeAsync(() => {
+      const notificationModalSpy = jasmine.createSpyObj('notificationModal', ['present', 'onWillDismiss']);
+      notificationModalSpy.onWillDismiss.and.resolveTo({
+        data: { employeeSettingsUpdated: false },
+      });
+      modalController.create.and.resolveTo(notificationModalSpy);
+
+      const originalNotifyUser = component.employeeSettings.notification_settings.notify_user;
+      component.employeeSettings.notification_settings.notify_user = !originalNotifyUser;
+
+      component.openNotificationModal(mockEmailNotificationsConfig.expenseNotificationsConfig);
+      tick(100);
+
+      expect(component.employeeSettings.notification_settings.notify_user).toBe(originalNotifyUser);
+      expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalled();
+    }));
   });
 
   describe('selectPreference():', () => {
@@ -427,6 +494,22 @@ describe('NotificationsBetaPage', () => {
   });
 
   describe('startAppStateListener():', () => {
+    it('should exit early when app is inactive', async () => {
+      component.showMobilePushColumn = true;
+
+      await (component as any).handleAppStateChange({ isActive: false });
+
+      expect(pushNotificationService.checkPermissions).not.toHaveBeenCalled();
+    });
+
+    it('should exit early when push column is hidden', async () => {
+      component.showMobilePushColumn = false;
+
+      await (component as any).handleAppStateChange({ isActive: true });
+
+      expect(pushNotificationService.checkPermissions).not.toHaveBeenCalled();
+    });
+
     it('should clear isPushPermissionDenied and register for push notifications when permission becomes granted', async () => {
       component.showMobilePushColumn = true;
       component.isPushPermissionDenied = true;
@@ -438,6 +521,19 @@ describe('NotificationsBetaPage', () => {
       expect(component.isPushPermissionDenied).toBeFalse();
       expect(pushNotificationService.addRegistrationListener).toHaveBeenCalledTimes(1);
       expect(pushNotificationService.register).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep isPushPermissionDenied false when permission remains granted', async () => {
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = false;
+
+      pushNotificationService.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
+
+      await (component as any).handleAppStateChange({ isActive: true });
+
+      expect(component.isPushPermissionDenied).toBeFalse();
+      expect(pushNotificationService.addRegistrationListener).not.toHaveBeenCalled();
+      expect(pushNotificationService.register).not.toHaveBeenCalled();
     });
 
     it('should set isPushPermissionDenied to true when permission is denied on app resume', async () => {
