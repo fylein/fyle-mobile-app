@@ -22,6 +22,7 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { TranslocoPipe } from '@jsverse/transloco';
 import { App } from '@capacitor/app';
 import { PushNotificationService } from 'src/app/core/services/push-notification.service';
+import { PermissionStatus } from '@capacitor/push-notifications';
 
 @Component({
   selector: 'app-notifications-beta',

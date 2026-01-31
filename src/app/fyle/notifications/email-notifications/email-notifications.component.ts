@@ -318,6 +318,8 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
         if (hasPermission && this.isPushPermissionDenied) {
           this.isPushPermissionDenied = false;
+          this.pushNotificationService.addRegistrationListener();
+          return this.pushNotificationService.register();
         } else if (!hasPermission) {
           this.isPushPermissionDenied = true;
         }

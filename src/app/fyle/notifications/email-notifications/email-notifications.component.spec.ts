@@ -66,6 +66,8 @@ describe('EmailNotificationsComponent', () => {
     ]);
     const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
       'checkPermissions',
+      'addRegistrationListener',
+      'register',
     ]);
 
     translocoServiceSpy.translate.and.callFake((key: string) => key);
@@ -78,6 +80,8 @@ describe('EmailNotificationsComponent', () => {
     } as any);
 
     pushNotificationServiceSpy.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
+    pushNotificationServiceSpy.addRegistrationListener.and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
+    pushNotificationServiceSpy.register.and.resolveTo();
 
     TestBed.configureTestingModule({
       imports: [EmailNotificationsComponent, MatIconTestingModule],
