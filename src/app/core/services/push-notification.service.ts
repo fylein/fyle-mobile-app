@@ -76,7 +76,6 @@ export class PushNotificationService {
     this.listenersInitialized = true;
 
     this.addRegistrationListener();
-    this.addRegistrationErrorListener();
     this.addNotificationClickListener();
   }
 
@@ -89,10 +88,6 @@ export class PushNotificationService {
         });
       }
     });
-  }
-
-  private addRegistrationErrorListener(): void {
-    PushNotifications.addListener('registrationError', () => undefined);
   }
 
   private addNotificationClickListener(): void {
