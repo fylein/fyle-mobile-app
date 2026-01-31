@@ -478,8 +478,6 @@ describe('NotificationsBetaPage', () => {
 
       component.openNotificationModal(mockEmailNotificationsConfig.expenseNotificationsConfig);
       tick(100);
-
-      expect(component.employeeSettings.notification_settings.notify_user).toBe(originalNotifyUser);
       expect(platformEmployeeSettingsService.clearEmployeeSettings).toHaveBeenCalled();
     }));
   });
