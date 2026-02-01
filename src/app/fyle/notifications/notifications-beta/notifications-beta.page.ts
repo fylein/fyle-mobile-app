@@ -145,6 +145,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleAppStateChange(state: { [key: string]: any }): Promise<void> | void {
     const isActive = !!state.isActive;
 
