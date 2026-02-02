@@ -1009,7 +1009,8 @@
     "submitReportMessage": "The expense report will be sent to your approver for review. You will be notified once they have taken action on it.<br/><br/>Do you want to continue?",
     "submitReportConfirm": "Yes, submit",
     "submitReportCancel": "No, go back",
-    "addExpense": "Add expense"
+    "addExpense": "Add expense",
+    "arsManualExpensesAlertMessage": "This report includes expenses that were submitted manually by the user. Please check the <span class=\"view-reports--ars-alert-link\">history</span> for details."
   },
   "viewDependentFields": {
     "unspecified": "Unspecified",
@@ -1260,7 +1261,8 @@
   },
   "cameraOptionsPopup": {
     "clickAPicture": "Click a picture",
-    "uploadFiles": "Upload files",
+    "uploadFile": "Upload file",
+    "uploadImage": "Upload image",
     "loaderMessage": "Please wait...",
     "sizeLimitExceededTitle": "Size limit exceeded",
     "sizeLimitExceededMessage": "The uploaded file is greater than {{maxFileSize}}MB in size. Please reduce the file size and try again.",
@@ -1352,7 +1354,11 @@
   "autoSubmissionInfoCard": {
     "nextSubmissionOn": "Next auto-submission of expense reports on",
     "completeExpenses": "Add and complete your expenses for auto-submission",
-    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings."
+    "autoApprovalInfo": "Some expense reports may be automatically approved based on your org settings.",
+    "detailedHeader": "Your expense reports will be:",
+    "groupedBy": "Grouped by \"<strong>{{dimension}}</strong>\".",
+    "autoSubmittedOn": "Automatically submitted on {{date}}.",
+    "autoApprovedIf": "Auto approved (If <{{amount}} and no policy/rule/duplicate flags.)"
   },
   "stats": {
     "myExpenses": "My expenses",

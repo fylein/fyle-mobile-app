@@ -78,6 +78,11 @@ textarea:focus {
   --ion-safe-area-bottom: 0;
 }
 
+.view-reports--ars-alert-link {
+  color: colors.$brand-primary;
+  text-decoration: underline;
+}
+
 ion-popover.error-popover {
   &::part(content) {
     top: 72% !important;
@@ -281,9 +286,9 @@ ion-popover.gallery-upload-success-popover {
 
 ion-popover.camera-options-popover {
   &::part(content) {
-    top: 75% !important;
+    top: 68% !important;
     left: 0 !important;
-    height: 25%;
+    height: 32%;
     width: 100%;
     border-radius: 16px 16px 0 0;
   }
