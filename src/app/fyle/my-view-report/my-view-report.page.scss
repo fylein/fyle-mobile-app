@@ -422,6 +422,17 @@
   }
 }
 
+:host ::ng-deep .view-reports--ars-alert {
+  .alert-info-container--icon {
+    color: colors.$info-500;
+  }
+
+  .alert-info-container--message {
+    color: #000000;
+    font-size: 14px;
+  }
+}
+
 .view-comment {
   &--container {
     background: colors.$pure-white;
