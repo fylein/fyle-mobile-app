@@ -144,7 +144,12 @@
                     @for (approver of approvals; track approver) {
                       <div>
                         <div class="view-reports--approvers-list">
-                          <div class="smartlook-hide">{{ approver?.approver_user?.full_name | ellipsis: 15 }}</div>
+                          <div class="smartlook-hide">
+                            {{
+                              (approver?.approver_user?.full_name | ellipsis: 15) ||
+                                (approver?.approver_type === 'SYSTEM' ? 'SYSTEM' : '')
+                            }}
+                          </div>
                           <div class="view-reports--approver-state-section">
                             <div
                               class="view-reports--approver-state-pill view-reports--approver-state-pill__{{
@@ -164,7 +169,12 @@
                 }
                 @if (showViewApproverModal && approverToShow) {
                   <div class="view-reports--approvers-list">
-                    <div class="smartlook-hide">{{ approverToShow?.approver_user?.full_name | ellipsis: 15 }}</div>
+                    <div class="smartlook-hide">
+                      {{
+                        (approverToShow?.approver_user?.full_name | ellipsis: 15) ||
+                          (approverToShow?.approver_type === 'SYSTEM' ? 'SYSTEM' : '')
+                      }}
+                    </div>
                     <div class="view-reports--approver-state-section">
                       <div
                         class="view-reports--approver-state-pill view-reports--approver-state-pill__{{

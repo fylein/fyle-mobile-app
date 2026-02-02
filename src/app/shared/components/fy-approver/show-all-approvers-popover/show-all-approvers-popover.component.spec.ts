@@ -25,8 +25,7 @@ describe('ShowAllApproversPopoverComponent', () => {
       _loadDependencies: () => Promise.resolve(),
     });
     TestBed.configureTestingModule({
-      imports: [TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe,
-        MatIconTestingModule],
+      imports: [TranslocoModule, ShowAllApproversPopoverComponent, EllipsisPipe, MatIconTestingModule],
       providers: [
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
@@ -127,6 +126,25 @@ describe('ShowAllApproversPopoverComponent', () => {
     expect(stepNumbers[1].nativeElement.textContent.trim()).toBe('2');
     expect(stepNumbers[2].nativeElement.textContent.trim()).toBe('3');
   });
+
+  it('should not crash for SYSTEM approvals with null approver_user', fakeAsync(() => {
+    component.approvals = [
+      {
+        approver_user_id: null,
+        approver_type: 'SYSTEM',
+        approver_user: null,
+        state: ApprovalState.APPROVAL_DONE,
+        approver_order: -1,
+      },
+    ];
+
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const approverName = getElementRef(fixture, '.show-all-approvers-popover__approver-name');
+    expect(approverName.nativeElement.textContent).toContain('SYSTEM');
+  }));
 
   it('closePopover(): should call closePopover when invoked', () => {
     component.closePopover();
