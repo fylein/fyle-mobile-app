@@ -418,6 +418,9 @@ export class PlatformOrgSettingsService {
         enabled: incoming.auto_report_approval_settings?.enabled,
         amount_threshold: incoming.auto_report_approval_settings?.amount_threshold,
       },
+      auto_report_submission_settings: {
+        expense_grouping_dimensions: incoming.auto_report_submission_settings?.expense_grouping_dimensions || [],
+      },
       mobile_notification_settings: {
         allowed: incoming.mobile_notification_settings && incoming.mobile_notification_settings.allowed,
         enabled: incoming.mobile_notification_settings && incoming.mobile_notification_settings.enabled,

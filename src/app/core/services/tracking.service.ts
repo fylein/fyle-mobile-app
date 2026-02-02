@@ -4,7 +4,6 @@ import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
 import { ExpenseView } from '../models/expense-view.enum';
 import { TaskFilters } from '../models/task-filters.model';
-import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
 import { forkJoin, from } from 'rxjs';
 import { ReportFilters } from '../models/report-filters.model';
@@ -213,6 +212,10 @@ export class TrackingService {
   // add attachment event
   addAttachment(properties: Partial<AddAttachmentProperties>): void {
     this.eventTrack('Add Attachment', properties);
+  }
+
+  filePickerError(properties: Partial<AddAttachmentProperties>): void {
+    this.eventTrack('File Picker Error', properties);
   }
 
   addMoreFilesClicked(properties = {}): void {

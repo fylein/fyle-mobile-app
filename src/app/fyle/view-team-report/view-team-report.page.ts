@@ -272,7 +272,15 @@ export class ViewTeamReportPage {
   }
 
   getApproverEmails(reportApprovals: ReportApprovals[]): string[] {
-    return reportApprovals.map((approver) => approver.approver_user.email);
+    if (!reportApprovals?.length) {
+      return [];
+    }
+
+    // Backend can send SYSTEM approvals with approver_user: null (and approver_user_id: null).
+    // These don't have an email and should be ignored for the add-approver flow.
+    return reportApprovals
+      .map((approver) => approver?.approver_user?.email)
+      .filter((email): email is string => !!email);
   }
 
   loadReports(): Observable<Report> {
@@ -375,7 +383,7 @@ export class ViewTeamReportPage {
 
   setupApproverToShow(report: Report): void {
     const filteredApprover = this.approvals.filter(
-      (approver) => report.next_approver_user_ids?.[0] === approver.approver_user.id,
+      (approver) => report.next_approver_user_ids?.[0] === approver?.approver_user?.id,
     );
     const highestRankApprover = this.approvals.reduce(
       (max, approver) => (approver.approver_order > max.approver_order ? approver : max),

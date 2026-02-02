@@ -479,6 +479,7 @@ export interface OrgSettingsResponse {
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
+  auto_report_submission_settings?: AutoReportSubmissionSettings;
   mobile_notification_settings?: MobilePushNotificationSettings;
 }
 
@@ -517,6 +518,10 @@ export interface XeProviderSettings extends CommonOrgSettings {
 
 export interface AutoReportApprovalSettings extends CommonOrgSettings {
   amount_threshold: number;
+}
+
+export interface AutoReportSubmissionSettings extends CommonOrgSettings {
+  expense_grouping_dimensions?: string[];
 }
 
 export interface OrgSettings {
@@ -602,5 +607,6 @@ export interface OrgSettings {
   is_new_critical_policy_violation_flow_enabled?: boolean;
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
+  auto_report_submission_settings?: AutoReportSubmissionSettings;
   mobile_notification_settings?: MobilePushNotificationSettings;
 }

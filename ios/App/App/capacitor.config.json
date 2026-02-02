@@ -64,6 +64,7 @@
 		"StatusBarPlugin",
 		"TextZoomPlugin",
 		"AppShortcutsPlugin",
+		"FilePickerPlugin",
 		"NativeSettingsPlugin",
 		"SecureStoragePlugin",
 		"CDVPlugin"

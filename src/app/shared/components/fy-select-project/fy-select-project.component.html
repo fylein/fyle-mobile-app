@@ -14,6 +14,7 @@
       [placeholder]="placeholder() || ('fySelectProject.selectLabel' | transloco: { label: label })"
       [ngModel]="displayValue"
       (blur)="onBlur()"
+      readonly
       (click)="openModal()"
     />
     <mat-icon class="fy-select-project--icon" svgIcon="arrow-down"></mat-icon>

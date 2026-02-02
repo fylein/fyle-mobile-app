@@ -50,7 +50,7 @@
     [pagination]="false"
     (activeIndexChange)="ionSlideDidChange()"
   >
-    @for (base64ImageWithSource of base64ImagesWithSource; track base64ImageWithSource; let i = $index) {
+    @for (base64ImageWithSource of base64ImagesWithSource; track $index; let i = $index) {
       <ng-template swiperSlide>
         <pinch-zoom class="receipt-preview__image-container">
           <img

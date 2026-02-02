@@ -1,13 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
+import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
+import { CostCenters } from '../models/cost-centers.model';
 import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
-import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
+import { PlatformCategory } from '../models/platform/platform-category.model';
+import { PlatformCategoryListItem } from '../models/platform/platform-category-list-item.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 @Injectable({
@@ -43,7 +45,7 @@ export class RecentlyUsedItemsService {
     eou: ExtendedOrgUser;
     categoryIds: string[];
     isProjectCategoryRestrictionsEnabled: boolean;
-    activeCategoryList?: OrgCategory[];
+    activeCategoryList?: PlatformCategory[];
   }): Observable<ProjectV2[]> {
     if (
       config.recentValues &&
@@ -83,7 +85,7 @@ export class RecentlyUsedItemsService {
   getRecentCostCenters(
     costCenters: CostCenters[],
     recentValue: RecentlyUsed,
-  ): Observable<{ label: string; value: CostCenter; selected?: boolean }[]> {
+  ): Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]> {
     if (
       costCenters &&
       costCenters.length > 0 &&
@@ -109,9 +111,9 @@ export class RecentlyUsedItemsService {
   }
 
   getRecentCategories(
-    filteredCategories: OrgCategoryListItem[],
+    filteredCategories: PlatformCategoryListItem[],
     recentValues: RecentlyUsed,
-  ): Observable<OrgCategoryListItem[]> {
+  ): Observable<PlatformCategoryListItem[]> {
     if (
       filteredCategories &&
       filteredCategories.length > 0 &&
@@ -119,7 +121,7 @@ export class RecentlyUsedItemsService {
       recentValues.category_ids &&
       recentValues.category_ids.length > 0
     ) {
-      const categoriesMap: { [key: string]: OrgCategoryListItem } = {};
+      const categoriesMap: { [key: string]: PlatformCategoryListItem } = {};
       filteredCategories.forEach((category) => {
         categoriesMap[category.value.id] = category;
       });

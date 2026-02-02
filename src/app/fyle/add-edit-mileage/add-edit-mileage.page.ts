@@ -74,7 +74,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { CostCenterOptions } from 'src/app/core/models/cost-center-options.model';
+import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
 import { Destination } from 'src/app/core/models/destination.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -89,10 +89,11 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
+import { PlatformCostCenter } from 'src/app/core/models/platform/platform-cost-center.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
@@ -335,9 +336,9 @@ export class AddEditMileagePage implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  subCategories$: Observable<OrgCategory[]>;
+  subCategories$: Observable<PlatformCategory[]>;
 
-  filteredCategories$: Observable<OrgCategoryListItem[]>;
+  filteredCategories$: Observable<PlatformCategoryListItem[]>;
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
 
@@ -381,7 +382,7 @@ export class AddEditMileagePage implements OnInit {
 
   projectCategoryIds$: Observable<string[]>;
 
-  projectCategories$: Observable<OrgCategory[]>;
+  projectCategories$: Observable<PlatformCategory[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -421,11 +422,11 @@ export class AddEditMileagePage implements OnInit {
 
   recentlyUsedProjects$: Observable<ProjectV2[]>;
 
-  recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
+  recentCostCenters: { label: string; value: PlatformCostCenter; selected?: boolean }[];
 
   presetCostCenterId: number;
 
-  recentlyUsedCostCenters$: Observable<{ label: string; value: CostCenter; selected?: boolean }[]>;
+  recentlyUsedCostCenters$: Observable<{ label: string; value: PlatformCostCenter; selected?: boolean }[]>;
 
   presetVehicleType: string;
 
@@ -457,7 +458,7 @@ export class AddEditMileagePage implements OnInit {
 
   selectedProject$: BehaviorSubject<ProjectV2>;
 
-  selectedCostCenter$: BehaviorSubject<CostCenter>;
+  selectedCostCenter$: BehaviorSubject<PlatformCostCenter>;
 
   showCommuteDeductionField = false;
 
@@ -625,7 +626,7 @@ export class AddEditMileagePage implements OnInit {
         ),
       ),
       map((categories) =>
-        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category })),
+        categories.map((category: PlatformCategory) => ({ label: category.sub_category, value: category })),
       ),
     );
 
@@ -642,10 +643,10 @@ export class AddEditMileagePage implements OnInit {
     });
   }
 
-  getProjectCategories(): Observable<OrgCategory[]> {
+  getProjectCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const mileageCategories = categories.filter((category) => category.fyle_category === 'Mileage');
+        const mileageCategories = categories.filter((category) => category.system_category === 'Mileage');
 
         return mileageCategories;
       }),
@@ -656,7 +657,10 @@ export class AddEditMileagePage implements OnInit {
     return this.projectCategories$.pipe(map((categories) => categories.map((category) => category?.id?.toString())));
   }
 
-  getMileageCategories(): Observable<{ defaultMileageCategory: OrgCategory; mileageCategories: OrgCategory[] }> {
+  getMileageCategories(): Observable<{
+    defaultMileageCategory: PlatformCategory;
+    mileageCategories: PlatformCategory[];
+  }> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const orgCategoryName = 'mileage';
@@ -665,7 +669,7 @@ export class AddEditMileagePage implements OnInit {
           (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
-        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
+        const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.system_category) > -1);
 
         return {
           defaultMileageCategory,
@@ -797,13 +801,13 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getSubCategories(): Observable<OrgCategory[]> {
+  getSubCategories(): Observable<PlatformCategory[]> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
         const parentCategoryName = 'mileage';
         return categories.filter(
           (orgCategory) =>
-            parentCategoryName.toLowerCase() === orgCategory.fyle_category?.toLowerCase() &&
+            parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
             parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
@@ -817,7 +821,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  checkMileageCategories(category: OrgCategory): Observable<OrgCategory> {
+  checkMileageCategories(category: PlatformCategory): Observable<PlatformCategory> {
     if (category && !isEmpty(category)) {
       return of(category);
     } else {
@@ -834,8 +838,8 @@ export class AddEditMileagePage implements OnInit {
 
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
-      switchMap((category: OrgCategory) => this.checkMileageCategories(category)),
-      switchMap((category: OrgCategory) => {
+      switchMap((category: PlatformCategory) => this.checkMileageCategories(category)),
+      switchMap((category: PlatformCategory) => {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
@@ -1104,7 +1108,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getCategories(etxn: Partial<UnflattenedTransaction>): Observable<OrgCategory> {
+  getCategories(etxn: Partial<UnflattenedTransaction>): Observable<PlatformCategory> {
     return this.categoriesService
       .getAll()
       .pipe(
@@ -1122,7 +1126,7 @@ export class AddEditMileagePage implements OnInit {
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
     this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
-    this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
+    this.selectedCostCenter$ = new BehaviorSubject<PlatformCostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
     };
@@ -1229,7 +1233,7 @@ export class AddEditMileagePage implements OnInit {
   setupSelectedCostCenters(): void {
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((costCenter: CostCenter) => this.selectedCostCenter$.next(costCenter));
+      .subscribe((costCenter: PlatformCostCenter) => this.selectedCostCenter$.next(costCenter));
   }
 
   checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
@@ -1330,7 +1334,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       map((costCenters) =>
-        costCenters.map((costCenter: CostCenter) => ({
+        costCenters.map((costCenter: PlatformCostCenter) => ({
           label: costCenter.name,
           value: costCenter,
         })),
@@ -1381,7 +1385,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getSelectedCostCenters(): Observable<CostCenter | null> {
+  getSelectedCostCenters(): Observable<PlatformCostCenter | null> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.cost_center_id) {

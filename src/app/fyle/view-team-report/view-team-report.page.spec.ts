@@ -11,6 +11,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -581,6 +582,22 @@ describe('ViewTeamReportPageV2', () => {
   it('getApproverEmails(): should get approver emails', () => {
     const result = component.getApproverEmails(allReportsPaginatedWithApproval.data[0].approvals);
 
+    expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fyle.in']);
+  });
+
+  it('getApproverEmails(): should ignore SYSTEM approvals with null approver_user', () => {
+    const approvalsWithSystem = [
+      ...allReportsPaginatedWithApproval.data[0].approvals,
+      {
+        approver_user_id: null,
+        approver_type: 'SYSTEM',
+        approver_user: null,
+        state: ApprovalState.APPROVAL_DONE,
+        approver_order: -1,
+      } as any,
+    ];
+
+    const result = component.getApproverEmails(approvalsWithSystem);
     expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fyle.in']);
   });
 

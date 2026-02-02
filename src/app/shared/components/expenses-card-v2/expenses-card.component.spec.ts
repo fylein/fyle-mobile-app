@@ -30,7 +30,7 @@ import { CurrencySymbolPipe } from 'src/app/shared/pipes/currency-symbol.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { cloneDeep } from 'lodash';
 import dayjs from 'dayjs';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { EventEmitter } from '@angular/core';
@@ -641,7 +641,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetailsaRes = {
         dataUrl,
         type: 'image/png',
-        actionSource: 'upload',
       };
       const fileObj: FileObject = {
         name: '000.jpeg',
@@ -689,7 +688,6 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalledOnceWith({
         type: 'image/png',
         dataUrl,
-        actionSource: 'gallery_upload',
       });
     }));
 
@@ -763,7 +761,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: ' data.dataUrl',
-        actionSource: 'camera',
         option: 'camera',
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
@@ -791,14 +788,12 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: 'mockDataUrl.png',
-        actionSource: 'camera',
       };
 
       const dataRes = {
         data: {
           type: 'png',
           dataUrl: 'mockDataUrl.png',
-          actionSource: 'camera',
           option: 'camera',
         },
       };
@@ -1435,7 +1430,6 @@ describe('ExpensesCardComponent', () => {
       expect(component.attachReceipt).toHaveBeenCalledWith({
         type: 'image/png',
         dataUrl,
-        actionSource: 'gallery_upload',
       });
       expect(component.showSizeLimitExceededPopover).not.toHaveBeenCalled();
     }));
@@ -1461,7 +1455,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'image/png',
         dataUrl: 'data:image/png;base64,test',
-        actionSource: 'camera',
       };
       const fileObj = { id: 'file123', name: 'test.png' };
 
@@ -1484,7 +1477,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'image/png',
         dataUrl: 'data:image/png;base64,test',
-        actionSource: 'camera',
       };
       const fileObj = { id: 'file123', name: 'test.png' };
 
@@ -1502,7 +1494,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'application/pdf',
         dataUrl: 'data:application/pdf;base64,test',
-        actionSource: 'camera',
       };
       const fileObj = { id: 'file123', name: 'test.pdf' };
 
@@ -1595,7 +1586,6 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: ' data.dataUrl',
-        actionSource: 'camera',
         option: 'camera',
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
@@ -1623,14 +1613,12 @@ describe('ExpensesCardComponent', () => {
       const receiptDetails = {
         type: 'png',
         dataUrl: 'mockDataUrl.png',
-        actionSource: 'camera',
       };
 
       const dataRes = {
         data: {
           type: 'png',
           dataUrl: 'mockDataUrl.png',
-          actionSource: 'camera',
           option: 'camera',
         },
       };

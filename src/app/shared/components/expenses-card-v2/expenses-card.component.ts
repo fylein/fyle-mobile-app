@@ -27,7 +27,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
@@ -449,7 +449,6 @@ export class ExpensesCardComponent implements OnInit {
       receiptDetails = {
         type: file.type,
         dataUrl,
-        actionSource: 'gallery_upload',
       };
       this.attachReceipt(receiptDetails);
     } else {
@@ -479,7 +478,6 @@ export class ExpensesCardComponent implements OnInit {
           data: {
             option?: string;
             type?: string;
-            actionSource?: string;
             dataUrl?: string;
           };
         };
@@ -509,7 +507,6 @@ export class ExpensesCardComponent implements OnInit {
             receiptDetails = {
               type: this.fileService.getImageTypeFromDataUrl(data.dataUrl),
               dataUrl: data.dataUrl,
-              actionSource: 'camera',
             };
           }
         }

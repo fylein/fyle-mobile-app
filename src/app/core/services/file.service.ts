@@ -23,6 +23,8 @@ export class FileService {
 
   private approverService = inject(ApproverService);
 
+  private heic2any = heic2any;
+
   private findByAdvanceRequestIdWithService(
     advanceRequestId: string,
     service: SpenderService | ApproverService,
@@ -177,26 +179,14 @@ export class FileService {
   readFile(file: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
       if (file.type === 'image/heic') {
-        heic2any({
+        this.heic2any({
           blob: file,
           toType: 'image/jpeg',
           quality: 50,
         })
-          .then((result) => {
-            this.getDataUrlFromBlob(result as Blob).then((dataUrl) => {
-              resolve(dataUrl);
-            });
-          })
-          .catch((err) => {
-            reject(err);
-          });
+          .then((result: Blob) => this.getDataUrlFromBlob(result)).then(resolve).catch(reject);
       } else {
-        const fileReader = new FileReader();
-        fileReader.onload = async (): Promise<void> => {
-          return resolve(fileReader.result.toString());
-        };
-        fileReader.readAsDataURL(file);
-        fileReader.onerror = (error): void => reject(error);
+        this.getDataUrlFromBlob(file).then(resolve).catch(reject);
       }
     });
   }

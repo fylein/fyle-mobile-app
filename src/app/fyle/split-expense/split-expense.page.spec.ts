@@ -140,13 +140,14 @@ import {
 import { orgSettingsWithProjectCategoryRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import dayjs from 'dayjs';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-split-expense/review-split-expense.component';
 import { splitConfig } from 'src/app/core/mock-data/split-config.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { PlatformCategoryListItem } from 'src/app/core/models/platform/platform-category-list-item.model';
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
@@ -1623,13 +1624,13 @@ describe('SplitExpensePage', () => {
 
   describe('formatCategories()', () => {
     it('should format categories correctly', (done: DoneFn) => {
-      const categories: OrgCategory[] = [
+      const categories: PlatformCategory[] = [
         {
           code: '42',
           created_at: new Date('2023-01-09T16:54:09.929Z'),
-          displayName: 'Marketing Outreach',
-          enabled: true,
-          fyle_category: null,
+          display_name: 'Marketing Outreach',
+          is_enabled: true,
+          system_category: null,
           id: 226659,
           name: 'Marketing Outreach',
           org_id: 'orrjqbDbeP9p',
@@ -1639,9 +1640,9 @@ describe('SplitExpensePage', () => {
         {
           code: '43',
           created_at: new Date('2023-01-10T10:00:00.000Z'),
-          displayName: 'Sales',
-          enabled: true,
-          fyle_category: null,
+          display_name: 'Sales',
+          is_enabled: true,
+          system_category: null,
           id: 226660,
           name: 'Sales',
           org_id: 'orrjqbDbeP9p',
@@ -1854,30 +1855,30 @@ describe('SplitExpensePage', () => {
         spent_at: new UntypedFormControl('2023-01-11'),
         category: new UntypedFormControl(''),
       });
-      const mockOrgCategory1: OrgCategory = {
+      const mockOrgCategory1: PlatformCategory = {
         id: 1,
+        org_id: 'org_1',
         created_at: new Date(),
         updated_at: new Date(),
-        org_id: 'org_1',
         name: 'Category1',
-        code: 'CAT1',
-        fyle_category: 'FyleCat1',
         sub_category: 'SubCat1',
-        enabled: true,
-        displayName: 'Category1',
+        is_enabled: true,
+        display_name: 'Category1',
+        system_category: 'FyleCat1',
+        code: 'CAT1',
       };
 
-      const mockOrgCategory2: OrgCategory = {
+      const mockOrgCategory2: PlatformCategory = {
         id: 2,
         created_at: new Date(),
         updated_at: new Date(),
         org_id: 'org_1',
         name: 'Category2',
         code: 'CAT2',
-        fyle_category: 'FyleCat2',
+        system_category: 'FyleCat2',
         sub_category: 'SubCat2',
-        enabled: true,
-        displayName: 'Category2',
+        is_enabled: true,
+        display_name: 'Category2',
       };
       component.splitExpensesFormArray = new UntypedFormArray([splitExpenseForm1, splitExpenseForm2]);
       component.filteredCategoriesArray = [

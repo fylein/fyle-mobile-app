@@ -60,6 +60,8 @@ import { TIMEZONE } from 'src/app/constants';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { ExpensesCardComponent } from 'src/app/shared/components/expenses-card-v2/expenses-card.component';
 import { getFormatPreferenceProviders } from 'src/app/core/testing/format-preference-providers.utils';
+import { DwollaCustomer } from 'src/app/core/models/dwolla-customer.model';
+import { ReportState } from 'src/app/core/models/platform/v1/report.model';
 
 // mock for expenses card component
 @Component({
@@ -595,6 +597,50 @@ describe('MyViewReportPage', () => {
       component.setupApproverToShow(reportData);
 
       expect(component.approverToShow).toEqual(component.approvals[1]);
+    });
+  });
+
+  describe('ars helpers:', () => {
+    it('should identify ARS reports correctly', () => {
+      const report = { source: 'AUTO_REPORT', state: ReportState.APPROVER_PENDING } as any;
+      const draftReport = { source: 'AUTO_REPORT', state: ReportState.DRAFT } as any;
+      const nonArsReport = { source: 'WEBAPP', state: ReportState.APPROVER_PENDING } as any;
+
+      expect((component as any).isArsReport(report)).toBeTrue();
+      expect((component as any).isArsReport(draftReport)).toBeFalse();
+      expect((component as any).isArsReport(nonArsReport)).toBeFalse();
+    });
+
+    it('should detect expenses added after submission', () => {
+      const submittedAtTime = new Date('2024-01-01T00:00:00.000Z').getTime();
+      const expenseAfter = cloneDeep(expenseData);
+      expenseAfter.added_to_report_at = new Date('2024-01-02T00:00:00.000Z');
+      const expenseBefore = cloneDeep(expenseData);
+      expenseBefore.added_to_report_at = new Date('2023-12-30T00:00:00.000Z');
+
+      expect((component as any).hasExpenseAddedAfterSubmission([expenseAfter], submittedAtTime)).toBeTrue();
+      expect((component as any).hasExpenseAddedAfterSubmission([expenseBefore], submittedAtTime)).toBeFalse();
+    });
+
+    it('should open history when ARS alert link is clicked', () => {
+      const linkElement = document.createElement('span');
+      linkElement.classList.add('view-reports--ars-alert-link');
+      const child = document.createElement('span');
+      linkElement.appendChild(child);
+      spyOn(component, 'openHistorySegment');
+
+      component.onArsAlertClick({ target: child } as unknown as MouseEvent);
+
+      expect(component.openHistorySegment).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not open history when ARS alert link is not clicked', () => {
+      const element = document.createElement('span');
+      spyOn(component, 'openHistorySegment');
+
+      component.onArsAlertClick({ target: element } as unknown as MouseEvent);
+
+      expect(component.openHistorySegment).not.toHaveBeenCalled();
     });
   });
 
@@ -1160,5 +1206,51 @@ describe('MyViewReportPage', () => {
       expect((component as any).checkAchSuspensionBeforeAdd).not.toHaveBeenCalled();
       expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
     });
+
+    it('should show ACH suspension popup if customer is suspended', fakeAsync(() => {
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(
+        of({
+          ...orgSettingsData,
+          ach_settings: {
+            allowed: true,
+            enabled: true,
+          },
+        }),
+      );
+      orgUserService.getDwollaCustomer.and.returnValue(of({ is_customer_suspended: true } as DwollaCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+      tick();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledTimes(1);
+      expect(component.showAchSuspensionPopup).toHaveBeenCalledTimes(1);
+      expect((component as any).performAddExpenses).not.toHaveBeenCalled();
+    }));
+
+    it('should add expenses directly when customer is not suspended', fakeAsync(() => {
+      component.eou$ = of(apiEouRes);
+      orgSettingsService.get.and.returnValue(
+        of({
+          ...orgSettingsData,
+          ach_settings: {
+            allowed: true,
+            enabled: true,
+          },
+        }),
+      );
+      orgUserService.getDwollaCustomer.and.returnValue(of({ is_customer_suspended: false } as DwollaCustomer));
+      spyOn(component, 'showAchSuspensionPopup');
+      spyOn(component as any, 'performAddExpenses');
+
+      (component as any).checkAchSuspensionBeforeAdd(['tx1']);
+      tick();
+
+      expect(orgUserService.getDwollaCustomer).toHaveBeenCalledTimes(1);
+      expect(component.showAchSuspensionPopup).not.toHaveBeenCalled();
+      expect((component as any).performAddExpenses).toHaveBeenCalledWith(['tx1']);
+    }));
   });
 });

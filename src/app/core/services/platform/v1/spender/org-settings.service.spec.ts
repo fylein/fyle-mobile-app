@@ -87,7 +87,13 @@ describe('PlatformOrgSettingsService', () => {
   it('should be able to get the org settings properly', (done) => {
     apiService.get.and.returnValue(of({ data: cloneDeep(postApiData) }));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toEqual(getApiData);
+      const expected = {
+        ...getApiData,
+        auto_report_submission_settings: {
+          expense_grouping_dimensions: [],
+        },
+      };
+      expect(res).toEqual(expected);
       done();
     });
   });

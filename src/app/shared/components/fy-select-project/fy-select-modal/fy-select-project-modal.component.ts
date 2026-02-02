@@ -10,7 +10,15 @@ import {
   input,
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
-import { IonButton, IonButtons, IonContent, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -20,7 +28,7 @@ import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -55,7 +63,7 @@ import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
     MatRipple,
     MatSuffix,
     NgTemplateOutlet,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class FyProjectSelectModalComponent implements AfterViewInit {
@@ -130,7 +138,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   isLoading = false;
 
-  activeCategories$: Observable<OrgCategory[]>;
+  activeCategories$: Observable<PlatformCategory[]>;
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
     // set isLoading to true
@@ -245,7 +253,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     }
   }
 
-  getActiveCategories(): Observable<OrgCategory[]> {
+  getActiveCategories(): Observable<PlatformCategory[]> {
     const allCategories$ = this.categoriesService.getAll();
 
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
