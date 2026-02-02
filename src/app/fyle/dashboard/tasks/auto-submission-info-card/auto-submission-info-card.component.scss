@@ -7,13 +7,13 @@
     background: colors.$grey-9;
     border: 1px solid colors.$alice-blue;
     border-radius: 16px;
-    color: colors.$black-light;
+    color: colors.$text-black;
     padding: 12px 16px;
   }
 
   &__date {
     border-bottom: 1px solid colors.$grey;
-    color: colors.$blue-black;
+    color: colors.$text-black;
     font-size: 18px;
     font-weight: 500;
     padding: 4px 0 12px;
@@ -29,7 +29,7 @@
   }
 
   &__icon {
-    color: colors.$highlight-blue;
+    color: colors.$info-500;
     height: 20px;
     margin-right: 8px;
     min-width: 20px;
@@ -41,7 +41,7 @@
   }
 
   &__title {
-    color: colors.$blue-black;
+    color: colors.$text-black;
     font-weight: 500;
     margin-bottom: 4px;
   }
