@@ -95,6 +95,8 @@ export class PushNotificationService {
       const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
       const url = data.cta_url;
       const actionType = data.notification_type;
+      console.log('url', url);
+      console.log('actionType', actionType);
 
       if (!url || typeof url !== 'string') {
         return;
