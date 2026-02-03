@@ -1012,6 +1012,9 @@
     "addExpense": "Add expense",
     "arsManualExpensesAlertMessage": "This report includes expenses that were submitted manually by the user. Please check the <span class=\"view-reports--ars-alert-link\">history</span> for details."
   },
+  "viewteamReport": {
+    "arsManualExpensesAlertMessage": "This report includes expenses that were submitted manually by the user. Please check the <span class=\"view-reports--ars-alert-link\">history</span> for details."
+  },
   "viewDependentFields": {
     "unspecified": "Unspecified",
     "costCenterCode": "Cost center code"
