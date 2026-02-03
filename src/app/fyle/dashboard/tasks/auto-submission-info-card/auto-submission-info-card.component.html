@@ -1,10 +1,43 @@
 <div class="info-card">
   <div class="info-card__container" (click)="onCardClicked()">
-    <div>{{ 'autoSubmissionInfoCard.nextSubmissionOn' | transloco }}</div>
-    <div class="info-card__date">{{ autoSubmissionReportDate | date }}</div>
-    <div class="info-card__sub-header">
-      {{ 'autoSubmissionInfoCard.completeExpenses' | transloco }}
-      {{ showAutoApprovalInfo() ? ('autoSubmissionInfoCard.autoApprovalInfo' | transloco) : '' }}
-    </div>
+    @if (showDetailedInfoCard()) {
+      <div class="info-card__detailed">
+        <mat-icon class="info-card__icon" svgIcon="info-circle-fill"></mat-icon>
+        <div class="info-card__content">
+          <div class="info-card__title">{{ 'autoSubmissionInfoCard.detailedHeader' | transloco }}</div>
+          <ul class="info-card__list">
+            @if (showGroupingInfo()) {
+              <li
+                [innerHTML]="'autoSubmissionInfoCard.groupedBy' | transloco: { dimension: groupingDimensionLabel() }"
+              ></li>
+            }
+            @if (showAutoSubmissionInfo()) {
+              <li>
+                <span
+                  [innerHTML]="
+                    'autoSubmissionInfoCard.autoSubmittedOn' | transloco: { date: (autoSubmissionReportDate | date) }
+                  "
+                ></span>
+              </li>
+            }
+            @if (showAutoApprovalInfo()) {
+              <li>
+                {{
+                  'autoSubmissionInfoCard.autoApprovedIf'
+                    | transloco: { amount: (autoApprovalThreshold() | currency: (homeCurrency$ | async)) }
+                }}
+              </li>
+            }
+          </ul>
+        </div>
+      </div>
+    } @else {
+      <div>{{ 'autoSubmissionInfoCard.nextSubmissionOn' | transloco }}</div>
+      <div class="info-card__date">{{ autoSubmissionReportDate | date }}</div>
+      <div class="info-card__sub-header">
+        {{ 'autoSubmissionInfoCard.completeExpenses' | transloco }}
+        {{ showAutoApprovalInfo() ? ('autoSubmissionInfoCard.autoApprovalInfo' | transloco) : '' }}
+      </div>
+    }
   </div>
 </div>
