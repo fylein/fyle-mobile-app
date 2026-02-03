@@ -108,6 +108,8 @@ export class OrgUserService {
       },
     };
 
+    console.log('payload', payload);
+
     return this.spenderPlatformV1ApiService.post('/device_token', payload);
   }
 

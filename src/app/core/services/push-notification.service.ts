@@ -53,7 +53,9 @@ export class PushNotificationService {
   private addRegistrationListener(): void {
     PushNotifications.addListener('registration', (token: Token) => {
       const tokenValue = token?.value;
+      console.log('tokenValue', tokenValue);
       if (tokenValue) {
+        console.log('sending token to server');
         this.orgUserService.sendDeviceToken(tokenValue).subscribe();
       }
       this.trackingService.eventTrack('Push Notification Registered');
