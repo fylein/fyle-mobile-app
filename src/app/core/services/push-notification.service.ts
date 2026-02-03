@@ -83,6 +83,7 @@ export class PushNotificationService {
   addRegistrationListener(): Promise<{ remove: () => void }> {
     return PushNotifications.addListener('registration', (token: Token) => {
       const tokenValue = token?.value;
+      console.log('tokenValue', tokenValue);
       if (tokenValue) {
         this.orgUserService.sendDeviceToken(tokenValue).subscribe(() => {
           this.trackingService.eventTrack('Push Notification Registered');

@@ -112,6 +112,7 @@ export class OrgUserService {
       map((existingTokens) => {
         const tokens = existingTokens ?? [];
         tokens.push(token);
+        console.log('tokens', tokens);
         return tokens;
       }),
       switchMap((tokens) =>
