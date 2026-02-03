@@ -108,10 +108,12 @@ export class OrgUserService {
   }
 
   sendDeviceToken(token: string): Observable<unknown> {
+    console.log('sending token to server', token);
     return this.getDeviceTokens().pipe(
       map((existingTokens) => {
         const tokens = existingTokens ?? [];
         tokens.push(token);
+        console.log('tokens', tokens);
         return tokens;
       }),
       switchMap((tokens) =>
