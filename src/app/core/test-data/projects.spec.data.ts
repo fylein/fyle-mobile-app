@@ -97,6 +97,7 @@ export const apiV2ResponseMultiple = deepFreeze({
       project_updated_at: new Date('2021-07-08T10:28:27.686886'),
       projectv2_name: 'Customer Mapped Project',
       sub_project_name: null,
+      default_billable: true,
     },
     {
       project_active: true,
@@ -110,6 +111,7 @@ export const apiV2ResponseMultiple = deepFreeze({
       project_updated_at: new Date('2021-07-08T10:28:27.686886'),
       projectv2_name: 'Fyle Engineering',
       sub_project_name: null,
+      default_billable: false,
     },
   ],
   limit: 4,
@@ -132,6 +134,7 @@ export const apiV2ResponseSingle = deepFreeze({
       project_updated_at: new Date('2021-07-08T10:28:27.686886'),
       projectv2_name: 'Customer Mapped Project',
       sub_project_name: null,
+      default_billable: true,
     },
   ],
   limit: 1,
@@ -299,6 +302,7 @@ export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
     project_updated_at: new Date('2021-07-08T10:28:27.686886'),
     projectv2_name: 'Customer Mapped Project',
     sub_project_name: null,
+    default_billable: true,
   },
   {
     project_active: true,
@@ -312,6 +316,7 @@ export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
     project_updated_at: new Date('2021-07-08T10:28:27.686886'),
     projectv2_name: 'Fyle Engineering',
     sub_project_name: null,
+    default_billable: false,
   },
 ]);
 
@@ -361,6 +366,7 @@ export const expectedV2WithAllCategories: ProjectV2[] = deepFreeze([
     project_updated_at: new Date('2021-07-08T10:28:27.686Z'),
     projectv2_name: 'Customer Mapped Project',
     sub_project_name: null,
+    default_billable: true,
   },
 ]);
 

@@ -478,7 +478,7 @@ export function TestCases1(getTestBed) {
     });
 
     it('setupTfcDefaultValues(): should update the form with default expense field values if some fields are empty', () => {
-      const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+      const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
       const mockTxnFieldData = cloneDeep(txnFieldsData2);
       component.showBillable = true;
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
@@ -510,7 +510,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
       expect(component.fg.controls.purpose.value).toEqual('test_term');
-      expect(component.fg.controls.billable.value).toBeTrue();
+      expect(component.fg.controls.billable.value).toBeNull();
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
