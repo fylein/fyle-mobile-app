@@ -381,6 +381,17 @@ $sent-back-color: #da1e28;
   }
 }
 
+:host ::ng-deep .view-reports--ars-alert {
+  .alert-info-container--icon {
+    color: colors.$info-500;
+  }
+
+  .alert-info-container--message {
+    color: colors.$text-black;
+    font-size: 14px;
+  }
+}
+
 .view-comment {
   &--container {
     background: colors.$pure-white;
