@@ -127,14 +127,14 @@ describe('AppVersionService', () => {
       data: {
         version: environment.LIVE_UPDATE_APP_VERSION,
         os: {
-          name: extendedDeviceInfoMockData.operatingSystem,
+          name: extendedDeviceInfoMockData.operatingSystem.toUpperCase(),
           version: extendedDeviceInfoMockData.osVersion,
         },
       },
     };
 
     appVersionService.load(extendedDeviceInfoMockData);
-    expect(appVersionService.get).toHaveBeenCalledWith(extendedDeviceInfoMockData.operatingSystem);
+    expect(appVersionService.get).toHaveBeenCalledWith(extendedDeviceInfoMockData.operatingSystem.toUpperCase());
     expect(appVersionService.get).toHaveBeenCalledTimes(2);
     expect(appVersionService.isVersionLower).toHaveBeenCalledWith(appVersionData1.version, payload.data.version);
     done();
@@ -153,12 +153,12 @@ describe('AppVersionService', () => {
         data: {
           version: environment.LIVE_UPDATE_APP_VERSION,
           os: {
-            name: extendedDeviceInfoMockData.operatingSystem,
+            name: extendedDeviceInfoMockData.operatingSystem.toUpperCase(),
             version: extendedDeviceInfoMockData.osVersion,
           },
         },
       };
-      expect(appVersionService.get).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData.operatingSystem);
+      expect(appVersionService.get).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData.operatingSystem.toUpperCase());
       expect(appVersionService.isVersionLower).toHaveBeenCalledWith('1.10.1', payload.data.version);
       done();
     });
@@ -169,7 +169,7 @@ describe('AppVersionService', () => {
       spyOn(appVersionService, 'isVersionLower').and.returnValue(true);
 
       appVersionService.load(extendedDeviceInfoMockData);
-      expect(appVersionService.get).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData.operatingSystem);
+      expect(appVersionService.get).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData.operatingSystem.toUpperCase());
       done();
     });
   });

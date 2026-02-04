@@ -51,7 +51,7 @@ export class AppVersionService {
   }
 
   load(deviceInfo: ExtendedDeviceInfo): void {
-    const platformOS = deviceInfo.operatingSystem;
+    const platformOS = deviceInfo.operatingSystem.toUpperCase();
     const platformVersion = deviceInfo.osVersion;
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
