@@ -601,22 +601,24 @@ describe('MyViewReportPage', () => {
   });
 
   describe('ars helpers:', () => {
-    it('should identify ARS reports correctly', () => {
-      const report = { source: 'AUTO_REPORT', state: ReportState.APPROVER_PENDING } as any;
-      const draftReport = { source: 'AUTO_REPORT', state: ReportState.DRAFT } as any;
-      const nonArsReport = { source: 'WEBAPP', state: ReportState.APPROVER_PENDING } as any;
+    it('should identify auto-submitted reports correctly', () => {
+      const report = { creator_type: 'SYSTEM', state: ReportState.APPROVER_PENDING } as any;
+      const draftReport = { creator_type: 'SYSTEM', state: ReportState.DRAFT } as any;
+      const nonArsReport = { creator_type: 'USER', state: ReportState.APPROVER_PENDING } as any;
 
-      expect((component as any).isArsReport(report)).toBeTrue();
-      expect((component as any).isArsReport(draftReport)).toBeFalse();
-      expect((component as any).isArsReport(nonArsReport)).toBeFalse();
+      expect((component as any).isAutoSubmittedReport(report)).toBeTrue();
+      expect((component as any).isAutoSubmittedReport(draftReport)).toBeFalse();
+      expect((component as any).isAutoSubmittedReport(nonArsReport)).toBeFalse();
     });
 
     it('should detect expenses added after submission', () => {
       const submittedAtTime = new Date('2024-01-01T00:00:00.000Z').getTime();
       const expenseAfter = cloneDeep(expenseData);
       expenseAfter.added_to_report_at = new Date('2024-01-02T00:00:00.000Z');
+      expenseAfter.added_to_report_by = 'USER';
       const expenseBefore = cloneDeep(expenseData);
       expenseBefore.added_to_report_at = new Date('2023-12-30T00:00:00.000Z');
+      expenseBefore.added_to_report_by = 'USER';
 
       expect((component as any).hasExpenseAddedAfterSubmission([expenseAfter], submittedAtTime)).toBeTrue();
       expect((component as any).hasExpenseAddedAfterSubmission([expenseBefore], submittedAtTime)).toBeFalse();
@@ -1134,8 +1136,8 @@ describe('MyViewReportPage', () => {
   });
 
   it('addExpensesToReport(): should add expenses to report', () => {
-    const expense1 = expenseData;
-    const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
+    const expense1 = { ...expenseData, is_reimbursable: false };
+    const expense2 = { ...expenseData, id: 'txcSFe6efB62', is_reimbursable: false };
     component.reportId = 'rpFkJ6jUJOyg';
     component.unreportedExpenses = [expense1, expense2];
     fixture.detectChanges();

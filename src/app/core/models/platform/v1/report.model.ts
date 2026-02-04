@@ -64,6 +64,7 @@ export interface Report {
   };
   next_approver_user_ids: string[];
   state_display_name: string;
+  creator_type?: 'SYSTEM' | 'USER';
 }
 
 export enum ReportState {

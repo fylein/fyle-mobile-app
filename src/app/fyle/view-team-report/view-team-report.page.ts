@@ -68,7 +68,6 @@ import { FormButtonValidationDirective } from '../../shared/directive/form-butto
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ReportState } from '../../shared/pipes/report-state.pipe';
-import { ReportState as ReportStateEnum } from 'src/app/core/models/platform/v1/report.model';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -401,16 +400,30 @@ export class ViewTeamReportPage {
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
 
-  private isArsReport(report: Report): boolean {
-    const reportSource = report?.source?.toUpperCase?.() || '';
-    const arsSources = ['WORKFLOWS', 'AUTO_REPORT', 'AUTO_SUBMISSION', 'AUTOMATED'];
-    return arsSources.includes(reportSource) && report?.state !== ReportStateEnum.DRAFT;
-  }
-
   private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
     return expenses.some(
-      (expense) => expense.added_to_report_at && new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+      (expense) =>
+        expense.added_to_report_by === 'USER' &&
+        expense.added_to_report_at &&
+        new Date(expense.added_to_report_at).getTime() > submittedAtTime,
     );
+  }
+
+  private isAdminOrApprover(permissions: ReportPermissions, eou: ExtendedOrgUser): boolean {
+    if (permissions?.can_approve) {
+      return true;
+    }
+
+    const roles = eou?.ou?.roles || [];
+    return roles.includes('ADMIN') || roles.includes('FINANCE');
+  }
+
+  private isAutoSubmittedReport(report: Report): boolean {
+    if (report?.state === 'DRAFT') {
+      return false;
+    }
+
+    return report?.creator_type === 'SYSTEM';
   }
 
   ionViewWillEnter(): void {
@@ -445,9 +458,25 @@ export class ViewTeamReportPage {
       .getReportExpenses(this.activatedRoute.snapshot.params.id as string)
       .pipe(shareReplay(1));
 
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
-      map(([report, expenses]) => {
-        if (!this.isArsReport(report) || !expenses?.length) {
+    this.permissions$ = this.approverReportsService
+      .permissions(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
+
+    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
+
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$, this.eou$]).pipe(
+      map(([report, expenses, permissions, eou]) => {
+        if (!this.isAdminOrApprover(permissions, eou)) {
+          return false;
+        }
+
+        if (!this.isAutoSubmittedReport(report)) {
+          return false;
+        }
+
+        if (!expenses?.length) {
           return false;
         }
 
@@ -465,14 +494,6 @@ export class ViewTeamReportPage {
     this.expensesAmountSum$ = this.expenses$.pipe(
       map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0)),
     );
-
-    this.permissions$ = this.approverReportsService
-      .permissions(this.activatedRoute.snapshot.params.id as string)
-      .pipe(shareReplay(1));
-
-    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
-    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
-    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     forkJoin({
       expenses: this.expenses$,
