@@ -273,11 +273,7 @@ export class MyViewReportPage {
   }
 
   private isAutoSubmittedReport(report: Report): boolean {
-    if (report?.state === ReportState.DRAFT) {
-      return false;
-    }
-
-    return report?.creator_type === 'SYSTEM';
+    return report?.state !== ReportState.DRAFT && report?.creator_type === 'SYSTEM';
   }
 
   private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
