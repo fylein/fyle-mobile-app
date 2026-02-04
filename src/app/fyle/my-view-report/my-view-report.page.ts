@@ -178,6 +178,8 @@ export class MyViewReportPage {
 
   showArsManualExpensesAlert$: Observable<boolean>;
 
+  permissions$: Observable<ReportPermissions>;
+
   canEdit$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
@@ -252,16 +254,30 @@ export class MyViewReportPage {
     return ReportPageSegment;
   }
 
-  private isArsReport(report: Report): boolean {
-    const reportSource = report?.source?.toUpperCase?.() || '';
-    const arsSources = ['WORKFLOWS', 'AUTO_REPORT', 'AUTO_SUBMISSION', 'AUTOMATED'];
-    return arsSources.includes(reportSource) && report?.state !== ReportState.DRAFT;
-  }
-
   private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
     return expenses.some(
-      (expense) => expense.added_to_report_at && new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+      (expense) =>
+        expense.added_to_report_by === 'USER' &&
+        expense.added_to_report_at &&
+        new Date(expense.added_to_report_at).getTime() > submittedAtTime,
     );
+  }
+
+  private isAdminOrApprover(permissions: ReportPermissions, eou: ExtendedOrgUser): boolean {
+    if (permissions?.can_approve) {
+      return true;
+    }
+
+    const roles = eou?.ou?.roles || [];
+    return roles.includes('ADMIN') || roles.includes('FINANCE');
+  }
+
+  private isAutoSubmittedReport(report: Report): boolean {
+    if (report?.state === ReportState.DRAFT) {
+      return false;
+    }
+
+    return report?.creator_type === 'SYSTEM';
   }
 
   private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
@@ -458,9 +474,19 @@ export class MyViewReportPage {
       shareReplay(1),
     );
 
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
-      map(([report, expenses]) => {
-        if (!this.isArsReport(report) || !expenses?.length) {
+    this.permissions$ = this.spenderReportsService.permissions(this.reportId).pipe(shareReplay(1));
+
+    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
+
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$, this.eou$]).pipe(
+      map(([report, expenses, permissions, eou]) => {
+        if (!this.isAdminOrApprover(permissions, eou)) {
+          return false;
+        }
+
+        if (!this.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 
@@ -474,15 +500,6 @@ export class MyViewReportPage {
       }),
       shareReplay(1),
     );
-
-    const permissions$: Observable<ReportPermissions> = this.spenderReportsService
-      .permissions(this.reportId)
-      .pipe(shareReplay(1));
-
-    this.canEdit$ = permissions$.pipe(map((permissions) => permissions.can_edit));
-
-    this.canDelete$ = permissions$.pipe(map((permissions) => permissions.can_delete));
-    this.canResubmitReport$ = permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
