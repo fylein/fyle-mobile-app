@@ -1,8 +1,11 @@
 export interface AppVersion {
-  app_version: string;
-  created_at: Date;
-  device_platform: string;
   id: string;
-  platform_version: string;
   user_id: string;
+  created_at: Date;
+  updated_at: Date;
+  version: string;
+  os: {
+    name: string;
+    version: string;
+  };
 }
