@@ -117,10 +117,10 @@ export class PushNotificationService {
     PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
       this.zone.run(() => {
         const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
+        console.log('event', event);
+        console.log('data', data);
         const url = data.cta_url;
         const actionType = data.notification_type;
-        console.log('url', url);
-        console.log('actionType', actionType);
 
         if (!url || typeof url !== 'string') {
           return;
