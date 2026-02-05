@@ -80,6 +80,8 @@ export class EmailNotificationsComponent implements OnInit {
 
   selectAllMobile = false;
 
+  selectAllPush = false;
+
   saveText: '' | 'Saved' | 'Saving...' = '';
 
   showMobilePushColumn = false;

@@ -1,37 +1,36 @@
-
 import { Injectable } from '@angular/core';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotifications, Token } from '@capacitor/push-notifications';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushNotificationService {
-  constructor() {
-    this.initializePushNotifications();
-  }
+  private listenersInitialized = false;
 
   async initializePushNotifications(): Promise<void> {
     const permission = await PushNotifications.requestPermissions();
+
     if (permission.receive === 'granted') {
-      return PushNotifications.register();
+      this.initListeners();
+      await PushNotifications.register();
     }
   }
 
-  listenForPushNotifications(): void {
-    PushNotifications.addListener('registration', () => {
-        // TODO: Add API call to send the token to backend
-    });
-  }
+  private initListeners(): void {
+    if (this.listenersInitialized) {
+      return;
+    }
 
-  listenForPushNotificationsError(): void {
-    PushNotifications.addListener('registrationError', () => {
-        // TODO: Add a tracker to check registration error
-    });
-  }
+    this.listenersInitialized = true;
 
-  listenForPushNotificationsActionPerformed(): void {
-    PushNotifications.addListener('pushNotificationActionPerformed', () => {
-        // TODO: Add redirections for actions performed
+    PushNotifications.addListener('registration', (_token: Token) => {
+      console.log('token', _token);
+      const deviceToken = _token?.value;
+      console.log('deviceToken', deviceToken);
+      // TODO: Integrate API for sending token to backend
     });
+    PushNotifications.addListener('registrationError', () => undefined);
+    PushNotifications.addListener('pushNotificationActionPerformed', () => undefined);
   }
 }
+

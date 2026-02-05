@@ -16,6 +16,9 @@ const config: CapacitorConfig = {
       style: KeyboardStyle.Light,
       resizeOnFullScreen: true,
     },
+    PushNotifications: {
+      presentationOptions: ['alert', 'sound', 'badge'],
+    },
     AppShortcuts: {
       shortcuts: [
         {
