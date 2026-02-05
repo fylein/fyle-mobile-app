@@ -167,6 +167,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
     });
 
+    // Initialize push notification click listener early to catch notifications
+    // that launched the app from a killed state
+    if (Capacitor.isNativePlatform()) {
+      this.pushNotificationService.initializeNotificationClickListener();
+    }
+
     // Handle app shortcuts (Home Screen Quick Actions)
     if (Capacitor.isNativePlatform()) {
       AppShortcuts.addListener('click', (event) => {

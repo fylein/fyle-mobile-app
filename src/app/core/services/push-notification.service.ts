@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { PushNotifications, Token, PermissionStatus } from '@capacitor/push-notifications';
 import { DeepLinkService } from './deep-link.service';
 import { TrackingService } from './tracking.service';
@@ -12,6 +12,8 @@ import { StorageService } from './storage.service';
 export class PushNotificationService {
   private listenersInitialized = false;
 
+  private notificationClickListenerInitialized = false;
+
   private deepLinkService: DeepLinkService = inject(DeepLinkService);
 
   private trackingService: TrackingService = inject(TrackingService);
@@ -22,10 +24,26 @@ export class PushNotificationService {
 
   private storageService: StorageService = inject(StorageService);
 
+  private zone: NgZone = inject(NgZone);
+
   constructor() {
     this.userEventService.onLogout(() => {
       void this.unregister();
     });
+  }
+
+  /**
+   * Initialize only the notification click listener.
+   * This should be called as early as possible during app initialization
+   * to catch notifications that launched the app from a killed state.
+   */
+  initializeNotificationClickListener(): void {
+    if (this.notificationClickListenerInitialized) {
+      return;
+    }
+
+    this.notificationClickListenerInitialized = true;
+    this.addNotificationClickListener();
   }
 
   initializePushNotifications(): Promise<void> {
@@ -76,7 +94,12 @@ export class PushNotificationService {
     this.listenersInitialized = true;
 
     this.addRegistrationListener();
-    this.addNotificationClickListener();
+    // Only add notification click listener if not already initialized
+    // (it may have been initialized early via initializeNotificationClickListener)
+    if (!this.notificationClickListenerInitialized) {
+      this.notificationClickListenerInitialized = true;
+      this.addNotificationClickListener();
+    }
   }
 
   addRegistrationListener(): Promise<{ remove: () => void }> {
@@ -92,20 +115,22 @@ export class PushNotificationService {
 
   private addNotificationClickListener(): void {
     PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
-      const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
-      const url = data.cta_url;
-      const actionType = data.notification_type;
-      console.log('url', url);
-      console.log('actionType', actionType);
+      this.zone.run(() => {
+        const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
+        const url = data.cta_url;
+        const actionType = data.notification_type;
+        console.log('url', url);
+        console.log('actionType', actionType);
 
-      if (!url || typeof url !== 'string') {
-        return;
-      }
+        if (!url || typeof url !== 'string') {
+          return;
+        }
 
-      this.trackingService.eventTrack('Push Notification Clicked', { actionType });
+        this.trackingService.eventTrack('Push Notification Clicked', { actionType });
 
-      const redirectParams = this.deepLinkService.getJsonFromUrl(url);
-      this.deepLinkService.redirect(redirectParams);
+        const redirectParams = this.deepLinkService.getJsonFromUrl(url);
+        this.deepLinkService.redirect(redirectParams);
+      });
     });
   }
 }
