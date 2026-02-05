@@ -13,6 +13,7 @@ export class DeepLinkService {
   private trackingService = inject(TrackingService);
 
   getJsonFromUrl(url?: string): Redirect {
+    console.log('url', url);
     const query = url?.split('?')[1];
     const result: Redirect = {};
     query?.split('&').forEach((part) => {
@@ -29,6 +30,7 @@ export class DeepLinkService {
 
   // eslint-disable-next-line complexity
   redirect(redirectionParam: Redirect): void {
+    console.log('redirectionParam', redirectionParam);
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
