@@ -16,7 +16,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
   providedIn: 'root',
 })
 export class AppVersionService {
-  private platformV1ApiService = inject(SpenderPlatformV1ApiService);
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   private routerApiService = inject(RouterApiService);
 
@@ -118,10 +118,10 @@ export class AppVersionService {
         limit: 1,
       },
     };
-    return this.platformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data);
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data);
   }
 
   post(payload: { data: Partial<AppVersion> }): Observable<PlatformApiResponse<AppVersion>> {
-    return this.platformV1ApiService.post<PlatformApiResponse<AppVersion>>('/mobile_app/versions', payload);
+    return this.spenderPlatformV1ApiService.post<PlatformApiResponse<AppVersion>>('/mobile_app/versions', payload);
   }
 }
