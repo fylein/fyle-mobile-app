@@ -111,11 +111,14 @@ export class AppVersionService {
 
   get(os: string): Observable<PlatformApiResponse<AppVersion[]>> {
     const operatingSystem = os.toUpperCase();
-    const params = {
-      order: 'created_at.desc',
-      'os->name': `eq.${operatingSystem}`,
+    const data = {
+      params: {
+        order: 'created_at.desc',
+        'os->name': `eq.${operatingSystem}`,
+        limit: 1,
+      },
     };
-    return this.platformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, { data: params });
+    return this.platformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data);
   }
 
   post(payload: { data: Partial<AppVersion> }): Observable<PlatformApiResponse<AppVersion>> {
