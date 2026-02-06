@@ -116,11 +116,11 @@ export class PushNotificationService {
   private addNotificationClickListener(): void {
     PushNotifications.addListener('pushNotificationActionPerformed', (event) => {
       this.zone.run(() => {
-        const data = (event?.notification?.data as { cta_url?: string; notification_type?: string }) ?? {};
-        console.log('event', event);
-        console.log('data', data);
+        const data = (event?.notification?.data as { cta_url?: string; push_notification_type?: string }) ?? {};
         const url = data.cta_url;
-        const actionType = data.notification_type;
+        const actionType = data.push_notification_type;
+
+        console.log('actionType', actionType);
 
         if (!url || typeof url !== 'string') {
           return;
@@ -129,7 +129,7 @@ export class PushNotificationService {
         this.trackingService.eventTrack('Push Notification Clicked', { actionType });
 
         const redirectParams = this.deepLinkService.getJsonFromUrl(url);
-        this.deepLinkService.redirect(redirectParams);
+        this.deepLinkService.redirect(redirectParams, actionType);
       });
     });
   }

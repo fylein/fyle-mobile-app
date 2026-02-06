@@ -3239,6 +3239,8 @@ export class AddEditExpensePage implements OnInit {
     // Clear project cache when re-entering the form
     this.recentLocalStorageItemsService.clear('recentlyUsedProjects');
 
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+
     this.allCategories$ = this.categoriesService.getAll().pipe(shareReplay(1));
     this.activeCategories$ = this.allCategories$
       .pipe(map((catogories) => this.categoriesService.filterRequired(catogories)))
@@ -3628,6 +3630,10 @@ export class AddEditExpensePage implements OnInit {
     this.getPolicyDetails();
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
+
+    if (pushNotificationType === "EXPENSE_COMMENTS") {
+      this.openCommentsModal();
+    }
   }
 
   getExpenseAttachments(mode: string): Observable<FileObject[]> {

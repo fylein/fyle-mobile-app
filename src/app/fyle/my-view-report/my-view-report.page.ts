@@ -410,6 +410,8 @@ export class MyViewReportPage {
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+
     this.segmentValue = ReportPageSegment.EXPENSES;
     this.isLoading = true;
 
@@ -445,7 +447,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (report?.state === 'APPROVER_INQUIRY') {
+      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === "EXPENSE_REPORT_COMMENTS") {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
