@@ -120,8 +120,6 @@ export class PushNotificationService {
         const url = data.cta_url;
         const actionType = data.push_notification_type;
 
-        console.log('actionType', actionType);
-
         if (!url || typeof url !== 'string') {
           return;
         }
