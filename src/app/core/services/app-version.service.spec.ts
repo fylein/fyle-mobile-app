@@ -82,7 +82,7 @@ describe('AppVersionService', () => {
     appVersionService.get('ios').subscribe((res) => {
       expect(res).toEqual(appVersionResponse);
       expect(platformV1ApiService.get).toHaveBeenCalledOnceWith('/mobile_app/versions', {
-        data: { order: 'created_at.desc', 'os->name': 'eq.IOS' },
+        params: { order: 'created_at.desc', 'os->name': 'eq.IOS', limit: 1 },
       });
       done();
     });
