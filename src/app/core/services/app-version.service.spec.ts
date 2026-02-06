@@ -4,7 +4,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { RouterApiService } from './router-api.service';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
-import { appVersionData1, appVersionResponse } from '../mock-data/app-version.data';
+import { appVersionData1, appVersionPostResponse, appVersionResponse } from '../mock-data/app-version.data';
 import { of } from 'rxjs';
 import { extendedDeviceInfoMockData } from '../mock-data/extended-device-info.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
@@ -12,13 +12,13 @@ import { environment } from 'src/environments/environment';
 
 describe('AppVersionService', () => {
   let appVersionService: AppVersionService;
-  let platformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let routerApiService: jasmine.SpyObj<RouterApiService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
   let authService: jasmine.SpyObj<AuthService>;
 
   beforeEach(() => {
-    const platformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
     const routerApiServiceSpy = jasmine.createSpyObj('RouterApiService', ['post']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['getLastLoggedInVersion']);
@@ -27,7 +27,7 @@ describe('AppVersionService', () => {
         AppVersionService,
         {
           provide: SpenderPlatformV1ApiService,
-          useValue: platformV1ApiServiceSpy,
+          useValue: spenderPlatformV1ApiServiceSpy,
         },
         {
           provide: AuthService,
@@ -44,7 +44,9 @@ describe('AppVersionService', () => {
       ],
     });
     appVersionService = TestBed.inject(AppVersionService);
-    platformV1ApiService = TestBed.inject(SpenderPlatformV1ApiService) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService,
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
     routerApiService = TestBed.inject(RouterApiService) as jasmine.SpyObj<RouterApiService>;
@@ -77,11 +79,11 @@ describe('AppVersionService', () => {
   });
 
   it('get(): should get app version', (done) => {
-    platformV1ApiService.get.and.returnValue(of(appVersionResponse));
+    spenderPlatformV1ApiService.get.and.returnValue(of(appVersionResponse));
 
     appVersionService.get('ios').subscribe((res) => {
       expect(res).toEqual(appVersionResponse);
-      expect(platformV1ApiService.get).toHaveBeenCalledOnceWith('/mobile_app/versions', {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mobile_app/versions', {
         params: { order: 'created_at.desc', 'os->name': 'eq.IOS', limit: 1 },
       });
       done();
@@ -89,7 +91,7 @@ describe('AppVersionService', () => {
   });
 
   it('post(): should update the app version', (done) => {
-    platformV1ApiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(appVersionPostResponse));
 
     const payload = {
       data: {
@@ -102,8 +104,8 @@ describe('AppVersionService', () => {
     };
 
     appVersionService.post(payload).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(platformV1ApiService.post).toHaveBeenCalledOnceWith('/mobile_app/versions', payload);
+      expect(res).toEqual(appVersionPostResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/mobile_app/versions', payload);
       done();
     });
   });
@@ -118,7 +120,7 @@ describe('AppVersionService', () => {
   });
 
   it('should load device info', (done) => {
-    spyOn(appVersionService, 'post').and.returnValue(of(null));
+    spyOn(appVersionService, 'post').and.returnValue(of(appVersionPostResponse));
     spyOn(appVersionService, 'get').and.returnValue(of(appVersionResponse));
     spyOn(appVersionService, 'isVersionLower').and.returnValue(false);
 
@@ -142,7 +144,7 @@ describe('AppVersionService', () => {
 
   describe('load():', () => {
     it('should load device info when app version lower', (done) => {
-      spyOn(appVersionService, 'post').and.returnValue(of(null));
+      spyOn(appVersionService, 'post').and.returnValue(of(appVersionPostResponse));
       spyOn(appVersionService, 'get').and.returnValue(
         of({ ...appVersionResponse, data: [{ ...appVersionData1, version: '1.10.1' }] }),
       );
@@ -164,7 +166,7 @@ describe('AppVersionService', () => {
     });
 
     it('should load device info when app version not present', (done) => {
-      spyOn(appVersionService, 'post').and.returnValue(of(null));
+      spyOn(appVersionService, 'post').and.returnValue(of(appVersionPostResponse));
       spyOn(appVersionService, 'get').and.returnValue(of({ count: 0, offset: 0, data: [] }));
       spyOn(appVersionService, 'isVersionLower').and.returnValue(true);
 

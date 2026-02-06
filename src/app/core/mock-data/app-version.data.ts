@@ -20,3 +20,7 @@ export const appVersionResponse: PlatformApiResponse<AppVersion[]> = deepFreeze(
   offset: 0,
   data: [appVersionData1],
 });
+
+export const appVersionPostResponse: PlatformApiResponse<AppVersion> = deepFreeze({
+  data: appVersionData1,
+});
