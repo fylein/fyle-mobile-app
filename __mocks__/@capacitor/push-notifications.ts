@@ -1,0 +1,38 @@
+/* eslint-disable */
+export interface PermissionStatus {
+  receive: string;
+}
+
+export interface Token {
+  value?: string;
+}
+
+export interface PushNotificationEvent {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+}
+
+export type PushNotificationListener = (event: PushNotificationEvent) => void;
+
+export const PushNotifications = {
+  requestPermissions(): Promise<PermissionStatus> {
+    return Promise.resolve({ receive: 'denied' });
+  },
+
+  checkPermissions(): Promise<PermissionStatus> {
+    return Promise.resolve({ receive: 'denied' });
+  },
+
+  register(): Promise<void> {
+    return Promise.resolve();
+  },
+
+  unregister(): Promise<void> {
+    return Promise.resolve();
+  },
+
+  addListener(_eventName: string, _listener: any): Promise<{ remove: () => void }> {
+    return Promise.resolve({ remove: () => {} });
+  },
+};
+

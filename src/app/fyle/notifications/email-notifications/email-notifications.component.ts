@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit, input } from '@angular/core';
+import { Component, inject, Input, OnInit, OnDestroy, input } from '@angular/core';
 import {
   IonButton,
   IonButtons,
@@ -21,8 +21,9 @@ import { MatIcon } from '@angular/material/icon';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
+import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -30,6 +31,7 @@ import { FormButtonValidationDirective } from 'src/app/shared/directive/form-but
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 @Component({
   selector: 'app-email-notifications',
   templateUrl: './email-notifications.component.html',
@@ -51,7 +53,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
     FormButtonValidationDirective
   ],
 })
-export class EmailNotificationsComponent implements OnInit {
+export class EmailNotificationsComponent implements OnInit, OnDestroy {
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
   @Input() title: string;
@@ -90,6 +92,10 @@ export class EmailNotificationsComponent implements OnInit {
 
   isPushPermissionDenied = false;
 
+  // We only rely on a remove() method; type it loosely to avoid tight coupling
+  // to the Capacitor PluginListenerHandle definition across environments.
+  appStateChangeListener: { remove: () => void } | null = null;
+
   private platform = inject(Platform);
 
   nativeSettings = NativeSettings;
@@ -109,6 +115,8 @@ export class EmailNotificationsComponent implements OnInit {
   private matSnackBar = inject(MatSnackBar);
 
   private snackbarProperties = inject(SnackbarPropertiesService);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   updateSaveText(text: 'Saved' | 'Saving...'): void {
     this.saveText = text;
@@ -275,13 +283,49 @@ export class EmailNotificationsComponent implements OnInit {
 
     forkJoin({
       isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-      permissionStatus: from(PushNotifications.checkPermissions()),
+      permissionStatus: from(this.pushNotificationService.checkPermissions()),
     }).subscribe(({ isPushNotifUiEnabled, permissionStatus }) => {
       this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
       this.isPushPermissionDenied =
-        isPushNotifUiEnabled &&
-        isPushColumnSupportedForTitle &&
-        permissionStatus.receive !== 'granted';
+        isPushNotifUiEnabled && isPushColumnSupportedForTitle && permissionStatus.receive !== 'granted';
+      if (this.showMobilePushColumn) {
+        this.startAppStateListener();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.appStateChangeListener?.remove();
+  }
+
+  private startAppStateListener(): void {
+    if (this.appStateChangeListener) {
+      return;
+    }
+
+    // Only register native app state listeners on native platforms.
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    App.addListener('appStateChange', ({ isActive }) => {
+      if (!isActive || !this.showMobilePushColumn) {
+        return;
+      }
+
+      this.pushNotificationService.checkPermissions().then((latestPermission) => {
+        const hasPermission = latestPermission.receive === 'granted';
+
+        if (hasPermission && this.isPushPermissionDenied) {
+          this.isPushPermissionDenied = false;
+          this.pushNotificationService.addRegistrationListener();
+          return this.pushNotificationService.register();
+        } else if (!hasPermission) {
+          this.isPushPermissionDenied = true;
+        }
+      });
+    }).then((listener) => {
+      this.appStateChangeListener = listener;
     });
   }
 }

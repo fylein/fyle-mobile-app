@@ -14,8 +14,10 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 import { TranslocoService } from '@jsverse/transloco';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotificationService } from 'src/app/core/services/push-notification.service';
 import { AndroidSettings, IOSSettings } from 'capacitor-native-settings';
+import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 describe('EmailNotificationsComponent', () => {
   let component: EmailNotificationsComponent;
@@ -27,6 +29,7 @@ describe('EmailNotificationsComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
 
   const mockNotifications: NotificationEventItem[] = [
     {
@@ -61,6 +64,11 @@ describe('EmailNotificationsComponent', () => {
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', [
       'setSnackbarProperties',
     ]);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
+      'checkPermissions',
+      'addRegistrationListener',
+      'register',
+    ]);
 
     translocoServiceSpy.translate.and.callFake((key: string) => key);
     snackbarPropertiesServiceSpy.setSnackbarProperties.and.returnValue({});
@@ -71,7 +79,9 @@ describe('EmailNotificationsComponent', () => {
       onWillDismiss: () => Promise.resolve({ data: undefined }),
     } as any);
 
-    spyOn(PushNotifications as any, 'checkPermissions').and.resolveTo({ receive: 'granted' } as any);
+    pushNotificationServiceSpy.checkPermissions.and.resolveTo({ receive: 'granted' } as any);
+    pushNotificationServiceSpy.addRegistrationListener.and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
+    pushNotificationServiceSpy.register.and.resolveTo();
 
     TestBed.configureTestingModule({
       imports: [EmailNotificationsComponent, MatIconTestingModule],
@@ -112,6 +122,10 @@ describe('EmailNotificationsComponent', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesServiceSpy,
         },
+        {
+          provide: PushNotificationService,
+          useValue: pushNotificationServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -128,6 +142,7 @@ describe('EmailNotificationsComponent', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
 
     component.title = 'Email Notifications';
     component.notifications = cloneDeep(mockNotifications);
@@ -162,6 +177,86 @@ describe('EmailNotificationsComponent', () => {
 
       expect(component.isIos).toBeFalse();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
+    });
+
+    it('should start appState listener when mobile push column is visible', fakeAsync(() => {
+      // Configure title and LD flag so push column is supported and enabled
+      component.title = 'Expense notifications';
+
+      const launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      // Spy on the private startAppStateListener method
+      const startAppStateListenerSpy = spyOn<any>(component as any, 'startAppStateListener');
+
+      component.ngOnInit();
+      tick();
+
+      expect(component.showMobilePushColumn).toBeTrue();
+      expect(startAppStateListenerSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should start appState listener and clear isPushPermissionDenied when permission becomes granted', async () => {
+      // Bypass ngOnInit gating and force conditions required for startAppStateListener.
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = true;
+
+      // Pretend we are on a native platform so the listener is registered.
+      spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
+
+      // Capture the appStateChange callback
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
+        if (eventName === 'appStateChange') {
+          appStateCallback = cb;
+        }
+        return Promise.resolve({ remove: jasmine.createSpy('remove') } as any);
+      });
+
+      // Directly invoke the private listener registration
+      (component as any).startAppStateListener();
+
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
+
+      // Simulate app coming to foreground with granted permission
+      await appStateCallback({ isActive: true });
+
+      expect(component.isPushPermissionDenied).toBeFalse();
+      expect(pushNotificationService.checkPermissions).toHaveBeenCalled();
+    });
+
+    it('should set isPushPermissionDenied to true when permission is denied on app resume', async () => {
+      component.showMobilePushColumn = true;
+      component.isPushPermissionDenied = false;
+
+      spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
+
+      pushNotificationService.checkPermissions.and.resolveTo({ receive: 'denied' } as any);
+
+      let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
+        if (eventName === 'appStateChange') {
+          appStateCallback = cb;
+        }
+        return Promise.resolve({ remove: jasmine.createSpy('remove') } as any);
+      });
+
+      (component as any).startAppStateListener();
+
+      expect(appStateCallback).toBeDefined();
+      if (!appStateCallback) {
+        fail('appStateChange listener was not registered');
+        return;
+      }
+
+      await appStateCallback({ isActive: true });
+
+      expect(component.isPushPermissionDenied).toBeTrue();
+      expect(pushNotificationService.checkPermissions).toHaveBeenCalled();
     });
   });
 
@@ -232,6 +327,17 @@ describe('EmailNotificationsComponent', () => {
       component.updateSelectAll();
 
       expect(component.selectAllEmail).toBeFalse();
+    });
+
+    it('should treat missing mobile values as selected', () => {
+      component.notifications = [
+        { eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN, event: 'Expense Created', email: true },
+        { eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED, event: 'Expense Submitted', email: true, mobile: undefined },
+      ];
+
+      component.updateSelectAll();
+
+      expect(component.selectAllMobile).toBeTrue();
     });
   });
 
@@ -319,6 +425,30 @@ describe('EmailNotificationsComponent', () => {
       ]);
       expect(component.hasChanges).toBeTrue();
     });
+
+    it('should default push unsubscribed events when input is undefined', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: false,
+        } as any,
+      ];
+
+      Object.defineProperty(component, 'unsubscribedPushEventsByUser', {
+        value: () => undefined,
+        configurable: true,
+      });
+      component.employeeSettings.notification_settings.push_unsubscribed_events = [];
+
+      component.updateNotificationSettings();
+
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).toEqual([
+        NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+      ]);
+      expect(component.hasChanges).toBeTrue();
+    });
   });
 
   describe('updateEmployeeSettings():', () => {
@@ -395,6 +525,37 @@ describe('EmailNotificationsComponent', () => {
 
       const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
       expect(trackingCallArgs.pushUnsubscribedEvents).toEqual([]);
+    });
+
+    it('should use empty array for unsubscribedEvents when email_unsubscribed_events is undefined', () => {
+      spyOn(component, 'updateNotificationSettings');
+      spyOn(component, 'updateEmployeeSettings');
+      component.employeeSettings.notification_settings.email_unsubscribed_events = undefined as any;
+
+      component.saveChanges();
+
+      const trackingCallArgs = (trackingService.eventTrack as jasmine.Spy).calls.mostRecent().args[1];
+      expect(trackingCallArgs.unsubscribedEvents).toEqual([]);
+    });
+  });
+
+  describe('startAppStateListener():', () => {
+    it('should return early when listener already exists', async () => {
+      component.appStateChangeListener = { remove: jasmine.createSpy('remove') };
+      const addListenerSpy = spyOn(App as any, 'addListener');
+
+      await (component as any).startAppStateListener();
+
+      expect(addListenerSpy).not.toHaveBeenCalled();
+    });
+
+    it('should return early on non-native platforms', async () => {
+      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      const addListenerSpy = spyOn(App as any, 'addListener');
+
+      await (component as any).startAppStateListener();
+
+      expect(addListenerSpy).not.toHaveBeenCalled();
     });
   });
 });

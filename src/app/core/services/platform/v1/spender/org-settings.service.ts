@@ -421,6 +421,11 @@ export class PlatformOrgSettingsService {
       auto_report_submission_settings: {
         expense_grouping_dimensions: incoming.auto_report_submission_settings?.expense_grouping_dimensions || [],
       },
+      mobile_notification_settings: {
+        allowed: incoming.mobile_notification_settings && incoming.mobile_notification_settings.allowed,
+        enabled: incoming.mobile_notification_settings && incoming.mobile_notification_settings.enabled,
+        unsubscribed_events: incoming.mobile_notification_settings && incoming.mobile_notification_settings.unsubscribed_events,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

@@ -113,6 +113,7 @@ export class DeepLinkRedirectionPage {
   async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
     this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string).subscribe(
       (res) => {
         const id = res.advance.id || res.areq.id;
@@ -123,7 +124,7 @@ export class DeepLinkRedirectionPage {
         } else if (res.ou.id !== currentEou.ou.id) {
           route = ['/', 'enterprise', 'view_team_advance'];
         }
-        this.router.navigate([...route, { id }]);
+        this.router.navigate([...route, { id, push_notification_type: pushNotificationType }]);
       },
       () => {
         this.switchOrg();
@@ -137,12 +138,13 @@ export class DeepLinkRedirectionPage {
   async redirectToExpenseModule(): Promise<void> {
     const expenseOrgId = this.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.id as string;
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
 
     if (!expenseOrgId) {
       this.expensesService.getExpenseById(txnId).subscribe((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         const route = this.deepLinkService.getExpenseRoute(etxn);
-        this.router.navigate([...route, { id: txnId }]);
+        this.router.navigate([...route, { id: txnId, push_notification_type: pushNotificationType }]);
       });
     } else {
       const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
@@ -195,6 +197,7 @@ export class DeepLinkRedirectionPage {
 
     const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
     spenderReport$.subscribe(
       (spenderReport) => {
         if (spenderReport) {
@@ -202,7 +205,7 @@ export class DeepLinkRedirectionPage {
             '/',
             'enterprise',
             'my_view_report',
-            { id: this.activatedRoute.snapshot.params.id as string },
+            { id: this.activatedRoute.snapshot.params.id as string, push_notification_type: pushNotificationType },
           ]);
         } else {
           approverReport$.subscribe((approverReport) => {
@@ -211,7 +214,7 @@ export class DeepLinkRedirectionPage {
                 '/',
                 'enterprise',
                 'view_team_report',
-                { id: this.activatedRoute.snapshot.params.id as string },
+                { id: this.activatedRoute.snapshot.params.id as string, push_notification_type: pushNotificationType },
               ]);
             } else {
               this.switchOrg();

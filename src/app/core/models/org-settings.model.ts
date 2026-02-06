@@ -9,6 +9,7 @@ import { TaxGroup } from './tax-group.model';
 import { TransactionMandatoryFields } from './transaction-mandatory-fields.model';
 import { User } from './user.model';
 import { OrgUserMandatoryFields } from './org-user-mandatory-fields.model';
+import { MobilePushNotificationSettings } from './mobile-push-notification-settings.model';
 
 export enum EmailEvents {
   DELEGATOR_SUBSCRIPTION = 'DELEGATOR_SUBSCRIPTION',
@@ -479,6 +480,7 @@ export interface OrgSettingsResponse {
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
   auto_report_submission_settings?: AutoReportSubmissionSettings;
+  mobile_notification_settings?: MobilePushNotificationSettings;
 }
 
 export interface UiPolicySettings {
@@ -606,4 +608,5 @@ export interface OrgSettings {
   regional_settings?: RegionalSettings;
   auto_report_approval_settings?: AutoReportApprovalSettings;
   auto_report_submission_settings?: AutoReportSubmissionSettings;
+  mobile_notification_settings?: MobilePushNotificationSettings;
 }

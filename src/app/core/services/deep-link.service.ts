@@ -28,7 +28,7 @@ export class DeepLinkService {
   }
 
   // eslint-disable-next-line complexity
-  redirect(redirectionParam: Redirect): void {
+  redirect(redirectionParam: Redirect, notificationType?: string): void {
     const redirectUri: string = redirectionParam.redirect_uri;
     const verificationCode: string = redirectionParam.verification_code;
     const orgId: string = redirectionParam.org_id;
@@ -57,39 +57,33 @@ export class DeepLinkService {
       } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
         const reportId = redirectUri.split('/reports/').pop();
         const subModule = 'report';
-        this.router.navigate([
-          '/',
-          'deep_link_redirection',
-          {
-            sub_module: subModule,
-            id: reportId,
-          },
-        ]);
+        const properties = {
+          sub_module: subModule,
+          id: reportId,
+          push_notification_type: notificationType,
+        };
+        this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
         const txnId = redirectUri.split('txnId=').pop();
         const subModule = 'expense';
-        this.router.navigate([
-          '/',
-          'deep_link_redirection',
-          {
-            sub_module: subModule,
-            id: txnId,
-          },
-        ]);
+        const properties = {
+          sub_module: subModule,
+          id: txnId,
+          push_notification_type: notificationType,
+        };
+        this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (
         redirectUri.match('/advance_request/areq') &&
         redirectUri.split('/advance_request/').pop().length === 14
       ) {
         const advReqId = redirectUri.split('/advance_request/').pop();
         const subModule = 'advReq';
-        this.router.navigate([
-          '/',
-          'deep_link_redirection',
-          {
-            sub_module: subModule,
-            id: advReqId,
-          },
-        ]);
+        const properties = {
+          sub_module: subModule,
+          id: advReqId,
+          push_notification_type: notificationType,
+        };
+        this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (redirectUri.match('/tx') && redirectUri.split('/').length > 2) {
         const urlArray = redirectUri.split('/');
         const txnId = urlArray[urlArray.length - 1];
@@ -102,6 +96,7 @@ export class DeepLinkService {
               sub_module: 'expense',
               id: txnId,
               orgId,
+              push_notification_type: notificationType,
             },
           ]);
         } else {
