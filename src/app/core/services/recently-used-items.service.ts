@@ -12,6 +12,7 @@ import { PlatformCategory } from '../models/platform/platform-category.model';
 import { PlatformCategoryListItem } from '../models/platform/platform-category-list-item.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { Cacheable } from 'ts-cacheable';
 @Injectable({
   providedIn: 'root',
 })
