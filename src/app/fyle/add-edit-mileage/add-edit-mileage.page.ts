@@ -1720,7 +1720,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.mileageRates$ = this.allMileageRates$.pipe(
       map((mileageRates) => {
-        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(mileageRates);
+        const enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(mileageRates);
         return enabledMileageRates;
       }),
     );
