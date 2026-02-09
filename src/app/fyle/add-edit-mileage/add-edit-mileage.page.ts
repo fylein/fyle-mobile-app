@@ -906,7 +906,7 @@ export class AddEditMileagePage implements OnInit {
 
   getNewExpense(): Observable<Partial<UnflattenedTransaction>> {
     const defaultVehicle$ = forkJoin({
-      vehicleType: this.transactionService.getDefaultVehicleType(),
+      vehicleType: of(undefined as string),
       orgSettings: this.orgSettingsService.get(),
       employeeSettings: this.platformEmployeeSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
@@ -939,7 +939,7 @@ export class AddEditMileagePage implements OnInit {
             this.presetVehicleType = recentValue.vehicle_types[0];
           }
           if (
-            (!vehicleType) &&
+            !isRecentVehicleTypePresent &&
             mileageRates &&
             mileageRates.length > 0
           ) {

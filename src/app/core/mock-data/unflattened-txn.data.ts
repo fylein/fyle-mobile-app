@@ -2916,7 +2916,7 @@ export const newExpenseMileageData2: Partial<UnflattenedTransaction> = deepFreez
     mileage_calculated_amount: null,
     mileage_calculated_distance: null,
     policy_amount: null,
-    mileage_vehicle_type: 'bicycle',
+    mileage_vehicle_type: 'two_wheeler',
     mileage_rate: 10,
     distance_unit: 'MILES',
     mileage_is_round_trip: false,
