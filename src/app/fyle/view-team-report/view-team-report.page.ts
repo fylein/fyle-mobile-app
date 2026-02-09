@@ -409,15 +409,6 @@ export class ViewTeamReportPage {
     );
   }
 
-  private isAdminOrApprover(permissions: ReportPermissions, eou: ExtendedOrgUser): boolean {
-    if (permissions?.can_approve) {
-      return true;
-    }
-
-    const roles = eou?.ou?.roles || [];
-    return roles.includes('ADMIN') || roles.includes('FINANCE');
-  }
-
   private isAutoSubmittedReport(report: Report): boolean {
     if (report?.state === 'DRAFT') {
       return false;
@@ -468,7 +459,7 @@ export class ViewTeamReportPage {
 
     this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$, this.eou$]).pipe(
       map(([report, expenses, permissions, eou]) => {
-        if (!this.isAdminOrApprover(permissions, eou)) {
+        if (!permissions?.can_approve) {
           return false;
         }
 

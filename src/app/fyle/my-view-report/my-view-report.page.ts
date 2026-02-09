@@ -263,15 +263,6 @@ export class MyViewReportPage {
     );
   }
 
-  private isAdminOrApprover(permissions: ReportPermissions, eou: ExtendedOrgUser): boolean {
-    if (permissions?.can_approve) {
-      return true;
-    }
-
-    const roles = eou?.ou?.roles || [];
-    return roles.includes('ADMIN') || roles.includes('FINANCE');
-  }
-
   private isAutoSubmittedReport(report: Report): boolean {
     return report?.state !== ReportState.DRAFT && report?.creator_type === 'SYSTEM';
   }
@@ -476,9 +467,9 @@ export class MyViewReportPage {
     this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
     this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$, this.eou$]).pipe(
-      map(([report, expenses, permissions, eou]) => {
-        if (!this.isAdminOrApprover(permissions, eou)) {
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$]).pipe(
+      map(([report, expenses, permissions]) => {
+        if (!permissions?.can_approve) {
           return false;
         }
 
