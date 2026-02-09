@@ -44,7 +44,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expe
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { Report, ReportState as ReportStateEnum } from 'src/app/core/models/platform/v1/report.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
@@ -410,7 +410,7 @@ export class ViewTeamReportPage {
   }
 
   private isAutoSubmittedReport(report: Report): boolean {
-    if (report?.state === 'DRAFT') {
+    if (report?.state === ReportStateEnum.DRAFT) {
       return false;
     }
 
@@ -457,17 +457,9 @@ export class ViewTeamReportPage {
     this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
     this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$, this.eou$]).pipe(
-      map(([report, expenses, permissions, eou]) => {
-        if (!permissions?.can_approve) {
-          return false;
-        }
-
-        if (!this.isAutoSubmittedReport(report)) {
-          return false;
-        }
-
-        if (!expenses?.length) {
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$]).pipe(
+      map(([report, expenses, permissions]) => {
+        if (!permissions?.can_approve || !this.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 

@@ -469,11 +469,7 @@ export class MyViewReportPage {
 
     this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$]).pipe(
       map(([report, expenses, permissions]) => {
-        if (!permissions?.can_approve) {
-          return false;
-        }
-
-        if (!this.isAutoSubmittedReport(report) || !expenses?.length) {
+        if (!permissions?.can_approve || !this.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 
