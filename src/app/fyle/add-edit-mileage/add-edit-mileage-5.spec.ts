@@ -275,7 +275,6 @@ export function TestCases5(getTestBed) {
       projectsService.getProjectCount.and.returnValue(of(2));
       expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
       mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
-      mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
       mileageRatesService.filterEnabledMileageRates.and.returnValue(cloneDeep(mileageRateApiRes2));
       mileageRatesService.getReadableRate.and.returnValue('10');
       mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
@@ -377,11 +376,10 @@ export function TestCases5(getTestBed) {
           activatedRoute.snapshot.params.id,
         );
         expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
-        expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
+        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
-          expect(res).toEqual([]);
+          expect(res).toEqual(mileageRateApiRes2);
         });
 
         expect(component.getMileageRatesOptions).toHaveBeenCalledTimes(1);
@@ -478,11 +476,10 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
-        expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
+        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
-          expect(res).toEqual([]);
+          expect(res).toEqual(mileageRateApiRes2);
         });
 
         component.etxn$.subscribe((res) => {
@@ -547,7 +544,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -648,7 +644,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -680,7 +675,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -714,7 +708,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
@@ -747,7 +740,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
@@ -787,7 +779,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;

@@ -146,7 +146,6 @@ import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
-import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
@@ -936,8 +935,7 @@ export class AddEditMileagePage implements OnInit {
 
   getNewExpense(): Observable<Partial<UnflattenedTransaction>> {
     const defaultVehicle$ = forkJoin({
-      vehicleType: this.transactionService.getDefaultVehicleType(),
-      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
+      vehicleType: of(undefined as string),
       orgSettings: this.orgSettingsService.get(),
       employeeSettings: this.platformEmployeeSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
@@ -946,14 +944,12 @@ export class AddEditMileagePage implements OnInit {
       map(
         ({
           vehicleType,
-          employeeMileageSettings,
           orgSettings,
           employeeSettings,
           recentValue,
           mileageRates,
         }: {
           vehicleType: string;
-          employeeMileageSettings: MileageSettings;
           orgSettings: OrgSettings;
           employeeSettings: EmployeeSettings;
           recentValue: RecentlyUsed;
@@ -971,20 +967,8 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = recentValue.vehicle_types[0];
             this.presetVehicleType = recentValue.vehicle_types[0];
           }
-
-          // if any employee assigned mileage rate is present
-          // -> the recently used mileage rate should be part of the allowed mileage rates.
-          const mileageRateLabels = employeeMileageSettings?.mileage_rate_labels;
-          if (mileageRateLabels?.length > 0 && !mileageRateLabels.some((label) => vehicleType === label)) {
-            vehicleType = mileageRateLabels[0];
-          }
-
-          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
-
-          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
-          // (when the org doesn't use employee restricted mileage rates)
           if (
-            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
+            !isRecentVehicleTypePresent &&
             mileageRates &&
             mileageRates.length > 0
           ) {
@@ -1723,7 +1707,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.setupNetworkWatcher();
 
-    this.recentlyUsedValues$ = this.getRecentlyUsedValues();
+    this.recentlyUsedValues$ = this.getRecentlyUsedValues().pipe(shareReplay(1));
 
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
@@ -1763,17 +1747,9 @@ export class AddEditMileagePage implements OnInit {
 
     this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
-    this.mileageRates$ = forkJoin({
-      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
-      allMileageRates: this.mileageRateService.getAllMileageRates(),
-      orgSettings: orgSettings$,
-    }).pipe(
-      map(({ employeeMileageSettings, allMileageRates, orgSettings }) => {
-        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        const mileageRateSettings = employeeMileageSettings?.mileage_rate_labels || [];
-        if (orgSettings.mileage?.enable_individual_mileage_rates && mileageRateSettings.length > 0) {
-          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
-        }
+    this.mileageRates$ = this.allMileageRates$.pipe(
+      map((mileageRates) => {
+        const enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(mileageRates);
         return enabledMileageRates;
       }),
     );
