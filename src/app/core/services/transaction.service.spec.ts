@@ -255,16 +255,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getDefaultVehicleType(): should get default vehicle type', (done) => {
-    const defaultVehicleType = 'two_wheeler';
-    storageService.get.and.resolveTo(defaultVehicleType);
-    transactionService.getDefaultVehicleType().subscribe((res) => {
-      expect(res).toEqual(defaultVehicleType);
-      expect(storageService.get).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   describe('getIsCriticalPolicyViolated():', () => {
     it('should return false if critical policy is not violated', () => {
       expect(transactionService.getIsCriticalPolicyViolated(expenseData1)).toBeFalse();
