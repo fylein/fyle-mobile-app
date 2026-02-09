@@ -15,4 +15,5 @@ export interface Project {
   approver_user_ids?: string[];
   approver_users?: User[];
   category_ids?: number[];
+  default_billable?: boolean | null;
 }

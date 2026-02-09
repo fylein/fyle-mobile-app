@@ -412,6 +412,30 @@ export function TestCases6(getTestBed) {
         component.updateFormForExpenseFields(of(expenseFieldsMapResponse[0]));
         expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledTimes(1);
       });
+
+      it('should apply project default_billable when project is already selected before showBillable is resolved', () => {
+        component.etxn$ = of(unflattenedExpWithCCCExpn);
+        component.taxGroups$ = of(cloneDeep(taxGroupData));
+
+        const projectWithBillableDefault = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+
+        component.fg.controls.project.setValue(projectWithBillableDefault);
+        component.fg.controls.billable.setValue(false);
+        Object.defineProperty(component.fg.controls.billable, 'touched', {
+          get: () => false,
+        });
+
+        expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData3);
+        fixture.detectChanges();
+
+        component.updateFormForExpenseFields(of({ billable: { is_enabled: true } } as any));
+
+        expect(component.showBillable).toBeTrue();
+        expect(component.fg.controls.billable.value).toBeTrue();
+      });
     });
 
     describe('setupExpenseFields():', () => {

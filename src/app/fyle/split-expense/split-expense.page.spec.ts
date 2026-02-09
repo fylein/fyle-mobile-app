@@ -240,6 +240,11 @@ describe('SplitExpensePage', () => {
       langChanges$: of('en'),
       _loadDependencies: () => Promise.resolve(),
     });
+
+    popoverControllerSpy.create.and.resolveTo({
+      present: jasmine.createSpy().and.resolveTo(),
+      onWillDismiss: jasmine.createSpy().and.resolveTo({ data: null }),
+    } as any);
     TestBed.configureTestingModule({
       imports: [
         FormsModule,
@@ -586,22 +591,122 @@ describe('SplitExpensePage', () => {
   });
 
   describe('setUpSplitExpenseBillable():', () => {
-    it('should setup split expense to billable when the expense is split by project and the transaction fileds have the billable property present', () => {
-      component.txnFields = txnFieldData;
+    it('should return false when billable is disabled at org level', () => {
+      component.txnFields = {
+        ...txnFieldData,
+        billable: {
+          ...txnFieldData.billable,
+          is_enabled: false,
+        },
+      };
+      component.transaction = splitTxns[0]; // billable: true
       const result = component.setUpSplitExpenseBillable(splitExpense1);
       expect(result).toBeFalse();
     });
 
-    it('should return false when the transaction in not billable and the expense is split by category', () => {
-      component.transaction = txnList[0];
+    it('should return project default_billable when project exists and billable is enabled', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...splitTxns[0], billable: null };
+      const splitExpenseWithBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: true,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithBillableProject);
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when project has default_billable as false', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...splitTxns[0], billable: null };
+      const splitExpenseWithNonBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: false,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithNonBillableProject);
+      expect(result).toBeFalse();
+    });
+
+    it('should return transaction billable when project default_billable is false but transaction billable is true', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...splitTxns[0], billable: true };
+      const splitExpenseWithNonBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: false,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithNonBillableProject);
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when transaction billable is false even if project default_billable is true', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...splitTxns[0], billable: false };
+      const splitExpenseWithBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: true,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithBillableProject);
+      expect(result).toBeFalse();
+    });
+
+    it('should return transaction billable when project has default_billable as null', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = splitTxns[0]; // billable: true
+      const splitExpenseWithNullBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: null,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithNullBillableProject);
+      expect(result).toBeTrue();
+    });
+
+    it('should return false when both transaction billable and project default_billable are null', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...splitTxns[0], billable: null };
+      const splitExpenseWithNullBillableProject = {
+        ...splitExpense1,
+        project: {
+          ...splitExpense1.project,
+          default_billable: null,
+        },
+      };
+      const result = component.setUpSplitExpenseBillable(splitExpenseWithNullBillableProject);
+      expect(result).toBeFalse();
+    });
+
+    it('should return false when no project and billable is enabled', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = txnList[0]; // billable: false
       const result = component.setUpSplitExpenseBillable(splitExpense2);
       expect(result).toBeFalse();
     });
 
-    it('should return true whan the transaction is billable and the expense is split by category', () => {
-      component.transaction = splitTxns[0];
+    it('should return false when transaction is not billable and no project', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = txnList[0]; // billable: false
       const result = component.setUpSplitExpenseBillable(splitExpense2);
-      expect(result).toBeTrue();
+      expect(result).toBeFalse();
+    });
+
+    it('should return false when transaction billable is null and no project', () => {
+      component.txnFields = txnFieldData;
+      component.transaction = { ...txnList[0], billable: null };
+      const result = component.setUpSplitExpenseBillable(splitExpense2);
+      expect(result).toBeFalse();
     });
   });
 

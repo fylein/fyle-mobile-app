@@ -378,7 +378,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   isProjectVisible$: Observable<boolean>;
 
-  billableDefaultValue: boolean;
+  expenseLevelBillable: boolean | null = null;
 
   showBillable = false;
 
@@ -599,6 +599,25 @@ export class AddEditPerDiemPage implements OnInit {
       map((expenseFieldsMap) => {
         if (expenseFieldsMap) {
           this.showBillable = expenseFieldsMap.billable?.is_enabled;
+
+          const project = this.fg.controls.project.value as ProjectV2 | null;
+          const projectControl = this.fg.controls.project;
+          const billableControl = this.fg.controls.billable;
+
+          if (!billableControl.dirty) {
+            if (this.showBillable && project) {
+              if (projectControl.dirty) {
+                billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+              } else {
+                billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+                  emitEvent: false,
+                });
+              }
+            } else {
+              billableControl.patchValue(false, { emitEvent: false });
+            }
+          }
+
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -623,7 +642,7 @@ export class AddEditPerDiemPage implements OnInit {
           perDiemCategoriesContainer: this.getPerDiemCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, perDiemCategoriesContainer }) => {
-            const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days', 'billable'];
+            const fields = ['purpose', 'cost_center_id', 'from_dt', 'to_dt', 'num_days'];
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
@@ -636,28 +655,19 @@ export class AddEditPerDiemPage implements OnInit {
     );
 
     tfcValues$.subscribe((defaultValues) => {
-      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
         from_dt: this.fg.controls.from_dt,
         to_dt: this.fg.controls.to_dt,
         num_days: this.fg.controls.num_days,
-        billable: this.fg.controls.billable,
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+          if (control && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (
-            defaultValueColumn === 'billable' &&
-            this.fg.controls.project.value &&
-            (control.value === undefined || control.value === null) &&
-            !control.touched
-          ) {
-            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -776,16 +786,35 @@ export class AddEditPerDiemPage implements OnInit {
 
   setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
-      tap(() => {
-        if (!this.fg.controls.project.value) {
-          this.fg.patchValue({ billable: false });
+      startWith(this.fg.controls.project.value),
+      tap((project: ProjectV2 | null) => {
+        const projectControl = this.fg.controls.project;
+        const billableControl = this.fg.controls.billable;
+
+        if (!project) {
+          if (projectControl.dirty) {
+            billableControl.patchValue(false, { emitEvent: false });
+          }
+          return;
+        }
+
+        if (this.showBillable) {
+          if (projectControl.dirty) {
+            billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+          } else {
+            billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+              emitEvent: false,
+            });
+          }
         } else {
-          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
+          billableControl.patchValue(false, { emitEvent: false });
         }
       }),
-      startWith(this.fg.controls.project.value),
-      concatMap((project: ProjectV2) =>
-        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+      switchMap((project: ProjectV2 | null) => {
+        if (!project) {
+          return this.subCategories$.pipe(take(1));
+        }
+        return combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
           map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
             this.projectsService.getAllowedOrgCategoryIds(
               project,
@@ -793,8 +822,8 @@ export class AddEditPerDiemPage implements OnInit {
               isProjectCategoryRestrictionsEnabled,
             ),
           ),
-        ),
-      ),
+        );
+      }),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category }))),
     );
 
@@ -1227,6 +1256,11 @@ export class AddEditPerDiemPage implements OnInit {
             const control = keyToControlMap[txnFieldKey];
             const expenseField = txnFields[txnFieldKey] as ExpenseField;
 
+            // Skip fields that are not in keyToControlMap to prevent errors
+            if (!control) {
+              continue;
+            }
+
             if (expenseField.is_mandatory) {
               if (txnFieldKey === 'num_days') {
                 control.setValidators([Validators.required, Validators.min(0), Validators.pattern(/^\d+$/)]);
@@ -1548,6 +1582,8 @@ export class AddEditPerDiemPage implements OnInit {
           recentProjects,
           recentCostCenters,
         }) => {
+          this.expenseLevelBillable = etxn?.tx?.billable ?? null;
+
           if (project) {
             this.selectedProject$.next(project);
           }
@@ -1643,7 +1679,7 @@ export class AddEditPerDiemPage implements OnInit {
             }
           }
 
-          this.fg.patchValue({
+          const formPatch: Record<string, unknown> & { billable?: boolean | null } = {
             paymentMode: paymentMode || defaultPaymentMode,
             sub_category: subCategory,
             per_diem_rate: perDiemRate,
@@ -1652,9 +1688,14 @@ export class AddEditPerDiemPage implements OnInit {
             report,
             from_dt: etxn.tx.from_dt ? dayjs(new Date(etxn.tx.from_dt)).format('YYYY-MM-DD') : null,
             to_dt: etxn.tx.to_dt ? dayjs(new Date(etxn.tx.to_dt)).format('YYYY-MM-DD') : null,
-            billable: etxn.tx.billable,
             costCenter,
-          });
+          };
+
+          if (etxn.tx.id) {
+            formPatch.billable = etxn.tx.billable;
+          }
+
+          this.fg.patchValue(formPatch);
 
           this.fg.patchValue({ project }, { emitEvent: false });
 
