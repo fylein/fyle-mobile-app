@@ -261,10 +261,6 @@ export class MyViewReportPage {
     );
   }
 
-  private isAutoSubmittedReport(report: Report): boolean {
-    return report?.state !== ReportState.DRAFT && report?.creator_type === 'SYSTEM';
-  }
-
   private checkAchSuspensionBeforeAdd(selectedExpenseIds: string[]): void {
     this.eou$
       .pipe(
@@ -461,7 +457,7 @@ export class MyViewReportPage {
 
     this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
       map(([report, expenses]) => {
-        if (!this.isAutoSubmittedReport(report) || !expenses?.length) {
+        if (!this.reportService.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 

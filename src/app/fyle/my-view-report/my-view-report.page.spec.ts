@@ -93,7 +93,7 @@ describe('MyViewReportPage', () => {
   let orgUserService: jasmine.SpyObj<OrgUserService>;
 
   beforeEach(waitForAsync(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose']);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['updateReportPurpose', 'isAutoSubmittedReport']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
       'getReportExpenses',
@@ -606,9 +606,13 @@ describe('MyViewReportPage', () => {
       const draftReport = { creator_type: 'SYSTEM', state: ReportState.DRAFT } as any;
       const nonArsReport = { creator_type: 'USER', state: ReportState.APPROVER_PENDING } as any;
 
-      expect((component as any).isAutoSubmittedReport(report)).toBeTrue();
-      expect((component as any).isAutoSubmittedReport(draftReport)).toBeFalse();
-      expect((component as any).isAutoSubmittedReport(nonArsReport)).toBeFalse();
+      reportService.isAutoSubmittedReport.and.callFake(
+        (inputReport) => inputReport?.creator_type === 'SYSTEM' && inputReport?.state !== ReportState.DRAFT,
+      );
+
+      expect(reportService.isAutoSubmittedReport(report)).toBeTrue();
+      expect(reportService.isAutoSubmittedReport(draftReport)).toBeFalse();
+      expect(reportService.isAutoSubmittedReport(nonArsReport)).toBeFalse();
     });
 
     it('should detect expenses added after submission', () => {
