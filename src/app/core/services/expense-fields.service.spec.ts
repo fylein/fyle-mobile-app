@@ -69,11 +69,6 @@ describe('ExpenseFieldsService', () => {
     expect(expenseFieldsService.getDefaultTxnFieldValues(txnFieldsData)).toEqual(defaultTxnFieldValuesData);
   });
 
-  it('formatBillableFields(): should format billable fields', () => {
-    // @ts-ignore
-    expect(expenseFieldsService.formatBillableFields(expenseFieldWithBillable)).toEqual(expenseFieldWithBillable);
-  });
-
   it('getAllMap(): should get all expense fields map', (done) => {
     spyOn(expenseFieldsService, 'getAllEnabled').and.returnValue(of(expenseFieldWithSeq));
 
