@@ -409,12 +409,8 @@ export class ViewTeamReportPage {
     );
   }
 
-  private isAutoSubmittedReport(report: Report): boolean {
-    if (report?.state === ReportStateEnum.DRAFT) {
-      return false;
-    }
-
-    return report?.creator_type === 'SYSTEM';
+  private isArsReport(report: Report): boolean {
+    return report?.creator_type === 'SYSTEM' && report?.state !== ReportStateEnum.DRAFT;
   }
 
   ionViewWillEnter(): void {
@@ -457,9 +453,9 @@ export class ViewTeamReportPage {
     this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
     this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$]).pipe(
-      map(([report, expenses, permissions]) => {
-        if (!permissions?.can_approve || !this.isAutoSubmittedReport(report) || !expenses?.length) {
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
+      map(([report, expenses]) => {
+        if (!this.isArsReport(report) || !expenses?.length) {
           return false;
         }
 

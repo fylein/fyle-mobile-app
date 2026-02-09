@@ -178,8 +178,6 @@ export class MyViewReportPage {
 
   showArsManualExpensesAlert$: Observable<boolean>;
 
-  permissions$: Observable<ReportPermissions>;
-
   canEdit$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
@@ -461,15 +459,9 @@ export class MyViewReportPage {
       shareReplay(1),
     );
 
-    this.permissions$ = this.spenderReportsService.permissions(this.reportId).pipe(shareReplay(1));
-
-    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
-    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
-    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
-
-    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$, this.permissions$]).pipe(
-      map(([report, expenses, permissions]) => {
-        if (!permissions?.can_approve || !this.isAutoSubmittedReport(report) || !expenses?.length) {
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
+      map(([report, expenses]) => {
+        if (!this.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 
@@ -483,6 +475,15 @@ export class MyViewReportPage {
       }),
       shareReplay(1),
     );
+
+    const permissions$: Observable<ReportPermissions> = this.spenderReportsService
+      .permissions(this.reportId)
+      .pipe(shareReplay(1));
+
+    this.canEdit$ = permissions$.pipe(map((permissions) => permissions.can_edit));
+
+    this.canDelete$ = permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
