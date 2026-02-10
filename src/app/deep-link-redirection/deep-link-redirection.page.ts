@@ -11,14 +11,11 @@ import { SpenderReportsService } from '../core/services/platform/v1/spender/repo
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
 import { IonContent } from '@ionic/angular/standalone';
 
-
 @Component({
   selector: 'app-deep-link-redirection',
   templateUrl: './deep-link-redirection.page.html',
   styleUrls: ['./deep-link-redirection.page.scss'],
-  imports: [
-    IonContent
-  ],
+  imports: [IonContent],
 })
 export class DeepLinkRedirectionPage {
   private activatedRoute = inject(ActivatedRoute);
@@ -124,7 +121,11 @@ export class DeepLinkRedirectionPage {
         } else if (res.ou.id !== currentEou.ou.id) {
           route = ['/', 'enterprise', 'view_team_advance'];
         }
-        this.router.navigate([...route, { id, push_notification_type: pushNotificationType }]);
+        const params: Record<string, string> = { id };
+        if (pushNotificationType) {
+          params.push_notification_type = pushNotificationType;
+        }
+        this.router.navigate([...route, params]);
       },
       () => {
         this.switchOrg();
@@ -144,7 +145,11 @@ export class DeepLinkRedirectionPage {
       this.expensesService.getExpenseById(txnId).subscribe((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         const route = this.deepLinkService.getExpenseRoute(etxn);
-        this.router.navigate([...route, { id: txnId, push_notification_type: pushNotificationType }]);
+        const params: Record<string, string> = { id: txnId };
+        if (pushNotificationType) {
+          params.push_notification_type = pushNotificationType;
+        }
+        this.router.navigate([...route, params]);
       });
     } else {
       const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
@@ -198,24 +203,24 @@ export class DeepLinkRedirectionPage {
     const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
     const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+    const reportId = this.activatedRoute.snapshot.params.id as string;
+
     spenderReport$.subscribe(
       (spenderReport) => {
         if (spenderReport) {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'my_view_report',
-            { id: this.activatedRoute.snapshot.params.id as string, push_notification_type: pushNotificationType },
-          ]);
+          const params: Record<string, string> = { id: reportId };
+          if (pushNotificationType) {
+            params.push_notification_type = pushNotificationType;
+          }
+          this.router.navigate(['/', 'enterprise', 'my_view_report', params]);
         } else {
           approverReport$.subscribe((approverReport) => {
             if (approverReport) {
-              this.router.navigate([
-                '/',
-                'enterprise',
-                'view_team_report',
-                { id: this.activatedRoute.snapshot.params.id as string, push_notification_type: pushNotificationType },
-              ]);
+              const params: Record<string, string> = { id: reportId };
+              if (pushNotificationType) {
+                params.push_notification_type = pushNotificationType;
+              }
+              this.router.navigate(['/', 'enterprise', 'view_team_report', params]);
             } else {
               this.switchOrg();
             }
