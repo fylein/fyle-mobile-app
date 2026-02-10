@@ -57,20 +57,24 @@ export class DeepLinkService {
       } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
         const reportId = redirectUri.split('/reports/').pop();
         const subModule = 'report';
-        const properties = {
+        const properties: Record<string, string> = {
           sub_module: subModule,
           id: reportId,
-          push_notification_type: notificationType,
         };
+        if (notificationType) {
+          properties.push_notification_type = notificationType;
+        }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
         const txnId = redirectUri.split('txnId=').pop();
         const subModule = 'expense';
-        const properties = {
+        const properties: Record<string, string> = {
           sub_module: subModule,
           id: txnId,
-          push_notification_type: notificationType,
         };
+        if (notificationType) {
+          properties.push_notification_type = notificationType;
+        }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (
         redirectUri.match('/advance_request/areq') &&
@@ -78,27 +82,28 @@ export class DeepLinkService {
       ) {
         const advReqId = redirectUri.split('/advance_request/').pop();
         const subModule = 'advReq';
-        const properties = {
+        const properties: Record<string, string> = {
           sub_module: subModule,
           id: advReqId,
-          push_notification_type: notificationType,
         };
+        if (notificationType) {
+          properties.push_notification_type = notificationType;
+        }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (redirectUri.match('/tx') && redirectUri.split('/').length > 2) {
         const urlArray = redirectUri.split('/');
         const txnId = urlArray[urlArray.length - 1];
         const orgId = urlArray[urlArray.length - 2];
         if (txnId && orgId && txnId.startsWith('tx') && orgId.startsWith('or')) {
-          this.router.navigate([
-            '/',
-            'deep_link_redirection',
-            {
-              sub_module: 'expense',
-              id: txnId,
-              orgId,
-              push_notification_type: notificationType,
-            },
-          ]);
+          const properties: Record<string, string> = {
+            sub_module: 'expense',
+            id: txnId,
+            orgId,
+          };
+          if (notificationType) {
+            properties.push_notification_type = notificationType;
+          }
+          this.router.navigate(['/', 'deep_link_redirection', properties]);
         } else {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         }
