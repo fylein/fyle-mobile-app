@@ -108,12 +108,6 @@ export class OrgUserService {
   }
 
   sendDeviceToken(token: string): Observable<unknown> {
-    const payload = {
-      data: {
-        tokens: [token],
-      },
-    };
-
     return this.getDeviceTokens().pipe(
       map((existingTokens) => {
         const tokens = existingTokens ?? [];
