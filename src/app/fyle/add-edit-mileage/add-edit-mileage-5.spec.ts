@@ -275,7 +275,6 @@ export function TestCases5(getTestBed) {
       projectsService.getProjectCount.and.returnValue(of(2));
       expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
       mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
-      mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
       mileageRatesService.filterEnabledMileageRates.and.returnValue(cloneDeep(mileageRateApiRes2));
       mileageRatesService.getReadableRate.and.returnValue('10');
       mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
@@ -377,11 +376,10 @@ export function TestCases5(getTestBed) {
           activatedRoute.snapshot.params.id,
         );
         expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
-        expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
+        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
-          expect(res).toEqual([]);
+          expect(res).toEqual(mileageRateApiRes2);
         });
 
         expect(component.getMileageRatesOptions).toHaveBeenCalledTimes(1);
@@ -478,11 +476,10 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
-        expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
+        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
-          expect(res).toEqual([]);
+          expect(res).toEqual(mileageRateApiRes2);
         });
 
         component.etxn$.subscribe((res) => {
@@ -547,7 +544,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -648,7 +644,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -680,7 +675,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
@@ -714,7 +708,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
@@ -747,7 +740,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
@@ -787,7 +779,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
         expenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
         const mockEtxn = cloneDeep(unflattenedTxnData);
         mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
@@ -1376,6 +1367,235 @@ export function TestCases5(getTestBed) {
           roundTrip: true,
         });
       });
+    });
+
+    describe('setupFilteredCategories():', () => {
+      beforeEach(() => {
+        component.mode = 'add';
+        component.isProjectCategoryRestrictionsEnabled$ = of(true);
+        component.subCategories$ = of(unsortedCategories1);
+        projectsService.getAllowedOrgCategoryIds.and.returnValue(unsortedCategories1);
+      });
+
+      it('should set billable to false when user clears the project', fakeAsync(() => {
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not reset billable when project is null and user has not interacted with the project', fakeAsync(() => {
+        component.showBillable = true;
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        component.fg.controls.project.setValue(null);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to true when project with default_billable true is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project with default_billable false is selected', fakeAsync(() => {
+        component.showBillable = true;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when showBillable is false regardless of project default_billable', fakeAsync(() => {
+        component.showBillable = false;
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should use project default_billable when user changes project even if expenseLevelBillable is true', fakeAsync(() => {
+        component.showBillable = true;
+        component.expenseLevelBillable = true;
+        component.fg.controls.billable.setValue(true);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithNonBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: false,
+        };
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.project.setValue(projectWithNonBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not override saved expense billable with project default_billable in edit mode', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.expenseLevelBillable = false;
+        component.fg.controls.billable.setValue(false);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable from project default_billable in edit mode when billable is unset', fakeAsync(() => {
+        component.mode = 'edit';
+        component.showBillable = true;
+        component.fg.controls.billable.setValue(null);
+
+        component.setupFilteredCategories();
+        tick(500);
+
+        const projectWithBillable = {
+          ...expectedProjectsResponse[0],
+          default_billable: true,
+        };
+        component.fg.controls.project.setValue(projectWithBillable);
+        fixture.detectChanges();
+        tick(500);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+    });
+
+    describe('getTransactionFields(): billable defaulting', () => {
+      beforeEach(() => {
+        (expenseFieldsService.getAllMap as jasmine.Spy).and.returnValue(of({} as any));
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(of({} as any));
+        spyOn(component as any, 'getMileageCategories').and.returnValue(
+          of({ defaultMileageCategory: unsortedCategories1[0] } as any),
+        );
+      });
+
+      it('should set billable to false when billable is disabled at org level', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: false } } as any),
+        );
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: true });
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should use project default_billable when user changes project (project control is dirty)', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = true;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: false });
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should not override billable when user has interacted with billable control (billable control is dirty)', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = false;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: false });
+        component.fg.controls.billable.setValue(true);
+        component.fg.controls.billable.markAsDirty();
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeTrue();
+      }));
+
+      it('should set billable to false when project default_billable is null and user changes project', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = true;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: null });
+        component.fg.controls.project.markAsDirty();
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
+
+      it('should set billable to false when expenseLevelBillable and project default_billable are null', fakeAsync(() => {
+        // Using 'as any' to pass partial ExpenseField for testing
+        (expenseFieldsService.filterByOrgCategoryId as jasmine.Spy).and.returnValue(
+          of({ billable: { is_enabled: true } } as any),
+        );
+        component.expenseLevelBillable = null;
+        component.fg.controls.project.setValue({ ...expectedProjectsResponse[0], default_billable: null });
+        component.fg.controls.billable.setValue(true);
+
+        component.getTransactionFields().subscribe();
+        tick(1);
+
+        expect(component.fg.controls.billable.value).toBeFalse();
+      }));
     });
   });
 }

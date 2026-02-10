@@ -31,6 +31,7 @@ export interface Expense {
   is_exported: boolean;
   last_exported_at: Date;
   added_to_report_at: Date;
+  added_to_report_by?: 'SYSTEM' | 'USER' | null;
   admin_amount: number;
   approvals: ReportApprovals[];
   amount: number;

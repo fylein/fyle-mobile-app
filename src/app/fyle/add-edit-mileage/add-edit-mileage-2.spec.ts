@@ -15,7 +15,6 @@ import {
 import { BehaviorSubject, Subject, Subscription, of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { coordinatesData1, locationData1, predictedLocation1 } from 'src/app/core/mock-data/location.data';
-import { mileageLocationData1 } from 'src/app/core/mock-data/mileage-location.data';
 import {
   filterEnabledMileageRatesData,
   mileageRateApiRes1,
@@ -77,11 +76,6 @@ import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import {
-  accountsData,
-  multiplePaymentModesData,
-  paymentModeDataAdvanceWallet,
-} from 'src/app/core/test-data/accounts.service.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { setFormValid } from './add-edit-mileage.page.setup.spec';
@@ -381,8 +375,6 @@ export function TestCases2(getTestBed) {
       it('should get a new expense object', (done) => {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
-        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -401,8 +393,6 @@ export function TestCases2(getTestBed) {
 
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData1);
-          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
           expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
@@ -416,8 +406,6 @@ export function TestCases2(getTestBed) {
       it('should get a new expense with autofill enabled and populating the location fields', (done) => {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
-        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(employeeSettingsData.mileage_settings));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithExpenseFormAutofill));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
@@ -438,13 +426,11 @@ export function TestCases2(getTestBed) {
 
         component.getNewExpense().subscribe((res) => {
           expect(res).toEqual(newExpenseMileageData2);
-          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
           expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
-          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'two_wheeler');
           expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
           expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
             'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
@@ -462,8 +448,6 @@ export function TestCases2(getTestBed) {
       it('should get a new expense object if org user mileage service settings returns undefined', (done) => {
         const date = new Date('2023-08-21T07:43:15.592Z');
         jasmine.clock().mockDate(date);
-        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
-        mileageService.getEmployeeMileageSettings.and.returnValue(of(undefined));
         orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
         platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -484,8 +468,6 @@ export function TestCases2(getTestBed) {
 
         newExpense.subscribe((expectedNewExpense) => {
           expect(expectedNewExpense).toEqual(newExpenseMileageData1);
-          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
-          expect(mileageService.getEmployeeMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
           expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);

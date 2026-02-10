@@ -252,15 +252,12 @@ export class MyViewReportPage {
     return ReportPageSegment;
   }
 
-  private isArsReport(report: Report): boolean {
-    const reportSource = report?.source?.toUpperCase?.() || '';
-    const arsSources = ['WORKFLOWS', 'AUTO_REPORT', 'AUTO_SUBMISSION', 'AUTOMATED'];
-    return arsSources.includes(reportSource) && report?.state !== ReportState.DRAFT;
-  }
-
   private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
     return expenses.some(
-      (expense) => expense.added_to_report_at && new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+      (expense) =>
+        expense.added_to_report_by === 'USER' &&
+        expense.added_to_report_at &&
+        new Date(expense.added_to_report_at).getTime() > submittedAtTime,
     );
   }
 
@@ -460,7 +457,7 @@ export class MyViewReportPage {
 
     this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
       map(([report, expenses]) => {
-        if (!this.isArsReport(report) || !expenses?.length) {
+        if (!this.reportService.isAutoSubmittedReport(report) || !expenses?.length) {
           return false;
         }
 
