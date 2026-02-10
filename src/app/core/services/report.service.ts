@@ -4,7 +4,7 @@ import { Observable, Subject, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { OrgSettings } from '../models/org-settings.model';
-import { Report } from '../models/platform/v1/report.model';
+import { Report, ReportState } from '../models/platform/v1/report.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportPermission } from '../models/report-permission.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
@@ -117,5 +117,9 @@ export class ReportService {
       },
     };
     return this.approverPlatformApiService.post('/reports', params);
+  }
+
+  isAutoSubmittedReport(report: Report): boolean {
+    return report?.creator_type === 'SYSTEM' && report?.state !== ReportState.DRAFT;
   }
 }

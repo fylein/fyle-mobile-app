@@ -13,7 +13,11 @@
             }
             @if (showAutoSubmissionInfo()) {
               <li>
-                {{ 'autoSubmissionInfoCard.autoSubmittedOn' | transloco: { date: (autoSubmissionReportDate | date) } }}
+                <span
+                  [innerHTML]="
+                    'autoSubmissionInfoCard.autoSubmittedOn' | transloco: { date: (autoSubmissionReportDate | date) }
+                  "
+                ></span>
               </li>
             }
             @if (showAutoApprovalInfo()) {

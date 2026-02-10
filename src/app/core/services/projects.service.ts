@@ -177,6 +177,7 @@ export class ProjectsService {
       project_updated_at: new Date(platformProject.updated_at),
       projectv2_name: platformProject.name,
       sub_project_name: platformProject.sub_project,
+      default_billable: platformProject.default_billable,
     }));
     return projectV2;
   }

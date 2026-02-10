@@ -113,7 +113,6 @@ describe('AddEditMileagePage', () => {
       'upsert',
       'review',
       'matchCCCExpense',
-      'getDefaultVehicleType',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'post', 'deleteExpenses']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
@@ -219,7 +218,6 @@ describe('AddEditMileagePage', () => {
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
     const mileageServiceSpy = jasmine.createSpyObj('MileageService', [
       'getDistance',
-      'getEmployeeMileageSettings',
       'isCommuteDeductionEnabled',
       'getCommuteDeductionOptions',
     ]);

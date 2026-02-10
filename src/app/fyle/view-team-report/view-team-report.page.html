@@ -193,11 +193,20 @@
             }
           </div>
         }
+        @if (showArsManualExpensesAlert$ | async) {
+          <div class="view-reports--ars-alert" (click)="onArsAlertClick($event)">
+            <app-fy-alert-info
+              type="information"
+              [allowHtml]="true"
+              [message]="'viewteamReport.arsManualExpensesAlertMessage' | transloco"
+            ></app-fy-alert-info>
+          </div>
+        }
         <div class="view-reports--segment-block-container">
           <ion-segment
             class="segment-block view-reports--segment-block-container__segment"
             (ionChange)="segmentChanged($event)"
-            value="expenses"
+            [value]="segmentValue"
           >
             <ion-segment-button value="expenses" class="view-reports--segment-block-container__btn text-capitalize">
               Expenses
