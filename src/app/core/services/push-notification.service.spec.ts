@@ -1,4 +1,3 @@
-import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 import { of } from 'rxjs';
@@ -18,7 +17,6 @@ describe('PushNotificationService', () => {
   let logoutCallback: () => void;
   let storageService: jasmine.SpyObj<StorageService>;
   let unregisterSpy: jasmine.Spy;
-  let ngZone: jasmine.SpyObj<NgZone>;
 
   beforeEach(() => {
     deepLinkService = jasmine.createSpyObj('DeepLinkService', ['getJsonFromUrl', 'redirect']);
@@ -26,9 +24,6 @@ describe('PushNotificationService', () => {
     orgUserService = jasmine.createSpyObj('OrgUserService', ['sendDeviceToken']);
     userEventService = jasmine.createSpyObj('UserEventService', ['onLogout']);
     storageService = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    ngZone = jasmine.createSpyObj('NgZone', ['run']);
-    // Make NgZone.run execute the callback synchronously
-    ngZone.run.and.callFake((fn: () => any) => fn());
 
     userEventService.onLogout.and.callFake((cb: () => void) => {
       logoutCallback = cb;
@@ -55,7 +50,6 @@ describe('PushNotificationService', () => {
         { provide: OrgUserService, useValue: orgUserService },
         { provide: UserEventService, useValue: userEventService },
         { provide: StorageService, useValue: storageService },
-        { provide: NgZone, useValue: ngZone },
       ],
     });
 
@@ -122,6 +116,7 @@ describe('PushNotificationService', () => {
       const permission = { receive: 'granted' } as any;
       const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
       const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
+      spyOn(PushNotifications, 'addListener').and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
       const initListenersSpy = spyOn<any>(service as any, 'initListeners').and.callThrough();
 
       const result = await service.checkPermissions();
@@ -185,7 +180,7 @@ describe('PushNotificationService', () => {
       notification: {
         data: {
           cta_url: 'https://staging.fyle.tech/app/main#/enterprise/my_dashboard',
-          notification_type: 'test_action',
+          push_notification_type: 'test_action',
         },
       },
     };
@@ -198,7 +193,7 @@ describe('PushNotificationService', () => {
     expect(deepLinkService.getJsonFromUrl).toHaveBeenCalledWith(
       'https://staging.fyle.tech/app/main#/enterprise/my_dashboard',
     );
-    expect(deepLinkService.redirect).toHaveBeenCalledWith(redirectParams);
+    expect(deepLinkService.redirect).toHaveBeenCalledWith(redirectParams, 'test_action');
   });
 
   it('should not redirect when notification click event has no url', () => {
@@ -216,7 +211,7 @@ describe('PushNotificationService', () => {
     const event = {
       notification: {
         data: {
-          notification_type: 'test_action',
+          push_notification_type: 'test_action',
         },
       },
     };
