@@ -139,8 +139,6 @@ export class ExpenseFieldsService {
       map((expenseFields) => {
         const expenseFieldMap: Partial<ExpenseFieldsMap> = {};
 
-        expenseFields = this.formatBillableFields(expenseFields);
-
         expenseFields.forEach((expenseField) => {
           let expenseFieldsList = [];
 
@@ -228,15 +226,5 @@ export class ExpenseFieldsService {
     }
 
     return defaultValues;
-  }
-
-  private formatBillableFields(expenseFields: ExpenseField[]): ExpenseField[] {
-    const expenseFieldsCopy = cloneDeep(expenseFields);
-    return expenseFieldsCopy.map((field) => {
-      if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
-        field.default_value = field.default_value === 'true' || field.default_value === true;
-      }
-      return field;
-    });
   }
 }

@@ -19,4 +19,5 @@ export interface ProjectV2 {
   org_category_ids?: number[];
   name?: string;
   id?: number;
+  default_billable?: boolean | null;
 }

@@ -146,7 +146,6 @@ import { LocationInfo } from 'src/app/core/models/location-info.model';
 import { ExpenseCommentService } from 'src/app/core/services/platform/v1/spender/expense-comment.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
-import { MileageSettings } from 'src/app/core/models/mileage-settings.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { NgClass, AsyncPipe, SlicePipe, CurrencyPipe } from '@angular/common';
 import { FyPolicyViolationInfoComponent } from '../../shared/components/fy-policy-violation-info/fy-policy-violation-info.component';
@@ -438,7 +437,7 @@ export class AddEditMileagePage implements OnInit {
 
   formInitializedFlag = false;
 
-  billableDefaultValue: boolean;
+  expenseLevelBillable: boolean | null = null;
 
   isRedirectedFromReport = false;
 
@@ -606,16 +605,35 @@ export class AddEditMileagePage implements OnInit {
 
   setupFilteredCategories(): void {
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
-      tap(() => {
-        if (!this.fg.controls.project.value) {
-          this.fg.patchValue({ billable: false });
+      startWith(this.fg.controls.project.value),
+      tap((project: ProjectV2 | null) => {
+        const projectControl = this.fg.controls.project;
+        const billableControl = this.fg.controls.billable;
+
+        if (!project) {
+          if (projectControl.dirty) {
+            billableControl.patchValue(false, { emitEvent: false });
+          }
+          return;
+        }
+
+        if (this.showBillable) {
+          if (projectControl.dirty) {
+            billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+          } else {
+            billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+              emitEvent: false,
+            });
+          }
         } else {
-          this.fg.patchValue({ billable: this.showBillable ? this.billableDefaultValue : false });
+          billableControl.patchValue(false, { emitEvent: false });
         }
       }),
-      startWith(this.fg.controls.project.value),
-      concatMap((project: ProjectV2) =>
-        combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
+      switchMap((project: ProjectV2 | null) => {
+        if (!project) {
+          return this.subCategories$.pipe(take(1));
+        }
+        return combineLatest([this.subCategories$, this.isProjectCategoryRestrictionsEnabled$]).pipe(
           map(([allActiveSubCategories, isProjectCategoryRestrictionsEnabled]) =>
             this.projectsService.getAllowedOrgCategoryIds(
               project,
@@ -623,8 +641,8 @@ export class AddEditMileagePage implements OnInit {
               isProjectCategoryRestrictionsEnabled,
             ),
           ),
-        ),
-      ),
+        );
+      }),
       map((categories) =>
         categories.map((category: PlatformCategory) => ({ label: category.sub_category, value: category })),
       ),
@@ -710,6 +728,25 @@ export class AddEditMileagePage implements OnInit {
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
           this.showBillable = expenseFieldsMap.billable?.is_enabled;
+
+          const project = this.fg.controls.project.value as ProjectV2 | null;
+          const projectControl = this.fg.controls.project;
+          const billableControl = this.fg.controls.billable;
+
+          if (!billableControl.dirty) {
+            if (this.showBillable && project) {
+              if (projectControl.dirty) {
+                billableControl.patchValue(project.default_billable ?? false, { emitEvent: false });
+              } else {
+                billableControl.patchValue(this.expenseLevelBillable ?? project.default_billable ?? false, {
+                  emitEvent: false,
+                });
+              }
+            } else {
+              billableControl.patchValue(false, { emitEvent: false });
+            }
+          }
+
           for (const tfc of Object.keys(expenseFieldsMap)) {
             const expenseField = expenseFieldsMap[tfc] as ExpenseField;
             const options = expenseField.options as string[];
@@ -739,7 +776,7 @@ export class AddEditMileagePage implements OnInit {
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
             // skipped distance unit, location 1 and location 2 - confirm this these are not used at all
-            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'];
+            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance'];
 
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
@@ -753,26 +790,17 @@ export class AddEditMileagePage implements OnInit {
     );
 
     tfcValues$.subscribe((defaultValues) => {
-      this.billableDefaultValue = defaultValues.billable;
       const keyToControlMap: { [id: string]: AbstractControl } = {
         purpose: this.fg.controls.purpose,
         cost_center_id: this.fg.controls.costCenter,
         txn_dt: this.fg.controls.dateOfSpend,
-        billable: this.fg.controls.billable,
       };
 
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+          if (control && !control.value && !control.touched) {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (
-            !control.touched &&
-            this.fg.controls.project.value &&
-            defaultValueColumn === 'billable' &&
-            (control.value === null || control.value === undefined)
-          ) {
-            control.patchValue(this.showBillable ? defaultValues[defaultValueColumn] : false);
           }
         }
       }
@@ -907,8 +935,7 @@ export class AddEditMileagePage implements OnInit {
 
   getNewExpense(): Observable<Partial<UnflattenedTransaction>> {
     const defaultVehicle$ = forkJoin({
-      vehicleType: this.transactionService.getDefaultVehicleType(),
-      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
+      vehicleType: of(undefined as string),
       orgSettings: this.orgSettingsService.get(),
       employeeSettings: this.platformEmployeeSettingsService.get(),
       recentValue: this.recentlyUsedValues$,
@@ -917,14 +944,12 @@ export class AddEditMileagePage implements OnInit {
       map(
         ({
           vehicleType,
-          employeeMileageSettings,
           orgSettings,
           employeeSettings,
           recentValue,
           mileageRates,
         }: {
           vehicleType: string;
-          employeeMileageSettings: MileageSettings;
           orgSettings: OrgSettings;
           employeeSettings: EmployeeSettings;
           recentValue: RecentlyUsed;
@@ -942,20 +967,8 @@ export class AddEditMileagePage implements OnInit {
             vehicleType = recentValue.vehicle_types[0];
             this.presetVehicleType = recentValue.vehicle_types[0];
           }
-
-          // if any employee assigned mileage rate is present
-          // -> the recently used mileage rate should be part of the allowed mileage rates.
-          const mileageRateLabels = employeeMileageSettings?.mileage_rate_labels;
-          if (mileageRateLabels?.length > 0 && !mileageRateLabels.some((label) => vehicleType === label)) {
-            vehicleType = mileageRateLabels[0];
-          }
-
-          const finalMileageRateNames = mileageRates.map((rate) => rate.vehicle_type);
-
-          // if mileage_vehicle_type is not set or if the set mileage rate is not enabled; set the 1st from mileageRates
-          // (when the org doesn't use employee restricted mileage rates)
           if (
-            (!vehicleType || !finalMileageRateNames.includes(vehicleType)) &&
+            !isRecentVehicleTypePresent &&
             mileageRates &&
             mileageRates.length > 0
           ) {
@@ -1694,7 +1707,7 @@ export class AddEditMileagePage implements OnInit {
 
     this.setupNetworkWatcher();
 
-    this.recentlyUsedValues$ = this.getRecentlyUsedValues();
+    this.recentlyUsedValues$ = this.getRecentlyUsedValues().pipe(shareReplay(1));
 
     this.recentlyUsedMileageLocations$ = this.recentlyUsedValues$.pipe(
       map((recentlyUsedValues) => ({
@@ -1734,17 +1747,9 @@ export class AddEditMileagePage implements OnInit {
 
     this.allMileageRates$ = this.mileageRateService.getAllMileageRates();
 
-    this.mileageRates$ = forkJoin({
-      employeeMileageSettings: this.mileageService.getEmployeeMileageSettings(),
-      allMileageRates: this.mileageRateService.getAllMileageRates(),
-      orgSettings: orgSettings$,
-    }).pipe(
-      map(({ employeeMileageSettings, allMileageRates, orgSettings }) => {
-        let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
-        const mileageRateSettings = employeeMileageSettings?.mileage_rate_labels || [];
-        if (orgSettings.mileage?.enable_individual_mileage_rates && mileageRateSettings.length > 0) {
-          enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
-        }
+    this.mileageRates$ = this.allMileageRates$.pipe(
+      map((mileageRates) => {
+        const enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(mileageRates);
         return enabledMileageRates;
       }),
     );
@@ -1942,6 +1947,8 @@ export class AddEditMileagePage implements OnInit {
           recentCostCenters,
           commuteDeductionDetails,
         }) => {
+          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+
           if (project) {
             this.selectedProject$.next(project);
           }
@@ -2092,7 +2099,7 @@ export class AddEditMileagePage implements OnInit {
               etxn.tx.distance_unit,
             );
           }
-          this.fg.patchValue({
+          const formPatch: Record<string, unknown> & { billable?: boolean | null } = {
             mileage_rate_name,
             dateOfSpend: etxn.tx.spent_at && dayjs(etxn.tx.spent_at).format('YYYY-MM-DD'),
             paymentMode: paymentMode || defaultPaymentMode,
@@ -2102,11 +2109,16 @@ export class AddEditMileagePage implements OnInit {
               distance: etxn.tx.distance,
               roundTrip: etxn.tx.mileage_is_round_trip,
             },
-            billable: etxn.tx.billable,
             sub_category: subCategory,
             costCenter,
             report,
-          });
+          };
+
+          if (etxn.tx.id) {
+            formPatch.billable = etxn.tx.billable;
+          }
+
+          this.fg.patchValue(formPatch);
 
           this.fg.patchValue({ project }, { emitEvent: false });
 

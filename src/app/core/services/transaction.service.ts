@@ -3,7 +3,7 @@ import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { from, Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of } from 'rxjs';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -284,10 +284,6 @@ export class TransactionService {
     };
 
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
-  }
-
-  getDefaultVehicleType(): Observable<string> {
-    return from(this.storageService.get<string>('vehicle_preference'));
   }
 
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {

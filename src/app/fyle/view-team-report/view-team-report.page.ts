@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
-import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
+import { Observable, from, Subject, concat, forkJoin, BehaviorSubject, combineLatest } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -63,11 +63,13 @@ import { ExpensesCardComponent } from '../../shared/components/expenses-card-v2/
 import { MatIcon } from '@angular/material/icon';
 import { FyZeroStateComponent } from '../../shared/components/fy-zero-state/fy-zero-state.component';
 import { AuditHistoryComponent } from '../../shared/components/comments-history/audit-history/audit-history.component';
+import { FyAlertInfoComponent } from '../../shared/components/fy-alert-info/fy-alert-info.component';
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { FormsModule } from '@angular/forms';
 import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ReportState } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-view-team-report',
@@ -98,6 +100,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     MatIcon,
     FyZeroStateComponent,
     AuditHistoryComponent,
+    FyAlertInfoComponent,
     FormButtonValidationDirective,
     FormsModule,
     AsyncPipe,
@@ -109,6 +112,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
     ReportState,
     SnakeCaseToSpaceCase,
     DateWithTimezonePipe,
+    TranslocoPipe,
   ],
 })
 export class ViewTeamReportPage {
@@ -162,6 +166,8 @@ export class ViewTeamReportPage {
 
   expenses$: Observable<Expense[]>;
 
+  showArsManualExpensesAlert$: Observable<boolean>;
+
   refreshApprovals$ = new Subject();
 
   permissions$: Observable<ReportPermissions>;
@@ -191,6 +197,8 @@ export class ViewTeamReportPage {
   isHistoryView = false;
 
   isExpensesView = true;
+
+  segmentValue = 'expenses';
 
   estatuses: ExtendedComment[];
 
@@ -392,6 +400,15 @@ export class ViewTeamReportPage {
     this.approverToShow = filteredApprover.length === 1 ? filteredApprover[0] : highestRankApprover;
   }
 
+  private hasExpenseAddedAfterSubmission(expenses: Expense[], submittedAtTime: number): boolean {
+    return expenses.some(
+      (expense) =>
+        expense.added_to_report_by === 'USER' &&
+        expense.added_to_report_at &&
+        new Date(expense.added_to_report_at).getTime() > submittedAtTime,
+    );
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
 
@@ -424,10 +441,6 @@ export class ViewTeamReportPage {
       .getReportExpenses(this.activatedRoute.snapshot.params.id as string)
       .pipe(shareReplay(1));
 
-    this.expensesAmountSum$ = this.expenses$.pipe(
-      map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0)),
-    );
-
     this.permissions$ = this.approverReportsService
       .permissions(this.activatedRoute.snapshot.params.id as string)
       .pipe(shareReplay(1));
@@ -435,6 +448,27 @@ export class ViewTeamReportPage {
     this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
     this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
     this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
+
+    this.showArsManualExpensesAlert$ = combineLatest([this.report$, this.expenses$]).pipe(
+      map(([report, expenses]) => {
+        if (!this.reportService.isAutoSubmittedReport(report) || !expenses?.length) {
+          return false;
+        }
+
+        const submittedAt = report.last_resubmitted_at || report.last_submitted_at;
+        if (!submittedAt) {
+          return false;
+        }
+
+        const submittedAtTime = new Date(submittedAt).getTime();
+        return this.hasExpenseAddedAfterSubmission(expenses, submittedAtTime);
+      }),
+      shareReplay(1),
+    );
+
+    this.expensesAmountSum$ = this.expenses$.pipe(
+      map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0)),
+    );
 
     forkJoin({
       expenses: this.expenses$,
@@ -624,6 +658,7 @@ export class ViewTeamReportPage {
 
   segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
+      this.segmentValue = event.detail.value;
       if (event.detail.value === 'expenses') {
         this.isExpensesView = true;
         this.isCommentsView = false;
@@ -640,6 +675,20 @@ export class ViewTeamReportPage {
         this.isCommentsView = false;
         this.isExpensesView = false;
       }
+    }
+  }
+
+  openHistorySegment(): void {
+    this.segmentValue = 'history';
+    this.isHistoryView = true;
+    this.isCommentsView = false;
+    this.isExpensesView = false;
+  }
+
+  onArsAlertClick(event: MouseEvent): void {
+    const linkElement = (event.target as HTMLElement).closest('.view-reports--ars-alert-link');
+    if (linkElement) {
+      this.openHistorySegment();
     }
   }
 
