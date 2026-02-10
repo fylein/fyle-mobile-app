@@ -114,19 +114,18 @@ export class OrgUserService {
       },
     };
 
-    return this.spenderPlatformV1ApiService.post('/device_token', payload);
-    // return this.getDeviceTokens().pipe(
-    //   map((existingTokens) => {
-    //     const tokens = existingTokens ?? [];
-    //     tokens.push(token);
-    //     return tokens;
-    //   }),
-    //   switchMap((tokens) =>
-    //     this.spenderPlatformV1ApiService.post('/device_token', {
-    //       data: { tokens },
-    //     }),
-    //   ),
-    // );
+    return this.getDeviceTokens().pipe(
+      map((existingTokens) => {
+        const tokens = existingTokens ?? [];
+        tokens.push(token);
+        return tokens;
+      }),
+      switchMap((tokens) =>
+        this.spenderPlatformV1ApiService.post('/device_token', {
+          data: { tokens },
+        }),
+      ),
+    );
   }
 
   getUserById(userId: string): Observable<EouApiResponse> {
