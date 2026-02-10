@@ -1,3 +1,4 @@
+import { NgZone } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PushNotifications, Token } from '@capacitor/push-notifications';
 import { of } from 'rxjs';
@@ -17,6 +18,7 @@ describe('PushNotificationService', () => {
   let logoutCallback: () => void;
   let storageService: jasmine.SpyObj<StorageService>;
   let unregisterSpy: jasmine.Spy;
+  let ngZone: jasmine.SpyObj<NgZone>;
 
   beforeEach(() => {
     deepLinkService = jasmine.createSpyObj('DeepLinkService', ['getJsonFromUrl', 'redirect']);
@@ -24,6 +26,9 @@ describe('PushNotificationService', () => {
     orgUserService = jasmine.createSpyObj('OrgUserService', ['sendDeviceToken']);
     userEventService = jasmine.createSpyObj('UserEventService', ['onLogout']);
     storageService = jasmine.createSpyObj('StorageService', ['get', 'set']);
+    ngZone = jasmine.createSpyObj('NgZone', ['run']);
+    // Make NgZone.run execute the callback synchronously
+    ngZone.run.and.callFake((fn: () => any) => fn());
 
     userEventService.onLogout.and.callFake((cb: () => void) => {
       logoutCallback = cb;
@@ -50,6 +55,7 @@ describe('PushNotificationService', () => {
         { provide: OrgUserService, useValue: orgUserService },
         { provide: UserEventService, useValue: userEventService },
         { provide: StorageService, useValue: storageService },
+        { provide: NgZone, useValue: ngZone },
       ],
     });
 
@@ -105,9 +111,9 @@ describe('PushNotificationService', () => {
     it('should delegate to PushNotifications.checkPermissions', async () => {
       const permission = { receive: 'denied' } as any;
       const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
-  
+
       const result = await service.checkPermissions();
-  
+
       expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
       expect(result).toBe(permission);
     });
@@ -117,16 +123,15 @@ describe('PushNotificationService', () => {
       const checkPermissionsSpy = spyOn(PushNotifications, 'checkPermissions').and.resolveTo(permission);
       const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
       const initListenersSpy = spyOn<any>(service as any, 'initListeners').and.callThrough();
-  
+
       const result = await service.checkPermissions();
-  
+
       expect(checkPermissionsSpy).toHaveBeenCalledTimes(1);
       expect(initListenersSpy).toHaveBeenCalledTimes(1);
       expect(registerSpy).toHaveBeenCalledTimes(1);
       expect(result).toBe(permission);
     });
   });
-
 
   it('register(): should delegate to PushNotifications.register', async () => {
     const registerSpy = spyOn(PushNotifications, 'register').and.resolveTo();
@@ -137,7 +142,6 @@ describe('PushNotificationService', () => {
   });
 
   it('unregister(): should delegate to PushNotifications.unregister', async () => {
-
     await service.unregister();
 
     expect(unregisterSpy).toHaveBeenCalledTimes(1);
@@ -219,10 +223,7 @@ describe('PushNotificationService', () => {
 
     clickCallback(event);
 
-    expect(trackingService.eventTrack).not.toHaveBeenCalledWith(
-      'Push Notification Clicked',
-      jasmine.anything(),
-    );
+    expect(trackingService.eventTrack).not.toHaveBeenCalledWith('Push Notification Clicked', jasmine.anything());
     expect(deepLinkService.getJsonFromUrl).not.toHaveBeenCalled();
     expect(deepLinkService.redirect).not.toHaveBeenCalled();
   });
@@ -235,5 +236,39 @@ describe('PushNotificationService', () => {
     await serviceUnregisterSpy.calls.mostRecent().returnValue;
     expect(serviceUnregisterSpy).toHaveBeenCalledTimes(1);
     expect(unregisterSpy).toHaveBeenCalledTimes(1);
+  });
+
+  describe('initializeNotificationClickListener()', () => {
+    it('should initialize notification click listener only once', () => {
+      spyOn(PushNotifications, 'addListener').and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
+
+      service.initializeNotificationClickListener();
+      service.initializeNotificationClickListener();
+
+      // addListener should only be called once for pushNotificationActionPerformed
+      expect(PushNotifications.addListener).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not duplicate listener when initListeners is called after initializeNotificationClickListener', () => {
+      spyOn(PushNotifications, 'addListener').and.resolveTo({ remove: jasmine.createSpy('remove') } as any);
+
+      // First, initialize the notification click listener early
+      service.initializeNotificationClickListener();
+
+      // Then call initListeners (which would normally be called when permissions are granted)
+      (service as any).initListeners();
+
+      // addListener should be called twice: once for pushNotificationActionPerformed (from initializeNotificationClickListener)
+      // and once for registration (from initListeners)
+      // But NOT twice for pushNotificationActionPerformed
+      const calls = (PushNotifications.addListener as jasmine.Spy).calls.allArgs();
+      const pushNotificationActionPerformedCalls = calls.filter(
+        (args) => args[0] === 'pushNotificationActionPerformed',
+      );
+      const registrationCalls = calls.filter((args) => args[0] === 'registration');
+
+      expect(pushNotificationActionPerformedCalls.length).toBe(1);
+      expect(registrationCalls.length).toBe(1);
+    });
   });
 });

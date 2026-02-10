@@ -157,7 +157,10 @@ describe('AppComponent', () => {
     const gmapsServiceSpy = jasmine.createSpyObj('GmapsService', ['loadLibrary']);
     const menuControllerSpy = jasmine.createSpyObj('MenuController', ['swipeGesture']);
     const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
-    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['unregister']);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
+      'unregister',
+      'initializeNotificationClickListener',
+    ]);
 
     // Configure tracking service with missing methods
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
@@ -708,5 +711,4 @@ describe('AppComponent', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
     });
   });
-
 });
