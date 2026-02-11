@@ -28,7 +28,7 @@
         </div>
         <button
           type="button"
-          class="notifications--push-alert__cta"
+          class="email-notifications--push-alert__cta"
           (click)="openDeviceSettings()"
         >
           {{ 'emailNotifications.goToSettingsCta' | transloco }}
@@ -65,7 +65,7 @@
         </div>
         @if (showMobilePushColumn) {
           <div class="email-notifications--checkbox-col-value">
-            <mat-checkbox [(ngModel)]="selectAllMobile" (ngModelChange)="toggleAllNotifications($event, 'push')">
+            <mat-checkbox [(ngModel)]="selectAllMobile" (ngModelChange)="toggleAllNotifications($event, 'mobile')">
             </mat-checkbox>
           </div>
         }
@@ -82,8 +82,8 @@
           @if (showMobilePushColumn) {
             <div class="email-notifications--checkbox-col-value">
               <mat-checkbox
-                [ngModel]="notification.push ?? true"
-                (ngModelChange)="toggleNotification(notification, 'push')"
+                [ngModel]="notification.mobile ?? true"
+                (ngModelChange)="toggleNotification(notification, 'mobile')"
               >
               </mat-checkbox>
             </div>

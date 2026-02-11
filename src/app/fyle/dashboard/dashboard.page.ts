@@ -687,7 +687,6 @@ export class DashboardPage {
   }
 
   ionViewWillEnter(): void {
-    this.pushNotificationService.initializePushNotifications();
     this.isWalkthroughPaused = false;
     this.swiperConfig = {
       slidesPerView: 1,
