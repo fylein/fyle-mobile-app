@@ -11,7 +11,16 @@ import {
 } from '@angular/core';
 import { from, fromEvent, Observable, of } from 'rxjs';
 import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
-import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
@@ -50,7 +59,7 @@ import { NgTemplateOutlet, AsyncPipe } from '@angular/common';
     MatRipple,
     MatSuffix,
     NgTemplateOutlet,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class FySelectModalComponent implements AfterViewInit {
@@ -184,8 +193,8 @@ export class FySelectModalComponent implements AfterViewInit {
           return initial.concat(
             this.options
               .concat(extraOption)
-              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
-              .sort((element1, element2) => element1.label.localeCompare(element2.label))
+              .filter((option) => option.label?.toLowerCase().includes(searchText.toLowerCase()))
+              .sort((element1, element2) => (element1.label ?? '').localeCompare(element2.label ?? ''))
               .map((option) => {
                 option.selected = isEqual(option.value, this.currentSelection);
                 return option;
