@@ -102,28 +102,20 @@ export class OrgUserService {
   }
 
   getDeviceTokens(): Observable<string[]> {
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<{ tokens: string[] }>>('/device_token')
-      .pipe(map((response) => {
-        console.log('response', response);
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<{ tokens: string[] }>>('/device_token').pipe(
+      map((response) => {
         return response.data?.tokens ?? [];
-      }));
+      }),
+    );
   }
 
   sendDeviceToken(token: string): Observable<unknown> {
-    console.log('sendDeviceToken', token);
     return this.getDeviceTokens().pipe(
-      catchError((error) => {
-        console.log('error', error);
-        return of([]);
-      }),
       map((existingTokens) => {
-        console.log('existingTokens', existingTokens);
         const tokens = existingTokens ?? [];
         if (!tokens.includes(token)) {
           tokens.push(token);
         }
-        console.log('tokens', tokens);
         return tokens;
       }),
       switchMap((tokens) =>
