@@ -1361,7 +1361,7 @@
     "detailedHeader": "Your expense reports will be:",
     "groupedBy": "Grouped by <strong>{{dimension}}</strong>.",
     "autoSubmittedOn": "Automatically submitted on <strong>{{date}}</strong>.",
-    "autoApprovedIf": "Auto approved (If <{{amount}} and no policy/rule/duplicate flags.)"
+    "autoApprovedIf": "Auto approved (If ≤{{amount}} and no policy violation, multiple approvers or duplicate flags.)"
   },
   "stats": {
     "myExpenses": "My expenses",
