@@ -24,6 +24,7 @@ export class SpenderPlatformV1ApiService {
   }
 
   post<T>(url: string, config = {}): Observable<T> {
+    console.log('config', config);
     return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1/spender' + url, config);
   }
 }

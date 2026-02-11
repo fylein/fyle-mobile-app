@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject, of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { AuthResponse } from '../models/auth-response.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
@@ -104,14 +104,26 @@ export class OrgUserService {
   getDeviceTokens(): Observable<string[]> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<{ tokens: string[] }>>('/device_token')
-      .pipe(map((response) => response.data?.tokens ?? []));
+      .pipe(map((response) => {
+        console.log('response', response);
+        return response.data?.tokens ?? [];
+      }));
   }
 
   sendDeviceToken(token: string): Observable<unknown> {
+    console.log('sendDeviceToken', token);
     return this.getDeviceTokens().pipe(
+      catchError((error) => {
+        console.log('error', error);
+        return of([]);
+      }),
       map((existingTokens) => {
+        console.log('existingTokens', existingTokens);
         const tokens = existingTokens ?? [];
-        tokens.push(token);
+        if (!tokens.includes(token)) {
+          tokens.push(token);
+        }
+        console.log('tokens', tokens);
         return tokens;
       }),
       switchMap((tokens) =>
