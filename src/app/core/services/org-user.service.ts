@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, Subject, of } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable, globalCacheBusterNotifier } from 'ts-cacheable';
 import { AuthResponse } from '../models/auth-response.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
