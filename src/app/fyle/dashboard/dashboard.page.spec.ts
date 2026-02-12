@@ -183,9 +183,7 @@ describe('DashboardPage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
     const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
-    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', [
-      'initializePushNotifications',
-    ]);
+    const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['initializePushNotifications']);
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -315,10 +313,8 @@ describe('DashboardPage', () => {
     budgetsService = TestBed.inject(BudgetsService) as jasmine.SpyObj<BudgetsService>;
     budgetsService.getSpenderBudgetByParams.and.returnValue(of([]));
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
-    pushNotificationService = TestBed.inject(
-      PushNotificationService,
-    ) as jasmine.SpyObj<PushNotificationService>;
-    pushNotificationService.initializePushNotifications.and.returnValue(Promise.resolve());
+    pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
+    pushNotificationService.initializePushNotifications.and.resolveTo();
     fixture.detectChanges();
   }));
 

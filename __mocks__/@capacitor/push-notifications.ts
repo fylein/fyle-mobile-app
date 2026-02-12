@@ -8,7 +8,6 @@ export interface Token {
 }
 
 export interface PushNotificationEvent {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -35,4 +34,3 @@ export const PushNotifications = {
     return Promise.resolve({ remove: () => {} });
   },
 };
-
