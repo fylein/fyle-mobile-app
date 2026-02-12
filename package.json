@@ -88,7 +88,7 @@
     "heic2any": "^0.0.3",
     "jetifier": "^2.0.0",
     "launchdarkly-js-client-sdk": "^2.22.1",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mixpanel-browser": "^2.55.0",
     "ng-otp-input": "^2.0.9",
     "ng2-pdf-viewer": "^10.4.0",
