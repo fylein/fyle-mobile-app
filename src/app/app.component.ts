@@ -32,6 +32,7 @@ import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
+import { PushNotificationService } from './core/services/push-notification.service';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +53,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   private platform = inject(Platform);
 
   private router = inject(Router);
+
+  private pushNotificationService = inject(PushNotificationService);
 
   private activatedRoute = inject(ActivatedRoute);
 
@@ -164,6 +167,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
     });
 
+    // Initialize push notification click listener early to catch notifications
+    // that launched the app from a killed state
+    if (Capacitor.isNativePlatform()) {
+      this.pushNotificationService.initializeNotificationClickListener();
+    }
+
     // Handle app shortcuts (Home Screen Quick Actions)
     if (Capacitor.isNativePlatform()) {
       AppShortcuts.addListener('click', (event) => {
@@ -242,7 +251,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.footerService.selectionMode$.subscribe((isEnabled) => {
       this.showFooter = !isEnabled;
     });
-
     // This was done as a security fix for appknox
     // eslint-disable-next-line
     if ((window as any) && (window as any).localStorage) {
@@ -293,6 +301,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
       this.freshChatService.destroy();
+      this.pushNotificationService.unregister();
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });

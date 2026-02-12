@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { PerDiemService } from './per-diem.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
+import { DateService } from './platform/v1/shared/date.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import {
   expectedPerDiems,
@@ -28,6 +29,7 @@ describe('PerDiemService', () => {
   let perDiemService: PerDiemService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
+  let dateService: DateService;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
@@ -36,6 +38,7 @@ describe('PerDiemService', () => {
     TestBed.configureTestingModule({
       providers: [
         PerDiemService,
+        DateService,
         {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
@@ -57,6 +60,11 @@ describe('PerDiemService', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
+    dateService = TestBed.inject(DateService);
+
+    // Mock getUTCDate to return the date as-is without timezone adjustment
+    // This ensures tests are consistent across different timezones
+    spyOn(dateService, 'getUTCDate').and.callFake((date: Date) => date);
   });
 
   it('should be created', () => {

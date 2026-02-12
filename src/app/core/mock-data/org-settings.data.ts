@@ -415,6 +415,11 @@ export const orgSettingsRes: OrgSettings = deepFreeze({
     enabled: true,
     virtual_card_settings_enabled: true,
   },
+  mobile_notification_settings: {
+    allowed: true,
+    enabled: true,
+    unsubscribed_events: [],
+  },
   regional_settings: {
     allowed: true,
     enabled: true,
