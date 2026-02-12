@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
-import { ApiService } from './api.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { forkJoin, noop, of, Observable } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
@@ -10,12 +10,13 @@ import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { AppSupportedDetails } from '../models/app-supported-details.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppVersionService {
-  private apiService = inject(ApiService);
+  private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   private routerApiService = inject(RouterApiService);
 
@@ -50,22 +51,27 @@ export class AppVersionService {
   }
 
   load(deviceInfo: ExtendedDeviceInfo): void {
-    const platformOS = deviceInfo.operatingSystem;
+    const platformOS = deviceInfo.operatingSystem.toUpperCase();
     const platformVersion = deviceInfo.osVersion;
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
 
     this.get(platformOS)
       .pipe(
-        switchMap((storedVersion) => {
-          const isLower = this.isVersionLower(storedVersion?.app_version, liveUpdateVersion);
+        switchMap((response: PlatformApiResponse<AppVersion[]>) => {
+          const storedVersion = response.data[0];
+          const isLower = this.isVersionLower(storedVersion?.version, liveUpdateVersion);
 
           if (isLower) {
-            const data = {
-              app_version: liveUpdateVersion,
-              device_platform: platformOS,
-              platform_version: platformVersion,
+            const payload = {
+              data: {
+                version: liveUpdateVersion,
+                os: {
+                  name: platformOS,
+                  version: platformVersion,
+                },
+              },
             };
-            return this.post(data);
+            return this.post(payload);
           }
           return of(noop);
         }),
@@ -103,12 +109,19 @@ export class AppVersionService {
     return this.routerApiService.post<AppSupportedDetails>('/mobileapp/check', data);
   }
 
-  get(os: string): Observable<AppVersion> {
+  get(os: string): Observable<PlatformApiResponse<AppVersion[]>> {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`);
+    const data = {
+      params: {
+        order: 'created_at.desc',
+        'os->name': `eq.${operatingSystem}`,
+        limit: 1,
+      },
+    };
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data);
   }
 
-  post(data: Partial<AppVersion>): Observable<AppVersion> {
-    return this.apiService.post<AppVersion>('/version/app', data);
+  post(payload: { data: Partial<AppVersion> }): Observable<PlatformApiResponse<AppVersion>> {
+    return this.spenderPlatformV1ApiService.post<PlatformApiResponse<AppVersion>>('/mobile_app/versions', payload);
   }
 }
