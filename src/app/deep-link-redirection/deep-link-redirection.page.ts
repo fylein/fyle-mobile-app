@@ -115,18 +115,6 @@ export class DeepLinkRedirectionPage {
     const openVirtualCards =
       pushNotificationType === 'VIRTUAL_CARD_CREATED' || pushNotificationType === 'VIRTUAL_CARD_DELETED';
 
-    if (!orgId) {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'manage_corporate_cards',
-        {
-          openVirtualCards,
-        },
-      ]);
-      return;
-    }
-
     const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
       switchMap(() => from(this.authService.getEou())),
       catchError(() => {
@@ -136,10 +124,10 @@ export class DeepLinkRedirectionPage {
       shareReplay(1),
     );
 
-    // If orgId is the same as the current user orgId, navigate directly to manage corporate cards
+    // If no orgId is provided or orgId matches the current user's org, navigate directly to manage corporate cards
     eou$
       .pipe(
-        filter((eou) => orgId === eou.ou.org_id),
+        filter((eou) => !orgId || orgId === eou.ou.org_id),
         finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
@@ -156,10 +144,10 @@ export class DeepLinkRedirectionPage {
         error: () => this.switchOrg(),
       });
 
-    // If orgId is different from the current user orgId, redirect to switch org
+    // If orgId is provided and different from the current user orgId, redirect to switch org
     eou$
       .pipe(
-        filter((eou) => orgId !== eou.ou.org_id),
+        filter((eou) => !!orgId && orgId !== eou.ou.org_id),
         finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe({
