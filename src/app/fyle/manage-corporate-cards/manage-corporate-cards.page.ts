@@ -1,6 +1,23 @@
 import { Component, inject } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
-import {  ActionSheetButton, ActionSheetController, IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonRefresher, IonRefresherContent, IonSegment, IonSegmentButton, IonSkeletonText, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import {
+  ActionSheetButton,
+  ActionSheetController,
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonRefresher,
+  IonRefresherContent,
+  IonSegment,
+  IonSegmentButton,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import {
   BehaviorSubject,
   Observable,
@@ -59,7 +76,7 @@ import { AsyncPipe } from '@angular/common';
     IonTitle,
     IonToolbar,
     MatIcon,
-    VirtualCardComponent
+    VirtualCardComponent,
   ],
 })
 export class ManageCorporateCardsPage {
@@ -88,6 +105,8 @@ export class ManageCorporateCardsPage {
   private modalProperties = inject(ModalPropertiesService);
 
   private authService = inject(AuthService);
+
+  private activatedRoute = inject(ActivatedRoute);
 
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
@@ -156,6 +175,11 @@ export class ManageCorporateCardsPage {
   }
 
   ionViewWillEnter(): void {
+    const openVirtualCards = this.activatedRoute.snapshot.params.openVirtualCards as string;
+    if (openVirtualCards === 'true') {
+      this.segmentValue = ManageCardsPageSegment.VIRTUAL_CARDS;
+    }
+
     this.corporateCards$ = this.loadCorporateCards$.pipe(
       switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
       map((corporateCards) => {

@@ -49,6 +49,8 @@ export class DeepLinkRedirectionPage {
       this.redirectToAdvReqModule();
     } else if (subModule === 'my_dashboard') {
       this.redirectToDashboardModule();
+    } else if (subModule === 'manage_corporate_cards') {
+      this.redirectToCorporateCardsModule();
     }
   }
 
@@ -100,6 +102,75 @@ export class DeepLinkRedirectionPage {
             {
               openSMSOptInDialog,
               orgId,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+  }
+
+  async redirectToCorporateCardsModule(): Promise<void> {
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+    const openVirtualCards =
+      pushNotificationType === 'VIRTUAL_CARD_CREATED' || pushNotificationType === 'VIRTUAL_CARD_DELETED';
+
+    if (!orgId) {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards,
+        },
+      ]);
+      return;
+    }
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1),
+    );
+
+    // If orgId is the same as the current user orgId, navigate directly to manage corporate cards
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'manage_corporate_cards',
+            {
+              openVirtualCards,
+            },
+          ]);
+        },
+        error: () => this.switchOrg(),
+      });
+
+    // If orgId is different from the current user orgId, redirect to switch org
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              orgId,
+              openVirtualCards,
             },
           ]);
         },
