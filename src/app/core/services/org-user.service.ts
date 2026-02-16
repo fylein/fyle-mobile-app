@@ -110,20 +110,24 @@ export class OrgUserService {
   }
 
   sendDeviceToken(token: string): Observable<unknown> {
-    return this.getDeviceTokens().pipe(
-      map((existingTokens) => {
-        const tokens = existingTokens ?? [];
-        if (!tokens.includes(token)) {
-          tokens.push(token);
-        }
-        return tokens;
-      }),
-      switchMap((tokens) =>
-        this.spenderPlatformV1ApiService.post('/device_token', {
-          data: { tokens },
-        }),
-      ),
-    );
+    // lets do single token
+    return this.spenderPlatformV1ApiService.post('/device_token', {
+      data: { tokens: [token] },
+    });
+    // return this.getDeviceTokens().pipe(
+    //   map((existingTokens) => {
+    //     const tokens = existingTokens ?? [];
+    //     if (!tokens.includes(token)) {
+    //       tokens.push(token);
+    //     }
+    //     return tokens;
+    //   }),
+    //   switchMap((tokens) =>
+    //     this.spenderPlatformV1ApiService.post('/device_token', {
+    //       data: { tokens },
+    //     }),
+    //   ),
+    // );
   }
 
   getUserById(userId: string): Observable<EouApiResponse> {
