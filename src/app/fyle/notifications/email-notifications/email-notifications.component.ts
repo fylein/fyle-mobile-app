@@ -50,7 +50,7 @@ import { PushNotificationService } from 'src/app/core/services/push-notification
     FyAlertInfoComponent,
     IonFooter,
     TranslocoPipe,
-    FormButtonValidationDirective
+    FormButtonValidationDirective,
   ],
 })
 export class EmailNotificationsComponent implements OnInit, OnDestroy {
@@ -71,8 +71,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   @Input() unsubscribedEventsByUser: string[];
 
   readonly unsubscribedPushEventsByUser = input<string[]>([]);
-
-  isLongTitle = false;
 
   isIos = false;
 
@@ -192,10 +190,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       .filter((notification) => !notification.email)
       .map((notification) => notification.eventEnum);
 
-    const updatedEmailUnsubscribedEventsByUser = [
-      ...otherEmailUnsubscribedEvents,
-      ...currentlyEmailUnsubscribedEvents,
-    ];
+    const updatedEmailUnsubscribedEventsByUser = [...otherEmailUnsubscribedEvents, ...currentlyEmailUnsubscribedEvents];
 
     this.employeeSettings.notification_settings.email_unsubscribed_events = updatedEmailUnsubscribedEventsByUser;
 
@@ -209,10 +204,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       .filter((notification) => notification.mobile === false)
       .map((notification) => notification.eventEnum);
 
-    const updatedPushUnsubscribedEventsByUser = [
-      ...otherPushUnsubscribedEvents,
-      ...currentlyPushUnsubscribedEvents,
-    ];
+    const updatedPushUnsubscribedEventsByUser = [...otherPushUnsubscribedEvents, ...currentlyPushUnsubscribedEvents];
 
     this.employeeSettings.notification_settings.push_unsubscribed_events = updatedPushUnsubscribedEventsByUser;
 
@@ -251,10 +243,8 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     // Ensure notification settings are in sync with current UI state
     this.updateNotificationSettings();
 
-    const emailUnsubscribedEvents =
-      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
-    const pushUnsubscribedEvents =
-      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
+    const emailUnsubscribedEvents = this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const pushUnsubscribedEvents = this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
     this.updateEmployeeSettings();
 
@@ -275,7 +265,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
-    this.isLongTitle = this.title.length > 20;
     this.updateSelectAll();
 
     const isPushColumnSupportedForTitle =
