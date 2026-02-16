@@ -663,6 +663,12 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
     email: true,
     eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
   },
+  {
+    event: 'Instant transaction alerts for quick expense submission (Visa & Mastercard only)',
+    email: false,
+    pushOnly: true,
+    eventEnum: NotificationEventsEnum.RTF_NOTIFICATION,
+  },
 ]);
 
 export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([

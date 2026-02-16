@@ -734,7 +734,7 @@ export class DashboardPage {
           const isCCCEnabled =
             orgSettings.corporate_credit_card_settings?.allowed && orgSettings.corporate_credit_card_settings?.enabled;
           this.areCardsEnabled.set(isCCCEnabled);
-      this.userName = eou.us.full_name;
+          this.userName = eou.us.full_name;
 
           this.isBudgetsLoading.set(true);
           return this.budgetsService.getSpenderBudgetByParams({}).pipe(
@@ -764,7 +764,7 @@ export class DashboardPage {
         }
 
         this.isDashboardConfigReady.set(true);
-    });
+      });
 
     forkJoin({
       optInBanner: optInBanner$,
@@ -772,10 +772,11 @@ export class DashboardPage {
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
       showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
+      orgSettings: this.orgSettings$,
     })
       .pipe(take(1))
       .subscribe({
-        next: ({ showRebrandingPopup, eou, showPushNotifUi }) => {
+        next: ({ showRebrandingPopup, eou, showPushNotifUi, orgSettings }) => {
           this.setSwiperConfig();
           if (showRebrandingPopup) {
             this.showRebrandingPopup().then(() => {
@@ -785,7 +786,9 @@ export class DashboardPage {
             this.rebrandingPopupShown.set(true);
             this.startNavbarWalkthrough(eou);
           }
-          if (showPushNotifUi) {
+          const isMobilePushEnabled =
+            orgSettings?.mobile_notification_settings?.enabled && orgSettings?.mobile_notification_settings?.allowed;
+          if (showPushNotifUi && isMobilePushEnabled) {
             this.pushNotificationService.initializePushNotifications();
           }
         },
