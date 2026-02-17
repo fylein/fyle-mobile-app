@@ -116,7 +116,9 @@ export class PushNotificationService {
 
   private addRegistrationErrorListener(): void {
     PushNotifications.addListener('registrationError', (error) => {
-      console.error('Push notification registration failed:', JSON.stringify(error));
+      this.trackingService.eventTrack('Push Notification Registration Failed', {
+        error: error?.error ?? 'Unknown error',
+      });
     });
   }
 
