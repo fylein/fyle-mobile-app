@@ -11,6 +11,7 @@ import {
 } from 'src/app/core/mock-data/notification-events.data';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 describe('NotificationsBetaPageService', () => {
   let service: NotificationsBetaPageService;
@@ -65,14 +66,25 @@ describe('NotificationsBetaPageService', () => {
   });
 
   describe('getExpenseNotifications():', () => {
-    it('should return expense notifications with correct structure', () => {
-      const result = service.getExpenseNotifications(mockCurrentEou);
+    it('should return expense notifications with RTF notification when RTF is enabled', () => {
+      const orgSettings = cloneDeep(orgSettingsData) as OrgSettings;
+      const result = service.getExpenseNotifications(mockCurrentEou, orgSettings);
       expect(result).toEqual(expenseNotifications);
     });
 
-    it('should return 5 expense notifications', () => {
-      const result = service.getExpenseNotifications(mockCurrentEou);
+    it('should return 6 expense notifications when RTF is enabled', () => {
+      const orgSettings = cloneDeep(orgSettingsData) as OrgSettings;
+      const result = service.getExpenseNotifications(mockCurrentEou, orgSettings);
+      expect(result.length).toBe(6);
+    });
+
+    it('should not include RTF notification when RTF is disabled', () => {
+      const orgSettings = cloneDeep(orgSettingsData) as OrgSettings;
+      orgSettings.visa_enrollment_settings = { allowed: false, enabled: false };
+      orgSettings.mastercard_enrollment_settings = { allowed: false, enabled: false };
+      const result = service.getExpenseNotifications(mockCurrentEou, orgSettings);
       expect(result.length).toBe(5);
+      expect(result.find((n) => n.eventEnum === NotificationEventsEnum.RTF_NOTIFICATION)).toBeUndefined();
     });
   });
 
@@ -163,7 +175,7 @@ describe('NotificationsBetaPageService', () => {
 
       const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
-      expect(result.expenseNotificationsConfig.notifications.length).toBe(5);
+      expect(result.expenseNotificationsConfig.notifications.length).toBe(6);
       expect(result.expenseReportNotificationsConfig.notifications.length).toBe(6);
       expect(result.advanceNotificationsConfig.notifications.length).toBe(6);
     });
@@ -180,7 +192,11 @@ describe('NotificationsBetaPageService', () => {
       ];
 
       allNotifications.forEach((notification) => {
-        expect(notification.email).toBeTrue();
+        if (notification.pushOnly) {
+          expect(notification.email).toBeFalse();
+        } else {
+          expect(notification.email).toBeTrue();
+        }
       });
     });
 
@@ -195,8 +211,8 @@ describe('NotificationsBetaPageService', () => {
 
       const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
-      // Expense notifications should be filtered by admin (4 remaining, 1 removed)
-      expect(result.expenseNotificationsConfig.notifications.length).toBe(4);
+      // Expense notifications should be filtered by admin (5 remaining, 1 removed)
+      expect(result.expenseNotificationsConfig.notifications.length).toBe(5);
 
       // Report notifications should have one with email: false due to user preference
       const reportNotifications = result.expenseReportNotificationsConfig.notifications;

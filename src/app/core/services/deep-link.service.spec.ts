@@ -184,6 +184,42 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should navigate to deep_link_redirection with manage_corporate_cards when redirect URI contains corporate_cards', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+        org_id: 'orNVthTo2Zyo',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: 'orNVthTo2Zyo',
+        },
+      ]);
+    });
+
+    it('should navigate to deep_link_redirection with push_notification_type when notificationType is provided for corporate_cards', () => {
+      deepLinkService.redirect(
+        {
+          redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+          org_id: 'orNVthTo2Zyo',
+        },
+        'VIRTUAL_CARD_CREATED',
+      );
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: 'orNVthTo2Zyo',
+          push_notification_type: 'VIRTUAL_CARD_CREATED',
+        },
+      ]);
+    });
+
     it('should redirect to deep link redirection page with correct orgId and txnId', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/orOTDe765hQp/txMLI4Cc5zY5`,
