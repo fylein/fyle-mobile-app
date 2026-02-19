@@ -16,7 +16,7 @@ describe('DeepLinkService', () => {
   const baseURL = 'https://app.fylehq.com/app';
 
   const mockURL =
-    'https://app.fylehq.com/app/accounts/#/switch_org?fyle_redirect_url=aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E&org_id=orKaeO5xojOD';
+    'https://app.fylehq.com/app/accounts/switch_org?fyle_redirect_url=aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E&org_id=orKaeO5xojOD';
 
   const routes: Routes = {
     ...appRoutes,
