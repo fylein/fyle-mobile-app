@@ -186,7 +186,7 @@ describe('DeepLinkService', () => {
 
     it('should navigate to deep_link_redirection with manage_corporate_cards when redirect URI contains corporate_cards', () => {
       deepLinkService.redirect({
-        redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+        redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
         org_id: 'orNVthTo2Zyo',
       });
 
@@ -203,7 +203,7 @@ describe('DeepLinkService', () => {
     it('should navigate to deep_link_redirection with push_notification_type when notificationType is provided for corporate_cards', () => {
       deepLinkService.redirect(
         {
-          redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+          redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
           org_id: 'orNVthTo2Zyo',
         },
         'VIRTUAL_CARD_CREATED',
