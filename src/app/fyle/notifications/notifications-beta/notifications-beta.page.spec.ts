@@ -400,10 +400,10 @@ describe('NotificationsBetaPage', () => {
             title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
             notifications: jasmine.any(Array),
             employeeSettings: component.employeeSettings,
-            unsubscribedEventsByUser:
-              component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
+            unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
             unsubscribedPushEventsByUser:
               component.employeeSettings.notification_settings.push_unsubscribed_events ?? [],
+            showMobilePushColumn: component.showMobilePushColumn,
           },
           initialBreakpoint: 1,
           breakpoints: [0, 1],
@@ -431,10 +431,10 @@ describe('NotificationsBetaPage', () => {
             title: mockEmailNotificationsConfig.expenseNotificationsConfig.title,
             notifications: jasmine.any(Array),
             employeeSettings: component.employeeSettings,
-            unsubscribedEventsByUser:
-              component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
+            unsubscribedEventsByUser: component.employeeSettings.notification_settings.email_unsubscribed_events ?? [],
             unsubscribedPushEventsByUser:
               component.employeeSettings.notification_settings.push_unsubscribed_events ?? [],
+            showMobilePushColumn: component.showMobilePushColumn,
           },
           initialBreakpoint: 1,
           breakpoints: [0, 1],

@@ -9,7 +9,17 @@ import { NotificationsBetaPageService } from './notifications-beta.page.service'
 import { NotificationConfig } from 'src/app/core/models/notification-config.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
-import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonSkeletonText, IonTitle, IonToolbar, ModalController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonSkeletonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+} from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { EmailNotificationsComponent } from '../email-notifications/email-notifications.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -39,7 +49,7 @@ import { PermissionStatus } from '@capacitor/push-notifications';
     IonTitle,
     IonToolbar,
     MatIcon,
-    TranslocoPipe
+    TranslocoPipe,
   ],
 })
 export class NotificationsBetaPage implements OnInit, OnDestroy {
@@ -106,7 +116,10 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
   nativeSettings = NativeSettings;
 
   setMobilePushConditions(isPushNotifUiEnabled: boolean, permissionStatus: PermissionStatus): void {
-    this.showMobilePushColumn = isPushNotifUiEnabled && this.orgSettings?.mobile_notification_settings?.enabled && this.orgSettings.mobile_notification_settings?.allowed;
+    this.showMobilePushColumn =
+      isPushNotifUiEnabled &&
+      this.orgSettings?.mobile_notification_settings?.enabled &&
+      this.orgSettings.mobile_notification_settings?.allowed;
     this.isPushPermissionDenied = this.showMobilePushColumn && permissionStatus.receive !== 'granted';
 
     if (this.showMobilePushColumn) {
@@ -250,6 +263,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
         employeeSettings: this.employeeSettings,
         unsubscribedEventsByUser,
         unsubscribedPushEventsByUser,
+        showMobilePushColumn: this.showMobilePushColumn,
       },
       ...this.modalPropertiesService.getModalDefaultProperties(),
       initialBreakpoint: 1,
