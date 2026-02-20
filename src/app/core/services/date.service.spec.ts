@@ -167,13 +167,13 @@ describe('DateService', () => {
   describe('fixDates():', () => {
     it('should convert txn_dt', () => {
       const data = {
-        txn_dt: '2022-11-30T06:30:00.000Z',
+        spent_at: '2022-11-30T06:30:00.000Z',
       };
-      const userTimezoneOffset = new Date(data.txn_dt).getTimezoneOffset() * 60000;
-      spyOn(dateService, 'getUTCDate').and.returnValue(new Date(new Date(data.txn_dt).getTime() + userTimezoneOffset));
+      const userTimezoneOffset = new Date(data.spent_at).getTimezoneOffset() * 60000;
+      spyOn(dateService, 'getUTCDate').and.returnValue(new Date(new Date(data.spent_at).getTime() + userTimezoneOffset));
 
       const updatedData = {
-        txn_dt: new Date(new Date(data.txn_dt).getTime() + userTimezoneOffset),
+        spent_at: new Date(new Date(data.spent_at).getTime() + userTimezoneOffset),
       };
 
       expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
