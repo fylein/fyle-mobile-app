@@ -265,13 +265,23 @@ export class TransactionsOutboxService {
               that.removeEntry(entry);
               resolve(entry);
             })
-            .catch((err: Error) => {
-              this.trackingService.syncError({ label: err });
+            .catch((err) => {
+              // handle platform API error and s3 upload error messages
+              const error = {
+                error: err.error,
+                message: err.message,
+              }
+              this.trackingService.syncError({ label: JSON.stringify(error) });
               reject(err);
             });
         })
-        .catch((err: Error) => {
-          this.trackingService.syncError({ label: err });
+        .catch((err) => {
+          // handle platform API error and s3 upload error messages
+          const error = {
+            error: err.error,
+            message: err.message,
+          }
+          this.trackingService.syncError({ label: JSON.stringify(error) });
           reject(err);
         });
     });

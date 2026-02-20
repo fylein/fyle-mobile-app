@@ -368,7 +368,7 @@ export class TrackingService {
   }
 
   // sync error event
-  syncError(properties: { label: Error }): void {
+  syncError(properties: { label: string }): void {
     this.eventTrack('Sync Error', properties);
   }
 
