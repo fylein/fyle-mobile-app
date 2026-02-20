@@ -160,13 +160,17 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   updateSelectAll(): void {
     const emailNotifications = this.notifications.filter((n) => !n.pushOnly);
     this.selectAllEmail = emailNotifications.length > 0 && emailNotifications.every((n) => n.email);
-    this.selectAllMobile = this.notifications.every((n) => n.mobile ?? true);
+    const mobileNotifications = this.notifications.filter((n) => !n.emailOnly);
+    this.selectAllMobile = mobileNotifications.length > 0 && mobileNotifications.every((n) => n.mobile ?? true);
   }
 
   toggleAllNotifications(selectAll: boolean, type: 'email' | 'mobile'): void {
     const isSelected = selectAll;
     this.notifications = this.notifications.map((notification) => {
       if (type === 'email' && notification.pushOnly) {
+        return notification;
+      }
+      if (type === 'mobile' && notification.emailOnly) {
         return notification;
       }
       return { ...notification, [type]: isSelected };
@@ -204,9 +208,9 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
-    // PUSH: Add events that are currently unsubscribed in this modal
+    // PUSH: Add events that are currently unsubscribed in this modal (exclude emailOnly notifications)
     const currentlyPushUnsubscribedEvents = this.notifications
-      .filter((notification) => notification.mobile === false)
+      .filter((notification) => !notification.emailOnly && notification.mobile === false)
       .map((notification) => notification.eventEnum);
 
     const updatedPushUnsubscribedEventsByUser = [...otherPushUnsubscribedEvents, ...currentlyPushUnsubscribedEvents];
