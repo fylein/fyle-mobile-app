@@ -11,7 +11,7 @@ import {
   Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
-import { finalize, forkJoin, from, tap } from 'rxjs';
+import { finalize, from, tap } from 'rxjs';
 import { NotificationEventItem } from 'src/app/core/models/notification-event-item.model';
 import { NotificationEventsEnum } from 'src/app/core/models/notification-events.enum';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
@@ -25,7 +25,6 @@ import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-s
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FormButtonValidationDirective } from 'src/app/shared/directive/form-button-validation.directive';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,7 +49,7 @@ import { PushNotificationService } from 'src/app/core/services/push-notification
     FyAlertInfoComponent,
     IonFooter,
     TranslocoPipe,
-    FormButtonValidationDirective
+    FormButtonValidationDirective,
   ],
 })
 export class EmailNotificationsComponent implements OnInit, OnDestroy {
@@ -72,8 +71,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   readonly unsubscribedPushEventsByUser = input<string[]>([]);
 
-  isLongTitle = false;
-
   isIos = false;
 
   saveChangesLoader = false;
@@ -86,7 +83,9 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   saveText: '' | 'Saved' | 'Saving...' = '';
 
-  showMobilePushColumn = false;
+  readonly showMobilePushColumn = input(false);
+
+  isMobilePushColumnVisible = false;
 
   hasChanges = false;
 
@@ -109,8 +108,6 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   private popoverController = inject(PopoverController);
 
   private translocoService = inject(TranslocoService);
-
-  private launchDarklyService = inject(LaunchDarklyService);
 
   private matSnackBar = inject(MatSnackBar);
 
@@ -161,13 +158,23 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
   }
 
   updateSelectAll(): void {
-    this.selectAllEmail = this.notifications.every((n) => n.email);
-    this.selectAllMobile = this.notifications.every((n) => n.mobile ?? true);
+    const emailNotifications = this.notifications.filter((n) => !n.pushOnly);
+    this.selectAllEmail = emailNotifications.length > 0 && emailNotifications.every((n) => n.email);
+    const mobileNotifications = this.notifications.filter((n) => !n.emailOnly);
+    this.selectAllMobile = mobileNotifications.length > 0 && mobileNotifications.every((n) => n.mobile ?? true);
   }
 
   toggleAllNotifications(selectAll: boolean, type: 'email' | 'mobile'): void {
     const isSelected = selectAll;
-    this.notifications = this.notifications.map((notification) => ({ ...notification, [type]: isSelected }));
+    this.notifications = this.notifications.map((notification) => {
+      if (type === 'email' && notification.pushOnly) {
+        return notification;
+      }
+      if (type === 'mobile' && notification.emailOnly) {
+        return notification;
+      }
+      return { ...notification, [type]: isSelected };
+    });
     this.updateSelectAll();
 
     this.updateNotificationSettings();
@@ -187,15 +194,12 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
-    // EMAIL: Add events that are currently unsubscribed in this modal
+    // EMAIL: Add events that are currently unsubscribed in this modal (exclude pushOnly notifications)
     const currentlyEmailUnsubscribedEvents = this.notifications
-      .filter((notification) => !notification.email)
+      .filter((notification) => !notification.pushOnly && !notification.email)
       .map((notification) => notification.eventEnum);
 
-    const updatedEmailUnsubscribedEventsByUser = [
-      ...otherEmailUnsubscribedEvents,
-      ...currentlyEmailUnsubscribedEvents,
-    ];
+    const updatedEmailUnsubscribedEventsByUser = [...otherEmailUnsubscribedEvents, ...currentlyEmailUnsubscribedEvents];
 
     this.employeeSettings.notification_settings.email_unsubscribed_events = updatedEmailUnsubscribedEventsByUser;
 
@@ -204,15 +208,12 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
       (event) => !currentEventTypes.has(event as NotificationEventsEnum),
     );
 
-    // PUSH: Add events that are currently unsubscribed in this modal
+    // PUSH: Add events that are currently unsubscribed in this modal (exclude emailOnly notifications)
     const currentlyPushUnsubscribedEvents = this.notifications
-      .filter((notification) => notification.mobile === false)
+      .filter((notification) => !notification.emailOnly && notification.mobile === false)
       .map((notification) => notification.eventEnum);
 
-    const updatedPushUnsubscribedEventsByUser = [
-      ...otherPushUnsubscribedEvents,
-      ...currentlyPushUnsubscribedEvents,
-    ];
+    const updatedPushUnsubscribedEventsByUser = [...otherPushUnsubscribedEvents, ...currentlyPushUnsubscribedEvents];
 
     this.employeeSettings.notification_settings.push_unsubscribed_events = updatedPushUnsubscribedEventsByUser;
 
@@ -251,10 +252,8 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     // Ensure notification settings are in sync with current UI state
     this.updateNotificationSettings();
 
-    const emailUnsubscribedEvents =
-      this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
-    const pushUnsubscribedEvents =
-      this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
+    const emailUnsubscribedEvents = this.employeeSettings.notification_settings.email_unsubscribed_events ?? [];
+    const pushUnsubscribedEvents = this.employeeSettings.notification_settings.push_unsubscribed_events ?? [];
 
     this.updateEmployeeSettings();
 
@@ -275,23 +274,19 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
-    this.isLongTitle = this.title.length > 20;
     this.updateSelectAll();
 
     const isPushColumnSupportedForTitle =
       this.title === 'Expense notifications' || this.title === 'Expense report notifications';
 
-    forkJoin({
-      isPushNotifUiEnabled: this.launchDarklyService.getVariation('show_push_notif_ui', false),
-      permissionStatus: from(this.pushNotificationService.checkPermissions()),
-    }).subscribe(({ isPushNotifUiEnabled, permissionStatus }) => {
-      this.showMobilePushColumn = isPushNotifUiEnabled && isPushColumnSupportedForTitle;
-      this.isPushPermissionDenied =
-        isPushNotifUiEnabled && isPushColumnSupportedForTitle && permissionStatus.receive !== 'granted';
-      if (this.showMobilePushColumn) {
+    this.isMobilePushColumnVisible = this.showMobilePushColumn() && isPushColumnSupportedForTitle;
+
+    if (this.isMobilePushColumnVisible) {
+      from(this.pushNotificationService.checkPermissions()).subscribe((permissionStatus) => {
+        this.isPushPermissionDenied = permissionStatus.receive !== 'granted';
         this.startAppStateListener();
-      }
-    });
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -309,7 +304,7 @@ export class EmailNotificationsComponent implements OnInit, OnDestroy {
     }
 
     App.addListener('appStateChange', ({ isActive }) => {
-      if (!isActive || !this.showMobilePushColumn) {
+      if (!isActive || !this.isMobilePushColumnVisible) {
         return;
       }
 

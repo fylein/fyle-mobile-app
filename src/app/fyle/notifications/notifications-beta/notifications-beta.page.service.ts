@@ -21,11 +21,12 @@ export class NotificationsBetaPageService {
     }
   }
 
-  getExpenseNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
-    const expenseNotifications = [
+  getExpenseNotifications(currentEou: ExtendedOrgUser, orgSettings: OrgSettings): NotificationEventItem[] {
+    const expenseNotifications: NotificationEventItem[] = [
       {
         event: 'When an expense is created via email',
         email: true,
+        emailOnly: true,
         eventEnum: NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
       },
       {
@@ -41,6 +42,7 @@ export class NotificationsBetaPageService {
       {
         event: 'When an approver/admin edits an expense',
         email: true,
+        emailOnly: true,
         eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
       },
     ];
@@ -51,6 +53,19 @@ export class NotificationsBetaPageService {
         event: 'When an expense is marked as personal',
         email: true,
         eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+      });
+    }
+
+    const isRTFEnabled =
+      (orgSettings.visa_enrollment_settings?.allowed && orgSettings.visa_enrollment_settings?.enabled) ||
+      (orgSettings.mastercard_enrollment_settings?.allowed && orgSettings.mastercard_enrollment_settings?.enabled);
+
+    if (isRTFEnabled) {
+      expenseNotifications.push({
+        event: 'Instant transaction alerts for quick expense submission (Visa & Mastercard only)',
+        email: false,
+        pushOnly: true,
+        eventEnum: NotificationEventsEnum.RTF_NOTIFICATION,
       });
     }
 
@@ -154,11 +169,11 @@ export class NotificationsBetaPageService {
         .filter((notification) => !unsubscribedEventsByAdmin.includes(notification.eventEnum))
         .map((notification) => ({
           ...notification,
-          email: !unsubscribedEmailEventsByUser.includes(notification.eventEnum),
-          mobile: !unsubscribedPushEventsByUser.includes(notification.eventEnum),
+          email: notification.pushOnly ? false : !unsubscribedEmailEventsByUser.includes(notification.eventEnum),
+          mobile: notification.emailOnly ? false : !unsubscribedPushEventsByUser.includes(notification.eventEnum),
         }));
 
-    const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou));
+    const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou, orgSettings));
     const reportNotifications = processNotifications(this.getReportNotifications(currentEou));
     const advanceNotifications = processNotifications(this.getAdvanceNotifications());
 

@@ -45,7 +45,7 @@ describe('DeepLinkRedirectionPage', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportById']);
 
     TestBed.configureTestingModule({
-      imports: [ DeepLinkRedirectionPage],
+      imports: [DeepLinkRedirectionPage],
       providers: [
         { provide: Router, useValue: routerSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -415,6 +415,181 @@ describe('DeepLinkRedirectionPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.redirectToDashboardModule).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call redirectToCorporateCardsModule() if the sub_module is manage_corporate_cards', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        orgId: 'orNVthTo2Zyo',
+      };
+      spyOn(component, 'redirectToCorporateCardsModule').and.stub();
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.redirectToCorporateCardsModule).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('redirectToCorporateCardsModule():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'switchOrg').and.returnValue();
+    });
+
+    it('should navigate to manage_corporate_cards after verifying auth when no orgId and no notification type', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: false,
+        },
+      ]);
+    }));
+
+    it('should navigate to manage_corporate_cards with openVirtualCards true when no orgId and notification type is VIRTUAL_CARD_CREATED', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        push_notification_type: 'VIRTUAL_CARD_CREATED',
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: true,
+        },
+      ]);
+    }));
+
+    it('should navigate to manage_corporate_cards with openVirtualCards true when no orgId and notification type is VIRTUAL_CARD_DELETED', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        push_notification_type: 'VIRTUAL_CARD_DELETED',
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: true,
+        },
+      ]);
+    }));
+
+    it('should call switchOrg() if getEou fails when no orgId', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+      };
+      authService.getEou.and.rejectWith();
+      component.redirectToCorporateCardsModule();
+      tick(500);
+      expect(component.switchOrg).toHaveBeenCalledOnceWith();
+    }));
+
+    it('should navigate to manage_corporate_cards if orgId matches current user org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        orgId,
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: false,
+        },
+      ]);
+    }));
+
+    it('should navigate to switch_org if orgId differs from current user org', fakeAsync(() => {
+      const orgId = 'orOTDe765hQp';
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        orgId,
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'switch_org',
+        {
+          orgId,
+          openVirtualCards: false,
+        },
+      ]);
+    }));
+
+    it('should navigate to switch_org with openVirtualCards true if orgId differs and notification type is VIRTUAL_CARD_CREATED', fakeAsync(() => {
+      const orgId = 'orOTDe765hQp';
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        orgId,
+        push_notification_type: 'VIRTUAL_CARD_CREATED',
+      };
+
+      component.redirectToCorporateCardsModule();
+      tick(200);
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'switch_org',
+        {
+          orgId,
+          openVirtualCards: true,
+        },
+      ]);
+    }));
+
+    it('should call switchOrg() if getEou fails', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      activeroutemock.snapshot.params = {
+        sub_module: 'manage_corporate_cards',
+        orgId,
+      };
+      authService.getEou.and.rejectWith();
+      component.redirectToCorporateCardsModule();
+      tick(500);
+      expect(component.switchOrg).toHaveBeenCalledOnceWith();
     }));
   });
 

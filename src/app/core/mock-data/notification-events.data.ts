@@ -641,6 +641,7 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an expense is created via email',
     email: true,
+    emailOnly: true,
     eventEnum: NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
   },
   {
@@ -656,12 +657,19 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an approver/admin edits an expense',
     email: true,
+    emailOnly: true,
     eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
   },
   {
     event: 'When an expense is marked as personal',
     email: true,
     eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+  },
+  {
+    event: 'Instant transaction alerts for quick expense submission (Visa & Mastercard only)',
+    email: false,
+    pushOnly: true,
+    eventEnum: NotificationEventsEnum.RTF_NOTIFICATION,
   },
 ]);
 

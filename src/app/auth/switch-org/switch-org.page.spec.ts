@@ -384,6 +384,30 @@ describe('SwitchOrgPage', () => {
 
       expect(component.redirectToDashboard).toHaveBeenCalledOnceWith(orgId);
     });
+
+    it('should redirect to corporate cards if orgId and openVirtualCards are present', () => {
+      spyOn(component, 'redirectToCorporateCards').and.returnValue();
+      const orgId = 'orNVthTo2Zyo';
+      activatedRoute.snapshot.params = {
+        orgId,
+        openVirtualCards: 'true',
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToCorporateCards).toHaveBeenCalledOnceWith(orgId, true);
+    });
+
+    it('should redirect to corporate cards with openVirtualCards false if orgId and openVirtualCards=false are present', () => {
+      spyOn(component, 'redirectToCorporateCards').and.returnValue();
+      const orgId = 'orNVthTo2Zyo';
+      activatedRoute.snapshot.params = {
+        orgId,
+        openVirtualCards: 'false',
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToCorporateCards).toHaveBeenCalledOnceWith(orgId, false);
+    });
   });
 
   it('resendInvite(): should resend invite to an org', (done) => {
@@ -445,6 +469,74 @@ describe('SwitchOrgPage', () => {
       orgService.switchOrg.and.returnValue(throwError(() => {}));
       component.redirectToExpensePage(orgId, txnId);
       tick(200);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
+    }));
+  });
+
+  describe('redirectToCorporateCards(): ', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      userEventService.clearTaskCache.and.returnValue();
+      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'setSentryUser').and.returnValue();
+      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
+    });
+
+    it('should redirect to manage_corporate_cards with openVirtualCards true after switching org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      component.redirectToCorporateCards(orgId, true);
+
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
+      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: true,
+        },
+      ]);
+    }));
+
+    it('should redirect to manage_corporate_cards with openVirtualCards false after switching org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      component.redirectToCorporateCards(orgId, false);
+
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'manage_corporate_cards',
+        {
+          openVirtualCards: false,
+        },
+      ]);
+    }));
+
+    it('should navigate to switch_org on error', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      orgService.switchOrg.and.returnValue(throwError(() => new Error('Switch org failed')));
+
+      component.redirectToCorporateCards(orgId, true);
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
     }));
   });
