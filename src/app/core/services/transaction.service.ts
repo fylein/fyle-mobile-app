@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
+import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
+import { StorageService } from './storage.service';
 import { Observable, forkJoin, of } from 'rxjs';
 import { PlatformEmployeeSettingsService } from './platform/v1/spender/employee-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
@@ -10,6 +12,8 @@ import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 
 import { cloneDeep } from 'lodash';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { AccountsService } from './accounts.service';
@@ -21,6 +25,7 @@ import { FileObject } from '../models/file-obj.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
+import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
@@ -41,6 +46,11 @@ import { TranslocoService } from '@jsverse/transloco';
   providedIn: 'root',
 })
 export class TransactionService {
+  private paginationSize = inject(PAGINATION_SIZE);
+
+  private storageService = inject(StorageService);
+
+  private apiService = inject(ApiService);
 
   private dateService = inject(DateService);
 
