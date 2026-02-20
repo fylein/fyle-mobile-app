@@ -26,6 +26,7 @@ export class NotificationsBetaPageService {
       {
         event: 'When an expense is created via email',
         email: true,
+        emailOnly: true,
         eventEnum: NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
       },
       {
@@ -41,6 +42,7 @@ export class NotificationsBetaPageService {
       {
         event: 'When an approver/admin edits an expense',
         email: true,
+        emailOnly: true,
         eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
       },
     ];
@@ -168,7 +170,7 @@ export class NotificationsBetaPageService {
         .map((notification) => ({
           ...notification,
           email: notification.pushOnly ? false : !unsubscribedEmailEventsByUser.includes(notification.eventEnum),
-          mobile: !unsubscribedPushEventsByUser.includes(notification.eventEnum),
+          mobile: notification.emailOnly ? false : !unsubscribedPushEventsByUser.includes(notification.eventEnum),
         }));
 
     const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou, orgSettings));

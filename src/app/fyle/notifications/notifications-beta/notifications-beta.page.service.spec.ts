@@ -197,6 +197,11 @@ describe('NotificationsBetaPageService', () => {
         } else {
           expect(notification.email).toBeTrue();
         }
+        if (notification.emailOnly) {
+          expect(notification.mobile).toBeFalse();
+        } else {
+          expect(notification.mobile).toBeTrue();
+        }
       });
     });
 

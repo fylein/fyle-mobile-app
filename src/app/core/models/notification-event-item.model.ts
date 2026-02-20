@@ -5,5 +5,6 @@ export interface NotificationEventItem {
   email: boolean;
   mobile?: boolean;
   pushOnly?: boolean;
+  emailOnly?: boolean;
   eventEnum: NotificationEventsEnum;
 }
