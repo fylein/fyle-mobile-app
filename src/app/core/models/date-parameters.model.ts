@@ -1,5 +1,5 @@
 export interface DateParams {
-  txn_dt: Date | string;
+  spent_at: Date | string;
   tx_txn_dt: Date | string;
   created_at: Date | string;
   joining_dt: Date | string;
