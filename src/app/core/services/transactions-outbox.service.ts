@@ -20,6 +20,7 @@ import { PlatformFile } from '../models/platform/platform-file.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
 import { UserContext } from '../models/user-context.model';
+import { PlatformApiError } from '../models/platform/platform-api-error.model';
 
 @Injectable({
   providedIn: 'root',
@@ -265,22 +266,22 @@ export class TransactionsOutboxService {
               that.removeEntry(entry);
               resolve(entry);
             })
-            .catch((err) => {
+            .catch((err: PlatformApiError) => {
               // handle platform API error and s3 upload error messages
               const error = {
-                error: err.error,
+                error: 'error' in err ? err.error : undefined,
                 message: err.message,
-              }
+              };
               this.trackingService.syncError({ label: JSON.stringify(error) });
               reject(err);
             });
         })
-        .catch((err) => {
+        .catch((err: PlatformApiError) => {
           // handle platform API error and s3 upload error messages
           const error = {
-            error: err.error,
+            error: 'error' in err ? err.error : undefined,
             message: err.message,
-          }
+          };
           this.trackingService.syncError({ label: JSON.stringify(error) });
           reject(err);
         });
