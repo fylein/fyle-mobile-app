@@ -60,6 +60,16 @@ export class TransactionsOutboxService {
     this.restoreQueue();
   }
 
+  private handleSyncError(err: HttpErrorResponse): void {
+    const error = err.error as PlatformApiError;
+    // handle platform API error and s3 upload error messages
+    const trackingError = {
+      data: error && 'data' in error ? error.data : undefined,
+      errorMessage: err.message,
+    };
+    this.trackingService.syncError({ label: trackingError });
+  }
+
   get singleCaptureCount(): number {
     return this.singleCaptureCountInSession;
   }
@@ -266,24 +276,12 @@ export class TransactionsOutboxService {
               resolve(entry);
             })
             .catch((err: HttpErrorResponse) => {
-              const error = err.error as PlatformApiError;
-              // handle platform API error and s3 upload error messages
-              const trackingError = {
-                data: error && 'data' in error ? error.data : undefined,
-                errorMessage: err.message,
-              };
-              this.trackingService.syncError({ label: trackingError });
+              this.handleSyncError(err);
               reject(err);
             });
         })
         .catch((err: HttpErrorResponse) => {
-          const error = err.error as PlatformApiError;
-          // handle platform API error and s3 upload error messages
-          const trackingError = {
-            data: error && 'data' in error ? error.data : undefined,
-            errorMessage: err.message,
-          };
-          this.trackingService.syncError({ label: trackingError });
+          this.handleSyncError(err);
           reject(err);
         });
     });
