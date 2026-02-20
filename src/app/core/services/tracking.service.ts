@@ -368,8 +368,7 @@ export class TrackingService {
   }
 
   // sync error event
-  syncError(properties: { label: { data: any; errorMessage: string } }): void {
-    console.log('syncError', properties);
+  syncError(properties: { label: { data: Record<string, unknown>; errorMessage: string } }): void {
     this.eventTrack('Sync Error', properties);
   }
 
