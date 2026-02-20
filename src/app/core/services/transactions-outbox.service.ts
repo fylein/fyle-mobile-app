@@ -3,7 +3,7 @@ import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { Observable, from, noop } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { indexOf } from 'lodash';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
@@ -230,7 +230,6 @@ export class TransactionsOutboxService {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type);
-
           fileObjPromiseArray.push(fileObjPromise);
         });
       }
@@ -266,23 +265,25 @@ export class TransactionsOutboxService {
               that.removeEntry(entry);
               resolve(entry);
             })
-            .catch((err: PlatformApiError) => {
+            .catch((err: HttpErrorResponse) => {
+              const error = err.error as PlatformApiError;
               // handle platform API error and s3 upload error messages
-              const error = {
-                error: 'error' in err ? err.error : undefined,
-                message: err.message,
+              const trackingError = {
+                data: error && 'data' in error ? error.data : undefined,
+                errorMessage: err.message,
               };
-              this.trackingService.syncError({ label: JSON.stringify(error) });
+              this.trackingService.syncError({ label: trackingError });
               reject(err);
             });
         })
-        .catch((err: PlatformApiError) => {
+        .catch((err: HttpErrorResponse) => {
+          const error = err.error as PlatformApiError;
           // handle platform API error and s3 upload error messages
-          const error = {
-            error: 'error' in err ? err.error : undefined,
-            message: err.message,
+          const trackingError = {
+            data: error && 'data' in error ? error.data : undefined,
+            errorMessage: err.message,
           };
-          this.trackingService.syncError({ label: JSON.stringify(error) });
+          this.trackingService.syncError({ label: trackingError });
           reject(err);
         });
     });
