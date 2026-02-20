@@ -3,7 +3,7 @@ import { StorageService } from './storage.service';
 import { DateService } from './date.service';
 import { Observable, from, noop } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { TransactionService } from './transaction.service';
 import { indexOf } from 'lodash';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
@@ -20,6 +20,7 @@ import { PlatformFile } from '../models/platform/platform-file.model';
 import { ExpenseCommentService } from './platform/v1/spender/expense-comment.service';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
 import { UserContext } from '../models/user-context.model';
+import { PlatformApiError } from '../models/platform/platform-api-error.model';
 
 @Injectable({
   providedIn: 'root',
@@ -57,6 +58,16 @@ export class TransactionsOutboxService {
   constructor() {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
+  }
+
+  private handleSyncError(err: HttpErrorResponse): void {
+    const error = err.error as PlatformApiError;
+    // handle platform API error and s3 upload error messages
+    const trackingError = {
+      data: error && 'data' in error ? error.data : undefined,
+      errorMessage: err.message,
+    };
+    this.trackingService.syncError({ label: trackingError });
   }
 
   get singleCaptureCount(): number {
@@ -229,7 +240,6 @@ export class TransactionsOutboxService {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
           const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type);
-
           fileObjPromiseArray.push(fileObjPromise);
         });
       }
@@ -265,13 +275,13 @@ export class TransactionsOutboxService {
               that.removeEntry(entry);
               resolve(entry);
             })
-            .catch((err: Error) => {
-              this.trackingService.syncError({ label: err });
+            .catch((err: HttpErrorResponse) => {
+              this.handleSyncError(err);
               reject(err);
             });
         })
-        .catch((err: Error) => {
-          this.trackingService.syncError({ label: err });
+        .catch((err: HttpErrorResponse) => {
+          this.handleSyncError(err);
           reject(err);
         });
     });
