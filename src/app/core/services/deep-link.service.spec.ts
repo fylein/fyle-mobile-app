@@ -16,7 +16,7 @@ describe('DeepLinkService', () => {
   const baseURL = 'https://app.fylehq.com/app';
 
   const mockURL =
-    'https://app.fylehq.com/app/accounts/#/switch_org?fyle_redirect_url=aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E&org_id=orKaeO5xojOD';
+    'https://app.fylehq.com/app/accounts/switch_org?fyle_redirect_url=aHR0cHM6Ly9hcHAuZnlsZWhxLmNvbS9hcHAvbWFpbi8jL215X2V4cGVuc2VzLz9zdGF0ZT1kcmFmdCZvcmdfaWQ9b3JLYWVPNXhvak9E&org_id=orKaeO5xojOD';
 
   const routes: Routes = {
     ...appRoutes,
@@ -180,6 +180,42 @@ describe('DeepLinkService', () => {
           openSMSOptInDialog,
           orgId,
           referrer,
+        },
+      ]);
+    });
+
+    it('should navigate to deep_link_redirection with manage_corporate_cards when redirect URI contains corporate_cards', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+        org_id: 'orNVthTo2Zyo',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: 'orNVthTo2Zyo',
+        },
+      ]);
+    });
+
+    it('should navigate to deep_link_redirection with push_notification_type when notificationType is provided for corporate_cards', () => {
+      deepLinkService.redirect(
+        {
+          redirect_uri: `${baseURL}/settings/#/profile/corporate_cards`,
+          org_id: 'orNVthTo2Zyo',
+        },
+        'VIRTUAL_CARD_CREATED',
+      );
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: 'orNVthTo2Zyo',
+          push_notification_type: 'VIRTUAL_CARD_CREATED',
         },
       ]);
     });

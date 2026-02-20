@@ -11,7 +11,7 @@ import {
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
-import { NavigationStart, Router } from '@angular/router';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -83,6 +83,7 @@ describe('ManageCorporateCardsPage', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let activatedRoute: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -171,6 +172,14 @@ describe('ManageCorporateCardsPage', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {},
+            },
+          },
+        },
       ],
     })
       .overrideComponent(ManageCorporateCardsPage, {
@@ -200,6 +209,7 @@ describe('ManageCorporateCardsPage', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    activatedRoute = TestBed.inject(ActivatedRoute);
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
@@ -215,6 +225,39 @@ describe('ManageCorporateCardsPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('ionViewWillEnter - openVirtualCards param:', () => {
+    beforeEach(() => {
+      spyOn(component, 'checkAddCorporateCardVisibility').and.returnValue(of(true));
+    });
+
+    it('should set segmentValue to VIRTUAL_CARDS when openVirtualCards is true', () => {
+      activatedRoute.snapshot.params = { openVirtualCards: 'true' };
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.VIRTUAL_CARDS);
+    });
+
+    it('should keep default CORPORATE_CARDS segmentValue when openVirtualCards is false', () => {
+      activatedRoute.snapshot.params = { openVirtualCards: 'false' };
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.CORPORATE_CARDS);
+    });
+
+    it('should keep default CORPORATE_CARDS segmentValue when openVirtualCards is not present', () => {
+      activatedRoute.snapshot.params = {};
+
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.CORPORATE_CARDS);
+    });
   });
 
   describe('template', () => {

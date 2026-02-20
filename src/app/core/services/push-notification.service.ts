@@ -94,6 +94,7 @@ export class PushNotificationService {
     this.listenersInitialized = true;
 
     this.addRegistrationListener();
+    this.addRegistrationErrorListener();
     // Only add notification click listener if not already initialized
     // (it may have been initialized early via initializeNotificationClickListener)
     if (!this.notificationClickListenerInitialized) {
@@ -110,6 +111,14 @@ export class PushNotificationService {
           this.trackingService.eventTrack('Push Notification Registered');
         });
       }
+    });
+  }
+
+  private addRegistrationErrorListener(): void {
+    PushNotifications.addListener('registrationError', (error) => {
+      this.trackingService.eventTrack('Push Notification Registration Failed', {
+        error: error?.error ?? 'Unknown error',
+      });
     });
   }
 
