@@ -703,7 +703,7 @@ export class AddEditPerDiemPage implements OnInit {
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
-            orgCategory.sub_category?.toLowerCase() === null,
+            !!orgCategory.sub_category,
         );
       }),
       shareReplay(1),
