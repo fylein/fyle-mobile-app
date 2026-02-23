@@ -62,8 +62,8 @@ export class DateService {
   // unovoidable right now
   // eslint-disable-next-line complexity
   fixDates<T>(data: T & Partial<DateParams>): T {
-    if (data.spent_at) {
-      data.spent_at = this.getUTCDate(new Date(data.spent_at));
+    if (data.txn_dt) {
+      data.txn_dt = this.getUTCDate(new Date(data.txn_dt));
     }
 
     if (data.tx_txn_dt) {

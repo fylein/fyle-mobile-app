@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { expenseList2 } from '../mock-data/expense.data';
@@ -16,8 +15,8 @@ import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { parsedResponseData1 } from '../mock-data/parsed-response.data';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { PlatformApiError } from '../models/platform/platform-api-error.model';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -43,7 +42,7 @@ describe('TransactionsOutboxService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['post']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post', 'syncError']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
 
     TestBed.configureTestingModule({
@@ -279,67 +278,5 @@ describe('TransactionsOutboxService', () => {
       expect(transactionsOutboxService.queue).toEqual([]);
       expect(dateService.fixDates).not.toHaveBeenCalled();
     }));
-  });
-
-  describe('handleSyncError():', () => {
-    it('should call trackingService.syncError with data and errorMessage when error has PlatformApiError shape with data', () => {
-      const apiError: PlatformApiError<{ code: string }> = {
-        data: { code: 'VALIDATION_ERROR' },
-        error: 'Bad Request',
-        message: 'Invalid payload',
-      };
-      const err = new HttpErrorResponse({
-        error: apiError,
-        status: 400,
-        statusText: 'Bad Request',
-        url: `${rootUrl}/api/expenses`,
-      });
-
-      (transactionsOutboxService as any).handleSyncError(err);
-
-      expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
-          data: { code: 'VALIDATION_ERROR' },
-          errorMessage: err.message,
-        },
-      });
-    });
-
-    it('should call trackingService.syncError with undefined data when error has no data', () => {
-      const apiError = { error: 'Forbidden', message: 'Access denied' };
-      const err = new HttpErrorResponse({
-        error: apiError,
-        status: 403,
-        statusText: 'Forbidden',
-        url: `${rootUrl}/api/expenses`,
-      });
-
-      (transactionsOutboxService as any).handleSyncError(err);
-
-      expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
-          data: undefined,
-          errorMessage: err.message,
-        },
-      });
-    });
-
-    it('should call trackingService.syncError with undefined data when err.error is null', () => {
-      const err = new HttpErrorResponse({
-        error: null,
-        status: 500,
-        statusText: 'Internal Server Error',
-        url: `${rootUrl}/api/expenses`,
-      });
-
-      (transactionsOutboxService as any).handleSyncError(err);
-
-      expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
-          data: undefined,
-          errorMessage: err.message,
-        },
-      });
-    });
   });
 });
