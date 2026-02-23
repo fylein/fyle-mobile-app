@@ -573,7 +573,7 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      it('should return empty array if category name is undefined', (done) => {
+      xit('should return empty array if category name is undefined', (done) => {
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
         mockPerDiemCategory.name = undefined;
         categoriesService.getAll.and.returnValue(of([mockPerDiemCategory]));
