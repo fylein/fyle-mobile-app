@@ -836,8 +836,8 @@ export class AddEditMileagePage implements OnInit {
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
-        );
+            !!orgCategory.sub_category,
+        ); 
       }),
       shareReplay(1),
     );

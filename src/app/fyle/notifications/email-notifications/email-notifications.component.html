@@ -79,11 +79,13 @@
           </div>
           @if (isMobilePushColumnVisible) {
             <div class="email-notifications--checkbox-col-value">
-              <mat-checkbox
-                [ngModel]="notification.mobile ?? true"
-                (ngModelChange)="toggleNotification(notification, 'mobile')"
-              >
-              </mat-checkbox>
+              @if (!notification.emailOnly) {
+                <mat-checkbox
+                  [ngModel]="notification.mobile ?? true"
+                  (ngModelChange)="toggleNotification(notification, 'mobile')"
+                >
+                </mat-checkbox>
+              }
             </div>
           }
         </div>

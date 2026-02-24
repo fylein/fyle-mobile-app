@@ -369,6 +369,48 @@ describe('EmailNotificationsComponent', () => {
 
       expect(component.selectAllMobile).toBeTrue();
     });
+
+    it('should exclude emailOnly notifications from selectAllMobile calculation', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: false,
+        },
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          emailOnly: true,
+        },
+      ];
+
+      component.updateSelectAll();
+
+      expect(component.selectAllMobile).toBeFalse();
+    });
+
+    it('should set selectAllMobile to true when all non-emailOnly notifications have mobile enabled', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: true,
+        },
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          emailOnly: true,
+        },
+      ];
+
+      component.updateSelectAll();
+
+      expect(component.selectAllMobile).toBeTrue();
+    });
   });
 
   describe('toggleAllNotifications():', () => {
@@ -392,6 +434,38 @@ describe('EmailNotificationsComponent', () => {
       expect(component.notifications.every((n) => !n.email)).toBeTrue();
       expect(component.updateSelectAll).toHaveBeenCalledTimes(1);
       expect(component.updateNotificationSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('should skip emailOnly notifications when toggling all mobile', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: true,
+        },
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          emailOnly: true,
+        },
+      ];
+
+      spyOn(component, 'updateSelectAll');
+      spyOn(component, 'updateNotificationSettings');
+
+      component.toggleAllNotifications(false, 'mobile');
+
+      const emailOnlyNotification = component.notifications.find(
+        (n) => n.eventEnum === NotificationEventsEnum.ERPTS_SUBMITTED,
+      );
+      expect(emailOnlyNotification.mobile).toBeUndefined();
+
+      const regularNotification = component.notifications.find(
+        (n) => n.eventEnum === NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+      );
+      expect(regularNotification.mobile).toBeFalse();
     });
   });
 
@@ -478,6 +552,39 @@ describe('EmailNotificationsComponent', () => {
         NotificationEventsEnum.ESTATUSES_CREATED_TXN,
       ]);
       expect(component.hasChanges).toBeTrue();
+    });
+
+    it('should exclude emailOnly notifications from push unsubscribed events', () => {
+      component.notifications = [
+        {
+          eventEnum: NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+          event: 'Expense Created',
+          email: true,
+          mobile: false,
+        } as any,
+        {
+          eventEnum: NotificationEventsEnum.ERPTS_SUBMITTED,
+          event: 'Expense Submitted',
+          email: true,
+          emailOnly: true,
+          mobile: false,
+        } as any,
+      ];
+
+      Object.defineProperty(component, 'unsubscribedPushEventsByUser', {
+        value: () => [],
+        configurable: true,
+      });
+      component.employeeSettings.notification_settings.push_unsubscribed_events = [];
+
+      component.updateNotificationSettings();
+
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).toEqual([
+        NotificationEventsEnum.ESTATUSES_CREATED_TXN,
+      ]);
+      expect(component.employeeSettings.notification_settings.push_unsubscribed_events).not.toContain(
+        NotificationEventsEnum.ERPTS_SUBMITTED,
+      );
     });
   });
 

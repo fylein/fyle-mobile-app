@@ -182,6 +182,7 @@ describe('NotificationsBetaPageService', () => {
 
     it('should handle empty user unsubscribed events', () => {
       employeeSettings.notification_settings.email_unsubscribed_events = [];
+      employeeSettings.notification_settings.push_unsubscribed_events = [];
 
       const result = service.getEmailNotificationsConfig(orgSettings, employeeSettings, mockCurrentEou);
 
@@ -196,6 +197,11 @@ describe('NotificationsBetaPageService', () => {
           expect(notification.email).toBeFalse();
         } else {
           expect(notification.email).toBeTrue();
+        }
+        if (notification.emailOnly) {
+          expect(notification.mobile).toBeFalse();
+        } else {
+          expect(notification.mobile).toBeTrue();
         }
       });
     });
