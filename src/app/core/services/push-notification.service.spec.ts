@@ -179,7 +179,7 @@ describe('PushNotificationService', () => {
     const event = {
       notification: {
         data: {
-          cta_url: 'https://staging.fyle.tech/app/main#/enterprise/my_dashboard',
+          cta_url: 'https://staging.fyle.tech/app/main/enterprise/my_dashboard',
           push_notification_type: 'test_action',
         },
       },
@@ -191,7 +191,7 @@ describe('PushNotificationService', () => {
       actionType: 'test_action',
     });
     expect(deepLinkService.getJsonFromUrl).toHaveBeenCalledWith(
-      'https://staging.fyle.tech/app/main#/enterprise/my_dashboard',
+      'https://staging.fyle.tech/app/main/enterprise/my_dashboard',
     );
     expect(deepLinkService.redirect).toHaveBeenCalledWith(redirectParams, 'test_action');
   });
