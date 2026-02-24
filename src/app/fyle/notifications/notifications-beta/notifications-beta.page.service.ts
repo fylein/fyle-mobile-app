@@ -21,8 +21,26 @@ export class NotificationsBetaPageService {
     }
   }
 
-  getExpenseNotifications(currentEou: ExtendedOrgUser, orgSettings: OrgSettings): NotificationEventItem[] {
-    const expenseNotifications: NotificationEventItem[] = [
+  getExpenseNotifications(
+    currentEou: ExtendedOrgUser,
+    orgSettings: OrgSettings,
+    isPushNotificationsEnabled = false,
+  ): NotificationEventItem[] {
+    const expenseNotifications = this.getBaseExpenseNotifications();
+
+    if (this.hasAdminOrFinanceRole(currentEou)) {
+      expenseNotifications.push(this.getMarkedAsPersonalNotification());
+    }
+
+    if (this.isRTFEnabled(orgSettings) && isPushNotificationsEnabled) {
+      expenseNotifications.push(this.getRTFNotification());
+    }
+
+    return expenseNotifications;
+  }
+
+  private getBaseExpenseNotifications(): NotificationEventItem[] {
+    return [
       {
         event: 'When an expense is created via email',
         email: true,
@@ -46,30 +64,35 @@ export class NotificationsBetaPageService {
         eventEnum: NotificationEventsEnum.ETXNS_ADMIN_UPDATED,
       },
     ];
+  }
 
+  private hasAdminOrFinanceRole(currentEou: ExtendedOrgUser): boolean {
     const allowedRoles = ['ADMIN', 'FINANCE'];
-    if (currentEou.ou.roles.some((role) => allowedRoles.includes(role))) {
-      expenseNotifications.push({
-        event: 'When an expense is marked as personal',
-        email: true,
-        eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
-      });
-    }
+    return currentEou.ou.roles.some((role) => allowedRoles.includes(role));
+  }
 
-    const isRTFEnabled =
-      (orgSettings.visa_enrollment_settings?.allowed && orgSettings.visa_enrollment_settings?.enabled) ||
-      (orgSettings.mastercard_enrollment_settings?.allowed && orgSettings.mastercard_enrollment_settings?.enabled);
+  private getMarkedAsPersonalNotification(): NotificationEventItem {
+    return {
+      event: 'When an expense is marked as personal',
+      email: true,
+      eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
+    };
+  }
 
-    if (isRTFEnabled) {
-      expenseNotifications.push({
-        event: 'Instant transaction alerts for quick expense submission (Visa & Mastercard only)',
-        email: false,
-        pushOnly: true,
-        eventEnum: NotificationEventsEnum.RTF_NOTIFICATION,
-      });
-    }
+  private isRTFEnabled(orgSettings: OrgSettings): boolean {
+    const visaEnabled = orgSettings.visa_enrollment_settings?.allowed && orgSettings.visa_enrollment_settings?.enabled;
+    const mastercardEnabled =
+      orgSettings.mastercard_enrollment_settings?.allowed && orgSettings.mastercard_enrollment_settings?.enabled;
+    return visaEnabled || mastercardEnabled;
+  }
 
-    return expenseNotifications;
+  private getRTFNotification(): NotificationEventItem {
+    return {
+      event: 'Instant transaction alerts for quick expense submission (Visa & Mastercard only)',
+      email: false,
+      pushOnly: true,
+      eventEnum: NotificationEventsEnum.RTF_NOTIFICATION,
+    };
   }
 
   getReportNotifications(currentEou: ExtendedOrgUser): NotificationEventItem[] {
@@ -152,6 +175,7 @@ export class NotificationsBetaPageService {
     orgSettings: OrgSettings,
     employeeSettings: EmployeeSettings,
     currentEou: ExtendedOrgUser,
+    isPushNotificationsEnabled = false,
   ): {
     expenseNotificationsConfig: NotificationConfig;
     expenseReportNotificationsConfig: NotificationConfig;
@@ -173,7 +197,9 @@ export class NotificationsBetaPageService {
           mobile: notification.emailOnly ? false : !unsubscribedPushEventsByUser.includes(notification.eventEnum),
         }));
 
-    const expenseNotifications = processNotifications(this.getExpenseNotifications(currentEou, orgSettings));
+    const expenseNotifications = processNotifications(
+      this.getExpenseNotifications(currentEou, orgSettings, isPushNotificationsEnabled),
+    );
     const reportNotifications = processNotifications(this.getReportNotifications(currentEou));
     const advanceNotifications = processNotifications(this.getAdvanceNotifications());
 
