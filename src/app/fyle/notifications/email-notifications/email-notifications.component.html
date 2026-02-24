@@ -66,7 +66,7 @@
           </div>
         }
       </div>
-      @for (notification of notifications; track notification) {
+      @for (notification of notifications; track notification.eventEnum) {
         <div class="email-notifications--flex-row">
           <div class="email-notifications--event-name">
             {{ notification.event }}

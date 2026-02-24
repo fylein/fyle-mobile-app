@@ -140,7 +140,11 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       this.currentEou = currentEou;
       this.isAdvancesEnabled = this.orgSettings.advances?.allowed && this.orgSettings.advances?.enabled;
 
-      this.initializeEmailNotificationsConfig();
+      const isPushNotificationsEnabled =
+        isPushNotifUiEnabled &&
+        !!orgSettings?.mobile_notification_settings?.enabled &&
+        !!orgSettings?.mobile_notification_settings?.allowed;
+      this.initializeEmailNotificationsConfig(isPushNotificationsEnabled);
       this.initializeDelegateNotification();
       this.setMobilePushConditions(isPushNotifUiEnabled, permissionStatus);
     });
@@ -181,11 +185,12 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
     });
   }
 
-  initializeEmailNotificationsConfig(): void {
+  initializeEmailNotificationsConfig(isPushNotificationsEnabled: boolean): void {
     const emailNotificationsConfig = this.notificationsBetaPageService.getEmailNotificationsConfig(
       this.orgSettings,
       this.employeeSettings,
       this.currentEou,
+      isPushNotificationsEnabled,
     );
 
     this.expenseNotificationsConfig = emailNotificationsConfig.expenseNotificationsConfig;
@@ -278,7 +283,7 @@ export class NotificationsBetaPage implements OnInit, OnDestroy {
       // Refetch fresh employee settings (cache is already busted by the POST)
       this.platformEmployeeSettingsService.get().subscribe((employeeSettings) => {
         this.employeeSettings = employeeSettings;
-        this.initializeEmailNotificationsConfig();
+        this.initializeEmailNotificationsConfig(this.showMobilePushColumn);
         this.initializeDelegateNotification();
       });
     } else {

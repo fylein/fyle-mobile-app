@@ -231,12 +231,13 @@ describe('NotificationsBetaPage', () => {
       component.employeeSettings = employeeSettingsData;
       component.currentEou = apiEouRes;
 
-      component.initializeEmailNotificationsConfig();
+      component.initializeEmailNotificationsConfig(true);
 
       expect(notificationsBetaPageService.getEmailNotificationsConfig).toHaveBeenCalledOnceWith(
         orgSettingsData,
         employeeSettingsData,
         apiEouRes,
+        true,
       );
       expect(component.expenseNotificationsConfig).toEqual(mockEmailNotificationsConfig2.expenseNotificationsConfig);
       expect(component.expenseReportNotificationsConfig).toEqual(
@@ -257,7 +258,7 @@ describe('NotificationsBetaPage', () => {
       component.employeeSettings = employeeSettingsData;
       component.currentEou = apiEouRes;
 
-      component.initializeEmailNotificationsConfig();
+      component.initializeEmailNotificationsConfig(false);
 
       expect(component.isNotificationsDisabled).toBeTrue();
     });
