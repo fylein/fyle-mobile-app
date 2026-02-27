@@ -629,7 +629,7 @@
                     >
                       <app-virtual-select
                         [cacheName]="'recentCategoryList'"
-                        [defaultLabelProp]="'displayName'"
+                        [defaultLabelProp]="'display_name'"
                         [label]="'Category'"
                         [mandatory]="txnFields?.org_category_id?.is_mandatory"
                         [options]="categories"
@@ -641,8 +641,8 @@
                       </app-virtual-select>
                       @if (
                         autoCodedData?.category &&
-                        fg.controls.category?.value?.displayName &&
-                        autoCodedData.category === fg.controls.category.value.displayName
+                        fg.controls.category?.value?.display_name &&
+                        autoCodedData.category === fg.controls.category.value.display_name
                       ) {
                         <div class="add-edit-expense--auto-coded">
                           <mat-icon class="add-edit-expense--auto-coded-icon" svgIcon="ai-auto-coded"></mat-icon>
@@ -728,7 +728,7 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     @if (
-                      txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)
+                      txnFields.location1?.is_mandatory && systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -738,7 +738,7 @@
                               fg.controls.location_1.touched && !fg.controls.location_1.valid,
                             'add-edit-expense--internal-block__margin':
                               txnFields.location2?.is_mandatory &&
-                              systemCategories?.includes(fg.value.category?.fyle_category),
+                              systemCategories?.includes(fg.value.category?.system_category),
                           }"
                         >
                           <app-fy-location
@@ -757,7 +757,7 @@
                       </ion-col>
                     }
                     @if (
-                      txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)
+                      txnFields.location2?.is_mandatory && systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -787,7 +787,7 @@
                 <ion-grid class="ion-grid-no-padding">
                   <ion-row>
                     @if (
-                      txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)
+                      txnFields.from_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -796,7 +796,7 @@
                               fg.controls.from_dt.touched && !fg.controls.from_dt.valid,
                             'add-edit-expense--internal-block__margin':
                               txnFields.to_dt?.is_mandatory &&
-                              systemCategories?.includes(fg.value.category?.fyle_category),
+                              systemCategories?.includes(fg.value.category?.system_category),
                           }"
                           class="add-edit-expense--date add-edit-expense--internal-block"
                         >
@@ -832,7 +832,7 @@
                       </ion-col>
                     }
                     @if (
-                      txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.fyle_category)
+                      txnFields.to_dt?.is_mandatory && systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -879,7 +879,7 @@
                   <ion-row>
                     @if (
                       txnFields.flight_journey_travel_class?.is_mandatory &&
-                      systemCategories?.includes(fg.value.category?.fyle_category)
+                      systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -890,7 +890,7 @@
                               !fg.controls.flight_journey_travel_class.valid,
                             'add-edit-expense--internal-block__margin':
                               txnFields.flight_return_travel_class?.is_mandatory &&
-                              systemCategories?.includes(fg.value.category?.fyle_category),
+                              systemCategories?.includes(fg.value.category?.system_category),
                           }"
                         >
                           @if (flightJourneyTravelClassOptions$ | async; as flightJourneyTravelClassOptions) {
@@ -919,7 +919,7 @@
                     }
                     @if (
                       txnFields.flight_return_travel_class?.is_mandatory &&
-                      systemCategories?.includes(fg.value.category?.fyle_category)
+                      systemCategories?.includes(fg.value.category?.system_category)
                     ) {
                       <ion-col>
                         <div
@@ -959,7 +959,7 @@
                 </ion-grid>
                 @if (
                   txnFields.train_travel_class?.is_mandatory &&
-                  systemCategories?.includes(fg.value.category?.fyle_category)
+                  systemCategories?.includes(fg.value.category?.system_category)
                 ) {
                   <div
                     [ngClass]="{
@@ -1024,7 +1024,7 @@
                 }
                 @if (
                   txnFields.bus_travel_class?.is_mandatory &&
-                  systemCategories?.includes(fg.value.category?.fyle_category)
+                  systemCategories?.includes(fg.value.category?.system_category)
                 ) {
                   <div
                     [ngClass]="{
@@ -1090,14 +1090,14 @@
                     Please select valid {{ txnFields.bus_travel_class?.field_name }}.
                   </div>
                 }
-                @if (breakfastSystemCategories?.includes(fg?.value?.category?.fyle_category) && isExpandedView) {
+                @if (breakfastSystemCategories?.includes(fg?.value?.category?.system_category) && isExpandedView) {
                   <div class="add-edit-expense--internal-block">
                     <mat-checkbox formControlName="hotel_is_breakfast_provided">
                       <span class="add-edit-expense--text-label"> Breakfast provided </span>
                     </mat-checkbox>
                   </div>
                 }
-                @if (txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi') {
+                @if (txnFields.distance?.is_mandatory && fg.value?.category?.system_category === 'Taxi') {
                   <div
                     [ngClass]="{
                       'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid':
