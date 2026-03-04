@@ -9,6 +9,7 @@ import { AppVersionService } from './core/services/app-version.service';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
+import { Toast } from '@capacitor/toast';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
@@ -31,8 +32,10 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
+import { IsRoot } from '@capgo/capacitor-is-root';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { PushNotificationService } from './core/services/push-notification.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-root',
@@ -90,6 +93,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   private tasksService = inject(TasksService);
 
+  private translocoService = inject(TranslocoService);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
@@ -131,6 +136,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ];
 
   constructor() {
+    this.checkForRootedDevice();
     this.initializeApp();
     this.registerBackButtonAction();
   }
@@ -156,6 +162,22 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.navController.back();
       }
     });
+  }
+
+  async checkForRootedDevice():  Promise<void> {
+    // Root/jailbreak detection (vapt) – runs before platform.ready(); exits if rooted/jailbroken
+    if (Capacitor.isNativePlatform()) {
+      const { result: isRooted } = await IsRoot.isRooted();
+      if (isRooted) {
+        const message =
+          Capacitor.getPlatform() === 'ios'
+            ? this.translocoService.translate('app.jailbrokenDeviceMessage')
+            : this.translocoService.translate('app.rootedDeviceMessage');
+        await Toast.show({ text: message, duration: 'long' });
+        await App.exitApp();
+        return;
+      }
+    }
   }
 
   initializeApp(): void {
