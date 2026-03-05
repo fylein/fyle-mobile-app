@@ -164,18 +164,16 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async checkForRootedDevice():  Promise<void> {
-    // Root/jailbreak detection (vapt) – runs before platform.ready(); exits if rooted/jailbroken
-    if (Capacitor.isNativePlatform()) {
+  async checkForRootedDevice(): Promise<void> {
+    // Root detection (Android only) – runs before platform.ready(); exits if rooted
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
       const { result: isRooted } = await IsRoot.isRooted();
       if (isRooted) {
-        const message =
-          Capacitor.getPlatform() === 'ios'
-            ? this.translocoService.translate('app.jailbrokenDeviceMessage')
-            : this.translocoService.translate('app.rootedDeviceMessage');
-        await Toast.show({ text: message, duration: 'long' });
+        await Toast.show({
+          text: this.translocoService.translate('app.rootedDeviceMessage'),
+          duration: 'long',
+        });
         await App.exitApp();
-        return;
       }
     }
   }
