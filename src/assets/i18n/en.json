@@ -1,7 +1,6 @@
 {
   "app": {
-    "rootedDeviceMessage": "This application can't run on a rooted Android phone",
-    "jailbrokenDeviceMessage": "This application can't run on a jailbroken device"
+    "rootedDeviceMessage": "This application can't run on a rooted Android phone"
   },
   "services": {
     "status": {
