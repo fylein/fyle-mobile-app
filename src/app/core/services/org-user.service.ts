@@ -20,6 +20,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { EmployeeResponse } from '../models/employee-response.model';
 import { DwollaCustomer } from '../models/dwolla-customer.model';
 import { DateService } from './platform/v1/shared/date.service';
+import { StorageService } from './storage.service';
 
 const orgUsersCacheBuster$ = new Subject<void>();
 
@@ -42,6 +43,8 @@ export class OrgUserService {
   private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   private dateService = inject(DateService);
+
+  private storageService = inject(StorageService);
 
   @Cacheable()
   getCurrent(): Observable<ExtendedOrgUser> {
@@ -139,15 +142,28 @@ export class OrgUserService {
   }
 
   switchToDelegatee(): Observable<ExtendedOrgUser> {
-    return this.apiService
-      .post<AuthResponse>('/orgusers/delegatee_refresh_token')
-      .pipe(switchMap((data) => this.authService.newRefreshToken(data.refresh_token)));
+    return this.apiService.post<AuthResponse>('/orgusers/delegatee_refresh_token').pipe(
+      switchMap((data) => this.authService.newRefreshToken(data.refresh_token)),
+      tap(() => {
+        void this.storageService.delete('lastLoggedInDelegatee');
+      }),
+    );
   }
 
   async isSwitchedToDelegator(): Promise<boolean> {
     const accessTokenPromise = this.jwtHelperService.decodeToken(await this.tokenService.getAccessToken());
     const accessToken: AccessTokenData = await accessTokenPromise;
     return accessToken && !!accessToken.proxy_org_user_id;
+  }
+
+  async getBaseDelegateeUserId(): Promise<string | null> {
+    return this.storageService.get<string>('lastLoggedInDelegatee');
+  }
+
+  async setBaseDelegateeUserId(userId: string): Promise<void> {
+    if (userId) {
+      await this.storageService.set('lastLoggedInDelegatee', userId);
+    }
   }
 
   getDwollaCustomer(): Observable<DwollaCustomer | null> {

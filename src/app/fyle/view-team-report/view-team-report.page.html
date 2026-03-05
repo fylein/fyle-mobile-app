@@ -454,7 +454,7 @@
 </ion-content>
 
 @if (permissions$ | async; as permissions) {
-  @if (!isCommentsView && isReportReported && permissions.can_approve) {
+  @if (!isCommentsView && isReportReported && permissions.can_approve && !delegateeOwnedReport) {
     <ion-footer class="cta-footer">
       @if (canShowTooltip && !canApprove) {
         <div class="view-reports--disabled-info text-center">
