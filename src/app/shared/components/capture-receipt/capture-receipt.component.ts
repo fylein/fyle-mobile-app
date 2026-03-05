@@ -541,4 +541,22 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   stopCamera(): void {
     this.cameraPreview.stopCamera();
   }
+
+  /**
+   * Set images shared from gallery/files (share target). Shows them in the preview without starting the camera.
+   */
+  setSharedImages(images: Image[]): void {
+    if (!images?.length) {
+      return;
+    }
+    this.base64ImagesWithSource = images.map((img) => ({
+      source: img.source || 'MOBILE_DASHCAM_GALLERY',
+      base64Image: img.base64Image,
+    }));
+    this.noOfReceipts = this.base64ImagesWithSource.length;
+    this.lastCapturedReceipt =
+      this.base64ImagesWithSource.length > 0
+        ? this.base64ImagesWithSource[this.base64ImagesWithSource.length - 1]?.base64Image
+        : null;
+  }
 }

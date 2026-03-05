@@ -20,6 +20,9 @@ project(':capacitor-clipboard').projectDir = new File('../node_modules/@capacito
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')
 
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/@capacitor/filesystem/android')
+
 include ':capacitor-geolocation'
 project(':capacitor-geolocation').projectDir = new File('../node_modules/@capacitor/geolocation/android')
 
@@ -55,6 +58,9 @@ project(':capawesome-capacitor-app-shortcuts').projectDir = new File('../node_mo
 
 include ':capgo-capacitor-is-root'
 project(':capgo-capacitor-is-root').projectDir = new File('../node_modules/@capgo/capacitor-is-root/android')
+
+include ':capgo-capacitor-share-target'
+project(':capgo-capacitor-share-target').projectDir = new File('../node_modules/@capgo/capacitor-share-target/android')
 
 include ':whiteguru-capacitor-plugin-file-picker'
 project(':whiteguru-capacitor-plugin-file-picker').projectDir = new File('../node_modules/@whiteguru/capacitor-plugin-file-picker/android')

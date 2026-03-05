@@ -32,9 +32,11 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
+import { CapacitorShareTarget } from '@capgo/capacitor-share-target';
 import { IsRoot } from '@capgo/capacitor-is-root';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { PushNotificationService } from './core/services/push-notification.service';
+import { ShareTargetService } from './core/services/share-target.service';
 import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
@@ -94,6 +96,8 @@ export class AppComponent implements OnInit, AfterViewInit {
   private tasksService = inject(TasksService);
 
   private translocoService = inject(TranslocoService);
+
+  private shareTargetService = inject(ShareTargetService);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -202,7 +206,22 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
     }
 
+    // Share target (see https://github.com/Cap-go/capacitor-share-target)
+    if (Capacitor.isNativePlatform()) {
+      CapacitorShareTarget.addListener('shareReceived', (event) => {
+        this.zone.run(() => {
+          const imageFiles = event.files?.filter((f) => f.mimeType?.startsWith('image/')) ?? [];
+          if (!imageFiles.length) {
+            return;
+          }
+          this.shareTargetService.setPendingSharedFiles(imageFiles);
+          this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+        });
+      });
+    }
+
     this.platform.ready().then(async () => {
+      console.log('[App] platform.ready()');
       if (Capacitor.isNativePlatform()) {
         await StatusBar.setStyle({
           style: Style.Default,

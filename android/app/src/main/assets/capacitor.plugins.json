@@ -24,6 +24,10 @@
 		"classpath": "com.capacitorjs.plugins.device.DevicePlugin"
 	},
 	{
+		"pkg": "@capacitor/filesystem",
+		"classpath": "com.capacitorjs.plugins.filesystem.FilesystemPlugin"
+	},
+	{
 		"pkg": "@capacitor/geolocation",
 		"classpath": "com.capacitorjs.plugins.geolocation.GeolocationPlugin"
 	},
@@ -70,6 +74,10 @@
 	{
 		"pkg": "@capgo/capacitor-is-root",
 		"classpath": "app.capgo.plugin.isroot.IsRootPlugin"
+	},
+	{
+		"pkg": "@capgo/capacitor-share-target",
+		"classpath": "app.capgo.sharetarget.CapacitorShareTargetPlugin"
 	},
 	{
 		"pkg": "@whiteguru/capacitor-plugin-file-picker",
