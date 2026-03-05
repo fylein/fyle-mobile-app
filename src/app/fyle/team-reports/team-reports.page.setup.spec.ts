@@ -32,11 +32,9 @@ class MockFooterComponent {}
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', [
-      'connectivityWatcher',
-      'isOnline',
-      'getConnectionStatus',
-    ]);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'getConnectionStatus'], {
+      isConnected$: of(true),
+    });
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [

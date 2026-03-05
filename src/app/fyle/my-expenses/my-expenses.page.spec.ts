@@ -226,7 +226,9 @@ describe('MyExpensesPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const activatedRouteSpy = {
       snapshot: {
         params: {
@@ -1787,10 +1789,10 @@ describe('MyExpensesPage', () => {
     });
   });
 
-  it('setupNetworkWatcher(): should update isConnected$ and call connectivityWatcher', () => {
+  it('setupNetworkWatcher(): should update isConnected$ from networkService.isConnected$', () => {
     networkService.isOnline.and.returnValue(of(true));
     component.setupNetworkWatcher();
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+    expect(component.isConnected$).toBeDefined();
     expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((isConnected) => {
       expect(isConnected).toBeTrue();

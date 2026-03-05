@@ -92,7 +92,9 @@ describe('ExpensesCardComponent', () => {
 
     fileServiceSpy.downloadUrl.and.returnValue(of('/assets/svg/list-plus.svg'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
       'isSyncInProgress',
       'fileUpload',
@@ -186,7 +188,6 @@ describe('ExpensesCardComponent', () => {
     networkService.isOnline.and.returnValue(of(true));
     sharedExpenseService.isExpenseInDraft.and.returnValue(true);
 
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
@@ -843,8 +844,6 @@ describe('ExpensesCardComponent', () => {
   it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
-
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();
@@ -1510,13 +1509,11 @@ describe('ExpensesCardComponent', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should setup network watcher correctly', fakeAsync(() => {
-      const mockEventEmitter = new EventEmitter<boolean>();
-      networkService.connectivityWatcher.and.returnValue(mockEventEmitter);
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalled();
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalled();
 
       component.isConnected$.pipe(take(1)).subscribe((isConnected) => {
@@ -1668,8 +1665,6 @@ describe('ExpensesCardComponent', () => {
   it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
-
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();

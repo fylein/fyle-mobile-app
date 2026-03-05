@@ -100,8 +100,7 @@ export class InvitedUserPage implements OnInit {
   focusOnConfirmPassword = false;
 
   ngOnInit(): void {
-    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = this.networkService.isConnected$;
     this.isConnected$.subscribe(noop);
 
     this.fg = this.fb.group({

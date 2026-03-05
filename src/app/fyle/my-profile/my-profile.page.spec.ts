@@ -103,7 +103,9 @@ describe('MyProfilePage', () => {
       'eventTrack',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -297,7 +299,7 @@ describe('MyProfilePage', () => {
     component.setupNetworkWatcher();
 
     expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+    expect(component.isConnected$).toBeDefined();
   });
 
   describe('signOut():', () => {

@@ -110,8 +110,8 @@ describe('AppComponent', () => {
     appVersionServiceSpy.getUserAppVersionDetails.and.returnValue(of(null));
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
     routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
-      isOnline$: of(true),
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
     });
     networkServiceSpy.isOnline.and.returnValue(of(true));
     const freshChatServiceSpy = jasmine.createSpyObj('FreshChatService', ['destroy']);

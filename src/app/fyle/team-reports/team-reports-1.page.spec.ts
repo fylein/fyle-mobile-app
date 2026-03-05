@@ -279,7 +279,7 @@ export function TestCases1(getTestBed) {
         networkService.isOnline.and.returnValue(of(false));
 
         component.setupNetworkWatcher();
-        expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+        expect(component.isConnected$).toBeDefined();
         expect(networkService.isOnline).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
         component.isConnected$.subscribe((online) => {
@@ -291,7 +291,7 @@ export function TestCases1(getTestBed) {
         networkService.isOnline.and.returnValue(of(true));
 
         component.setupNetworkWatcher();
-        expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+        expect(component.isConnected$).toBeDefined();
         expect(networkService.isOnline).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         component.isConnected$.subscribe((online) => {

@@ -114,9 +114,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   nativeSettings = NativeSettings;
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+    this.isOffline$ = this.networkService.isConnected$.pipe(
       map((connected) => !connected),
       shareReplay(1),
     );

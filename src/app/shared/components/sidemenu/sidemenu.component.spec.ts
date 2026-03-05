@@ -87,7 +87,9 @@ describe('SidemenuComponent', () => {
       'getCurrent',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const sidemenuServiceSpy = jasmine.createSpyObj('SidemenuService', ['getAllowedActions']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
@@ -139,8 +141,6 @@ describe('SidemenuComponent', () => {
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
-
     spyOn(document, 'getElementById').and.returnValue(document.createElement('div'));
     fixture = TestBed.createComponent(SidemenuComponent);
     component = fixture.componentInstance;
@@ -167,8 +167,6 @@ describe('SidemenuComponent', () => {
   it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
-
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();

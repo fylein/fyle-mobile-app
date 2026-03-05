@@ -227,7 +227,6 @@ export function TestCases2(getTestBed) {
     });
 
     it('setupNetworkWatcher(): should setup a network watcher', (done) => {
-      networkService.connectivityWatcher.and.returnValue(new EventEmitter<boolean>());
       networkService.isOnline.and.returnValue(of(true));
       fixture.detectChanges();
 
@@ -238,7 +237,7 @@ export function TestCases2(getTestBed) {
           connected: true,
         });
       });
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       done();
     });

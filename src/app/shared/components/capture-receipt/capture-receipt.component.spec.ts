@@ -100,7 +100,9 @@ describe('CaptureReceiptComponent', () => {
       'singleCaptureCount',
     ]);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['webPathToBase64']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs']);

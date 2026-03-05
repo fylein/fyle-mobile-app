@@ -56,7 +56,9 @@ describe('AddEditAdvanceRequestPage', () => {
       'readFile',
     ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
-    const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);

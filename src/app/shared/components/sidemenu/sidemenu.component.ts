@@ -102,10 +102,7 @@ export class SidemenuComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   showSideMenuOffline(): void {

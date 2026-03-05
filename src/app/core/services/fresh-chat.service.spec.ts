@@ -19,7 +19,9 @@ describe('FreshChatService', () => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get', 'post']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     TestBed.configureTestingModule({
       providers: [
         FreshChatService,
@@ -89,7 +91,7 @@ describe('FreshChatService', () => {
       freshChatService.setupNetworkWatcher();
       tick(100);
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).toHaveBeenCalledTimes(1);
@@ -103,7 +105,7 @@ describe('FreshChatService', () => {
       freshChatService.setupNetworkWatcher();
       tick(100);
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).not.toHaveBeenCalled();
@@ -115,7 +117,7 @@ describe('FreshChatService', () => {
       freshChatService.setupNetworkWatcher();
       tick(100);
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).not.toHaveBeenCalled();
