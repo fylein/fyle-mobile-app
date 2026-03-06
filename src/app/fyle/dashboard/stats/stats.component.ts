@@ -156,27 +156,7 @@ export class StatsComponent implements OnInit {
   }
 
   trackOrgLaunchTime(): void {
-    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1
-      && performance.getEntriesByName(PerfTrackers.appLaunchStartTime)?.length > 0
-    ) {
-      // Time taken for the app to launch and display the first screen
-      performance.mark(PerfTrackers.appLaunchEndTime);
-
-      // Measure time taken to launch app
-      performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
-
-      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-      const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
-
-      // Converting the duration to seconds and fix it to 3 decimal places
-      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
-
-      this.trackingService.appLaunchTime({
-        'App launch time': launchTimeDuration,
-        'Is logged in': isLoggedIn
-      });
-    }
+    this.trackingService.trackAppLaunchTimeIfFirstScreen();
   }
 
   /*
