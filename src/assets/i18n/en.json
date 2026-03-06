@@ -1,4 +1,7 @@
 {
+  "app": {
+    "rootedDeviceMessage": "This application can't run on a rooted Android phone"
+  },
   "services": {
     "status": {
       "approverAdded": "Approver added",
