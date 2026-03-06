@@ -1,6 +1,6 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { IonApp, IonFooter, IonRouterOutlet, MenuController, NavController, Platform } from '@ionic/angular/standalone';
-import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
+import { from, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -108,8 +108,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isSwitchedToDelegator: boolean;
 
-  isUserLoggedIn = false;
-
   isOnline: boolean;
 
   showFooter: boolean;
@@ -121,6 +119,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   totalTasksCount: number;
 
   routesWithFooter = [
+    '',
     'my_dashboard',
     'my_expenses',
     'my_advances',
@@ -262,22 +261,19 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     forkJoin({
       loggedInStatus: this.routerAuthService.isLoggedIn(),
-      isOnline: this.isConnected$.pipe(take(1)),
-    }).subscribe(({ loggedInStatus, isOnline }) => {
-      this.isUserLoggedIn = loggedInStatus;
+    }).subscribe(({ loggedInStatus }) => {
 
-      if (this.isUserLoggedIn) {
+      if (loggedInStatus) {
+        const markOptions: PerformanceMarkOptions = {
+          detail: loggedInStatus,
+        };
+        performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
         if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();
         }
       }
-
-      const markOptions: PerformanceMarkOptions = {
-        detail: this.isUserLoggedIn,
-      };
-      performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
     });
 
     this.userEventService.onSetToken(() => {

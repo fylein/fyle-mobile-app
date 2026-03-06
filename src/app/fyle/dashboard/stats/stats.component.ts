@@ -155,8 +155,10 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  trackOrgLaunchTime(isMultiOrg: boolean): void {
-    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
+  trackOrgLaunchTime(): void {
+    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1
+      && performance.getEntriesByName(PerfTrackers.appLaunchStartTime)?.length > 0
+    ) {
       // Time taken for the app to launch and display the first screen
       performance.mark(PerfTrackers.appLaunchEndTime);
 
@@ -172,8 +174,7 @@ export class StatsComponent implements OnInit {
 
       this.trackingService.appLaunchTime({
         'App launch time': launchTimeDuration,
-        'Is logged in': isLoggedIn,
-        'Is multi org': isMultiOrg,
+        'Is logged in': isLoggedIn
       });
     }
   }
@@ -200,14 +201,9 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.initializeUnapprovedTeamReportsStats();
+    this.trackOrgLaunchTime();
 
-    this.orgService.getOrgs().subscribe((orgs) => {
-      const isMultiOrg = orgs?.length > 1;
-
-      this.trackOrgLaunchTime(isMultiOrg);
-
-      this.trackDashboardLaunchTime();
-    });
+    this.trackDashboardLaunchTime();
   }
 
   ngOnInit(): void {
