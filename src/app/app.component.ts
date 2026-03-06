@@ -267,7 +267,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         const markOptions: PerformanceMarkOptions = {
           detail: loggedInStatus,
         };
-        console.log('marking app launch start time');
         performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
         if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
