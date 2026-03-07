@@ -379,13 +379,13 @@ export class DashboardPage {
     clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
 
     this.featureConfigService
-      .getConfiguration<{
+      .getByFeatureAndKey<{
         isShown?: boolean;
         isFinished?: boolean;
-      }>({
-        feature: 'WALKTHROUGH',
-        key: 'DASHBOARD_ADD_EXPENSE',
-      })
+      }>(
+        'WALKTHROUGH',
+        'DASHBOARD_ADD_EXPENSE',
+      )
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
@@ -501,12 +501,12 @@ export class DashboardPage {
     };
 
     this.featureConfigService
-      .getConfiguration<{
+      .getByFeatureAndKey<{
         isShown?: boolean;
         isFinished?: boolean;
         overlayClickCount?: number;
         currentStepIndex?: number;
-      }>(showNavbarWalkthroughConfig)
+      }>(showNavbarWalkthroughConfig.feature, showNavbarWalkthroughConfig.key)
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
@@ -553,7 +553,7 @@ export class DashboardPage {
       key: 'OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+    const isBannerShown$ = this.featureConfigService.getByFeatureAndKey(optInBannerConfig.feature, optInBannerConfig.key).pipe(
       map((config) => config?.value),
       shareReplay(1),
     );
@@ -582,7 +582,7 @@ export class DashboardPage {
       key: 'EMAIL_OPT_IN_BANNER_SHOWN',
     };
 
-    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+    return this.featureConfigService.getByFeatureAndKey(optInBannerConfig.feature, optInBannerConfig.key).pipe(
       map((config) => config?.value),
       map((isBannerShown) => !isBannerShown),
       shareReplay(1),
@@ -598,7 +598,7 @@ export class DashboardPage {
       key: 'REBRANDING_POPUP_SHOWN',
     };
 
-    return this.featureConfigService.getConfiguration(rebrandingPopupConfig).pipe(
+    return this.featureConfigService.getByFeatureAndKey(rebrandingPopupConfig.feature, rebrandingPopupConfig.key).pipe(
       map((config) => config?.value),
       map((isPopupShown) => !isPopupShown),
       shareReplay(1),
