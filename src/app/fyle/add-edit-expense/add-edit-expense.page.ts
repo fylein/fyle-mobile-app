@@ -536,6 +536,8 @@ export class AddEditExpensePage implements OnInit {
 
   saveAndPrevExpenseLoader = false;
 
+  private lastSaveSucceeded = false;
+
   canAttachReceipts: boolean;
 
   expenseStartTime: number;
@@ -3948,16 +3950,26 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  triggerNpsSurvey(): void {
-    this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
-      if (showNpsSurvey) {
-        this.refinerService.startSurvey({ actionName: 'Save Expense' });
-      }
-    });
-  }
+  triggerPostSavePrompts(): void {
+    if (!this.lastSaveSucceeded) {
+      return;
+    }
+    this.lastSaveSucceeded = false;
 
-  triggerAppRating(): void {
-    this.appRatingService.attemptRatingPrompt();
+    this.appRatingService
+      .checkEligibility()
+      .pipe(take(1))
+      .subscribe((isRatingEligible) => {
+        if (isRatingEligible) {
+          this.appRatingService.showRatingPrompt();
+        } else {
+          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+            if (showNpsSurvey) {
+              this.refinerService.startSurvey({ actionName: 'Save Expense' });
+            }
+          });
+        }
+      });
   }
 
   showSaveExpenseLoader(redirectedFrom: string): void {
@@ -4007,8 +4019,6 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
-        this.triggerAppRating();
       }),
     );
   }
@@ -4535,10 +4545,12 @@ export class AddEditExpensePage implements OnInit {
 
         return of(transaction);
       }),
+      tap(() => {
+        this.lastSaveSucceeded = true;
+      }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
-        this.triggerAppRating();
+        this.triggerPostSavePrompts();
       }),
     );
   }
@@ -4829,10 +4841,12 @@ export class AddEditExpensePage implements OnInit {
           }),
         ),
       ),
+      tap(() => {
+        this.lastSaveSucceeded = true;
+      }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
-        this.triggerAppRating();
+        this.triggerPostSavePrompts();
       }),
     );
   }

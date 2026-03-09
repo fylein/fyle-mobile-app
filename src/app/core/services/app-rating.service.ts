@@ -63,6 +63,11 @@ export class AppRatingService {
       });
   }
 
+  showRatingPrompt(): void {
+    this.trackingService.eventTrack('In App Rating Eligible', {});
+    this.showPrePromptPopover();
+  }
+
   checkEligibility(): Observable<boolean> {
     // TODO: Uncomment all eligibility checks before production release.
     // All checks are commented out for testing — this always returns true.
@@ -139,10 +144,7 @@ export class AppRatingService {
         key: this.CONFIG_KEY,
         is_shared: false,
       })
-      .pipe(
-        map((config: FeatureConfig<AppRatingHistory>) => config?.value || defaultHistory),
-        catchError(() => of(defaultHistory)),
-      );
+      .pipe(map((config: FeatureConfig<AppRatingHistory>) => config?.value || defaultHistory));
   }
 
   isNativePromptCooldownMet(history: AppRatingHistory): boolean {
