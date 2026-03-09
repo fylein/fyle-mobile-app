@@ -286,7 +286,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }, 500);
     });
 
-    this.setSidenav();
+    this.setSideNav();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
