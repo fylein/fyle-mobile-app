@@ -220,7 +220,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
-  setSidenav(): void {
+  setSideNav(): void {
     // need to reload sidenav once onboarding is complete
     this.spenderOnboardingService
       .onboardingComplete$
@@ -286,7 +286,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }, 500);
     });
 
-    this.setSideNav();
+    this.setSidenav();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
