@@ -102,7 +102,7 @@ describe('SpenderOnboardingPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
-    spenderOnboardingService.setOnboardingComplete.and.returnValue(Promise.resolve());
+    spenderOnboardingService.setOnboardingComplete.and.resolveTo();
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     spyOn(component, 'completeOnboarding').and.returnValue(of()).and.callThrough();
   });
