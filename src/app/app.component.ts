@@ -222,13 +222,20 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   setSidenav(): void {
-    this.isConnected$.pipe(take(1)).subscribe((isOnline) => {
-      if (isOnline) {
-        this.sidemenuRef.showSideMenuOnline();
-      } else {
-        this.sidemenuRef.showSideMenuOffline();
-      }
-    });
+    // need to reload sidenav once onboarding is complete
+    this.spenderOnboardingService
+      .onboardingComplete$
+      .pipe(
+        switchMap(() => this.isConnected$.pipe(take(1))),
+        map((isOnline) => {
+          if (isOnline) {
+            this.sidemenuRef.showSideMenuOnline();
+          } else {
+            this.sidemenuRef.showSideMenuOffline();
+          }
+        }),
+      )
+      .subscribe();
   }
 
   ngOnInit(): void {
@@ -280,7 +287,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }, 500);
     });
 
-    this.setSidenav();
+    this.setSideNav();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();

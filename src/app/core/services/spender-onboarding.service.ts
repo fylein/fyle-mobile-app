@@ -14,7 +14,7 @@ import { Cacheable } from 'ts-cacheable';
 
 const SPENDER_ONBOARDING_REDIRECT_KEY = 'spenderOnboardingRedirect';
 
-const onboardingComplete$ = new BehaviorSubject<boolean>(false);
+const onboardingCompleteCacheBuster$ = new BehaviorSubject<boolean>(false);
 
 @Injectable({
   providedIn: 'root',
@@ -30,12 +30,14 @@ export class SpenderOnboardingService {
 
   private storageService = inject(StorageService);
 
+  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
   /**
    * Public check: not cached. If user previously skipped onboarding (in-memory), never redirect again.
    * Otherwise delegates to the cached API-based check.
    */
   checkForRedirectionToOnboarding(): Observable<boolean> {
-    if (onboardingComplete$.getValue()) {
+    if (this.onboardingComplete$.getValue()) {
       return of(false);
     }
     return this.shouldRedirectToOnboarding();
@@ -45,7 +47,7 @@ export class SpenderOnboardingService {
    * Cached (in-memory + storage) result from API/org settings. Used by checkForRedirectionToOnboarding.
    */
   @Cacheable({
-    cacheBusterObserver: onboardingComplete$,
+    cacheBusterObserver: onboardingCompleteCacheBuster$,
   })
   shouldRedirectToOnboarding(): Observable<boolean> {
     return from(
@@ -156,7 +158,8 @@ export class SpenderOnboardingService {
 
   setOnboardingComplete(): void {
     this.storageService.set(SPENDER_ONBOARDING_REDIRECT_KEY, { shouldRedirectToOnboarding: false });
-    onboardingComplete$.next(true);
+    onboardingCompleteCacheBuster$.next(true);
+    this.onboardingComplete$.next(true);
   }
 
   private checkCCCEnabled(orgSettings: OrgSettings): boolean {
