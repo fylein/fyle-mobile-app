@@ -260,12 +260,11 @@ describe('PersonalCardsPage', () => {
     });
 
     it('setupNetworkWatcher(): should setup network watcher', () => {
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$ = of(false);
 
       component.setupNetworkWatcher();
 
       expect(component.isConnected$).toBeDefined();
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
 
