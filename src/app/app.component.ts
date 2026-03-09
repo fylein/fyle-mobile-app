@@ -163,7 +163,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
     });
-
     // Initialize push notification click listener early to catch notifications
     // that launched the app from a killed state
     if (Capacitor.isNativePlatform()) {
