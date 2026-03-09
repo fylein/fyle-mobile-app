@@ -167,6 +167,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { AppRatingService } from 'src/app/core/services/app-rating.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
@@ -380,6 +381,8 @@ export class AddEditExpensePage implements OnInit {
   private launchDarklyService = inject(LaunchDarklyService);
 
   private refinerService = inject(RefinerService);
+
+  private appRatingService = inject(AppRatingService);
 
   private platformHandlerService = inject(PlatformHandlerService);
 
@@ -3666,7 +3669,7 @@ export class AddEditExpensePage implements OnInit {
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
 
-    if (pushNotificationType === "EXPENSE_COMMENTS") {
+    if (pushNotificationType === 'EXPENSE_COMMENTS') {
       this.openCommentsModal();
     }
   }
@@ -3953,6 +3956,10 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
+  triggerAppRating(): void {
+    this.appRatingService.attemptRatingPrompt();
+  }
+
   showSaveExpenseLoader(redirectedFrom: string): void {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -4001,6 +4008,7 @@ export class AddEditExpensePage implements OnInit {
       finalize(() => {
         this.hideSaveExpenseLoader();
         this.triggerNpsSurvey();
+        this.triggerAppRating();
       }),
     );
   }
@@ -4530,6 +4538,7 @@ export class AddEditExpensePage implements OnInit {
       finalize(() => {
         this.hideSaveExpenseLoader();
         this.triggerNpsSurvey();
+        this.triggerAppRating();
       }),
     );
   }
@@ -4823,6 +4832,7 @@ export class AddEditExpensePage implements OnInit {
       finalize(() => {
         this.hideSaveExpenseLoader();
         this.triggerNpsSurvey();
+        this.triggerAppRating();
       }),
     );
   }
