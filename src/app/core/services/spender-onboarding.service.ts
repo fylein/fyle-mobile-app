@@ -156,10 +156,10 @@ export class SpenderOnboardingService {
     return this.processSmsOptInStep(data);
   }
 
-  setOnboardingComplete(): void {
-    this.storageService.set(SPENDER_ONBOARDING_REDIRECT_KEY, { shouldRedirectToOnboarding: false });
-    onboardingCompleteCacheBuster$.next(true);
+  setOnboardingComplete(): Promise<void> {
     this.onboardingComplete$.next(true);
+    onboardingCompleteCacheBuster$.next(true);
+    return this.storageService.set(SPENDER_ONBOARDING_REDIRECT_KEY, { shouldRedirectToOnboarding: false });
   }
 
   private checkCCCEnabled(orgSettings: OrgSettings): boolean {
