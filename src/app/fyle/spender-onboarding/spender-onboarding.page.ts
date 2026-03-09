@@ -11,6 +11,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { OnboardingStatus } from 'src/app/core/models/onboarding-status.model';
+import { OnboardingState } from 'src/app/core/models/onboarding-state.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { NgClass } from '@angular/common';
@@ -75,7 +76,7 @@ export class SpenderOnboardingPage {
   }
 
   setPostOnboardingScreen(isComplete?: boolean): void {
-    this.spenderOnboardingService.setOnboardingStatusEvent();
+    this.spenderOnboardingService.setOnboardingComplete();
     this.corporateCreditCardExpenseService.clearCache().subscribe();
     if (isComplete) {
       this.onboardingComplete = true;
@@ -120,6 +121,7 @@ export class SpenderOnboardingPage {
 
   ionViewWillEnter(): void {
     this.isLoading = true;
+    this.trackingService.trackAppLaunchTimeIfFirstScreen();
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
@@ -134,6 +136,14 @@ export class SpenderOnboardingPage {
           this.eou = eou;
           this.userFullName = eou.us.full_name;
           this.orgSettings = orgSettings;
+
+          // Failsafe: redirect to dashboard if onboarding is already complete (e.g. completed elsewhere - web app)
+          if (onboardingStatus?.state === OnboardingState.COMPLETED) {
+            this.spenderOnboardingService.setOnboardingComplete();
+            this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+            return;
+          }
+
           const isRtfEnabled =
             orgSettings.visa_enrollment_settings.enabled || orgSettings.mastercard_enrollment_settings.enabled;
           const onlyAmexEnabled = orgSettings.amex_feed_enrollment_settings.enabled && !isRtfEnabled;
