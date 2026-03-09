@@ -3958,7 +3958,10 @@ export class AddEditExpensePage implements OnInit {
 
     this.appRatingService
       .checkEligibility()
-      .pipe(take(1))
+      .pipe(
+        take(1),
+        catchError(() => of(false)),
+      )
       .subscribe((isRatingEligible) => {
         if (isRatingEligible) {
           this.appRatingService.showRatingPrompt();
