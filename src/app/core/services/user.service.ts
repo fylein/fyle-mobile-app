@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { StorageService } from './storage.service';
 import { map, switchMap, tap } from 'rxjs/operators';
-import { from, Observable, of, Subject } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { UserPasswordStatus } from '../models/user-password-status.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
