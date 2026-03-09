@@ -9,6 +9,7 @@ import { AppVersionService } from './core/services/app-version.service';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
+import { Toast } from '@capacitor/toast';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { FreshChatService } from './core/services/fresh-chat.service';
@@ -31,8 +32,12 @@ import { FooterComponent } from './shared/components/footer/footer.component';
 import { NgClass } from '@angular/common';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
 import { Capacitor } from '@capacitor/core';
+import { CapacitorShareTarget } from '@capgo/capacitor-share-target';
+import { IsRoot } from '@capgo/capacitor-is-root';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { PushNotificationService } from './core/services/push-notification.service';
+import { ShareTargetService } from './core/services/share-target.service';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-root',
@@ -90,6 +95,10 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   private tasksService = inject(TasksService);
 
+  private translocoService = inject(TranslocoService);
+
+  private shareTargetService = inject(ShareTargetService);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('sidemenuRef') sidemenuRef: SidemenuComponent;
@@ -131,6 +140,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   ];
 
   constructor() {
+    this.checkForRootedDevice();
     this.initializeApp();
     this.registerBackButtonAction();
   }
@@ -158,6 +168,20 @@ export class AppComponent implements OnInit, AfterViewInit {
     });
   }
 
+  async checkForRootedDevice(): Promise<void> {
+    // Root detection (Android only) – runs before platform.ready(); exits if rooted
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+      const { result: isRooted } = await IsRoot.isRooted();
+      if (isRooted) {
+        await Toast.show({
+          text: this.translocoService.translate('app.rootedDeviceMessage'),
+          duration: 'long',
+        });
+        await App.exitApp();
+      }
+    }
+  }
+
   initializeApp(): void {
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
 
@@ -182,7 +206,22 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
     }
 
+    // Share target (see https://github.com/Cap-go/capacitor-share-target)
+    if (Capacitor.isNativePlatform()) {
+      CapacitorShareTarget.addListener('shareReceived', (event) => {
+        this.zone.run(() => {
+          const imageFiles = event.files?.filter((f) => f.mimeType?.startsWith('image/')) ?? [];
+          if (!imageFiles.length) {
+            return;
+          }
+          this.shareTargetService.setPendingSharedFiles(imageFiles);
+          this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+        });
+      });
+    }
+
     this.platform.ready().then(async () => {
+      console.log('[App] platform.ready()');
       if (Capacitor.isNativePlatform()) {
         await StatusBar.setStyle({
           style: Style.Default,

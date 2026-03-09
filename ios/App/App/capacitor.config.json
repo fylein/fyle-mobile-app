@@ -34,6 +34,9 @@
 					"androidIcon": "ic_shortcut_add_sage"
 				}
 			]
+		},
+		"CapacitorShareTarget": {
+			"appGroupId": "group.com.ionicframework.fyle595781"
 		}
 	},
 	"cordova": {
@@ -54,6 +57,7 @@
 		"CAPCameraPlugin",
 		"ClipboardPlugin",
 		"DevicePlugin",
+		"FilesystemPlugin",
 		"GeolocationPlugin",
 		"HapticsPlugin",
 		"KeyboardPlugin",
@@ -63,7 +67,10 @@
 		"SplashScreenPlugin",
 		"StatusBarPlugin",
 		"TextZoomPlugin",
+		"ToastPlugin",
 		"AppShortcutsPlugin",
+		"IsRootPlugin",
+		"CapacitorShareTargetPlugin",
 		"FilePickerPlugin",
 		"NativeSettingsPlugin",
 		"SecureStoragePlugin",

@@ -5,22 +5,25 @@ PODS:
   - AppAuth/Core (1.7.6)
   - AppAuth/ExternalUserAgent (1.7.6):
     - AppAuth/Core
-  - Capacitor (7.4.4):
+  - Capacitor (7.4.5):
     - CapacitorCordova
   - CapacitorApp (7.1.1):
     - Capacitor
   - CapacitorBrowser (7.0.3):
     - Capacitor
-  - CapacitorCamera (7.0.2):
+  - CapacitorCamera (7.0.3):
     - Capacitor
   - CapacitorClipboard (7.0.3):
     - Capacitor
-  - CapacitorCommunityCameraPreview (7.0.2):
+  - CapacitorCommunityCameraPreview (7.0.4):
     - Capacitor
-  - CapacitorCordova (7.4.4)
+  - CapacitorCordova (7.4.5)
   - CapacitorDevice (7.0.3):
     - Capacitor
-  - CapacitorGeolocation (7.1.6):
+  - CapacitorFilesystem (7.1.8):
+    - Capacitor
+    - IONFilesystemLib (~> 1.1.1)
+  - CapacitorGeolocation (7.1.7):
     - Capacitor
     - IONGeolocationLib (= 1.0.1)
   - CapacitorHaptics (7.0.3):
@@ -44,11 +47,17 @@ PODS:
     - Capacitor
   - CapacitorTextZoom (7.0.3):
     - Capacitor
+  - CapacitorToast (7.0.4):
+    - Capacitor
   - CapawesomeCapacitorAppShortcuts (7.5.0):
     - Capacitor
-  - CordovaPlugins (7.4.4):
+  - CapgoCapacitorIsRoot (7.0.12):
+    - Capacitor
+  - CapgoCapacitorShareTarget (7.0.8):
+    - Capacitor
+  - CordovaPlugins (7.4.5):
     - CapacitorCordova
-  - CordovaPluginsStatic (7.4.4):
+  - CordovaPluginsStatic (7.4.5):
     - CapacitorCordova
     - GoogleSignIn (~> 5.0.2)
     - GoogleUtilities (~> 7.2.2)
@@ -124,6 +133,7 @@ PODS:
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 3.0, >= 1.5)
   - GTMSessionFetcher/Core (1.7.2)
+  - IONFilesystemLib (1.1.1)
   - IONGeolocationLib (1.0.1)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
@@ -144,6 +154,7 @@ DEPENDENCIES:
   - "CapacitorCommunityCameraPreview (from `../../node_modules/@capacitor-community/camera-preview`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
@@ -155,7 +166,10 @@ DEPENDENCIES:
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
+  - "CapacitorToast (from `../../node_modules/@capacitor/toast`)"
   - "CapawesomeCapacitorAppShortcuts (from `../../node_modules/@capawesome/capacitor-app-shortcuts`)"
+  - "CapgoCapacitorIsRoot (from `../../node_modules/@capgo/capacitor-is-root`)"
+  - "CapgoCapacitorShareTarget (from `../../node_modules/@capgo/capacitor-share-target`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - FirebaseMessaging
@@ -174,6 +188,7 @@ SPEC REPOS:
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
+    - IONFilesystemLib
     - IONGeolocationLib
     - nanopb
     - PromisesObjC
@@ -196,6 +211,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
     :path: "../../node_modules/@capacitor/device"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
   CapacitorGeolocation:
     :path: "../../node_modules/@capacitor/geolocation"
   CapacitorHaptics:
@@ -218,8 +235,14 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapacitorTextZoom:
     :path: "../../node_modules/@capacitor/text-zoom"
+  CapacitorToast:
+    :path: "../../node_modules/@capacitor/toast"
   CapawesomeCapacitorAppShortcuts:
     :path: "../../node_modules/@capawesome/capacitor-app-shortcuts"
+  CapgoCapacitorIsRoot:
+    :path: "../../node_modules/@capgo/capacitor-is-root"
+  CapgoCapacitorShareTarget:
+    :path: "../../node_modules/@capgo/capacitor-share-target"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
   CordovaPluginsStatic:
@@ -229,15 +252,16 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
-  Capacitor: 358dd1c3fdd71d969547b17e159fd8a7736cb45f
+  Capacitor: 12914e6f1b7835e161a74ebd19cb361efa37a7dd
   CapacitorApp: 63b237168fc869e758481dba283315a85743ee78
   CapacitorBrowser: b98aa3db018a2ce4c68242d27e596c344f3b81b3
-  CapacitorCamera: f9e54db0a18bb218a8dc360907d63aaefe9209ff
+  CapacitorCamera: 6746827d82376f31cea9224945c0458c9fd0b0b2
   CapacitorClipboard: 2a282bc14e8f47d430f2f9698ed95fbe25dcc21c
-  CapacitorCommunityCameraPreview: a45e3974b2f96fbc118d9cde1c8e5990fadf364f
-  CapacitorCordova: bf648a636f3c153f652d312ae145fb508b6ffced
+  CapacitorCommunityCameraPreview: 44c56001c577be07d7c7674c335e1af908112b84
+  CapacitorCordova: 31bbe4466000c6b86d9b7f1181ee286cff0205aa
   CapacitorDevice: b64654eb4d404373e733c01d835055ba59286e5c
-  CapacitorGeolocation: a65213fef581c7b8c5d486abbd5a6d00192a179e
+  CapacitorFilesystem: c63fc54df41e5a6761785a7f3c49dc696c22e296
+  CapacitorGeolocation: bb6f441b53393984f1c4e8b7e4a826fe3e133309
   CapacitorHaptics: ce15be8f287fa2c61c7d2d9e958885b90cf0bebc
   CapacitorKeyboard: 5660c760113bfa48962817a785879373cf5339c3
   CapacitorNativeSettings: 3cd2e2ef431fe471674f381609cfb29154ddfcfa
@@ -248,9 +272,12 @@ SPEC CHECKSUMS:
   CapacitorSplashScreen: 000f7591d546907dda5cbb514bd6b6d9e6048cf8
   CapacitorStatusBar: d0e0151c89c001a9c7125bac59ddedf76b664768
   CapacitorTextZoom: c22bedd7b6762443ae7648edd6e6df70c5e0b2fe
+  CapacitorToast: 72753efca4a9725a312109418e6d04559ac05e10
   CapawesomeCapacitorAppShortcuts: ba59ff3a9da01610ac0ffc96c07631bc817fb7b5
-  CordovaPlugins: 6b39dd8097d06e1816b3cc50085d5e46e6b4a861
-  CordovaPluginsStatic: f8618193a06f78efe2da401283820de5239a8f65
+  CapgoCapacitorIsRoot: 4056e3121ebb5f19d960751b57a9d6cc7333e62e
+  CapgoCapacitorShareTarget: 8361fdb026f6efd84e2960c0bb3df5ffa97a5e6f
+  CordovaPlugins: b804cf6833e5c92006bccc8f2eaf7000c12099aa
+  CordovaPluginsStatic: d74cfe14d42e0fb1799237194fbb47a25277952f
   FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
   FirebaseCoreDiagnostics: 68ad972f99206cef818230f3f3179d52ccfb7f8c
   FirebaseInstallations: a58d4f72ec5861840b84df489f2668d970df558a
@@ -261,12 +288,13 @@ SPEC CHECKSUMS:
   GoogleUtilities: 31c5b01f978a70c6cff2afc6272b3f1921614b43
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
   GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
+  IONFilesystemLib: dfa8706539ac9ab77ccfd6e5b3830ce9b5e57f6c
   IONGeolocationLib: 20f9d0248a0b5264511fb57a37e25dd2badf797a
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   WhiteguruCapacitorPluginFilePicker: 2a56042cdc8764ed011c672917edc33a95f9d4f4
 
-PODFILE CHECKSUM: 3bfe50c70173259abe6c00635d38652737b9b836
+PODFILE CHECKSUM: 2ba768d49f6900dea4c22f442a1cf96fb473deda
 
 COCOAPODS: 1.16.2
