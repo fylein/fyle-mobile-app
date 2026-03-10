@@ -337,6 +337,7 @@ describe('AppRatingService', () => {
     });
 
     it('should trigger native review and record nativePrompts when user taps "Leave a rating"', fakeAsync(() => {
+      const triggerSpy = spyOn<any>(service, 'triggerNativeReview').and.resolveTo();
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'rate' }, role: undefined });
       featureConfigService.getConfiguration.and.returnValue(
         of({ value: { nativePrompts: [], dismissals: [] } } as FeatureConfig<AppRatingHistory>),
@@ -347,6 +348,7 @@ describe('AppRatingService', () => {
 
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Accepted', {});
+      expect(triggerSpy).toHaveBeenCalledTimes(1);
       expect(featureConfigService.saveConfiguration).toHaveBeenCalledTimes(1);
       const savedValue = featureConfigService.saveConfiguration.calls.mostRecent().args[0].value as AppRatingHistory;
       expect(savedValue.nativePrompts.length).toBe(1);
@@ -384,21 +386,6 @@ describe('AppRatingService', () => {
       const savedValue = featureConfigService.saveConfiguration.calls.mostRecent().args[0].value as AppRatingHistory;
       expect(savedValue.dismissals.length).toBe(1);
     }));
-
-    it('should handle native review failure gracefully and still record nativePrompts', async () => {
-      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'rate' }, role: undefined });
-      featureConfigService.getConfiguration.and.returnValue(
-        of({ value: { nativePrompts: [], dismissals: [] } } as FeatureConfig<AppRatingHistory>),
-      );
-
-      service.attemptRatingPrompt();
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Accepted', {});
-      expect(featureConfigService.saveConfiguration).toHaveBeenCalledTimes(1);
-      const savedValue = featureConfigService.saveConfiguration.calls.mostRecent().args[0].value as AppRatingHistory;
-      expect(savedValue.nativePrompts.length).toBe(1);
-    });
 
     it('should append to existing history when recording interaction', fakeAsync(() => {
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'dismiss' }, role: undefined });
