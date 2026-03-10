@@ -148,6 +148,9 @@
     "ionic_generate_source_map": "true"
   },
   "overrides": {
+    "@ionic/angular-toolkit": {
+      "ajv": "^8.18.0"
+    },
     "async": "^3.2.6",
     "ng2-pdf-viewer": {
       "tar-fs": "2.1.4"
