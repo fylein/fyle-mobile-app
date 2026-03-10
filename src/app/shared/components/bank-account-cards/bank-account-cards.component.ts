@@ -55,7 +55,6 @@ export class BankAccountCardsComponent implements AfterViewInit, OnDestroy {
   }
 
   private initSwiper(): void {
-    if (!this.swiperContainer()?.nativeElement || !this.linkedAccounts?.length) return;
     if (this.swiperInstance) {
       this.swiperInstance.destroy(true, true);
       this.swiperInstance = null;
