@@ -41,16 +41,16 @@
     </div>
   }
 
-  <swiper
+  <swiper-container
     #swiper
     class="full-height"
-    [centeredSlides]="true"
-    [pagination]="false"
-    (activeIndexChange)="getActiveIndex()"
-    (onSwiper)="getActiveIndex()"
+    centered-slides="true"
+    pagination="false"
+    (swiperslidechange)="getActiveIndex()"
+    (swiperinit)="getActiveIndex()"
   >
     @for (attachment of attachments; track attachment.id ?? $index) {
-      <ng-template swiperSlide>
+      <swiper-slide>
         <div>
           @if (attachment?.type !== 'pdf') {
             <pinch-zoom class="view-attachments--container">
@@ -84,9 +84,9 @@
             </div>
           }
         </div>
-      </ng-template>
+      </swiper-slide>
     }
-  </swiper>
+  </swiper-container>
 </ion-content>
 
 <ion-footer class="view-attachments--footer">

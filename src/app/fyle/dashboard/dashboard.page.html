@@ -54,20 +54,23 @@
           @if (eou$ | async; as eou) {
             @if ((canShowOptInBanner$ | async) || (canShowEmailOptInBanner$ | async)) {
               @if (swiperConfig) {
-                <swiper #optInSwiper class="opt-in-banners__swiper" [config]="swiperConfig">
-                  @if (canShowOptInBanner$ | async) {
-                    <ng-template swiperSlide>
-                      <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
-                      </app-dashboard-opt-in>
-                    </ng-template>
-                  }
-                  @if (canShowEmailOptInBanner$ | async) {
-                    <ng-template swiperSlide>
-                      <app-dashboard-email-opt-in (toggleEmailOptInBanner)="toggleEmailOptInBanner($event)">
-                      </app-dashboard-email-opt-in>
-                    </ng-template>
-                  }
-                </swiper>
+                <div class="swiper opt-in-banners__swiper" #optInSwiper>
+                  <div class="swiper-wrapper">
+                    @if (canShowOptInBanner$ | async) {
+                      <div class="swiper-slide">
+                        <app-dashboard-opt-in [extendedOrgUser]="eou" (toggleOptInBanner)="toggleOptInBanner($event)">
+                        </app-dashboard-opt-in>
+                      </div>
+                    }
+                    @if (canShowEmailOptInBanner$ | async) {
+                      <div class="swiper-slide">
+                        <app-dashboard-email-opt-in (toggleEmailOptInBanner)="toggleEmailOptInBanner($event)">
+                        </app-dashboard-email-opt-in>
+                      </div>
+                    }
+                  </div>
+                  <div class="swiper-pagination"></div>
+                </div>
               }
             }
           }

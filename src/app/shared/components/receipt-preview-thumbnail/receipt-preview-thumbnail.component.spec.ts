@@ -77,20 +77,20 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('goToNextSlide(): should move the next slide after 100ms', () => {
     const imageSlidesSpy = {
-      swiperRef: jasmine.createSpyObj('swiperRef', ['slideNext']),
+      nativeElement: { swiper: jasmine.createSpyObj('swiperRef', ['slideNext']) },
     };
     component.imageSlides = imageSlidesSpy as any;
     component.goToNextSlide();
-    expect(imageSlidesSpy.swiperRef.slideNext).toHaveBeenCalledOnceWith(100);
+    expect(imageSlidesSpy.nativeElement.swiper.slideNext).toHaveBeenCalledOnceWith(100);
   });
 
   it('goToPrevSlide(): should move to previous slide after 100ms', () => {
     const imageSlidesSpy = {
-      swiperRef: jasmine.createSpyObj('swiperRef', ['slidePrev']),
+      nativeElement: { swiper: jasmine.createSpyObj('swiperRef', ['slidePrev']) },
     };
     component.imageSlides = imageSlidesSpy as any;
     component.goToPrevSlide();
-    expect(imageSlidesSpy.swiperRef.slidePrev).toHaveBeenCalledOnceWith(100);
+    expect(imageSlidesSpy.nativeElement.swiper.slidePrev).toHaveBeenCalledOnceWith(100);
   });
 
   it('addAttachments(): should add more attachments', () => {
@@ -110,9 +110,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('getActiveIndex(): should set active index based on swiperRef.activeIndex', () => {
     component.imageSlides = {
-      swiperRef: {
-        activeIndex: 2,
-      },
+      nativeElement: { swiper: { activeIndex: 2 } },
     } as any;
     component.getActiveIndex();
     fixture.detectChanges();
@@ -121,32 +119,32 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('ngDoCheck(): should not update the previousCount if attachments length is equal to previousCount', fakeAsync(() => {
     const imageSlidesSpy = {
-      swiperRef: jasmine.createSpyObj('swiperRef', ['slideTo']),
+      nativeElement: { swiper: jasmine.createSpyObj('swiperRef', ['slideTo']) },
     };
+    (imageSlidesSpy.nativeElement.swiper as { activeIndex: number }).activeIndex = 2;
     component.imageSlides = imageSlidesSpy as any;
-    component.imageSlides.swiperRef.activeIndex = 2;
     spyOn(component, 'getActiveIndex');
     component.previousCount = 1;
     component.ngDoCheck();
     fixture.detectChanges();
     tick(100);
-    expect(component.imageSlides.swiperRef.slideTo).not.toHaveBeenCalledOnceWith(component.attachments.length);
+    expect(imageSlidesSpy.nativeElement.swiper.slideTo).not.toHaveBeenCalledOnceWith(component.attachments.length);
     expect(component.getActiveIndex).not.toHaveBeenCalled();
   }));
 
   it('ngDoCheck(): should update the previousCount if attachments length is not equal', fakeAsync(() => {
     const imageSlidesSpy = {
-      swiperRef: jasmine.createSpyObj('swiperRef', ['slideTo']),
+      nativeElement: { swiper: jasmine.createSpyObj('swiperRef', ['slideTo']) },
     };
+    (imageSlidesSpy.nativeElement.swiper as { activeIndex: number }).activeIndex = 2;
     component.imageSlides = imageSlidesSpy as any;
-    component.imageSlides.swiperRef.activeIndex = 2;
     spyOn(component, 'getActiveIndex');
     component.previousCount = 2;
     component.ngDoCheck();
     fixture.detectChanges();
     expect(component.previousCount).toBe(component.attachments.length);
     tick(100);
-    expect(component.imageSlides.swiperRef.slideTo).toHaveBeenCalledOnceWith(component.attachments.length);
+    expect(imageSlidesSpy.nativeElement.swiper.slideTo).toHaveBeenCalledOnceWith(component.attachments.length);
     expect(component.getActiveIndex).toHaveBeenCalledTimes(1);
   }));
 

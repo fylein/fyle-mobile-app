@@ -28,12 +28,12 @@
 
 @use 'assets/fonts/font.css';
 @use 'theme/colors';
-
-@use 'swiper/scss';
-@use 'swiper/scss/navigation';
-@use 'swiper/scss/pagination';
 @use 'driver.js/dist/driver.css';
 @use '../src/assets/styles/fy_driver_tour';
+
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
 
 $header-input-interior: #eeeeee;
 

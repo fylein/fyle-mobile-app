@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, ViewChild, inject, input, output } from '@angular/core';
+import { Component, ElementRef, OnInit, Input, inject, input, output, viewChild } from '@angular/core';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
@@ -21,11 +21,13 @@ import { MatIcon } from '@angular/material/icon';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FormButtonValidationDirective } from '../../directive/form-button-validation.directive';
+import { SwiperContainer } from 'swiper/element';
 
 @Component({
   selector: 'app-fy-view-attachment',
   templateUrl: './fy-view-attachment.component.html',
   styleUrls: ['./fy-view-attachment.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     FormButtonValidationDirective,
     IonButton,
@@ -40,7 +42,6 @@ import { FormButtonValidationDirective } from '../../directive/form-button-valid
     NgClass,
     PdfViewerModule,
     PinchZoomComponent,
-    SwiperModule,
     TranslocoPipe
   ],
 })
@@ -81,9 +82,11 @@ export class FyViewAttachmentComponent implements OnInit {
 
   readonly isTeamAdvance = input<boolean>(false);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the query. This prevents migration.
-  @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
+  readonly swiperElement = viewChild<ElementRef<SwiperContainer>>('swiper');
+
+  private get swiperRef() {
+    return this.swiperElement()?.nativeElement?.swiper;
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sliderOptions: any;
@@ -148,7 +151,7 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.imageSlides.swiperRef.update();
+    this.swiperRef?.update();
   }
 
   zoomIn(): void {
@@ -172,21 +175,21 @@ export class FyViewAttachmentComponent implements OnInit {
   }
 
   goToNextSlide(): void {
-    this.imageSlides.swiperRef.slideNext();
+    this.swiperRef?.slideNext();
   }
 
   goToPrevSlide(): void {
-    this.imageSlides.swiperRef.slidePrev();
+    this.swiperRef?.slidePrev();
   }
 
   getActiveIndex(): void {
-    this.activeIndex = this.imageSlides.swiperRef.activeIndex;
+    this.activeIndex = this.swiperRef?.activeIndex ?? 0;
   }
 
   async deleteAttachment(): Promise<void> {
     const title = this.translocoService.translate('fyViewAttachment.removeReceiptTitle');
     const message = this.translocoService.translate('fyViewAttachment.removeReceiptMessage');
-    const activeIndex = await this.imageSlides.swiperRef.activeIndex;
+    const activeIndex = this.swiperRef?.activeIndex ?? 0;
     try {
       this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
     } catch (error) {}
