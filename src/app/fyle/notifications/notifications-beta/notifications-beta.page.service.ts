@@ -131,7 +131,7 @@ export class NotificationsBetaPageService {
         email: true,
         emailOnly: true,
         eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
-      });
+      } as NotificationEventItem);
     }
 
     return reportNotifications;
