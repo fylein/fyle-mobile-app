@@ -641,7 +641,6 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an expense is created via email',
     email: true,
-    emailOnly: true,
     eventEnum: NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
   },
   {
@@ -663,6 +662,7 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an expense is marked as personal',
     email: true,
+    emailOnly: true,
     eventEnum: NotificationEventsEnum.ETXNS_MARKED_PERSONAL,
   },
   {
@@ -702,6 +702,7 @@ export const expenseReportNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an expense report is ready to process',
     email: true,
+    emailOnly: true,
     eventEnum: NotificationEventsEnum.ERPTS_READY_TO_PROCESS,
   },
 ]);
