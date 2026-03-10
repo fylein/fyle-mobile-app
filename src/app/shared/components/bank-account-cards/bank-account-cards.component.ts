@@ -33,6 +33,12 @@ export class BankAccountCardsComponent implements AfterViewInit, OnDestroy {
 
   readonly changed = output<PlatformPersonalCard>();
 
+  pagination = {
+    renderBullet(index: number, className: string): string {
+      return '<span class="fyle ' + className + '"> </span>';
+    },
+  };
+
   private swiperInstance: Swiper | null = null;
 
   ngAfterViewInit(): void {
@@ -67,9 +73,7 @@ export class BankAccountCardsComponent implements AfterViewInit, OnDestroy {
       pagination: {
         el: '.swiper-pagination',
         type: 'bullets',
-        renderBullet(index: number, className: string): string {
-          return '<span class="fyle ' + className + '"> </span>';
-        },
+        ...this.pagination,
       },
       on: {
         init: (swiper) => this.onCardChange(swiper),

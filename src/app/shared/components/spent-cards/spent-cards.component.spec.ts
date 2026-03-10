@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { SpentCardsComponent } from './spent-cards.component';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
-import { Component } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output } from '@angular/core';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardDetailComponent } from './card-detail/card-detail.component';
 import { AddCardComponent } from '../add-card/add-card.component';
@@ -14,6 +14,9 @@ import { AddCardComponent } from '../add-card/add-card.component';
   imports: [],
 })
 class MockCardDetailComponent {
+  @Input() cardDetail: unknown;
+  @Input() homeCurrency: string | undefined;
+  @Input() currencySymbol: string | undefined;
 }
 
 // mock for add-card component
@@ -23,6 +26,8 @@ class MockCardDetailComponent {
   imports: [],
 })
 class MockAddCardComponent {
+  @Input() showZeroStateMessage = false;
+  @Output() addCardClick = new EventEmitter<void>();
 }
 
 describe('SpentCardsComponent', () => {
@@ -32,6 +37,7 @@ describe('SpentCardsComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [SpentCardsComponent, getTranslocoTestingModule()],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).overrideComponent(SpentCardsComponent, {
       remove: {
         imports: [CardDetailComponent, AddCardComponent],
@@ -45,6 +51,7 @@ describe('SpentCardsComponent', () => {
     component = fixture.componentInstance;
 
     component.showAddCardSlide = true;
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
 
     fixture.detectChanges();
   }));

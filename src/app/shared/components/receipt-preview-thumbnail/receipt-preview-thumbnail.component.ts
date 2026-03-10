@@ -1,4 +1,4 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnInit, Input, ViewChild, DoCheck, inject, input, output, viewChild } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnInit, Input, DoCheck, inject, input, output, viewChild } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -8,7 +8,6 @@ import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { IonSpinner } from '@ionic/angular/standalone';
-import Swiper from 'swiper';
 import { SwiperContainer } from 'swiper/element';
 
 @Component({
