@@ -145,7 +145,7 @@ export class OrgUserService {
     return this.apiService.post<AuthResponse>('/orgusers/delegatee_refresh_token').pipe(
       switchMap((data) => this.authService.newRefreshToken(data.refresh_token)),
       tap(() => {
-        void this.storageService.delete('lastLoggedInDelegatee');
+        switchMap((eou) => this.storageService.delete('delegatee_id').then(() => eou));
       }),
     );
   }
@@ -157,12 +157,12 @@ export class OrgUserService {
   }
 
   async getBaseDelegateeUserId(): Promise<string | null> {
-    return this.storageService.get<string>('lastLoggedInDelegatee');
+    return this.storageService.get<string>('delegatee_id');
   }
 
   async setBaseDelegateeUserId(userId: string): Promise<void> {
     if (userId) {
-      await this.storageService.set('lastLoggedInDelegatee', userId);
+      await this.storageService.set('delegatee_id', userId);
     }
   }
 
