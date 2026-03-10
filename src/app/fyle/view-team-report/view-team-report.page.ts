@@ -70,7 +70,7 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ReportState } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-view-team-report',
@@ -125,7 +125,7 @@ export class ViewTeamReportPage {
 
   private authService = inject(AuthService);
 
-  private orgUserService = inject(OrgUserService);
+  private delegationService = inject(DelegationService);
 
   private router = inject(Router);
 
@@ -480,11 +480,13 @@ export class ViewTeamReportPage {
       eou: this.eou$,
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-      isSwitchedToDelegator: from(this.orgUserService.isSwitchedToDelegator()),
-      baseDelegateeUserId: from(this.orgUserService.getBaseDelegateeUserId()),
+      delegateeOwnedReport: this.report$.pipe(
+        take(1),
+        switchMap((report) => from(this.delegationService.isDelegateeOwnedReport(report.user_id))),
+      ),
     }).subscribe({
       // eslint-disable-next-line complexity
-      next: ({ expenses, eou, report, orgSettings, isSwitchedToDelegator, baseDelegateeUserId }) => {
+      next: ({ expenses, eou, report, orgSettings, delegateeOwnedReport }) => {
         this.reportExpensesIds = expenses.map((expense) => expense.id);
         this.showViewApproverModal =
           orgSettings?.simplified_multi_stage_approvals?.allowed &&
@@ -509,8 +511,7 @@ export class ViewTeamReportPage {
           });
         }
 
-        this.delegateeOwnedReport =
-          !!isSwitchedToDelegator && !!baseDelegateeUserId && report?.user_id === baseDelegateeUserId;
+        this.delegateeOwnedReport = delegateeOwnedReport;
       },
     });
 

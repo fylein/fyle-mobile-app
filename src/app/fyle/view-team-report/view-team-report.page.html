@@ -11,7 +11,7 @@
       <ion-title mode="md" class="page-title">View expense report</ion-title>
     </ng-container>
     <ion-buttons mode="md" slot="end">
-      @if (isReportReported) {
+      @if (isReportReported && !delegateeOwnedReport) {
         <ion-button (click)="sendBack()">
           <ion-icon
             [src]="'../../../assets/svg/send-back.svg'"
@@ -122,7 +122,7 @@
                     <div class="view-reports--approvers">Approvers</div>
                     @if (permissions$ | async; as permissions) {
                       <div>
-                        @if (permissions.can_add_approver) {
+                        @if (permissions.can_add_approver && !delegateeOwnedReport) {
                           <app-fy-approver
                             [approverEmailsList]="getApproverEmails(approvals)"
                             [id]="report.id"

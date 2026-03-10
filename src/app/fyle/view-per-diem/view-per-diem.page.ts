@@ -52,6 +52,7 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -119,7 +120,11 @@ export class ViewPerDiemPage {
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
 
+  private delegationService = inject(DelegationService);
+
   perDiemExpense$: Observable<Expense>;
+
+  delegateeOwnedExpense = false;
 
   orgSettings: OrgSettings;
 
@@ -243,6 +248,15 @@ export class ViewPerDiemPage {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1),
     );
+
+    this.perDiemExpense$
+      .pipe(
+        take(1),
+        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+      )
+      .subscribe((isDelegateeOwnedExpense) => {
+        this.delegateeOwnedExpense = isDelegateeOwnedExpense;
+      });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
