@@ -641,7 +641,6 @@ export const expenseNotifications: NotificationEventItem[] = deepFreeze([
   {
     event: 'When an expense is created via email',
     email: true,
-    emailOnly: true,
     eventEnum: NotificationEventsEnum.EOUS_FORWARD_EMAIL_TO_USER,
   },
   {
