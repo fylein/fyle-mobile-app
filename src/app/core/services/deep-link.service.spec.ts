@@ -97,11 +97,15 @@ describe('DeepLinkService', () => {
         redirect_uri: `${baseURL}/my_expenses/?state=draft&org_id=orKaeO5xojOD`,
       });
 
-      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], {
-        queryParams: {
+      expect(router.navigate).toHaveBeenCalledWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'my_expenses',
+          orgId: 'orKaeO5xojOD',
           filters: JSON.stringify({ state: [FilterState.DRAFT] }),
         },
-      });
+      ]);
     });
 
     it('should navigate to the verify page when the redirect URI contains "/verify"', () => {
