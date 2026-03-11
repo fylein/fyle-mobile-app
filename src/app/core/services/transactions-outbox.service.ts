@@ -61,7 +61,6 @@ export class TransactionsOutboxService {
   }
 
   private handleSyncError(err: HttpErrorResponse): void {
-    console.dir(err);
     const errorObject = err.error as PlatformApiError;
     // handle platform API error and s3 upload error messages
     const trackingError = {
