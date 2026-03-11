@@ -928,6 +928,8 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getMileageByVehicleType(mileageRates: PlatformMileageRates[], vehicle_type: string): PlatformMileageRates {
+    console.log('mileageRates', mileageRates);
+    console.log('vehicle_type', vehicle_type);
     const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate;
@@ -963,15 +965,11 @@ export class AddEditMileagePage implements OnInit {
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
-          if (isRecentVehicleTypePresent) {
+          const mileageRatePresentForRecentVehicleType = isRecentVehicleTypePresent && mileageRates.find((mileageRate) => mileageRate.vehicle_type === recentValue.vehicle_types[0]);
+          if (isRecentVehicleTypePresent && mileageRatePresentForRecentVehicleType) {
             vehicleType = recentValue.vehicle_types[0];
             this.presetVehicleType = recentValue.vehicle_types[0];
-          }
-          if (
-            !isRecentVehicleTypePresent &&
-            mileageRates &&
-            mileageRates.length > 0
-          ) {
+          } else if (mileageRates && mileageRates.length > 0) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
@@ -1389,10 +1387,11 @@ export class AddEditMileagePage implements OnInit {
   getAddRates(): Observable<number> {
     return this.fg.valueChanges.pipe(
       map((formValue: MileageFormValue) => formValue.mileage_rate_name),
-      switchMap((formValue) =>
-        this.mileageRates$.pipe(
+      switchMap((formValue) => {
+        return this.mileageRates$.pipe(
           map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type)),
-        ),
+        );
+      }
       ),
       shareReplay(1),
     );
