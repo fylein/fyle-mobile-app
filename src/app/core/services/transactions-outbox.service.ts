@@ -61,13 +61,18 @@ export class TransactionsOutboxService {
   }
 
   private handleSyncError(err: HttpErrorResponse): void {
-    const error = err.error as PlatformApiError;
+    console.dir(err);
+    const errorObject = err.error as PlatformApiError;
     // handle platform API error and s3 upload error messages
     const trackingError = {
-      data: error && 'data' in error ? error.data : undefined,
+      error: {
+        data: errorObject && 'data' in errorObject ? errorObject.data : undefined,
+        message: errorObject && 'message' in errorObject ? errorObject.message : undefined,
+        error: errorObject && 'error' in errorObject ? errorObject.error : undefined,
+      },
       errorMessage: err.message,
     };
-    this.trackingService.syncError({ label: trackingError });
+    this.trackingService.syncError(trackingError);
   }
 
   get singleCaptureCount(): number {
@@ -95,6 +100,7 @@ export class TransactionsOutboxService {
 
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
+      console.log('entry.transaction', entry.transaction);
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
     }
