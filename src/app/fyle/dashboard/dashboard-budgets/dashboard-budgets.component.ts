@@ -37,6 +37,13 @@ export class DashboardBudgetsComponent implements AfterViewInit, OnDestroy {
 
   readonly areDashboardTabsEnabled = input<boolean>(false);
 
+  readonly pagination = {
+    dynamicBullets: true,
+    renderBullet(index: number, className: string): string {
+      return '<span class="dashboard-budgets ' + className + '"> </span>';
+    },
+  };
+
   private swiperInstance: Swiper | null = null;
 
   private currencyService: CurrencyService = inject(CurrencyService);
@@ -80,10 +87,7 @@ export class DashboardBudgetsComponent implements AfterViewInit, OnDestroy {
       pagination: {
         el: '.swiper-pagination',
         type: 'bullets',
-        dynamicBullets: true,
-        renderBullet(index: number, className: string): string {
-          return '<span class="dashboard-budgets ' + className + '"> </span>';
-        },
+        ...this.pagination,
       },
     });
   }

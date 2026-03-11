@@ -618,6 +618,12 @@ export class DashboardPage implements OnDestroy {
   }
 
   setSwiperConfig(): void {
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
     // Set default config when observables are not ready
     if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
       this.swiperConfig = {
@@ -721,12 +727,6 @@ export class DashboardPage implements OnDestroy {
 
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
-    this.swiperConfig = {
-      slidesPerView: 1,
-      spaceBetween: 0,
-      centeredSlides: true,
-      pagination: this.optInBannerPagination,
-    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
