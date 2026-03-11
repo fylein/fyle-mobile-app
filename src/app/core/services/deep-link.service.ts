@@ -78,9 +78,9 @@ export class DeepLinkService {
       } else if (
         redirectUri.match('/my_expenses/') &&
         redirectUri.includes('txnId=') &&
-        redirectUri.split('txnId=').pop().length === 12
+        redirectUri.match(/txnId=([^&]+)/)?.[1]?.length === 12
       ) {
-        const txnId = redirectUri.split('txnId=').pop();
+        const txnId = redirectUri.match(/txnId=([^&]+)/)?.[1];
         const subModule = 'expense';
         const properties: Record<string, string> = {
           sub_module: subModule,
