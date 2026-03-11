@@ -928,8 +928,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getMileageByVehicleType(mileageRates: PlatformMileageRates[], vehicle_type: string): PlatformMileageRates {
-    console.log('mileageRates', mileageRates);
-    console.log('vehicle_type', vehicle_type);
     const filteredMileageRate = mileageRates.find((mileageRate) => mileageRate.vehicle_type === vehicle_type);
 
     return filteredMileageRate;
