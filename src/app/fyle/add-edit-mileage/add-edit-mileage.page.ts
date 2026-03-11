@@ -1385,7 +1385,7 @@ export class AddEditMileagePage implements OnInit {
   getAddRates(): Observable<number> {
     return this.fg.valueChanges.pipe(
       map((formValue: MileageFormValue) => formValue.mileage_rate_name),
-      switchMap((formValue) => 
+      switchMap((formValue) =>
         this.mileageRates$.pipe(
           map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type)),
         ),
