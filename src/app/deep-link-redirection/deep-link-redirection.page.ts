@@ -51,6 +51,8 @@ export class DeepLinkRedirectionPage {
       this.redirectToDashboardModule();
     } else if (subModule === 'manage_corporate_cards') {
       this.redirectToCorporateCardsModule();
+    } else if (subModule === 'my_expenses') {
+      this.redirectToMyExpensesModule();
     }
   }
 
@@ -166,6 +168,59 @@ export class DeepLinkRedirectionPage {
       });
   }
 
+  async redirectToMyExpensesModule(): Promise<void> {
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+    const filters = this.activatedRoute.snapshot.params.filters as string;
+
+    if (!orgId) {
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams: filters ? { filters } : {},
+      });
+      return;
+    }
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1),
+    );
+
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () =>
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: filters ? { filters } : {},
+          }),
+        error: () => this.switchOrg(),
+      });
+
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () =>
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              orgId,
+              my_expenses_filters: filters,
+            },
+          ]),
+        error: () => this.switchOrg(),
+      });
+  }
+
   async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
@@ -259,10 +314,28 @@ export class DeepLinkRedirectionPage {
   async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
 
-    const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
     const reportId = this.activatedRoute.snapshot.params.id as string;
+    if (orgId) {
+      const currentEou = await this.authService.getEou();
+      if (orgId !== currentEou.ou.org_id) {
+        await this.loaderService.hideLoader();
+        this.router.navigate([
+          '/',
+          'auth',
+          'switch_org',
+          {
+            orgId,
+            reportId,
+          },
+        ]);
+        return;
+      }
+    }
+
+    const spenderReport$ = this.spenderReportsService.getReportById(reportId);
+    const approverReport$ = this.approverReportsService.getReportById(reportId);
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
 
     spenderReport$.subscribe(
       (spenderReport) => {

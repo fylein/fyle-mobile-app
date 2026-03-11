@@ -185,11 +185,17 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       (JSON.parse(that.activatedRoute.snapshot.params.invite_link as string) as boolean);
     const orgId = that.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.txnId as string;
+    const reportId = this.activatedRoute.snapshot.params.reportId as string;
+    const myExpensesFilters = this.activatedRoute.snapshot.params.my_expenses_filters as string;
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     const openVirtualCards = this.activatedRoute.snapshot.params.openVirtualCards as string;
 
     if (orgId && txnId) {
       return this.redirectToExpensePage(orgId, txnId);
+    } else if (orgId && reportId) {
+      return this.redirectToReportPage(orgId, reportId);
+    } else if (orgId && myExpensesFilters) {
+      return this.redirectToMyExpenses(orgId, myExpensesFilters);
     } else if (openSMSOptInDialog === 'true' && orgId) {
       return this.redirectToDashboard(orgId);
     } else if (orgId && openVirtualCards) {
@@ -336,6 +342,62 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         next: (etxn) => {
           const route = this.deepLinkService.getExpenseRoute(etxn);
           this.router.navigate([...route, { id: txnId }]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
+  }
+
+  redirectToReportPage(orgId: string, reportId: string): void {
+    from(this.loaderService.showLoader('Please wait...', 2000))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        map((eou) => {
+          this.setSentryUser(eou);
+        }),
+        finalize(() => this.loaderService.hideLoader()),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'deep_link_redirection',
+            {
+              sub_module: 'report',
+              id: reportId,
+              orgId,
+            },
+          ]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
+  }
+
+  redirectToMyExpenses(orgId: string, filters?: string): void {
+    from(this.loaderService.showLoader('Please wait...', 2000))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        map((eou) => {
+          this.setSentryUser(eou);
+        }),
+        finalize(() => this.loaderService.hideLoader()),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: filters ? { filters } : {},
+          });
         },
         error: () => this.router.navigate(['/', 'auth', 'switch_org']),
       });

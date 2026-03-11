@@ -36,6 +36,8 @@ export class DeepLinkService {
     const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
+      const orgIdFromUri = redirectUri.match(/org_id=([^&]+)/)?.[1];
+      const resolvedOrgId = orgIdFromUri ? decodeURIComponent(orgIdFromUri) : orgId;
       if (redirectUri.match('verify')) {
         this.router.navigate([
           '/',
@@ -62,6 +64,9 @@ export class DeepLinkService {
           sub_module: subModule,
           id: reportId,
         };
+        if (resolvedOrgId) {
+          properties.orgId = resolvedOrgId;
+        }
         if (notificationType) {
           properties.push_notification_type = notificationType;
         }
@@ -70,11 +75,23 @@ export class DeepLinkService {
         const filters = {
           state: [FilterState.DRAFT],
         };
-        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-          queryParams: {
-            filters: JSON.stringify(filters),
-          },
-        });
+        if (resolvedOrgId) {
+          this.router.navigate([
+            '/',
+            'deep_link_redirection',
+            {
+              sub_module: 'my_expenses',
+              orgId: resolvedOrgId,
+              filters: JSON.stringify(filters),
+            },
+          ]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: {
+              filters: JSON.stringify(filters),
+            },
+          });
+        }
       } else if (
         redirectUri.match('/my_expenses/') &&
         redirectUri.includes('txnId=') &&
@@ -86,6 +103,9 @@ export class DeepLinkService {
           sub_module: subModule,
           id: txnId,
         };
+        if (resolvedOrgId) {
+          properties.orgId = resolvedOrgId;
+        }
         if (notificationType) {
           properties.push_notification_type = notificationType;
         }
