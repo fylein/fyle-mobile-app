@@ -99,7 +99,6 @@ export class TransactionsOutboxService {
 
     for (let i = 0; i < this.queue.length; i++) {
       const entry = this.queue[i];
-      console.log('entry.transaction', entry.transaction);
       // In localStorage the date objects are stored as string, have to convert them to date instance
       entry.transaction = this.dateService.fixDates(entry.transaction);
     }
