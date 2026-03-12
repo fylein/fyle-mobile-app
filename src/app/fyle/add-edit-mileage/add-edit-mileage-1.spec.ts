@@ -1038,7 +1038,7 @@ export function TestCases1(getTestBed) {
 
         component.close();
 
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       });
     });
 
