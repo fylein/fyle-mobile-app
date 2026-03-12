@@ -43,7 +43,7 @@ export class AppRatingService {
 
   private readonly MIN_DAYS_ON_PLATFORM = 30;
 
-  private readonly MIN_EXPENSE_COUNT = 5;
+  private readonly MIN_EXPENSE_COUNT = 10;
 
   private readonly NATIVE_PROMPT_COOLDOWN_DAYS = 180;
 

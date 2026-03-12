@@ -282,7 +282,7 @@ describe('TransactionsOutboxService', () => {
   });
 
   describe('handleSyncError():', () => {
-    it('should call trackingService.syncError with data and errorMessage when error has PlatformApiError shape with data', () => {
+    it('should call trackingService.syncError with error object and errorMessage when error has PlatformApiError shape with data', () => {
       const apiError: PlatformApiError<{ code: string }> = {
         data: { code: 'VALIDATION_ERROR' },
         error: 'Bad Request',
@@ -298,10 +298,12 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: { code: 'VALIDATION_ERROR' },
-          errorMessage: err.message,
+          message: 'Invalid payload',
+          error: 'Bad Request',
         },
+        errorMessage: err.message,
       });
     });
 
@@ -317,14 +319,16 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: undefined,
-          errorMessage: err.message,
+          message: 'Access denied',
+          error: 'Forbidden',
         },
+        errorMessage: err.message,
       });
     });
 
-    it('should call trackingService.syncError with undefined data when err.error is null', () => {
+    it('should call trackingService.syncError with undefined error fields when err.error is null', () => {
       const err = new HttpErrorResponse({
         error: null,
         status: 500,
@@ -335,10 +339,12 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: undefined,
-          errorMessage: err.message,
+          message: undefined,
+          error: undefined,
         },
+        errorMessage: err.message,
       });
     });
   });
