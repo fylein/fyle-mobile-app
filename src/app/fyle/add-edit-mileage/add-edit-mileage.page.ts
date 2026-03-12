@@ -837,7 +837,7 @@ export class AddEditMileagePage implements OnInit {
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
             !!orgCategory.sub_category,
-        ); 
+        );
       }),
       shareReplay(1),
     );
@@ -1943,7 +1943,7 @@ export class AddEditMileagePage implements OnInit {
           recentCostCenters,
           commuteDeductionDetails,
         }) => {
-          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+          this.expenseLevelBillable = etxn?.tx?.billable ?? null;
 
           if (project) {
             this.selectedProject$.next(project);
@@ -2185,7 +2185,7 @@ export class AddEditMileagePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
     }
   }
 
