@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild, inject, viewChild } from '@angular/core';
-import { Observable, from, Subject, concat, forkJoin, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, from, Subject, concat, forkJoin, BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -21,6 +21,8 @@ import {
   IonToolbar,
   PopoverController,
   ModalController,
+  NavController,
+  Platform,
 } from '@ionic/angular/standalone';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
@@ -56,6 +58,7 @@ import { ShowAllApproversPopoverComponent } from 'src/app/shared/components/fy-a
 import { ApprovalState } from 'src/app/core/models/platform/approval-state.enum';
 import { DateWithTimezonePipe } from 'src/app/shared/pipes/date-with-timezone.pipe';
 import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { FyExpansionInfoMsgComponent } from '../../shared/components/fy-expansion-info-msg/fy-expansion-info-msg.component';
 import { FyApproverComponent } from '../../shared/components/fy-approver/fy-approver.component';
 import { FyLoadingScreenComponent } from '../../shared/components/fy-loading-screen/fy-loading-screen.component';
@@ -155,6 +158,10 @@ export class ViewTeamReportPage {
   private dateWithTimezonePipe = inject(DateWithTimezonePipe);
 
   private browserHandlerService = inject(BrowserHandlerService);
+
+  private navController = inject(NavController);
+
+  private platform = inject(Platform);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -260,7 +267,10 @@ export class ViewTeamReportPage {
 
   canApproveReport = false;
 
+  private hardwareBackButtonAction: Subscription;
+
   ionViewWillLeave(): void {
+    this.hardwareBackButtonAction?.unsubscribe();
     this.onPageExit.next(null);
   }
 
@@ -411,6 +421,12 @@ export class ViewTeamReportPage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.navController.back();
+      },
+    );
 
     const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
     if (navigateBack && typeof navigateBack == 'string') {
@@ -555,7 +571,7 @@ export class ViewTeamReportPage {
           .approve(report.id)
           .pipe(finalize(() => (this.approveReportLoader = false)))
           .subscribe(() => {
-            this.router.navigate(['/', 'enterprise', 'team_reports']);
+            this.router.navigate(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
             this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
               if (showNpsSurvey) {
                 this.refinerService.startSurvey({ actionName: 'Approve Report' });
@@ -619,7 +635,7 @@ export class ViewTeamReportPage {
           });
           this.trackingService.showToastMessage({ ToastContent: message });
         });
-      this.router.navigate(['/', 'enterprise', 'team_reports']);
+      this.router.navigate(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
     }
   }
 
