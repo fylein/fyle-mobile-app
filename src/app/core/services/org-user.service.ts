@@ -156,11 +156,11 @@ export class OrgUserService {
     return accessToken && !!accessToken.proxy_org_user_id;
   }
 
-  async getBaseDelegateeUserId(): Promise<string | null> {
+  async getDelegateeUserId(): Promise<string | null> {
     return this.storageService.get<string>('delegatee_id');
   }
 
-  async setBaseDelegateeUserId(userId: string): Promise<void> {
+  async setDelegateeUserId(userId: string): Promise<void> {
     if (userId) {
       await this.storageService.set('delegatee_id', userId);
     }

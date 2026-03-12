@@ -88,7 +88,7 @@ export class DelegatedAccountsPage {
         concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          return from(this.orgUserService.setBaseDelegateeUserId(eou.us.id)).pipe(
+          return from(this.orgUserService.setDelegateeUserId(eou.us.id)).pipe(
             concatMap(() => this.orgUserService.switchToDelegator(delegator.user_id, eou.ou.org_id)),
           );
         }),
