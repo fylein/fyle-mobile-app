@@ -171,6 +171,7 @@ export class AppRatingService {
       componentProps: {
         title: this.translocoService.translate<string>('services.appRating.ratingPromptTitle'),
         message: this.translocoService.translate<string>('services.appRating.ratingPromptMessage'),
+        icon: 'thumbsup-outline',
         primaryCta: {
           text: this.translocoService.translate<string>('services.appRating.leaveARating'),
           action: 'rate',
