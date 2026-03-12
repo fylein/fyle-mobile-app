@@ -302,16 +302,6 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = deepFre
   },
 });
 
-export const unflattenedTxnWithAdvanceWallet: UnflattenedTransaction = deepFreeze({
-  ...unflattenedTxnData,
-  tx: {
-    ...unflattenedTxnData.tx,
-    source_account_id: undefined,
-    advance_wallet_id: 'areq1234',
-    skip_reimbursement: true,
-  },
-});
-
 export const unflattenedTxnWithExtractedData: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
@@ -2916,7 +2906,7 @@ export const newExpenseMileageData2: Partial<UnflattenedTransaction> = deepFreez
     mileage_calculated_amount: null,
     mileage_calculated_distance: null,
     policy_amount: null,
-    mileage_vehicle_type: 'two_wheeler',
+    mileage_vehicle_type: 'bicycle',
     mileage_rate: 10,
     distance_unit: 'MILES',
     mileage_is_round_trip: false,
@@ -2944,22 +2934,6 @@ export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = deepFre
 export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
-});
-
-export const unflattenedTxnWithSourceID: UnflattenedTransaction = deepFreeze({
-  ...unflattenedTxnData,
-  tx: {
-    ...unflattenedTxnData.tx,
-    source_account_id: 'acc6mK6CEesGL',
-  },
-});
-
-export const unflattenedTxnWithSourceID2: UnflattenedTransaction = deepFreeze({
-  ...unflattenedTxnData,
-  tx: {
-    ...unflattenedTxnData.tx,
-    source_account_id: 'acc6mK6CEesXL',
-  },
 });
 
 export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = deepFreeze({
