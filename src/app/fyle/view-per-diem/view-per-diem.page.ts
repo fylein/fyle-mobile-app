@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -124,7 +124,7 @@ export class ViewPerDiemPage {
 
   perDiemExpense$: Observable<Expense>;
 
-  delegateeOwnedExpense = false;
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   orgSettings: OrgSettings;
 
@@ -234,6 +234,7 @@ export class ViewPerDiemPage {
   ionViewWillEnter(): void {
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+    this.delegateeOwnedExpense.set(null);
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -255,7 +256,7 @@ export class ViewPerDiemPage {
         switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
       )
       .subscribe((isDelegateeOwnedExpense) => {
-        this.delegateeOwnedExpense = isDelegateeOwnedExpense;
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
       });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));

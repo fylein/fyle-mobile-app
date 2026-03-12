@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject } from '@angular/core';
+import { Component, EventEmitter, inject, signal } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -144,7 +144,7 @@ export class ViewMileagePage {
 
   mileageExpense$: Observable<Expense>;
 
-  delegateeOwnedExpense = false;
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   orgSettings: OrgSettings;
 
@@ -324,6 +324,7 @@ export class ViewMileagePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.delegateeOwnedExpense.set(null);
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -348,7 +349,7 @@ export class ViewMileagePage {
         switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
       )
       .subscribe((isDelegateeOwnedExpense) => {
-        this.delegateeOwnedExpense = isDelegateeOwnedExpense;
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
       });
 
     this.mapAttachment$ = this.mileageExpense$.pipe(

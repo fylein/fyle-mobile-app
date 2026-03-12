@@ -8,25 +8,14 @@ export class DelegationService {
   private orgUserService = inject(OrgUserService);
 
   private async isDelegateeOwned(userId: string): Promise<boolean> {
-    const inDelegateeMode = await this.inDelegateeMode();
-    if (!inDelegateeMode) {
-      return false;
-    }
+    const inDelegateeMode = await this.orgUserService.isSwitchedToDelegator();
+    const delegateeUserId = await this.orgUserService.getDelegateeUserId();
 
-    const delegateeUserId = await this.getDelegateeUserId();
-    if (!delegateeUserId) {
-      return false;
-    }
-
-    return userId === delegateeUserId;
+    return inDelegateeMode && userId === delegateeUserId;
   }
 
   inDelegateeMode(): Promise<boolean> {
     return this.orgUserService.isSwitchedToDelegator();
-  }
-
-  getDelegateeUserId(): Promise<string | null> {
-    return this.orgUserService.getBaseDelegateeUserId();
   }
 
   isDelegateeOwnedReport(reportUserId: string): Promise<boolean> {

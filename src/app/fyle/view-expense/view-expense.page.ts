@@ -154,7 +154,7 @@ export class ViewExpensePage {
 
   private delegationService = inject(DelegationService);
 
-  delegateeOwnedExpense = false;
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   expense$: Observable<Expense>;
 
@@ -348,6 +348,7 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.delegateeOwnedExpense.set(null);
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -392,7 +393,7 @@ export class ViewExpensePage {
         switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
       )
       .subscribe((isDelegateeOwnedExpense) => {
-        this.delegateeOwnedExpense = isDelegateeOwnedExpense;
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
       });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
