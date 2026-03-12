@@ -13,6 +13,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { ViewMileagePage } from './view-mileage.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular/standalone';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
@@ -129,10 +130,13 @@ describe('ViewMileagePage', () => {
     ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
+    const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
+    delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
 
     TestBed.configureTestingModule({
       imports: [ViewMileagePage],
       providers: [
+        { provide: DelegationService, useValue: delegationServiceSpy },
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,

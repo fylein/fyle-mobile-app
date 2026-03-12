@@ -17,6 +17,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { ViewExpensePage } from './view-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -142,6 +143,8 @@ describe('ViewExpensePage', () => {
       'getReportById',
     ]);
     const sharedExpensesServiceSpy = jasmine.createSpyObj('SharedExpensesService', ['isPendingGasCharge']);
+    const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
+    delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
 
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
@@ -149,6 +152,7 @@ describe('ViewExpensePage', () => {
     TestBed.configureTestingModule({
       imports: [FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
       providers: [
+        { provide: DelegationService, useValue: delegationServiceSpy },
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,

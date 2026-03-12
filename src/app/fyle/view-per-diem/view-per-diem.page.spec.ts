@@ -16,6 +16,7 @@ import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/sp
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { finalize, of } from 'rxjs';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
@@ -102,10 +103,13 @@ describe('ViewPerDiemPage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
+    const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
+    delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
 
     TestBed.configureTestingModule({
       imports: [ViewPerDiemPage],
       providers: [
+        { provide: DelegationService, useValue: delegationServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },
