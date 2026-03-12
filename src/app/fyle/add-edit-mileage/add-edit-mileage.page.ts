@@ -963,11 +963,11 @@ export class AddEditMileagePage implements OnInit {
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
-          if (isRecentVehicleTypePresent) {
+          const mileageRatePresentForRecentVehicleType = isRecentVehicleTypePresent && mileageRates.find((mileageRate) => mileageRate.vehicle_type === recentValue.vehicle_types[0]);
+          if (isRecentVehicleTypePresent && mileageRatePresentForRecentVehicleType) {
             vehicleType = recentValue.vehicle_types[0];
             this.presetVehicleType = recentValue.vehicle_types[0];
-          }
-          if (!isRecentVehicleTypePresent && mileageRates && mileageRates.length > 0) {
+          } else if (mileageRates && mileageRates.length > 0) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
