@@ -752,8 +752,8 @@ export class AddEditExpensePage implements OnInit {
       }
     }
 
-    // Execute the navigation.
-    this.router.navigate(navigationRoute, { queryParams });
+    // Execute the navigation, replacing the current URL to prevent stale form in history.
+    this.router.navigate(navigationRoute, { queryParams, replaceUrl: true });
   }
 
   async showClosePopup(): Promise<void> {

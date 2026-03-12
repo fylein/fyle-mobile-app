@@ -13,6 +13,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 export class PopupAlertComponent {
   private popoverController = inject(PopoverController);
 
+  readonly icon = input<string>(undefined);
+
   readonly title = input<string>(undefined);
 
   readonly message = input<string>(undefined);

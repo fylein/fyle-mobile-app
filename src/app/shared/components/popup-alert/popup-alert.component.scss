@@ -4,6 +4,28 @@ $small-screen: 700px;
 .popup-alert {
   padding: 24px;
 
+  &--icon-wrapper {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 16px;
+  }
+
+  &--icon-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: colors.$success-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &--icon {
+    width: 20px;
+    height: 20px;
+    color: colors.$brand-primary;
+  }
+
   &--header {
     color: colors.$black;
     font-weight: 500;
