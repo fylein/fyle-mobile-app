@@ -34,6 +34,7 @@ describe('DelegatedAccountsPage', () => {
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', [
       'switchToDelegator',
       'switchToDelegatee',
+      'setDelegateeUserId',
       'findDelegatedAccounts',
       'excludeByStatus',
       'getUserById',
@@ -49,7 +50,7 @@ describe('DelegatedAccountsPage', () => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
-      imports: [ FormsModule, DelegatedAccountsPage],
+      imports: [FormsModule, DelegatedAccountsPage],
       providers: [
         {
           provide: ActivatedRoute,
@@ -123,6 +124,7 @@ describe('DelegatedAccountsPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue(null);
+    orgUserService.setDelegateeUserId.and.resolveTo();
     orgUserService.switchToDelegator.and.returnValue(of(eouUnFlattended));
     authService.getEou.and.resolveTo(eouUnFlattended);
 

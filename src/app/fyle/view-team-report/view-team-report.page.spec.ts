@@ -1013,6 +1013,7 @@ describe('ViewTeamReportPageV2', () => {
   it('should send back the report on clicking the SEND BACK button', () => {
     spyOn(component, 'sendBack');
     component.isReportReported = true;
+    component.permissions$ = of({ ...apiReportPermissions, can_send_back: true });
     fixture.detectChanges();
 
     const sendBackButton = getElementBySelector(fixture, '.view-reports--send-back') as HTMLElement;
