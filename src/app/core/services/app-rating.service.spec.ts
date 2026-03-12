@@ -130,7 +130,7 @@ describe('AppRatingService', () => {
   });
 
   describe('hasEnoughExpenses', () => {
-    it('should return true when expense count is >= 5', (done) => {
+    it('should return true when expense count is >= 10', (done) => {
       expensesService.getExpenseStats.and.returnValue(of({ data: { count: 10, total_amount: 5000 } }));
       service.hasEnoughExpenses().subscribe((result) => {
         expect(result).toBeTrue();
@@ -138,16 +138,16 @@ describe('AppRatingService', () => {
       });
     });
 
-    it('should return true when expense count is exactly 5', (done) => {
-      expensesService.getExpenseStats.and.returnValue(of({ data: { count: 5, total_amount: 1000 } }));
+    it('should return true when expense count is exactly 10', (done) => {
+      expensesService.getExpenseStats.and.returnValue(of({ data: { count: 10, total_amount: 1000 } }));
       service.hasEnoughExpenses().subscribe((result) => {
         expect(result).toBeTrue();
         done();
       });
     });
 
-    it('should return false when expense count is < 5', (done) => {
-      expensesService.getExpenseStats.and.returnValue(of({ data: { count: 3, total_amount: 500 } }));
+    it('should return false when expense count is < 10', (done) => {
+      expensesService.getExpenseStats.and.returnValue(of({ data: { count: 9, total_amount: 500 } }));
       service.hasEnoughExpenses().subscribe((result) => {
         expect(result).toBeFalse();
         done();
