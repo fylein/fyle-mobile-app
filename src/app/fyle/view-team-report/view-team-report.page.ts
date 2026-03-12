@@ -492,6 +492,7 @@ export class ViewTeamReportPage {
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
     }).subscribe({
+      // eslint-disable-next-line complexity
       next: ({ expenses, eou, report, orgSettings }) => {
         this.reportExpensesIds = expenses.map((expense) => expense.id);
         this.showViewApproverModal =

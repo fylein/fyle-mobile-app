@@ -21,7 +21,7 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      @if (view === ExpenseView.team && canDelete$ | async) {
+      @if (view === ExpenseView.team && delegateeOwnedExpense() === false && canDelete$ | async) {
         <ion-button class="view-expense--header-btn-container__btn" (click)="removeExpenseFromReport()">
           <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
         </ion-button>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject } from '@angular/core';
+import { Component, EventEmitter, inject, signal } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,7 +6,20 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, takeUntil, take, filter } from 'rxjs/operators';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -49,6 +62,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
 import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -78,7 +92,7 @@ import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
     ReceiptPreviewThumbnailComponent,
     SnakeCaseToSpaceCase,
     TitleCasePipe,
-    ViewDependentFieldsComponent
+    ViewDependentFieldsComponent,
   ],
 })
 export class ViewMileagePage {
@@ -118,6 +132,8 @@ export class ViewMileagePage {
 
   private approverReportsService = inject(ApproverReportsService);
 
+  private delegationService = inject(DelegationService);
+
   private spenderFileService = inject(SpenderFileService);
 
   private approverFileService = inject(ApproverFileService);
@@ -127,6 +143,8 @@ export class ViewMileagePage {
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
 
   mileageExpense$: Observable<Expense>;
+
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   orgSettings: OrgSettings;
 
@@ -306,6 +324,7 @@ export class ViewMileagePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.delegateeOwnedExpense.set(null);
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -323,6 +342,15 @@ export class ViewMileagePage {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1),
     );
+
+    this.mileageExpense$
+      .pipe(
+        take(1),
+        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+      )
+      .subscribe((isDelegateeOwnedExpense) => {
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+      });
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
@@ -462,7 +490,9 @@ export class ViewMileagePage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(
+              expense.state,
+            ),
       ),
     );
 

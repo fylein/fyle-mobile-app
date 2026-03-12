@@ -9,7 +9,18 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonToolbar, NavController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonToolbar,
+  NavController,
+} from '@ionic/angular/standalone';
 import { MatFormField, MatPrefix, MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';
@@ -36,7 +47,7 @@ import { InitialsPipe } from '../../shared/pipes/initials.pipe';
     MatInput,
     MatPrefix,
     MatRipple,
-    UpperCasePipe
+    UpperCasePipe,
   ],
 })
 export class DelegatedAccountsPage {
@@ -77,7 +88,9 @@ export class DelegatedAccountsPage {
         concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
-          return this.orgUserService.switchToDelegator(delegator.user_id, eou.ou.org_id);
+          return from(this.orgUserService.setDelegateeUserId(eou.us.id)).pipe(
+            concatMap(() => this.orgUserService.switchToDelegator(delegator.user_id, eou.ou.org_id)),
+          );
         }),
         finalize(async () => {
           await this.loaderService.hideLoader();

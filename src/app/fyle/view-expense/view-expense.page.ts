@@ -5,7 +5,20 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { FileService } from 'src/app/core/services/file.service';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  PopoverController,
+} from '@ionic/angular/standalone';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { PolicyService } from 'src/app/core/services/policy.service';
@@ -55,6 +68,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
 import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { MaskNumber } from '../../shared/pipes/mask-number.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -90,7 +104,7 @@ import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
     TitleCasePipe,
     TransactionStatusComponent,
     ViewDependentFieldsComponent,
-    ViewExpenseSkeletonLoaderComponent
+    ViewExpenseSkeletonLoaderComponent,
   ],
 })
 export class ViewExpensePage {
@@ -137,6 +151,10 @@ export class ViewExpensePage {
   private spenderExpenseCommentService = inject(SpenderExpenseCommentService);
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
+
+  private delegationService = inject(DelegationService);
+
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   expense$: Observable<Expense>;
 
@@ -330,6 +348,7 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.delegateeOwnedExpense.set(null);
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -367,6 +386,15 @@ export class ViewExpensePage {
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1),
     );
+
+    this.expense$
+      .pipe(
+        take(1),
+        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+      )
+      .subscribe((isDelegateeOwnedExpense) => {
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+      });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
@@ -450,7 +478,9 @@ export class ViewExpensePage {
       map(({ report, expense }) =>
         report.num_expenses === 1
           ? false
-          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(expense.state),
+          : ![ExpenseStateEnum.PAYMENT_PENDING, ExpenseStateEnum.PAYMENT_PROCESSING, ExpenseStateEnum.PAID].includes(
+              expense.state,
+            ),
       ),
     );
 

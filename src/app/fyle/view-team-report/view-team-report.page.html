@@ -11,14 +11,16 @@
       <ion-title mode="md" class="page-title">View expense report</ion-title>
     </ng-container>
     <ion-buttons mode="md" slot="end">
-      @if (isReportReported) {
-        <ion-button (click)="sendBack()">
-          <ion-icon
-            [src]="'../../../assets/svg/send-back.svg'"
-            class="view-reports--send-back"
-            slot="icon-only"
-          ></ion-icon>
-        </ion-button>
+      @if (permissions$ | async; as permissions) {
+        @if (isReportReported && permissions.can_send_back) {
+          <ion-button (click)="sendBack()">
+            <ion-icon
+              [src]="'../../../assets/svg/send-back.svg'"
+              class="view-reports--send-back"
+              slot="icon-only"
+            ></ion-icon>
+          </ion-button>
+        }
       }
     </ion-buttons>
   </ion-toolbar>

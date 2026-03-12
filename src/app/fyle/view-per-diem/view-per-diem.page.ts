@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -52,6 +52,7 @@ import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
 import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -119,7 +120,11 @@ export class ViewPerDiemPage {
 
   private approverExpenseCommentService = inject(ApproverExpenseCommentService);
 
+  private delegationService = inject(DelegationService);
+
   perDiemExpense$: Observable<Expense>;
+
+  readonly delegateeOwnedExpense = signal<boolean | null>(null);
 
   orgSettings: OrgSettings;
 
@@ -229,6 +234,7 @@ export class ViewPerDiemPage {
   ionViewWillEnter(): void {
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+    this.delegateeOwnedExpense.set(null);
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -243,6 +249,15 @@ export class ViewPerDiemPage {
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1),
     );
+
+    this.perDiemExpense$
+      .pipe(
+        take(1),
+        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+      )
+      .subscribe((isDelegateeOwnedExpense) => {
+        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+      });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
