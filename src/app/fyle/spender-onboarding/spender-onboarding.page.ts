@@ -76,15 +76,16 @@ export class SpenderOnboardingPage {
   }
 
   setPostOnboardingScreen(isComplete?: boolean): void {
-    this.spenderOnboardingService.setOnboardingComplete();
-    this.corporateCreditCardExpenseService.clearCache().subscribe();
-    if (isComplete) {
-      this.onboardingComplete = true;
-      this.startCountdown();
-    } else {
-      this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Skip');
-      this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-    }
+    this.spenderOnboardingService.setOnboardingComplete().then(() => {
+      this.corporateCreditCardExpenseService.clearCache().subscribe();
+      if (isComplete) {
+        this.onboardingComplete = true;
+        this.startCountdown();
+      } else {
+        this.trackingService.eventTrack('Redirect To Dashboard After Onboarding Skip');
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
   }
 
   completeOnboarding(isComplete?: boolean): Observable<void> {

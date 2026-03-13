@@ -9,7 +9,7 @@ import { DashboardService } from '../dashboard.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   orgSettingsCCCDisabled,
   orgSettingsCCCEnabled,
@@ -77,7 +77,7 @@ describe('CardStatsComponent', () => {
     const dashboardServiceSpy = jasmine.createSpyObj('DashboardService', ['getCCCDetails']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
-      isConnected$: of(true),
+      isConnected$: new BehaviorSubject(true),
     });
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -183,7 +183,7 @@ describe('CardStatsComponent', () => {
     });
 
     it('should not display anything if the user is offline', () => {
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$.next(false);
 
       component.ngOnInit();
       component.init();

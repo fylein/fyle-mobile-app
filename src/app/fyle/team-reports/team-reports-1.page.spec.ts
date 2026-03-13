@@ -276,11 +276,10 @@ export function TestCases1(getTestBed) {
 
     describe('setupNetworkWatcher(): ', () => {
       it('should navigate user to my_dashboard if user is offline', () => {
-        networkService.isOnline.and.returnValue(of(false));
+        (networkService as any).isConnected$.next(false);
 
         component.setupNetworkWatcher();
         expect(component.isConnected$).toBeDefined();
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
         component.isConnected$.subscribe((online) => {
           expect(online).toBeFalse();
@@ -288,11 +287,8 @@ export function TestCases1(getTestBed) {
       });
 
       it('should set isConnected to true if user is online', () => {
-        networkService.isOnline.and.returnValue(of(true));
-
         component.setupNetworkWatcher();
         expect(component.isConnected$).toBeDefined();
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
         expect(router.navigate).not.toHaveBeenCalled();
         component.isConnected$.subscribe((online) => {
           expect(online).toBeTrue();
