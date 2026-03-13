@@ -99,6 +99,7 @@ export class AuthService {
       this.apiService.post('/auth/logout'),
     ).pipe(
       finalize(async () => {
+        await this.storageService.delete('feature_configs');
         await this.storageService.delete('recentlyUsedProjects');
         await this.storageService.delete('recentlyUsedCategories');
         await this.storageService.delete('recentlyUsedMileageCategories');
