@@ -57,6 +57,7 @@ import {
 import {
   catchError,
   concatMap,
+  delay,
   distinctUntilChanged,
   filter,
   finalize,
@@ -3960,6 +3961,7 @@ export class AddEditExpensePage implements OnInit {
       .checkEligibility()
       .pipe(
         take(1),
+        delay(2000),
         catchError(() => of(false)),
       )
       .subscribe((isRatingEligible) => {
