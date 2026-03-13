@@ -1,4 +1,3 @@
-import { of } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';

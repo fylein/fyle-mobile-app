@@ -1,4 +1,3 @@
-import { of } from 'rxjs';
 import { CurrencyPipe } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';

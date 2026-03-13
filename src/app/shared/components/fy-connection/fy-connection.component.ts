@@ -25,7 +25,7 @@ export class FyConnectionComponent implements OnInit {
   }
 
   setupNetworkWatcher() {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   ngOnInit() {

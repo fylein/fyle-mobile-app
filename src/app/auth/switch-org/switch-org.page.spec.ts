@@ -90,11 +90,7 @@ describe('SwitchOrgPage', () => {
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const userServiceSpy = jasmine.createSpyObj('UserService', [
-      'getUserPasswordStatus',
-      'isPendingDetails',
-      'clearUserPasswordStatusCache',
-    ]);
+    const userServiceSpy = jasmine.createSpyObj('UserService', ['getUserPasswordStatus', 'isPendingDetails']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles', 'logout']);
     const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
@@ -696,16 +692,16 @@ describe('SwitchOrgPage', () => {
   }));
 
   describe('navigateToSetupPage():', () => {
-    it('should navigate to invited user page', () => {
-      component.navigateToSetupPage();
+    it('should navigate to setup page if org the roles has OWNER', () => {
+      component.navigateToSetupPage(['OWNER']);
 
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'invited_user']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'setup_account']);
     });
 
-    it('should clear user password status cache when navigating', () => {
-      component.navigateToSetupPage();
+    it('should navigate to invite user if OWNER role is not present', () => {
+      component.navigateToSetupPage(['ADMIN']);
 
-      expect(userService.clearUserPasswordStatusCache).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'invited_user']);
     });
   });
 
@@ -738,9 +734,9 @@ describe('SwitchOrgPage', () => {
   describe('handleInviteLinkFlow():', () => {
     it('should handle the flow if user has entered through invite link and navigate to setup page', (done) => {
       spyOn(component, 'navigateToSetupPage');
-      component.handleInviteLinkFlow(true).subscribe((res) => {
+      component.handleInviteLinkFlow(roles, true).subscribe((res) => {
         expect(res).toBeNull();
-        expect(component.navigateToSetupPage).toHaveBeenCalledOnceWith();
+        expect(component.navigateToSetupPage).toHaveBeenCalledOnceWith(roles);
         done();
       });
     });
@@ -748,7 +744,7 @@ describe('SwitchOrgPage', () => {
     it('should mark the user active if password is set', (done) => {
       spyOn(component, 'markUserActive').and.returnValue(of(apiEouRes));
 
-      component.handleInviteLinkFlow().subscribe((res) => {
+      component.handleInviteLinkFlow(roles).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(component.markUserActive).toHaveBeenCalledTimes(1);
         done();
@@ -760,9 +756,9 @@ describe('SwitchOrgPage', () => {
     it('should handle flow if the user comes from invite link', (done) => {
       spyOn(component, 'handleInviteLinkFlow').and.returnValue(of(apiEouRes));
 
-      component.handlePendingDetails(true, true).subscribe((res) => {
+      component.handlePendingDetails(roles, true, true).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
-        expect(component.handleInviteLinkFlow).toHaveBeenCalledOnceWith(true);
+        expect(component.handleInviteLinkFlow).toHaveBeenCalledOnceWith(roles, true);
         done();
       });
     });
@@ -770,7 +766,7 @@ describe('SwitchOrgPage', () => {
     it('should show email verification alert if the user has not come through invite link', (done) => {
       spyOn(component, 'showEmailNotVerifiedAlert').and.resolveTo();
 
-      component.handlePendingDetails(false, true).subscribe((res) => {
+      component.handlePendingDetails(roles, false, true).subscribe((res) => {
         expect(res).toBeNull();
         expect(component.showEmailNotVerifiedAlert).toHaveBeenCalledTimes(1);
         done();
@@ -869,14 +865,20 @@ describe('SwitchOrgPage', () => {
       spyOn(component, 'handlePendingDetails').and.returnValue(of(apiEouRes));
       const config = {
         isPendingDetails: true,
+        roles,
         eou: apiEouRes,
         isFromInviteLink: true,
+        isPasswordSetRequired: true,
       };
 
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(true, true);
+        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
+          config.roles,
+          config.isFromInviteLink,
+          config.isPasswordSetRequired,
+        );
         done();
       });
     });
@@ -909,9 +911,11 @@ describe('SwitchOrgPage', () => {
     tick(1000);
     expect(userService.isPendingDetails).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
+    expect(authService.getRoles).toHaveBeenCalledTimes(1);
     expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.navigateBasedOnUserStatus).toHaveBeenCalledOnceWith({
       isPendingDetails: true,
+      roles,
       eou: apiEouRes,
       isFromInviteLink: undefined,
     });

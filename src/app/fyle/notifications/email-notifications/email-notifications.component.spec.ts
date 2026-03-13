@@ -141,10 +141,6 @@ describe('EmailNotificationsComponent', () => {
     platformEmployeeSettingsService.post.and.returnValue(of(null));
     platformEmployeeSettingsService.clearEmployeeSettings.and.returnValue(of(null));
     platform.is.and.returnValue(false);
-
-    // Mock App.addListener (same pattern as app.component.spec.ts)
-    const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
-    Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
   }));
 
   it('should create', () => {
@@ -235,7 +231,7 @@ describe('EmailNotificationsComponent', () => {
 
       // Capture the appStateChange callback
       let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
-      (App as any).addListener.and.callFake((eventName: string, cb: any) => {
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
         if (eventName === 'appStateChange') {
           appStateCallback = cb;
         }
@@ -267,7 +263,7 @@ describe('EmailNotificationsComponent', () => {
       pushNotificationService.checkPermissions.and.resolveTo({ receive: 'denied' } as any);
 
       let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
-      (App as any).addListener.and.callFake((eventName: string, cb: any) => {
+      spyOn(App as any, 'addListener').and.callFake((eventName: string, cb: any) => {
         if (eventName === 'appStateChange') {
           appStateCallback = cb;
         }
@@ -679,18 +675,20 @@ describe('EmailNotificationsComponent', () => {
   describe('startAppStateListener():', () => {
     it('should return early when listener already exists', async () => {
       component.appStateChangeListener = { remove: jasmine.createSpy('remove') };
+      const addListenerSpy = spyOn(App as any, 'addListener');
 
       await (component as any).startAppStateListener();
 
-      expect((App as any).addListener).not.toHaveBeenCalled();
+      expect(addListenerSpy).not.toHaveBeenCalled();
     });
 
     it('should return early on non-native platforms', async () => {
       spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      const addListenerSpy = spyOn(App as any, 'addListener');
 
       await (component as any).startAppStateListener();
 
-      expect((App as any).addListener).not.toHaveBeenCalled();
+      expect(addListenerSpy).not.toHaveBeenCalled();
     });
   });
 });

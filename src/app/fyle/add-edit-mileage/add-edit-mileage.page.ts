@@ -595,7 +595,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
 

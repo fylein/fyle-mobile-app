@@ -1790,8 +1790,10 @@ describe('MyExpensesPage', () => {
   });
 
   it('setupNetworkWatcher(): should update isConnected$ from networkService.isConnected$', () => {
+    networkService.isOnline.and.returnValue(of(true));
     component.setupNetworkWatcher();
     expect(component.isConnected$).toBeDefined();
+    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((isConnected) => {
       expect(isConnected).toBeTrue();
     });

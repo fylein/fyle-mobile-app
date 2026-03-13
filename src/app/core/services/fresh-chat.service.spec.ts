@@ -92,6 +92,7 @@ describe('FreshChatService', () => {
       tick(100);
 
       expect(networkService.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).toHaveBeenCalledTimes(1);
       expect(storageService.set).toHaveBeenCalledOnceWith('inAppChatRestoreId', null);
@@ -105,6 +106,7 @@ describe('FreshChatService', () => {
       tick(100);
 
       expect(networkService.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).not.toHaveBeenCalled();
       expect(storageService.set).not.toHaveBeenCalled();
@@ -116,6 +118,7 @@ describe('FreshChatService', () => {
       tick(100);
 
       expect(networkService.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       //@ts-ignore
       expect(freshChatService.initiateCall).not.toHaveBeenCalled();
       expect(storageService.set).not.toHaveBeenCalled();

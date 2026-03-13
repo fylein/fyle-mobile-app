@@ -120,7 +120,7 @@ describe('MyReportsPage', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
-      isConnected$: new BehaviorSubject(true),
+      isConnected$: of(true),
     });
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
@@ -1155,16 +1155,19 @@ describe('MyReportsPage', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should setup network watcher', () => {
+      networkService.isOnline.and.returnValue(of(true));
+
       component.setupNetworkWatcher();
       expect(component.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     });
 
     it('should navigate to dashboard if device is not online', () => {
-      // Override isConnected$ so subscription receives false and triggers navigation
-      (networkService as any).isConnected$.next(false);
+      networkService.isOnline.and.returnValue(of(false));
 
       component.setupNetworkWatcher();
       expect(component.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
   });

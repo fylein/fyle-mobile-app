@@ -405,9 +405,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     });
   }
 
-  navigateToSetupPage(): void {
-    this.userService.clearUserPasswordStatusCache();
-    this.router.navigate(['/', 'post_verification', 'invited_user']);
+  navigateToSetupPage(roles: string[]): void {
+    if (roles.includes('OWNER')) {
+      this.router.navigate(['/', 'post_verification', 'setup_account']);
+    } else {
+      this.router.navigate(['/', 'post_verification', 'invited_user']);
+    }
   }
 
   navigateToDashboard(openOptInDialog?: boolean): void {
@@ -448,9 +451,9 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * If yes, Mark user active directly.
    * If no, Redirect user to setup password page.
    */
-  handleInviteLinkFlow(isPasswordSetRequired?: boolean): Observable<ExtendedOrgUser> {
+  handleInviteLinkFlow(roles: string[], isPasswordSetRequired?: boolean): Observable<ExtendedOrgUser> {
     if (isPasswordSetRequired) {
-      this.navigateToSetupPage();
+      this.navigateToSetupPage(roles);
     } else {
       return this.markUserActive();
     }
@@ -462,11 +465,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
    * Otherwise, show the user a popup to verify their email.
    */
   handlePendingDetails(
+    roles: string[],
     isFromInviteLink?: boolean,
     isPasswordSetRequired?: boolean,
   ): Observable<ExtendedOrgUser> {
     if (isFromInviteLink) {
-      return this.handleInviteLinkFlow(isPasswordSetRequired);
+      return this.handleInviteLinkFlow(roles, isPasswordSetRequired);
     } else {
       this.showEmailNotVerifiedAlert();
     }
@@ -475,6 +479,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
   navigateBasedOnUserStatus(config: {
     isPendingDetails: boolean;
+    roles: string[];
     eou: ExtendedOrgUser;
     isFromInviteLink?: boolean;
   }): Observable<ExtendedOrgUser> {
@@ -486,7 +491,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       switchMap((passwordStatus) => {
         const isPasswordSetRequired = passwordStatus.is_password_required && !passwordStatus.is_password_set;
         if (isPasswordSetRequired || (!isPasswordSetRequired && config.isPendingDetails)) {
-          return this.handlePendingDetails(config.isFromInviteLink, isPasswordSetRequired);
+          return this.handlePendingDetails(config.roles, config.isFromInviteLink, isPasswordSetRequired);
         } else if (config.eou.ou.status === 'ACTIVE') {
           this.navigateToDashboard();
         } else if (config.eou.ou.status === 'DISABLED') {
@@ -502,12 +507,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
 
     const pendingDetails$ = this.userService.isPendingDetails().pipe(shareReplay(1));
     const eou$ = from(this.authService.getEou());
+    const roles$ = from(this.authService.getRoles().pipe(shareReplay(1)));
 
-    forkJoin([pendingDetails$, eou$])
+    forkJoin([pendingDetails$, eou$, roles$])
       .pipe(
-        switchMap(([isPendingDetails, eou]) => {
+        switchMap(([isPendingDetails, eou, roles]) => {
           this.setSentryUser(eou);
-          return this.navigateBasedOnUserStatus({ isPendingDetails, eou, isFromInviteLink });
+          return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
         }),
         finalize(() => this.loaderService.hideLoader()),
       )

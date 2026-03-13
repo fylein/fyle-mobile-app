@@ -1,6 +1,6 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
-import { BehaviorSubject, of } from 'rxjs';
+import { of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { DeviceService } from './device.service';
@@ -21,7 +21,7 @@ describe('SmartlookService', () => {
 
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
-      isConnected$: new BehaviorSubject(true),
+      isConnected$: of(true),
     });
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -56,12 +56,17 @@ describe('SmartlookService', () => {
   });
 
   it('setupNetworkWatcher(): should setup a network watcher', () => {
+    const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
+    emitterSpy.asObservable.and.returnValue(of(true));
     smartLookService.setupNetworkWatcher();
+    networkService.isOnline.and.returnValue(of(true));
     expect(smartLookService.isConnected$).toBeDefined();
+    expect(networkService.isOnline).toHaveBeenCalledTimes(2);
   });
 
   describe('init():', () => {
     beforeEach(() => {
+      networkService.isOnline.and.returnValue(of(true));
       smartLookService.setupNetworkWatcher();
     });
 
@@ -118,7 +123,7 @@ describe('SmartlookService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.us.email = 'test@example.com';
 
-      (networkService as any).isConnected$.next(false);
+      networkService.isOnline.and.returnValue(of(false));
       smartLookService.setupNetworkWatcher();
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(mockEou);

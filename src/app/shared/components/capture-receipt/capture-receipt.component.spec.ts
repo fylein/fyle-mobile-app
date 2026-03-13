@@ -975,7 +975,7 @@ describe('CaptureReceiptComponent', () => {
         measure: jasmine.createSpy('measure'),
         getEntriesByName: jasmine
           .createSpy('getEntriesByName')
-          .and.returnValues([], [], [{ duration: 12000 }]),
+          .and.returnValues([], [], [{ duration: 12000 }], [{ detail: true }]),
         now: jasmine.createSpy('now'),
       };
       Object.defineProperty(window, 'performance', {
@@ -984,13 +984,14 @@ describe('CaptureReceiptComponent', () => {
       component.addPerformanceTrackers();
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
-        PerfTrackers.appLaunchToCaptureSingleReceiptTime,
-        PerfTrackers.appLaunchStartTime,
         PerfTrackers.captureSingleReceiptTime,
+        PerfTrackers.appLaunchStartTime,
       );
-      expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
       expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({
         'Capture receipt time': '12.000',
+        'Is logged in': true,
+        'Is multi org': false,
       });
     });
 
@@ -998,7 +999,7 @@ describe('CaptureReceiptComponent', () => {
       const performance = {
         mark: jasmine.createSpy('mark'),
         measure: jasmine.createSpy('measure'),
-        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [], []),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [], [], [{ detail: true }]),
         now: jasmine.createSpy('now'),
       };
       Object.defineProperty(window, 'performance', {
@@ -1007,13 +1008,14 @@ describe('CaptureReceiptComponent', () => {
       component.addPerformanceTrackers();
       expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
       expect(performance.measure).toHaveBeenCalledOnceWith(
-        PerfTrackers.appLaunchToCaptureSingleReceiptTime,
-        PerfTrackers.appLaunchStartTime,
         PerfTrackers.captureSingleReceiptTime,
+        PerfTrackers.appLaunchStartTime,
       );
-      expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
       expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({
         'Capture receipt time': 'NaN',
+        'Is logged in': true,
+        'Is multi org': false,
       });
     });
   });

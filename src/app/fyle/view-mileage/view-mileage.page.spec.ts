@@ -274,9 +274,10 @@ describe('ViewMileagePage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    (networkService as any).isConnected$ = of(false);
+    networkService.isOnline.and.returnValue(of(false));
 
     component.setupNetworkWatcher();
+    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     expect(component.isConnected$).toBeDefined();
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   });

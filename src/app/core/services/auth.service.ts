@@ -100,7 +100,6 @@ export class AuthService {
     ).pipe(
       finalize(async () => {
         await this.storageService.delete('feature_configs');
-        await this.storageService.delete('userPasswordStatus');
         await this.storageService.delete('recentlyUsedProjects');
         await this.storageService.delete('recentlyUsedCategories');
         await this.storageService.delete('recentlyUsedMileageCategories');

@@ -15,7 +15,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { UntypedFormBuilder } from '@angular/forms';
+import { UntypedFormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { cloneDeep } from 'lodash';
 import { advanceRequests, advanceRequests2, advanceRequests3 } from 'src/app/core/mock-data/advance-requests.data';
@@ -23,7 +23,7 @@ import {
   addEditAdvanceRequestFormValueData,
   addEditAdvanceRequestFormValueData3,
 } from 'src/app/core/mock-data/add-edit-advance-request-form-value.data';
-import { of, shareReplay } from 'rxjs';
+import { of } from 'rxjs';
 import {
   advanceRequestCustomFieldValuesData,
   advanceRequestCustomFieldValuesData2,
@@ -644,11 +644,12 @@ export function TestCases2(getTestBed) {
     });
 
     it('setupNetworkWatcher(): should setup network watcher', () => {
-      (networkService as any).isConnected$.next(false);
+      networkService.isOnline.and.returnValue(of(false));
 
       component.setupNetworkWatcher();
 
       expect(component.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
   });

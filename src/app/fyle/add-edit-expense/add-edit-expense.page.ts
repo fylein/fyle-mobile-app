@@ -891,7 +891,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   async showSplitBlockedPopover(message: string): Promise<void> {

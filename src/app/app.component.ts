@@ -163,6 +163,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
     });
+
     // Initialize push notification click listener early to catch notifications
     // that launched the app from a killed state
     if (Capacitor.isNativePlatform()) {
@@ -217,10 +218,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
-  setSideNav(): void {
+  setSidenav(): void {
     // need to reload sidenav once onboarding is complete
     this.spenderOnboardingService
       .onboardingComplete$

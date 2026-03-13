@@ -50,7 +50,6 @@ describe('StatsComponent', () => {
       'appLaunchTime',
       'dashboardLaunchTime',
       'statsClicked',
-      'trackAppLaunchTimeIfFirstScreen',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
@@ -155,8 +154,11 @@ describe('StatsComponent', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', (done) => {
+    networkService.isOnline.and.returnValue(of(true));
+
     component.setupNetworkWatcher();
     expect(component.isConnected$).toBeDefined();
+    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((res) => {
       expect(res).toBeTrue();
       done();
@@ -259,9 +261,73 @@ describe('StatsComponent', () => {
   });
 
   describe('trackOrgLaunchTime()', () => {
-    it('should call trackingService.trackAppLaunchTimeIfFirstScreen()', () => {
-      component.trackOrgLaunchTime();
-      expect(trackingService.trackAppLaunchTimeIfFirstScreen).toHaveBeenCalledTimes(1);
+    it('should track org launch time if getEntriesByName() returns empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine
+          .createSpy('getEntriesByName')
+          .and.returnValues([], [{ duration: 12000 }], [{ detail: true }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.trackOrgLaunchTime(true);
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.appLaunchEndTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.appLaunchTime,
+        PerfTrackers.appLaunchStartTime,
+        PerfTrackers.appLaunchEndTime,
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
+      expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
+        'App launch time': '12.000',
+        'Is logged in': true,
+        'Is multi org': true,
+      });
+    });
+
+    it('should track org launch time and call appLaunchTime with NaN if getEntriesByName(appLaunchTime) returns empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [], [{ detail: true }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.trackOrgLaunchTime(true);
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.appLaunchEndTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.appLaunchTime,
+        PerfTrackers.appLaunchStartTime,
+        PerfTrackers.appLaunchEndTime,
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
+      expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
+        'App launch time': 'NaN',
+        'Is logged in': true,
+        'Is multi org': true,
+      });
+    });
+
+    it('should not track org launch time if getEntriesByName() returns undefined', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValue(undefined),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.trackOrgLaunchTime(true);
+      expect(performance.mark).not.toHaveBeenCalled();
+      expect(performance.measure).not.toHaveBeenCalled();
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(1);
+      expect(trackingService.appLaunchTime).not.toHaveBeenCalled();
     });
   });
 
@@ -274,7 +340,7 @@ describe('StatsComponent', () => {
       orgService.getOrgs.and.returnValue(of([]));
     });
 
-    it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() if org length is less than 1', () => {
+    it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() with false if org length is less than 1', () => {
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       component.init();
@@ -287,10 +353,10 @@ describe('StatsComponent', () => {
       component.currencySymbol$.subscribe((res) => {
         expect(res).toEqual('₹');
       });
-      expect(component.trackOrgLaunchTime).toHaveBeenCalledTimes(1);
+      expect(component.trackOrgLaunchTime).toHaveBeenCalledOnceWith(false);
     });
 
-    it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() if org is undefined', () => {
+    it('should call initializeReportStats(), initializeExpensesStats() and trackOrgLaunchTime() with false if org is undefined', () => {
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       orgService.getOrgs.and.returnValue(of(undefined));
@@ -304,7 +370,7 @@ describe('StatsComponent', () => {
       component.currencySymbol$.subscribe((res) => {
         expect(res).toEqual('₹');
       });
-      expect(component.trackOrgLaunchTime).toHaveBeenCalledTimes(1);
+      expect(component.trackOrgLaunchTime).toHaveBeenCalledOnceWith(false);
     });
   });
 

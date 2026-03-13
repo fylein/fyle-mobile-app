@@ -88,7 +88,7 @@ export class StatsComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   initializeReportStats(): void {

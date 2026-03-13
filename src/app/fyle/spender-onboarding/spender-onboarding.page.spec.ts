@@ -53,7 +53,7 @@ describe('SpenderOnboardingPage', () => {
       'skipSmsOptInStep',
       'markSmsOptInStepAsComplete',
       'markWelcomeModalStepAsComplete',
-      'setOnboardingComplete',
+      'setOnboardingStatusEvent',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
@@ -61,10 +61,7 @@ describe('SpenderOnboardingPage', () => {
       'clearCache',
     ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-      'eventTrack',
-      'trackAppLaunchTimeIfFirstScreen',
-    ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
 
     await TestBed.configureTestingModule({
       imports: [SpenderOnboardingPage],
@@ -102,7 +99,6 @@ describe('SpenderOnboardingPage', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     spenderOnboardingService.markWelcomeModalStepAsComplete.and.returnValue(of({ is_complete: true }));
-    spenderOnboardingService.setOnboardingComplete.and.resolveTo();
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     spyOn(component, 'completeOnboarding').and.returnValue(of()).and.callThrough();
   });
@@ -327,25 +323,26 @@ describe('SpenderOnboardingPage', () => {
   });
 
   describe('setPostOnboardingScreen(): ', () => {
-    it('should set onboarding status and start countdown when isComplete is true', fakeAsync(() => {
+    it('should set onboarding status and start countdown when isComplete is true', () => {
       spyOn(component, 'startCountdown');
+      spenderOnboardingService.setOnboardingStatusEvent.and.returnValue();
 
       component.setPostOnboardingScreen(true);
-      tick();
 
-      expect(spenderOnboardingService.setOnboardingComplete).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
       expect(component.onboardingComplete).toBeTrue();
       expect(component.startCountdown).toHaveBeenCalledTimes(1);
-    }));
+    });
 
-    it('should set onboarding status and navigate to my_dashboard when isComplete is false', fakeAsync(() => {
+    it('should set onboarding status and navigate to my_dashboard when isComplete is false', () => {
+      spenderOnboardingService.setOnboardingStatusEvent.and.returnValue();
+
       component.setPostOnboardingScreen(false);
-      tick();
 
-      expect(spenderOnboardingService.setOnboardingComplete).toHaveBeenCalledTimes(1);
+      expect(spenderOnboardingService.setOnboardingStatusEvent).toHaveBeenCalledTimes(1);
       expect(component.onboardingComplete).toBeFalse();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
-    }));
+    });
   });
 
   describe('completeOnboarding(): ', () => {

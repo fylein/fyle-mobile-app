@@ -19,7 +19,7 @@ describe('VerifiedOrgAuthGuard', () => {
   beforeEach(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const userServiceSpy = jasmine.createSpyObj('UserService', ['getUserPasswordStatus', 'getUserPasswordStatusCached']);
+    const userServiceSpy = jasmine.createSpyObj('UserService', ['getUserPasswordStatus']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     loaderServiceSpy.showLoader.and.resolveTo();
     loaderServiceSpy.hideLoader.and.resolveTo();
@@ -48,7 +48,7 @@ describe('VerifiedOrgAuthGuard', () => {
   describe('canActivate(): ', () => {
     it('should return true if eou is present and password is set or not required', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
-      userService.getUserPasswordStatusCached.and.returnValue(of({ is_password_required: false, is_password_set: true }));
+      userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: false, is_password_set: true }));
       const canActivate = guard.canActivate() as any;
       let result: boolean;
       canActivate.subscribe((res: boolean) => {
@@ -56,13 +56,13 @@ describe('VerifiedOrgAuthGuard', () => {
       });
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(userService.getUserPasswordStatusCached).toHaveBeenCalledTimes(1);
+      expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
       expect(result).toBeTrue();
     }));
 
     it('should return false and navigate if password is required and not set', fakeAsync(() => {
       authService.getEou.and.resolveTo(apiEouRes);
-      userService.getUserPasswordStatusCached.and.returnValue(of({ is_password_required: true, is_password_set: false }));
+      userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: true, is_password_set: false }));
       const canActivate = guard.canActivate() as any;
       let result: boolean;
       canActivate.subscribe((res: boolean) => {
@@ -70,14 +70,14 @@ describe('VerifiedOrgAuthGuard', () => {
       });
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(userService.getUserPasswordStatusCached).toHaveBeenCalledTimes(1);
+      expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
       expect(result).toBeFalse();
     }));
 
     it('should return false and navigate if status is PENDING_DETAILS and password is not required', fakeAsync(() => {
       authService.getEou.and.resolveTo({ ...apiEouRes, ou: { ...apiEouRes.ou, status: 'PENDING_DETAILS' } });
-      userService.getUserPasswordStatusCached.and.returnValue(of({ is_password_required: false, is_password_set: true }));
+      userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: false, is_password_set: true }));
       const canActivate = guard.canActivate() as any;
       let result: boolean;
       canActivate.subscribe((res: boolean) => {
@@ -85,14 +85,14 @@ describe('VerifiedOrgAuthGuard', () => {
       });
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(userService.getUserPasswordStatusCached).toHaveBeenCalledTimes(1);
+      expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
       expect(result).toBeFalse();
     }));
 
     it('should return false if eou is null', fakeAsync(() => {
       authService.getEou.and.resolveTo(null);
-      userService.getUserPasswordStatusCached.and.returnValue(of({ is_password_required: false, is_password_set: true }));
+      userService.getUserPasswordStatus.and.returnValue(of({ is_password_required: false, is_password_set: true }));
       const canActivate = guard.canActivate() as any;
       let result: boolean;
       canActivate.subscribe((res: boolean) => {
@@ -100,13 +100,13 @@ describe('VerifiedOrgAuthGuard', () => {
       });
       tick();
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(userService.getUserPasswordStatusCached).toHaveBeenCalledTimes(1);
+      expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
       expect(result).toBeFalse();
     }));
 
     it('should return true on error', fakeAsync(() => {
       authService.getEou.and.rejectWith(new Error('error'));
-      userService.getUserPasswordStatusCached.and.returnValue(throwError(() => new Error('error')));
+      userService.getUserPasswordStatus.and.returnValue(throwError(() => new Error('error')));
       const canActivate = guard.canActivate() as any;
       let result: boolean;
       canActivate.subscribe((res: boolean) => {

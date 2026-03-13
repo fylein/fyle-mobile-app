@@ -1509,9 +1509,12 @@ describe('ExpensesCardComponent', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should setup network watcher correctly', fakeAsync(() => {
+      networkService.isOnline.and.returnValue(of(true));
+
       component.setupNetworkWatcher();
 
       expect(component.isConnected$).toBeDefined();
+      expect(networkService.isOnline).toHaveBeenCalled();
 
       component.isConnected$.pipe(take(1)).subscribe((isConnected) => {
         expect(isConnected).toBeTrue();

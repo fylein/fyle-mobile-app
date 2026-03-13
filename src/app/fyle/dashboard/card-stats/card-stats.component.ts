@@ -98,7 +98,7 @@ export class CardStatsComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$;
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {

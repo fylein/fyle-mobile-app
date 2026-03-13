@@ -114,7 +114,7 @@ export class FeatureConfigService {
     };
 
     return this.spenderPlatformV1ApiService.post<void>('/feature_configs/bulk', payload).pipe(
-      tap(() => this.storageService.delete(FEATURE_CONFIGS_STORAGE_KEY)),
+      switchMap(() => from(this.storageService.delete(FEATURE_CONFIGS_STORAGE_KEY))),
     );
   }
 }
