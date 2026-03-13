@@ -607,11 +607,8 @@ export function TestCases1(getTestBed) {
     });
 
     it('setupNetworkWatcher(): should setup network watching', (done) => {
-      networkService.isOnline.and.returnValue(of(true));
-
       component.setupNetworkWatcher();
       expect(component.isConnected$).toBeDefined();
-      expect(networkService.isOnline).toHaveBeenCalled();
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();

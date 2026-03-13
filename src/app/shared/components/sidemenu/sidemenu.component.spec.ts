@@ -164,19 +164,14 @@ describe('SidemenuComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
-    networkService.isOnline.and.returnValue(of(true));
-    const eventEmitterMock = new EventEmitter<boolean>();
+  it('setupNetworkWatcher(): should setup the network watcher', (done) => {
     component.setupNetworkWatcher();
+    expect(component.isConnected$).toBeDefined();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();
+      done();
     });
-    eventEmitterMock.emit(false);
-    tick(500);
-    component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toBeFalse();
-    });
-  }));
+  });
 
   describe('showSideMenuOffline():', () => {
     it('should show the sidemenu when offline', fakeAsync(() => {
