@@ -1225,6 +1225,7 @@ describe('DashboardPage', () => {
           stop: jasmine.createSpy('stop'),
         },
         params: {},
+        slides: [{}],
         update: jasmine.createSpy('update'),
       };
 
