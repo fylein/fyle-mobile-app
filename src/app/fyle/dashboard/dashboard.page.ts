@@ -1,4 +1,15 @@
-import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
 import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
@@ -54,9 +65,9 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
-import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { PaginationOptions, SwiperOptions } from 'swiper/types';
+import Swiper from 'swiper';
+import { Pagination, Autoplay } from 'swiper/modules';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
@@ -72,9 +83,6 @@ import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
-
-// install Swiper modules
-SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
   selector: 'app-dashboard',
@@ -100,14 +108,17 @@ SwiperCore.use([Pagination, Autoplay]);
     MatTabGroup,
     NgClass,
     StatsComponent,
-    SwiperModule,
     TasksComponent,
     TranslocoPipe,
     IonSegment,
     IonSegmentButton,
   ],
 })
-export class DashboardPage {
+export class DashboardPage implements OnDestroy {
+  readonly optInSwiper = viewChild<ElementRef<HTMLElement>>('optInSwiper');
+
+  private optInSwiperInstance: Swiper | null = null;
+
   private currencyService = inject(CurrencyService);
 
   private pushNotificationService = inject(PushNotificationService);
@@ -225,8 +236,6 @@ export class DashboardPage {
   //  Your application code writes to the query. This prevents migration.
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
-  readonly swiperComponent = viewChild<SwiperComponent>('optInSwiper');
-
   employeeSettings$: Observable<EmployeeSettings>;
 
   orgSettings$: Observable<OrgSettings>;
@@ -289,6 +298,7 @@ export class DashboardPage {
   readonly cardCount = signal<number>(0);
 
   optInBannerPagination: PaginationOptions = {
+    el: '.swiper-pagination',
     dynamicBullets: true,
     renderBullet(index, className): string {
       return '<span class="opt-in-banners ' + className + '"> </span>';
@@ -314,7 +324,7 @@ export class DashboardPage {
   }
 
   private get swiperInstance(): Swiper | undefined {
-    return this.swiperComponent()?.swiperRef;
+    return this.optInSwiperInstance ?? undefined;
   }
 
   private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
@@ -608,6 +618,12 @@ export class DashboardPage {
   }
 
   setSwiperConfig(): void {
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
     // Set default config when observables are not ready
     if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
       this.swiperConfig = {
@@ -624,6 +640,7 @@ export class DashboardPage {
     combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
+        this.initOptInSwiper();
         const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
         const swiper = this.swiperInstance;
 
@@ -633,7 +650,9 @@ export class DashboardPage {
 
         swiper.loopDestroy?.();
         swiper.pagination.destroy();
-        swiper.update();
+        if (swiper.slides.length > 0) {
+          swiper.update();
+        }
 
         if (showBothBanners) {
           swiper.loopCreate?.();
@@ -648,8 +667,28 @@ export class DashboardPage {
           swiper.params.autoplay = false;
           swiper.pagination.destroy();
         }
-        swiper.update();
+        if (swiper.slides.length > 0) {
+          swiper.update();
+        }
       });
+  }
+
+  private initOptInSwiper(): void {
+    const config = this.swiperConfig;
+    this.optInSwiperInstance = new Swiper(this.optInSwiper()?.nativeElement, {
+      modules: [Pagination, Autoplay],
+      slidesPerView: config.slidesPerView ?? 1,
+      spaceBetween: config.spaceBetween ?? 0,
+      centeredSlides: config.centeredSlides ?? true,
+      loop: config.loop ?? false,
+      autoplay: config.autoplay ?? false,
+      pagination: config.pagination ?? false,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.optInSwiperInstance?.destroy(true, true);
+    this.optInSwiperInstance = null;
   }
 
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
@@ -688,12 +727,6 @@ export class DashboardPage {
 
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
-    this.swiperConfig = {
-      slidesPerView: 1,
-      spaceBetween: 0,
-      centeredSlides: true,
-      pagination: this.optInBannerPagination,
-    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();

@@ -53,17 +53,16 @@ describe('BankAccountCardsComponent', () => {
   describe('onCardChange():', () => {
     it('should emit the changed event with the ID of the selected card', () => {
       spyOn(component.changed, 'emit');
-      component.onCardChange([{ realIndex: 1 }] as Partial<Swiper[]>);
+      (component as any).onCardChange({ realIndex: 1 } as Swiper);
       fixture.detectChanges();
       expect(component.changed.emit).toHaveBeenCalledOnceWith(linkedAccounts[1]);
     });
   });
 
-  it('should set pagination to dynamic bullets', () => {
+  it('should render bullet with correct class', () => {
     const index = 1;
-    const className = 'bank-accounts--swiper';
+    const className = 'swiper-pagination-bullet';
     const result = component.pagination.renderBullet(index, className);
-    fixture.detectChanges();
     expect(result).toContain(`<span class="fyle ${className}"> </span>`);
   });
 });
