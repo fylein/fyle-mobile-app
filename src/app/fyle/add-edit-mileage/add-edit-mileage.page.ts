@@ -431,8 +431,6 @@ export class AddEditMileagePage implements OnInit {
 
   presetLocation: string;
 
-  initialFetch;
-
   isProjectVisible$: Observable<boolean>;
 
   formInitializedFlag = false;
@@ -858,7 +856,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getCustomInputs(): Observable<TxnCustomProperties[]> {
-    this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
@@ -1901,26 +1898,22 @@ export class AddEditMileagePage implements OnInit {
 
     this.isLoading = true;
 
-    forkJoin({
+    // Phase 1: Critical data only – hide skeleton as soon as this completes.
+    // Report, project, cost center, recent items and commute details often wait on slow APIs
+    // (reports list, recently used, commute), so we load them in phase 2.
+    const criticalData$ = forkJoin({
       etxn: this.etxn$,
       paymentMode: selectedPaymentMode$,
-      project: selectedProject$,
       subCategory: selectedSubCategory$,
       txnFields: this.txnFields$.pipe(take(1)),
-      report: selectedReport$,
-      costCenter: selectedCostCenter$,
       customExpenseFields: customExpenseFields$,
       allMileageRates: this.allMileageRates$,
       defaultPaymentMode: defaultPaymentMode$,
-      employeeSettings: employeeSettings$,
       orgSettings: orgSettings$,
-      recentValue: this.recentlyUsedValues$,
-      recentProjects: this.recentlyUsedProjects$,
-      recentCostCenters: this.recentlyUsedCostCenters$,
-      commuteDeductionDetails: commuteDeductionDetails$,
-    })
+    }).pipe(take(1));
+
+    criticalData$
       .pipe(
-        take(1),
         finalize(() => {
           this.isLoading = false;
         }),
@@ -1929,29 +1922,13 @@ export class AddEditMileagePage implements OnInit {
         ({
           etxn,
           paymentMode,
-          project,
           subCategory,
-          report,
-          costCenter,
           customExpenseFields,
           allMileageRates,
           defaultPaymentMode,
-          employeeSettings,
           orgSettings,
-          recentValue,
-          recentProjects,
-          recentCostCenters,
-          commuteDeductionDetails,
         }) => {
           this.expenseLevelBillable = etxn?.tx?.billable ?? null;
-
-          if (project) {
-            this.selectedProject$.next(project);
-          }
-
-          if (costCenter) {
-            this.selectedCostCenter$.next(costCenter);
-          }
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
@@ -1978,115 +1955,13 @@ export class AddEditMileagePage implements OnInit {
             });
 
           this.showCommuteDeductionField = this.mileageService.isCommuteDeductionEnabled(orgSettings);
-
           if (this.showCommuteDeductionField) {
             this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
-
-            this.commuteDetails = commuteDeductionDetails?.commute_details || null;
-
-            this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(
-              this.commuteDetails?.distance,
-            );
-
             if (this.expenseId) {
-              /**
-               * If we are editing an expense, then
-               * 1. Fetch the expense details
-               * 2. Take the commute details from the expense, if present.
-               * 3. Setup the commute deduction field options.
-               * 4. Select the commute deduction field value, if present.
-               */
               this.existingCommuteDeduction = etxn.tx?.commute_deduction;
-
-              if (this.existingCommuteDeduction) {
-                // If its edit case, we don't need to update the distance on route change
-                this.previousCommuteDeductionType = this.existingCommuteDeduction;
-
-                this.fg.patchValue(
-                  {
-                    commuteDeduction: this.existingCommuteDeduction,
-                  },
-                  { emitEvent: false },
-                );
-              }
             }
           }
 
-          // Check if auto-fills is enabled
-          const isAutofillsEnabled =
-            orgSettings?.org_expense_form_autofills?.allowed &&
-            orgSettings?.org_expense_form_autofills?.enabled &&
-            employeeSettings?.expense_form_autofills?.allowed &&
-            employeeSettings?.expense_form_autofills?.enabled;
-
-          // Check if recent projects exist
-          const doRecentProjectIdsExist =
-            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
-
-          if (recentProjects && recentProjects.length > 0) {
-            this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
-          }
-
-          /* Autofill project during these cases:
-           * 1. Autofills is allowed and enabled
-           * 2. During add expense - When project field is empty
-           * 3. During edit expense - When the expense is in draft state and there is no project already added
-           * 4. When there exists recently used project ids to auto-fill
-           */
-          if (
-            doRecentProjectIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
-          ) {
-            const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
-
-            if (autoFillProject) {
-              project = autoFillProject;
-              this.presetProjectId = project.project_id;
-
-              //Patch project value to trigger valueChanges which shows dependent field if present
-              this.fg.patchValue({ project });
-            }
-          }
-
-          // Check if recent cost centers exist
-          const doRecentCostCenterIdsExist =
-            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
-
-          if (recentCostCenters && recentCostCenters.length > 0) {
-            this.recentCostCenters = recentCostCenters;
-          }
-
-          /* Autofill cost center during these cases:
-           * 1. Autofills is allowed and enabled
-           * 2. During add expense - When cost center field is empty
-           * 3. During edit expense - When the expense is in draft state and there is no cost center already added - optional
-           * 4. When there exists recently used cost center ids to auto-fill
-           */
-          if (
-            doRecentCostCenterIdsExist &&
-            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))
-          ) {
-            const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
-
-            if (autoFillCostCenter) {
-              costCenter = autoFillCostCenter.value;
-              this.presetCostCenterId = autoFillCostCenter.value.id;
-              this.fg.patchValue({ costCenter });
-            }
-          }
-
-          // Check if recent location exists
-          const isRecentLocationPresent =
-            orgSettings.org_expense_form_autofills?.allowed &&
-            orgSettings.org_expense_form_autofills?.enabled &&
-            employeeSettings.expense_form_autofills?.allowed &&
-            employeeSettings.expense_form_autofills?.enabled &&
-            recentValue &&
-            recentValue.start_locations &&
-            recentValue.start_locations.length > 0;
-          if (isRecentLocationPresent) {
-            this.presetLocation = recentValue.start_locations[0];
-          }
           const mileage_rate_name = this.getMileageByVehicleType(allMileageRates, etxn.tx.mileage_vehicle_type);
           if (mileage_rate_name) {
             mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
@@ -2106,8 +1981,8 @@ export class AddEditMileagePage implements OnInit {
               roundTrip: etxn.tx.mileage_is_round_trip,
             },
             sub_category: subCategory,
-            costCenter,
-            report,
+            costCenter: null,
+            report: null,
           };
 
           if (etxn.tx.id) {
@@ -2115,19 +1990,122 @@ export class AddEditMileagePage implements OnInit {
           }
 
           this.fg.patchValue(formPatch);
-
-          this.fg.patchValue({ project }, { emitEvent: false });
-
-          this.initialFetch = false;
-
-          if (this.existingCommuteDeduction) {
-            this.previousRouteValue = this.getFormValues().route;
-          }
+          this.fg.patchValue({ project: null }, { emitEvent: false });
 
           setTimeout(() => {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
             this.formInitializedFlag = true;
           }, 1000);
+        },
+      );
+
+    // Phase 2: Secondary data (report, project, cost center, recent items, commute).
+    // Form is already visible; this fills in dropdowns and autofills when ready.
+    forkJoin({
+      etxn: this.etxn$,
+      project: selectedProject$,
+      report: selectedReport$,
+      costCenter: selectedCostCenter$,
+      recentValue: this.recentlyUsedValues$,
+      recentProjects: this.recentlyUsedProjects$,
+      recentCostCenters: this.recentlyUsedCostCenters$,
+      commuteDeductionDetails: commuteDeductionDetails$,
+      employeeSettings: employeeSettings$,
+      orgSettings: orgSettings$,
+    })
+      .pipe(take(1))
+      .subscribe(
+        ({
+          etxn,
+          project,
+          report,
+          costCenter,
+          recentValue,
+          recentProjects,
+          recentCostCenters,
+          commuteDeductionDetails,
+          employeeSettings,
+          orgSettings,
+        }) => {
+          if (project) {
+            this.selectedProject$.next(project);
+          }
+          if (costCenter) {
+            this.selectedCostCenter$.next(costCenter);
+          }
+
+          if (this.showCommuteDeductionField) {
+            this.commuteDetails = commuteDeductionDetails?.commute_details || null;
+            this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(
+              this.commuteDetails?.distance,
+            );
+            if (this.expenseId && this.existingCommuteDeduction) {
+              this.previousCommuteDeductionType = this.existingCommuteDeduction;
+              this.fg.patchValue(
+                { commuteDeduction: this.existingCommuteDeduction },
+                { emitEvent: false },
+              );
+            }
+            if (this.existingCommuteDeduction) {
+              this.previousRouteValue = this.getFormValues().route;
+            }
+          }
+
+          const isAutofillsEnabled =
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled;
+
+          const doRecentProjectIdsExist =
+            isAutofillsEnabled && recentValue && recentValue.project_ids && recentValue.project_ids.length > 0;
+
+          if (recentProjects && recentProjects.length > 0) {
+            this.recentProjects = recentProjects.map((item) => ({ label: item.project_name, value: item }));
+          }
+
+          let effectiveProject = project;
+          if (
+            doRecentProjectIdsExist &&
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.project_id))
+          ) {
+            const autoFillProject = recentProjects && recentProjects.length > 0 && recentProjects[0];
+            if (autoFillProject) {
+              effectiveProject = autoFillProject;
+              this.presetProjectId = effectiveProject.project_id;
+              this.fg.patchValue({ project: effectiveProject });
+            }
+          }
+
+          const doRecentCostCenterIdsExist =
+            isAutofillsEnabled && recentValue && recentValue.cost_center_ids && recentValue.cost_center_ids.length > 0;
+
+          if (recentCostCenters && recentCostCenters.length > 0) {
+            this.recentCostCenters = recentCostCenters;
+          }
+
+          if (
+            doRecentCostCenterIdsExist &&
+            (!etxn.tx.id || (etxn.tx.id && etxn.tx.state === 'DRAFT' && !etxn.tx.cost_center_id))
+          ) {
+            const autoFillCostCenter = recentCostCenters && recentCostCenters.length > 0 && recentCostCenters[0];
+            if (autoFillCostCenter) {
+              this.presetCostCenterId = autoFillCostCenter.value.id;
+              this.fg.patchValue({ costCenter: autoFillCostCenter.value });
+            }
+          }
+
+          const isRecentLocationPresent =
+            orgSettings?.org_expense_form_autofills?.allowed &&
+            orgSettings?.org_expense_form_autofills?.enabled &&
+            employeeSettings?.expense_form_autofills?.allowed &&
+            employeeSettings?.expense_form_autofills?.enabled &&
+            recentValue?.start_locations?.length > 0;
+          if (isRecentLocationPresent) {
+            this.presetLocation = recentValue.start_locations[0];
+          }
+
+          this.fg.patchValue({ report, costCenter, project: effectiveProject ?? project }, { emitEvent: false });
         },
       );
   }
