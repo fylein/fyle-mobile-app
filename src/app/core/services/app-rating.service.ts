@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, of, switchMap, take, catchError, firstValueFrom } from 'rxjs';
+import { Observable, map, of, switchMap, take, catchError } from 'rxjs';
 import { PopoverController } from '@ionic/angular/standalone';
 import { AppReview } from '@capawesome/capacitor-app-review';
 import { LaunchDarklyService } from './launch-darkly.service';
@@ -57,6 +57,8 @@ export class AppRatingService {
 
   private readonly DISMISSAL_COOLDOWN_DAYS = 60;
 
+  private readonly POST_SAVE_DELAY_MS = 1000;
+
   attemptRatingPrompt(): void {
     this.checkEligibility()
       .pipe(
@@ -71,23 +73,10 @@ export class AppRatingService {
       });
   }
 
-  schedulePostSaveRatingPrompt(delayMs: number): Promise<boolean> {
-    return new Promise((resolve) => {
-      setTimeout(async () => {
-        try {
-          const eligible = await firstValueFrom(this.checkEligibility().pipe(catchError(() => of(false))));
-          if (eligible) {
-            this.trackingService.eventTrack('In App Rating Eligible', {});
-            await this.showPrePromptPopover();
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        } catch {
-          resolve(false);
-        }
-      }, delayMs);
-    });
+  notifySaveSuccess(): void {
+    setTimeout(() => {
+      this.attemptRatingPrompt();
+    }, this.POST_SAVE_DELAY_MS);
   }
 
   checkEligibility(): Observable<boolean> {
@@ -185,6 +174,11 @@ export class AppRatingService {
   }
 
   private async showPrePromptPopover(): Promise<void> {
+    const existingPopover = await this.popoverController.getTop();
+    if (existingPopover) {
+      await existingPopover.dismiss();
+    }
+
     const popover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {

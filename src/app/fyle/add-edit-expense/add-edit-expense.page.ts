@@ -3956,13 +3956,11 @@ export class AddEditExpensePage implements OnInit {
     }
     this.lastSaveSucceeded = false;
 
-    this.appRatingService.schedulePostSaveRatingPrompt(2000).then((ratingShown) => {
-      if (!ratingShown) {
-        this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
-          if (showNpsSurvey) {
-            this.refinerService.startSurvey({ actionName: 'Save Expense' });
-          }
-        });
+    this.appRatingService.notifySaveSuccess();
+
+    this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+      if (showNpsSurvey) {
+        this.refinerService.startSurvey({ actionName: 'Save Expense' });
       }
     });
   }
