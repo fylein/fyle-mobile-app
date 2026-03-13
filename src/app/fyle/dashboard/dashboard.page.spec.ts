@@ -124,7 +124,9 @@ describe('DashboardPage', () => {
   let smartlookService: jasmine.SpyObj<SmartlookService>;
   let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
   beforeEach(waitForAsync(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'url']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
@@ -386,12 +388,10 @@ describe('DashboardPage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watching', (done) => {
-    networkService.connectivityWatcher.and.returnValue(null);
     networkService.isOnline.and.returnValue(of(true));
 
     component.setupNetworkWatcher();
-    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+    expect(component.isConnected$).toBeDefined();
     component.isConnected$.subscribe((res) => {
       expect(res).toBeTrue();
       done();

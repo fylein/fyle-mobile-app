@@ -43,7 +43,9 @@ describe('StatsComponent', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'appLaunchTime',
       'dashboardLaunchTime',
@@ -152,11 +154,10 @@ describe('StatsComponent', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', (done) => {
-    networkService.connectivityWatcher.and.returnValue(null);
     networkService.isOnline.and.returnValue(of(true));
 
     component.setupNetworkWatcher();
-    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+    expect(component.isConnected$).toBeDefined();
     expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((res) => {
       expect(res).toBeTrue();

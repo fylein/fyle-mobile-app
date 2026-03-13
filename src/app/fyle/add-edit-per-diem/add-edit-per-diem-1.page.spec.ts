@@ -441,11 +441,10 @@ export function TestCases1(getTestBed) {
     });
 
     it('setupNetworkWatcher(): should setup network watching', (done) => {
-      networkService.connectivityWatcher.and.returnValue(null);
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();

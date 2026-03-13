@@ -150,7 +150,9 @@ describe('AddEditMileagePage', () => {
       'getExchangeRate',
       'getAll',
     ]);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',

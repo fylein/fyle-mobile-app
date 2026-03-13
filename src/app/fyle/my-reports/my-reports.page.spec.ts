@@ -119,7 +119,9 @@ describe('MyReportsPage', () => {
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'getThisMonthRange',
       'getThisWeekRange',
@@ -1156,7 +1158,7 @@ describe('MyReportsPage', () => {
       networkService.isOnline.and.returnValue(of(true));
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     });
 
@@ -1164,7 +1166,7 @@ describe('MyReportsPage', () => {
       networkService.isOnline.and.returnValue(of(false));
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });

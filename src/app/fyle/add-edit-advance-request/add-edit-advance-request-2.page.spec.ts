@@ -648,7 +648,7 @@ export function TestCases2(getTestBed) {
 
       component.setupNetworkWatcher();
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });

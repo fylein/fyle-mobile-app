@@ -274,11 +274,7 @@ export class TasksComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
   }
 
   doRefresh(event?: { target?: RefresherEventDetail }): void {

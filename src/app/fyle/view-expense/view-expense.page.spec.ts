@@ -107,11 +107,9 @@ describe('ViewExpensePage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', [
-      'isConnected',
-      'connectivityWatcher',
-      'isOnline',
-    ]);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(false),
+    });
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'getApproverExpensePolicyViolations',
       'getSpenderExpensePolicyViolations',
@@ -304,12 +302,11 @@ describe('ViewExpensePage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
     networkService.isOnline.and.returnValue(of(false));
 
     component.setupNetworkWatcher();
     expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+    expect(component.isConnected$).toBeDefined();
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   });
 

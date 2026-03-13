@@ -20,7 +20,9 @@ describe('SmartlookService', () => {
   let smartlook: jasmine.SpyObj<Smartlook>;
 
   beforeEach(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
@@ -58,7 +60,7 @@ describe('SmartlookService', () => {
     emitterSpy.asObservable.and.returnValue(of(true));
     smartLookService.setupNetworkWatcher();
     networkService.isOnline.and.returnValue(of(true));
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
+    expect(smartLookService.isConnected$).toBeDefined();
     expect(networkService.isOnline).toHaveBeenCalledTimes(2);
   });
 
