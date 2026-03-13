@@ -22,4 +22,5 @@ export const ldAllFlagsRes: LDClient.LDFlagValue = deepFreeze({
   payment_mode_configurations: true,
   remove_offline_forms: true,
   upload_receipt_first_flow: false,
+  in_app_rating: false,
 });

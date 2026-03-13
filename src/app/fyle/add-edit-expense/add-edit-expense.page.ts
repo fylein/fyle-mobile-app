@@ -167,6 +167,7 @@ import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/p
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ExpenseTransactionStatus } from 'src/app/core/enums/platform/v1/expense-transaction-status.enum';
 import { RefinerService } from 'src/app/core/services/refiner.service';
+import { AppRatingService } from 'src/app/core/services/app-rating.service';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { CCExpenseMerchantInfoModalComponent } from 'src/app/shared/components/cc-expense-merchant-info-modal/cc-expense-merchant-info-modal.component';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/corporate-card-expense-properties.model';
@@ -381,6 +382,8 @@ export class AddEditExpensePage implements OnInit {
 
   private refinerService = inject(RefinerService);
 
+  private appRatingService = inject(AppRatingService);
+
   private platformHandlerService = inject(PlatformHandlerService);
 
   private expensesService = inject(ExpensesService);
@@ -532,6 +535,8 @@ export class AddEditExpensePage implements OnInit {
   saveAndNextExpenseLoader = false;
 
   saveAndPrevExpenseLoader = false;
+
+  private lastSaveSucceeded = false;
 
   canAttachReceipts: boolean;
 
@@ -3945,7 +3950,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  triggerNpsSurvey(): void {
+  triggerPostSavePrompts(): void {
+    if (!this.lastSaveSucceeded) {
+      return;
+    }
+    this.lastSaveSucceeded = false;
+
+    this.appRatingService.notifySaveSuccess();
+
     this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
       if (showNpsSurvey) {
         this.refinerService.startSurvey({ actionName: 'Save Expense' });
@@ -4000,7 +4012,6 @@ export class AddEditExpensePage implements OnInit {
       }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
       }),
     );
   }
@@ -4527,9 +4538,12 @@ export class AddEditExpensePage implements OnInit {
 
         return of(transaction);
       }),
+      tap(() => {
+        this.lastSaveSucceeded = true;
+      }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
+        this.triggerPostSavePrompts();
       }),
     );
   }
@@ -4820,9 +4834,12 @@ export class AddEditExpensePage implements OnInit {
           }),
         ),
       ),
+      tap(() => {
+        this.lastSaveSucceeded = true;
+      }),
       finalize(() => {
         this.hideSaveExpenseLoader();
-        this.triggerNpsSurvey();
+        this.triggerPostSavePrompts();
       }),
     );
   }

@@ -120,6 +120,7 @@ export function provideIcons(): EnvironmentProviders {
       'ai-auto-coded.svg',
       'ai-icon.svg',
       'arrow-tail-right.svg',
+      'thumbsup-outline.svg',
     ];
 
     svgImageArray.forEach((imageName) => {
