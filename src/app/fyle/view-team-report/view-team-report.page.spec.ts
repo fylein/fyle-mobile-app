@@ -572,10 +572,9 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.isOnline.and.returnValue(of(false));
+    (networkService as any).isConnected$ = of(false);
 
     component.setupNetworkWatcher();
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     expect(component.isConnected$).toBeDefined();
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   });

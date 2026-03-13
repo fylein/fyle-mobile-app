@@ -161,6 +161,7 @@ describe('DashboardPage', () => {
     const featureConfigServiceSpy = jasmine.createSpyObj('FeatureConfigService', [
       'saveConfiguration',
       'getConfiguration',
+      'getByFeatureAndKey',
     ]);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
@@ -303,6 +304,7 @@ describe('DashboardPage', () => {
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     featureConfigService = TestBed.inject(FeatureConfigService) as jasmine.SpyObj<FeatureConfigService>;
+    featureConfigService.getByFeatureAndKey.and.returnValue(of({ feature: '', key: '', value: null }));
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -940,7 +942,9 @@ describe('DashboardPage', () => {
 
   describe('setShowOptInBanner():', () => {
     beforeEach(() => {
-      featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({ feature: 'DASHBOARD_OPT_IN_BANNER', key: 'OPT_IN_BANNER_SHOWN', value: { count: 0 } }),
+      );
     });
 
     it('should set canShowOptInBanner to false if user is verified', (done) => {
@@ -951,10 +955,10 @@ describe('DashboardPage', () => {
       const result$ = component.setShowOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_OPT_IN_BANNER',
-          key: 'OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_OPT_IN_BANNER',
+          'OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeFalse();
         done();
       });
@@ -969,10 +973,10 @@ describe('DashboardPage', () => {
       const result$ = component.setShowOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_OPT_IN_BANNER',
-          key: 'OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_OPT_IN_BANNER',
+          'OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeFalse();
         done();
       });
@@ -988,10 +992,10 @@ describe('DashboardPage', () => {
       const result$ = component.setShowOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_OPT_IN_BANNER',
-          key: 'OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_OPT_IN_BANNER',
+          'OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeFalse();
         done();
       });
@@ -1003,17 +1007,17 @@ describe('DashboardPage', () => {
       mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+911234567890';
       component.eou$ = of(mockEou);
-      const mockFeatureConfig = cloneDeep(featureConfigOptInData);
-      mockFeatureConfig.value.count = 1;
-      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({ feature: 'DASHBOARD_OPT_IN_BANNER', key: 'OPT_IN_BANNER_SHOWN', value: { count: 1 } }),
+      );
 
       const result$ = component.setShowOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_OPT_IN_BANNER',
-          key: 'OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_OPT_IN_BANNER',
+          'OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeFalse();
         done();
       });
@@ -1024,17 +1028,19 @@ describe('DashboardPage', () => {
       mockEou.ou.mobile_verified = false;
       mockEou.org.currency = 'USD';
       mockEou.ou.mobile = '+11234567890';
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({ feature: 'DASHBOARD_OPT_IN_BANNER', key: 'OPT_IN_BANNER_SHOWN', value: null }),
+      );
 
       component.eou$ = of(mockEou);
 
       const result$ = component.setShowOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_OPT_IN_BANNER',
-          key: 'OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_OPT_IN_BANNER',
+          'OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeTrue();
         done();
       });
@@ -1089,36 +1095,52 @@ describe('DashboardPage', () => {
 
   describe('setShowEmailOptInBanner():', () => {
     beforeEach(() => {
-      featureConfigService.getConfiguration.and.returnValue(of(featureConfigEmailOptInData));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+          value: false,
+        }),
+      );
     });
 
     it('should set canShowEmailOptInBanner to false if feature config value is true', (done) => {
-      const mockFeatureConfig = cloneDeep(featureConfigEmailOptInData);
-      mockFeatureConfig.value = true;
-      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+          value: true,
+        }),
+      );
 
       const result$ = component.setShowEmailOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
-          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          'EMAIL_OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeFalse();
         done();
       });
     });
 
     it('should set canShowEmailOptInBanner to true if feature config data is null', (done) => {
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({
+          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
+          value: null,
+        }),
+      );
 
       const result$ = component.setShowEmailOptInBanner();
 
       result$.subscribe((res) => {
-        expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-          feature: 'DASHBOARD_EMAIL_OPT_IN_BANNER',
-          key: 'EMAIL_OPT_IN_BANNER_SHOWN',
-        });
+        expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+          'DASHBOARD_EMAIL_OPT_IN_BANNER',
+          'EMAIL_OPT_IN_BANNER_SHOWN',
+        );
         expect(res).toBeTrue();
         done();
       });
@@ -1177,17 +1199,23 @@ describe('DashboardPage', () => {
   }));
 
   it('should not show the navbar walkthrough if the user has already seen it', fakeAsync(() => {
-    featureConfigService.getConfiguration.and.returnValue(of(featureConfigWalkthroughFinishData));
+    featureConfigService.getByFeatureAndKey.and.returnValue(
+      of({
+        feature: 'WALKTHROUGH',
+        key: 'DASHBOARD_SHOW_NAVBAR',
+        value: { isShown: true, isFinished: true },
+      }),
+    );
     component.eou$ = of(apiEouRes);
     spyOn(component, 'startTour');
     spyOn(component, 'showDashboardAddExpenseWalkthrough').and.stub();
     component.showNavbarWalkthrough(true);
     tick();
 
-    expect(featureConfigService.getConfiguration).toHaveBeenCalledOnceWith({
-      feature: 'WALKTHROUGH',
-      key: 'DASHBOARD_SHOW_NAVBAR',
-    });
+    expect(featureConfigService.getByFeatureAndKey).toHaveBeenCalledOnceWith(
+      'WALKTHROUGH',
+      'DASHBOARD_SHOW_NAVBAR',
+    );
 
     expect(component.startTour).not.toHaveBeenCalled();
   }));
@@ -1598,7 +1626,7 @@ describe('DashboardPage', () => {
 
   describe('showDashboardAddExpenseWalkthrough():', () => {
     beforeEach(() => {
-      featureConfigService.getConfiguration.and.returnValue(of(null));
+      featureConfigService.getByFeatureAndKey.and.returnValue(of({ feature: '', key: '', value: null }));
       spyOn(component, 'startDashboardAddExpenseWalkthrough');
     });
 
@@ -1633,19 +1661,13 @@ describe('DashboardPage', () => {
     }));
 
     it('should not show walkthrough if already finished', fakeAsync(() => {
-      const mockFeatureConfig: FeatureConfig<{ isShown: boolean; isFinished: boolean }> = {
-        org_id: 'org123',
-        user_id: 'user123',
-        created_at: '2023-01-01T00:00:00.000Z',
-        updated_at: '2023-01-01T00:00:00.000Z',
-        target_client: 'WEBAPP',
-        feature: 'WALKTHROUGH',
-        sub_feature: null,
-        key: 'DASHBOARD_ADD_EXPENSE',
-        value: { isShown: true, isFinished: true },
-        is_shared: false,
-      };
-      featureConfigService.getConfiguration.and.returnValue(of(mockFeatureConfig));
+      featureConfigService.getByFeatureAndKey.and.returnValue(
+        of({
+          feature: 'WALKTHROUGH',
+          key: 'DASHBOARD_ADD_EXPENSE',
+          value: { isShown: true, isFinished: true },
+        }),
+      );
       component.isWalkthroughComplete = true;
       component.isWalkThroughOver = true;
 
