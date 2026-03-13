@@ -565,14 +565,19 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('registerBackButtonAction(): should call platform.backButton.subscribeWithPriority once with BackButtonActionPriority.LOW and backButtonActionHandler', () => {
+  it('registerBackButtonAction(): should call platform.backButton.subscribeWithPriority with BackButtonActionPriority.LOW and a callback that invokes backButtonActionHandler', () => {
     const backButtonActionHandlerSpy = spyOn(component, 'backButtonActionHandler');
-    spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
+    const subscribeWithPrioritySpy = spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
     component.registerBackButtonAction();
-    expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
-      BackButtonActionPriority.LOW,
-      backButtonActionHandlerSpy,
-    );
+
+    expect(subscribeWithPrioritySpy).toHaveBeenCalledOnceWith(BackButtonActionPriority.LOW, jasmine.any(Function));
+
+    // Verify the callback invokes backButtonActionHandler when called (with processNextHandler param)
+    const callback = subscribeWithPrioritySpy.calls.mostRecent().args[1];
+    const processNextHandler = jasmine.createSpy('processNextHandler');
+    callback(processNextHandler);
+
+    expect(backButtonActionHandlerSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onTaskClicked(): should set currentStateIndex to 1, navigate to tasks page with queryParams.state as tasks and track tasksPageOpened event', () => {

@@ -901,9 +901,8 @@ export class DashboardPage implements OnDestroy {
   }
 
   registerBackButtonAction(): void {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.LOW,
-      this.backButtonActionHandler,
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () =>
+      this.backButtonActionHandler(),
     );
   }
 
