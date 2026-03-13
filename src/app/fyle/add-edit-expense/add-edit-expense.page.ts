@@ -57,7 +57,6 @@ import {
 import {
   catchError,
   concatMap,
-  delay,
   distinctUntilChanged,
   filter,
   finalize,
@@ -3957,24 +3956,15 @@ export class AddEditExpensePage implements OnInit {
     }
     this.lastSaveSucceeded = false;
 
-    this.appRatingService
-      .checkEligibility()
-      .pipe(
-        take(1),
-        delay(2000),
-        catchError(() => of(false)),
-      )
-      .subscribe((isRatingEligible) => {
-        if (isRatingEligible) {
-          this.appRatingService.showRatingPrompt();
-        } else {
-          this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
-            if (showNpsSurvey) {
-              this.refinerService.startSurvey({ actionName: 'Save Expense' });
-            }
-          });
-        }
-      });
+    this.appRatingService.schedulePostSaveRatingPrompt(2000).then((ratingShown) => {
+      if (!ratingShown) {
+        this.launchDarklyService.getVariation('nps_survey', false).subscribe((showNpsSurvey) => {
+          if (showNpsSurvey) {
+            this.refinerService.startSurvey({ actionName: 'Save Expense' });
+          }
+        });
+      }
+    });
   }
 
   showSaveExpenseLoader(redirectedFrom: string): void {

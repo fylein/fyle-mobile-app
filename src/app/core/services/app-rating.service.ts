@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, of, switchMap, take, catchError } from 'rxjs';
+import { Observable, map, of, switchMap, take, catchError, firstValueFrom } from 'rxjs';
 import { PopoverController } from '@ionic/angular/standalone';
 import { AppReview } from '@capawesome/capacitor-app-review';
 import { LaunchDarklyService } from './launch-darkly.service';
@@ -9,6 +9,8 @@ import { OrgUserService } from './org-user.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { TrackingService } from './tracking.service';
+import { AppVersionService } from './app-version.service';
+import { DeviceService } from './device.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AppRatingHistory } from '../models/app-rating-history.model';
 import { FeatureConfig } from '../models/feature-config.model';
@@ -37,11 +39,17 @@ export class AppRatingService {
 
   private translocoService = inject(TranslocoService);
 
+  private appVersionService = inject(AppVersionService);
+
+  private deviceService = inject(DeviceService);
+
   private readonly FEATURE_KEY = 'IN_APP_RATING';
 
   private readonly CONFIG_KEY = 'PROMPT_HISTORY';
 
   private readonly MIN_DAYS_ON_PLATFORM = 30;
+
+  private readonly MIN_DAYS_ON_MOBILE = 30;
 
   private readonly MIN_EXPENSE_COUNT = 10;
 
@@ -63,9 +71,23 @@ export class AppRatingService {
       });
   }
 
-  showRatingPrompt(): void {
-    this.trackingService.eventTrack('In App Rating Eligible', {});
-    this.showPrePromptPopover();
+  schedulePostSaveRatingPrompt(delayMs: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        try {
+          const eligible = await firstValueFrom(this.checkEligibility().pipe(catchError(() => of(false))));
+          if (eligible) {
+            this.trackingService.eventTrack('In App Rating Eligible', {});
+            await this.showPrePromptPopover();
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        } catch {
+          resolve(false);
+        }
+      }, delayMs);
+    });
   }
 
   checkEligibility(): Observable<boolean> {
@@ -74,50 +96,34 @@ export class AppRatingService {
     return of(true);
 
     // return this.launchDarklyService.getVariation('in_app_rating', false).pipe(
-    //   switchMap((flagEnabled) => {
-    //     if (!flagEnabled) {
-    //       return of(false);
-    //     }
-    //
-    //     return forkJoin({
-    //       eou: from(this.authService.getEou()),
-    //       isConnected: this.networkService.isOnline().pipe(take(1)),
-    //       isDelegator: from(this.orgUserService.isSwitchedToDelegator()),
-    //     }).pipe(
-    //       switchMap(({ eou, isConnected, isDelegator }) => {
-    //         if (!isConnected) {
-    //           return of(false);
-    //         }
-    //         if (!eou?.ou?.org_name) {
-    //           return of(false);
-    //         }
-    //         if (eou.ou.org_name.toLowerCase().includes('fyle for')) {
-    //           return of(false);
-    //         }
-    //         if (isDelegator) {
-    //           return of(false);
-    //         }
-    //         if (!this.isUserOldEnough(eou)) {
-    //           return of(false);
-    //         }
-    //
-    //         return this.getPromptHistory().pipe(
-    //           switchMap((history) => {
-    //             if (!this.isNativePromptCooldownMet(history)) {
-    //               return of(false);
-    //             }
-    //             if (!this.isDismissalCooldownMet(history)) {
-    //               return of(false);
-    //             }
-    //
-    //             return this.hasEnoughExpenses();
-    //           }),
-    //         );
-    //       }),
-    //     );
-    //   }),
+    //   switchMap((flagEnabled) => (flagEnabled ? this.runEligibilityChecks() : of(false))),
     // );
   }
+
+  // TODO: Uncomment when checkEligibility is uncommented.
+  // Also add forkJoin and from to the rxjs import.
+  // private runEligibilityChecks(): Observable<boolean> {
+  //   return forkJoin({
+  //     eou: from(this.authService.getEou()),
+  //     isConnected: this.networkService.isOnline().pipe(take(1)),
+  //     isDelegator: from(this.orgUserService.isSwitchedToDelegator()),
+  //     isOldEnoughOnMobile: this.isUserOldEnoughOnMobile(),
+  //     promptHistory: this.getPromptHistory(),
+  //     hasEnoughExpenses: this.hasEnoughExpenses(),
+  //   }).pipe(
+  //     map(({ eou, isConnected, isDelegator, isOldEnoughOnMobile, promptHistory, hasEnoughExpenses }) => {
+  //       if (!isConnected) return false;
+  //       if (!eou?.ou?.org_name) return false;
+  //       if (eou.ou.org_name.toLowerCase().includes('fyle for')) return false;
+  //       if (isDelegator) return false;
+  //       if (!this.isUserOldEnough(eou)) return false;
+  //       if (!isOldEnoughOnMobile) return false;
+  //       if (!this.isNativePromptCooldownMet(promptHistory)) return false;
+  //       if (!this.isDismissalCooldownMet(promptHistory)) return false;
+  //       return hasEnoughExpenses;
+  //     }),
+  //   );
+  // }
 
   isUserOldEnough(eou: ExtendedOrgUser): boolean {
     const createdAt = eou?.ou?.created_at;
@@ -126,6 +132,19 @@ export class AppRatingService {
     }
     const daysSinceCreation = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
     return daysSinceCreation >= this.MIN_DAYS_ON_PLATFORM;
+  }
+
+  isUserOldEnoughOnMobile(): Observable<boolean> {
+    return this.deviceService.getDeviceInfo().pipe(
+      switchMap((deviceInfo) => this.appVersionService.getFirstMobileLoginDate(deviceInfo.operatingSystem)),
+      map((firstLoginDate) => {
+        if (!firstLoginDate) {
+          return false;
+        }
+        const daysSinceFirstLogin = (Date.now() - firstLoginDate.getTime()) / (1000 * 60 * 60 * 24);
+        return daysSinceFirstLogin >= this.MIN_DAYS_ON_MOBILE;
+      }),
+    );
   }
 
   hasEnoughExpenses(): Observable<boolean> {

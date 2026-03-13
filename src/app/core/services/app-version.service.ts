@@ -121,6 +121,19 @@ export class AppVersionService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data);
   }
 
+  getFirstMobileLoginDate(os: string): Observable<Date | null> {
+    const data = {
+      params: {
+        order: 'created_at.asc',
+        'os->name': `eq.${os.toUpperCase()}`,
+        limit: 1,
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<AppVersion[]>>(`/mobile_app/versions`, data)
+      .pipe(map((response) => (response?.data?.[0]?.created_at ? new Date(response.data[0].created_at) : null)));
+  }
+
   post(payload: { data: Partial<AppVersion> }): Observable<PlatformApiResponse<AppVersion>> {
     return this.spenderPlatformV1ApiService.post<PlatformApiResponse<AppVersion>>('/mobile_app/versions', payload);
   }
