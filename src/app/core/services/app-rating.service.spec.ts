@@ -10,6 +10,8 @@ import { OrgUserService } from './org-user.service';
 import { FeatureConfigService } from './platform/v1/spender/feature-config.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { TrackingService } from './tracking.service';
+import { AppVersionService } from './app-version.service';
+import { DeviceService } from './device.service';
 import { AppRatingHistory } from '../models/app-rating-history.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
@@ -27,6 +29,8 @@ describe('AppRatingService', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
+  let appVersionService: jasmine.SpyObj<AppVersionService>;
+  let deviceService: jasmine.SpyObj<DeviceService>;
 
   let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
 
@@ -40,11 +44,14 @@ describe('AppRatingService', () => {
       'saveConfiguration',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
-    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'getTop']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
+    const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['getFirstMobileLoginDate']);
+    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
 
     translocoServiceSpy.translate.and.callFake((key: string) => key);
+    popoverControllerSpy.getTop.and.resolveTo(undefined);
 
     popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
     popoverSpy.present.and.resolveTo();
@@ -63,6 +70,8 @@ describe('AppRatingService', () => {
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: TranslocoService, useValue: translocoServiceSpy },
+        { provide: AppVersionService, useValue: appVersionServiceSpy },
+        { provide: DeviceService, useValue: deviceServiceSpy },
       ],
     });
 
@@ -76,6 +85,8 @@ describe('AppRatingService', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
+    appVersionService = TestBed.inject(AppVersionService) as jasmine.SpyObj<AppVersionService>;
+    deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
   });
 
   it('should be created', () => {
@@ -126,6 +137,44 @@ describe('AppRatingService', () => {
     it('should return false when ou is null', () => {
       const eou = { ...apiEouRes, ou: null } as ExtendedOrgUser;
       expect(service.isUserOldEnough(eou)).toBeFalse();
+    });
+  });
+
+  describe('isUserOldEnoughOnMobile', () => {
+    it('should return true when first mobile login was more than 30 days ago', (done) => {
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 45);
+      deviceService.getDeviceInfo.and.returnValue(of({ operatingSystem: 'ios' } as any));
+      appVersionService.getFirstMobileLoginDate.and.returnValue(of(oldDate));
+
+      service.isUserOldEnoughOnMobile().subscribe((result) => {
+        expect(result).toBeTrue();
+        expect(appVersionService.getFirstMobileLoginDate).toHaveBeenCalledWith('ios');
+        done();
+      });
+    });
+
+    it('should return false when first mobile login was less than 30 days ago', (done) => {
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 10);
+      deviceService.getDeviceInfo.and.returnValue(of({ operatingSystem: 'android' } as any));
+      appVersionService.getFirstMobileLoginDate.and.returnValue(of(recentDate));
+
+      service.isUserOldEnoughOnMobile().subscribe((result) => {
+        expect(result).toBeFalse();
+        expect(appVersionService.getFirstMobileLoginDate).toHaveBeenCalledWith('android');
+        done();
+      });
+    });
+
+    it('should return false when no mobile login date exists', (done) => {
+      deviceService.getDeviceInfo.and.returnValue(of({ operatingSystem: 'ios' } as any));
+      appVersionService.getFirstMobileLoginDate.and.returnValue(of(null));
+
+      service.isUserOldEnoughOnMobile().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
     });
   });
 
@@ -315,18 +364,17 @@ describe('AppRatingService', () => {
     }));
   });
 
-  describe('showRatingPrompt', () => {
-    it('should track eligibility and show the popover', fakeAsync(() => {
-      featureConfigService.getConfiguration.and.returnValue(
-        of({ value: { nativePrompts: [], dismissals: [] } } as FeatureConfig<AppRatingHistory>),
-      );
-      featureConfigService.saveConfiguration.and.returnValue(of(undefined));
+  describe('notifySaveSuccess', () => {
+    it('should call attemptRatingPrompt after a delay', fakeAsync(() => {
+      spyOn(service, 'attemptRatingPrompt');
 
-      service.showRatingPrompt();
-      tick();
+      service.notifySaveSuccess();
 
-      expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Eligible', {});
-      expect(popoverController.create).toHaveBeenCalledTimes(1);
+      expect(service.attemptRatingPrompt).not.toHaveBeenCalled();
+
+      tick(1000);
+
+      expect(service.attemptRatingPrompt).toHaveBeenCalledTimes(1);
     }));
   });
 
@@ -335,6 +383,21 @@ describe('AppRatingService', () => {
       spyOn(service, 'checkEligibility').and.returnValue(of(true));
       featureConfigService.saveConfiguration.and.returnValue(of(undefined));
     });
+
+    it('should dismiss existing popover before creating a new one', fakeAsync(() => {
+      const existingPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['dismiss']);
+      existingPopoverSpy.dismiss.and.resolveTo();
+      popoverController.getTop.and.resolveTo(existingPopoverSpy);
+      featureConfigService.getConfiguration.and.returnValue(
+        of({ value: { nativePrompts: [], dismissals: [] } } as FeatureConfig<AppRatingHistory>),
+      );
+
+      service.attemptRatingPrompt();
+      tick();
+
+      expect(existingPopoverSpy.dismiss).toHaveBeenCalledTimes(1);
+      expect(popoverController.create).toHaveBeenCalledTimes(1);
+    }));
 
     it('should trigger native review and record nativePrompts when user taps "Leave a rating"', fakeAsync(() => {
       const triggerSpy = spyOn<any>(service, 'triggerNativeReview').and.resolveTo();
