@@ -1,24 +1,18 @@
 <div
   class="bank-accounts"
-  [ngClass]="{ 'bank-accounts--minimal': minimal, 'bank-accounts--single-card': linkedAccounts.length === 1 }"
+  [ngClass]="{ 'bank-accounts--minimal': minimal, 'bank-accounts--single-card': linkedAccounts?.length === 1 }"
 >
-  @if (linkedAccounts) {
-    <swiper
-      #swiper
-      class="bank-accounts--swiper"
-      [slidesPerView]="1.1"
-      [spaceBetween]="5"
-      [centeredSlides]="true"
-      [pagination]="pagination"
-      (afterInit)="onCardChange($event)"
-      (activeIndexChange)="onCardChange($event)"
-    >
-      @for (linkedAccount of linkedAccounts; track linkedAccount) {
-        <ng-template swiperSlide>
-          <app-bank-account-card [accountDetails]="linkedAccount" [minimal]="minimal" (deleted)="onDeleted()">
-          </app-bank-account-card>
-        </ng-template>
-      }
-    </swiper>
+  @if (linkedAccounts?.length) {
+    <div class="swiper bank-accounts--swiper" #swiperContainer>
+      <div class="swiper-wrapper">
+        @for (linkedAccount of linkedAccounts; track linkedAccount) {
+          <div class="swiper-slide">
+            <app-bank-account-card [accountDetails]="linkedAccount" [minimal]="minimal" (deleted)="onDeleted()">
+            </app-bank-account-card>
+          </div>
+        }
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
   }
 </div>

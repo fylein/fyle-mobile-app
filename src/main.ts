@@ -8,6 +8,8 @@ import { environment } from './environments/environment';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import * as Sentry from '@sentry/angular';
 import 'hammerjs';
+import { register } from 'swiper/element/bundle';
+register();
 
 import { GlobalCacheConfig } from 'ts-cacheable';
 import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
