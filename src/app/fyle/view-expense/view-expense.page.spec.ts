@@ -18,6 +18,7 @@ import { ViewExpensePage } from './view-expense.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
@@ -145,6 +146,8 @@ describe('ViewExpensePage', () => {
     const sharedExpensesServiceSpy = jasmine.createSpyObj('SharedExpensesService', ['isPendingGasCharge']);
     const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
     delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(false));
 
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
@@ -153,6 +156,7 @@ describe('ViewExpensePage', () => {
       imports: [FormsModule, MatIconModule, MatIconTestingModule, ViewExpensePage],
       providers: [
         { provide: DelegationService, useValue: delegationServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,

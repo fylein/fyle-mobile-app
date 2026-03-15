@@ -17,6 +17,7 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { finalize, of } from 'rxjs';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
@@ -105,11 +106,14 @@ describe('ViewPerDiemPage', () => {
     ]);
     const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
     delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(false));
 
     TestBed.configureTestingModule({
       imports: [ViewPerDiemPage],
       providers: [
         { provide: DelegationService, useValue: delegationServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },

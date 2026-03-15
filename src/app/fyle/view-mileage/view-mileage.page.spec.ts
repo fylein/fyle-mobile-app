@@ -14,6 +14,7 @@ import { ViewMileagePage } from './view-mileage.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular/standalone';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
@@ -132,11 +133,14 @@ describe('ViewMileagePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
     const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
     delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(false));
 
     TestBed.configureTestingModule({
       imports: [ViewMileagePage],
       providers: [
         { provide: DelegationService, useValue: delegationServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,
