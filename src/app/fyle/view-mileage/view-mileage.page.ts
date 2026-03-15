@@ -63,6 +63,7 @@ import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-sta
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { MileageRateName } from '../../shared/pipes/mileage-rate-name.pipe';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -134,6 +135,8 @@ export class ViewMileagePage {
 
   private delegationService = inject(DelegationService);
 
+  private launchDarklyService = inject(LaunchDarklyService);
+
   private spenderFileService = inject(SpenderFileService);
 
   private approverFileService = inject(ApproverFileService);
@@ -145,6 +148,8 @@ export class ViewMileagePage {
   mileageExpense$: Observable<Expense>;
 
   readonly delegateeOwnedExpense = signal<boolean | null>(null);
+
+  controlledDelegateAccessEnabled = false;
 
   orgSettings: OrgSettings;
 
@@ -325,6 +330,7 @@ export class ViewMileagePage {
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.delegateeOwnedExpense.set(null);
+    this.controlledDelegateAccessEnabled = false;
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
@@ -343,13 +349,25 @@ export class ViewMileagePage {
       shareReplay(1),
     );
 
-    this.mileageExpense$
-      .pipe(
-        take(1),
-        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
-      )
-      .subscribe((isDelegateeOwnedExpense) => {
-        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+    this.launchDarklyService
+      .getVariation('controlled_delegate_access_enabled', false)
+      .pipe(take(1))
+      .subscribe((enabled) => {
+        this.controlledDelegateAccessEnabled = enabled;
+
+        if (!enabled || this.view !== ExpenseView.team) {
+          this.delegateeOwnedExpense.set(false);
+          return;
+        }
+
+        this.mileageExpense$
+          .pipe(
+            take(1),
+            switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+          )
+          .subscribe((isDelegateeOwnedExpense) => {
+            this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+          });
       });
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
