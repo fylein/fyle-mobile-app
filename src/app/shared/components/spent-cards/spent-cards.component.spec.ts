@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { SpentCardsComponent } from './spent-cards.component';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, Output } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input, output } from '@angular/core';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardDetailComponent } from './card-detail/card-detail.component';
 import { AddCardComponent } from '../add-card/add-card.component';
@@ -14,9 +14,9 @@ import { AddCardComponent } from '../add-card/add-card.component';
   imports: [],
 })
 class MockCardDetailComponent {
-  @Input() cardDetail: unknown;
-  @Input() homeCurrency: string | undefined;
-  @Input() currencySymbol: string | undefined;
+  readonly cardDetail = input<unknown>();
+  readonly homeCurrency = input<string>();
+  readonly currencySymbol = input<string>();
 }
 
 // mock for add-card component
@@ -26,8 +26,8 @@ class MockCardDetailComponent {
   imports: [],
 })
 class MockAddCardComponent {
-  @Input() showZeroStateMessage = false;
-  @Output() addCardClick = new EventEmitter<void>();
+  readonly showZeroStateMessage = input<boolean>(false);
+  readonly addCardClick = output<Event>();
 }
 
 describe('SpentCardsComponent', () => {
