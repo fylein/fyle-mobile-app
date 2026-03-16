@@ -1,7 +1,6 @@
 import {
   Component,
   EventEmitter,
-  AfterViewInit,
   OnDestroy,
   ViewChild,
   computed,

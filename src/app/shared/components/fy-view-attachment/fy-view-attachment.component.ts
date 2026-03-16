@@ -1,11 +1,10 @@
-import { Component, ElementRef, OnInit, Input, inject, input, output, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Input, inject, input, output, viewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, PopoverController } from '@ionic/angular/standalone';
 import { DomSanitizer } from '@angular/platform-browser';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { from, of, forkJoin } from 'rxjs';
 import { switchMap, finalize, tap } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
