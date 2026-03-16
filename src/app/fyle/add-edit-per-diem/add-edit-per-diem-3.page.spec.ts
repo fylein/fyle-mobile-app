@@ -35,7 +35,6 @@ import { multiplePaymentModesData, unflattenedAccount2Data } from 'src/app/core/
 import {
   unflattenedTxnData,
   unflattenedTxnData2,
-  unflattenedTxnWithAdvanceWallet,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { finalize, of, throwError } from 'rxjs';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
