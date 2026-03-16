@@ -2,10 +2,8 @@ import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angul
 import { ModalController } from '@ionic/angular/standalone';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { FormsModule } from '@angular/forms';
 import { getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
 import { ShareReportComponent } from './share-report.component';
-import { of } from 'rxjs';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 
 describe('ShareReportComponent', () => {
@@ -13,18 +11,9 @@ describe('ShareReportComponent', () => {
   let fixture: ComponentFixture<ShareReportComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   beforeEach(waitForAsync(() => {
-    const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
-      config: {
-        reRenderOnLangChange: true,
-      },
-      langChanges$: of('en'),
-      _loadDependencies: () => Promise.resolve(),
-    });
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
       imports: [
-        
-        FormsModule,
         MatIconModule,
         MatIconTestingModule,
         getTranslocoTestingModule(),
@@ -35,7 +24,6 @@ describe('ShareReportComponent', () => {
 
     fixture = TestBed.createComponent(ShareReportComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
