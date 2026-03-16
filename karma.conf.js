@@ -9,20 +9,12 @@ module.exports = function (config) {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
-    // coverageIstanbulReporter NO LONGER HERE
-    //coverageIstanbulReporter: {
-    //  dir: require('path').join(__dirname, '../../coverage/my-app'),
-    //  reports: ['html', 'lcovonly', 'text-summary'],
-    //  fixWebpackSourcePaths: true
-    //},
-    // coverReporter NEWLY ADDED
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage'),
       subdir: '.',
       reporters: [{ type: 'html' }, { type: 'lcov' }, { type: 'json-summary' }],
       fixWebpackSourcePaths: true,
     },
-    // THE FOLLOWING REMAINED AS IS
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
