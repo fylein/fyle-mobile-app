@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { ElementRef } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -566,18 +566,18 @@ export class DashboardPage implements OnDestroy {
 
     const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
-      shareReplay(1),
     );
 
     return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
+      isUserFromINCluster: this.isUserFromINCluster$,
     }).pipe(
-      map(({ isBannerShown, eou }) => {
+      map(({ isBannerShown, eou, isUserFromINCluster }) => {
         const isUSDorCADCurrency = ['USD', 'CAD'].includes(eou.org.currency);
         const isInvalidUSMobileNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
 
-        if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown) {
+        if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown || isUserFromINCluster) {
           return false;
         }
 
@@ -593,9 +593,17 @@ export class DashboardPage implements OnDestroy {
       key: 'EMAIL_OPT_IN_BANNER_SHOWN',
     };
 
-    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+    const canShowEmailOptInBanner$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
       map((config) => config?.value),
       map((isBannerShown) => !isBannerShown),
+    );
+    return forkJoin({
+      canShowEmailOptInBanner: canShowEmailOptInBanner$,
+      isUserFromINCluster: this.isUserFromINCluster$,
+    }).pipe(
+      map(({ canShowEmailOptInBanner, isUserFromINCluster }) => {
+        return canShowEmailOptInBanner && !isUserFromINCluster;
+      }),
       shareReplay(1),
     );
   }
@@ -623,20 +631,8 @@ export class DashboardPage implements OnDestroy {
       centeredSlides: true,
       pagination: this.optInBannerPagination,
     };
-    // Set default config when observables are not ready
-    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
-      this.swiperConfig = {
-        slidesPerView: 1,
-        spaceBetween: 0,
-        centeredSlides: true,
-        loop: false,
-        autoplay: false,
-        pagination: false,
-      };
-      return;
-    }
 
-    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
+    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$, this.isUserFromINCluster$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
         this.initOptInSwiper();
@@ -673,6 +669,10 @@ export class DashboardPage implements OnDestroy {
   }
 
   private initOptInSwiper(): void {
+    if (this.optInSwiperInstance) {
+      this.optInSwiperInstance.destroy(true, true);
+      this.optInSwiperInstance = null;
+    }
     const config = this.swiperConfig;
     this.optInSwiperInstance = new Swiper(this.optInSwiper()?.nativeElement, {
       modules: [Pagination, Autoplay],
@@ -746,18 +746,15 @@ export class DashboardPage implements OnDestroy {
     this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
-    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster()).pipe(shareReplay(1));
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
     this.employeeSettings$.subscribe((employeeSettings) => {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    const optInBanner$ = this.setShowOptInBanner();
-    const emailOptInBanner$ = this.setShowEmailOptInBanner();
-
-    this.canShowOptInBanner$ = optInBanner$;
-    this.canShowEmailOptInBanner$ = emailOptInBanner$;
+    this.canShowOptInBanner$ = this.setShowOptInBanner();
+    this.canShowEmailOptInBanner$ = this.setShowEmailOptInBanner();
 
     combineLatest([this.orgSettings$, this.eou$])
       .pipe(
@@ -799,8 +796,8 @@ export class DashboardPage implements OnDestroy {
       });
 
     forkJoin({
-      optInBanner: optInBanner$,
-      emailOptInBanner: emailOptInBanner$,
+      optInBanner: this.canShowOptInBanner$,
+      emailOptInBanner: this.canShowEmailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
       showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
