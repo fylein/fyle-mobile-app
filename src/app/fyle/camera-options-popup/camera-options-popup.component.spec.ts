@@ -1,6 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
-import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
 import { PopoverController } from '@ionic/angular/standalone';
 import { Capacitor } from '@capacitor/core';
 import { FileService } from 'src/app/core/services/file.service';
@@ -76,7 +76,6 @@ describe('CameraOptionsPopupComponent', () => {
       spyOn(Capacitor, 'isNativePlatform');
     }
     (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
