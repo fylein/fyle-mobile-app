@@ -145,6 +145,11 @@ describe('EmailNotificationsComponent', () => {
 
     appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
     Object.defineProperty(App, 'addListener', { value: appAddListenerSpy, writable: true });
+
+    if (!(Capacitor.isNativePlatform as jasmine.Spy).and) {
+      spyOn(Capacitor, 'isNativePlatform');
+    }
+    (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
   }));
 
   it('should create', () => {
@@ -230,8 +235,7 @@ describe('EmailNotificationsComponent', () => {
       component.isMobilePushColumnVisible = true;
       component.isPushPermissionDenied = true;
 
-      // Pretend we are on a native platform so the listener is registered.
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(true);
 
       // Capture the appStateChange callback
       let appStateCallback: ((state: { isActive: boolean }) => Promise<void> | void) | undefined;
@@ -262,7 +266,7 @@ describe('EmailNotificationsComponent', () => {
       component.isMobilePushColumnVisible = true;
       component.isPushPermissionDenied = false;
 
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(true);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(true);
 
       pushNotificationService.checkPermissions.and.resolveTo({ receive: 'denied' } as any);
 
@@ -687,7 +691,7 @@ describe('EmailNotificationsComponent', () => {
     });
 
     it('should return early on non-native platforms', async () => {
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       (App as any).addListener.calls.reset();
 
       await (component as any).startAppStateListener();
