@@ -30,7 +30,7 @@ module.exports = function (config) {
     browsers: ['ChromeHeadless'],
     singleRun: false,
     restartOnFileChange: true,
-    reportSlowerThan: 300, // Report tests slower than 500ms
+    reportSlowerThan: 80, // Report tests slower than 500ms
   });
 
   if (isParallelDisabled) {
