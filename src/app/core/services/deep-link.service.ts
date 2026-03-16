@@ -57,8 +57,11 @@ export class DeepLinkService {
             token: refreshToken,
           },
         ]);
-      } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
-        const reportId = redirectUri.split('/reports/').pop();
+      } else if (
+        redirectUri.match('/reports/rp') &&
+        redirectUri.match(/\/reports\/([^/?&]+)/)?.[1]?.length === 12
+      ) {
+        const reportId = redirectUri.match(/\/reports\/([^/?&]+)/)?.[1];
         const subModule = 'report';
         const properties: Record<string, string> = {
           sub_module: subModule,
@@ -95,9 +98,9 @@ export class DeepLinkService {
       } else if (
         redirectUri.match('/my_expenses/') &&
         redirectUri.includes('txnId=') &&
-        redirectUri.split('txnId=').pop().length === 12
+        redirectUri.match(/txnId=([^&]+)/)?.[1]?.length === 12
       ) {
-        const txnId = redirectUri.split('txnId=').pop();
+        const txnId = redirectUri.match(/txnId=([^&]+)/)?.[1];
         const subModule = 'expense';
         const properties: Record<string, string> = {
           sub_module: subModule,
