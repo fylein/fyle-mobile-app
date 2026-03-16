@@ -1,39 +1,66 @@
-import { Component, Input, input, output } from '@angular/core';
-import SwiperCore, { Pagination } from 'swiper';
+import {
+  Component,
+  Input,
+  input,
+  output,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+} from '@angular/core';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
-import { PaginationOptions } from 'swiper/types';
-import { SwiperModule } from 'swiper/angular';
 import { CardDetailComponent } from './card-detail/card-detail.component';
 import { AddCardComponent } from '../add-card/add-card.component';
-
-// install Swiper modules
-SwiperCore.use([Pagination]);
+import Swiper from 'swiper';
+import { Pagination } from 'swiper/modules';
 
 @Component({
   selector: 'app-spent-cards',
   templateUrl: './spent-cards.component.html',
   styleUrls: ['./spent-cards.component.scss'],
-  imports: [SwiperModule, CardDetailComponent, AddCardComponent],
+  imports: [CardDetailComponent, AddCardComponent],
 })
-export class SpentCardsComponent {
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
-  @Input() cardDetails: PlatformCorporateCardDetail[];
+export class SpentCardsComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('swiperContainer') swiperContainer?: ElementRef<HTMLElement>;
+
+  readonly cardDetails = input<PlatformCorporateCardDetail[]>();
 
   readonly homeCurrency = input<string>(undefined);
 
   readonly currencySymbol = input<string>(undefined);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the input. This prevents migration.
   @Input() showAddCardSlide: boolean;
 
   readonly addCardClick = output<void>();
 
-  pagination: PaginationOptions = {
-    dynamicBullets: true,
-    renderBullet(index, className): string {
-      return '<span class="spent-cards ' + className + '"> </span>';
-    },
-  };
+  private swiperInstance: Swiper | null = null;
+
+  ngAfterViewInit(): void {
+    this.initSwiper();
+  }
+
+  ngOnDestroy(): void {
+    this.swiperInstance?.destroy(true, true);
+    this.swiperInstance = null;
+  }
+
+  private initSwiper(): void {
+    if (this.swiperInstance) {
+      this.swiperInstance.destroy(true, true);
+      this.swiperInstance = null;
+    }
+    this.swiperInstance = new Swiper(this.swiperContainer.nativeElement, {
+      modules: [Pagination],
+      slidesPerView: 1.1,
+      spaceBetween: 16,
+      centeredSlides: (this.cardDetails()?.length ?? 0) === 1 && !this.showAddCardSlide,
+      pagination: {
+        el: '.swiper-pagination',
+        dynamicBullets: true,
+        renderBullet(index: number, className: string): string {
+          return `<span class="spent-cards ${className}"></span>`;
+        },
+      },
+    });
+  }
 }

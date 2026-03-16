@@ -27,10 +27,10 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Chrome'],
+    browsers: ['ChromeHeadless'],
     singleRun: false,
     restartOnFileChange: true,
-    reportSlowerThan: 500, // Report tests slower than 500ms
+    reportSlowerThan: 300, // Report tests slower than 500ms
   });
 
   if (isParallelDisabled) {
