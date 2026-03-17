@@ -23,6 +23,7 @@ import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AppRatingService } from 'src/app/core/services/app-rating.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -234,6 +235,7 @@ describe('AddEditExpensePage', () => {
       'post',
       'deleteExpenses',
     ]);
+    const appRatingServiceSpy = jasmine.createSpyObj('AppRatingService', ['notifySaveSuccess']);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
 
     TestBed.configureTestingModule({
@@ -426,6 +428,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: StorageService,
           useValue: storageServiceSpy,
+        },
+        {
+          provide: AppRatingService,
+          useValue: appRatingServiceSpy,
         },
         {
           provide: LaunchDarklyService,
