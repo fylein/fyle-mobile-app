@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { SpentCardsComponent } from './spent-cards.component';
-import { SwiperModule } from 'swiper/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, input, output } from '@angular/core';
 import { getTranslocoTestingModule } from 'src/app/core/testing/transloco-testing.utils';
 import { CardDetailComponent } from './card-detail/card-detail.component';
 import { AddCardComponent } from '../add-card/add-card.component';
@@ -15,6 +14,9 @@ import { AddCardComponent } from '../add-card/add-card.component';
   imports: [],
 })
 class MockCardDetailComponent {
+  readonly cardDetail = input<unknown>();
+  readonly homeCurrency = input<string>();
+  readonly currencySymbol = input<string>();
 }
 
 // mock for add-card component
@@ -24,6 +26,8 @@ class MockCardDetailComponent {
   imports: [],
 })
 class MockAddCardComponent {
+  readonly showZeroStateMessage = input<boolean>(false);
+  readonly addCardClick = output<Event>();
 }
 
 describe('SpentCardsComponent', () => {
@@ -33,13 +37,13 @@ describe('SpentCardsComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [SpentCardsComponent, getTranslocoTestingModule()],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).overrideComponent(SpentCardsComponent, {
       remove: {
         imports: [CardDetailComponent, AddCardComponent],
       },
       add: {
         imports: [MockCardDetailComponent, MockAddCardComponent],
-        schemas: [CUSTOM_ELEMENTS_SCHEMA]
       },
     }).compileComponents();
 
@@ -47,6 +51,7 @@ describe('SpentCardsComponent', () => {
     component = fixture.componentInstance;
 
     component.showAddCardSlide = true;
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
 
     fixture.detectChanges();
   }));
@@ -56,37 +61,36 @@ describe('SpentCardsComponent', () => {
   });
 
   it('should render cards in swiper component', () => {
-    component.cardDetails = cardDetailsRes;
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
     fixture.detectChanges();
-    const swiper = getElementBySelector(fixture, 'swiper');
+    const swiper = getElementBySelector(fixture, '.swiper');
     expect(swiper).toBeTruthy();
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
     // Adding + 1 for add new card swiper slide
-    expect(swiperSlides.length).toBe(component.cardDetails.length + 1);
+    expect(swiperSlides.length).toBe(cardDetailsRes.length + 1);
   });
 
-  it('should set pagination to dynamic bullets', () => {
-    const index = 1;
-    const className = 'swiper-pagination-bullet';
-    const result = component.pagination.renderBullet(index, className);
-    expect(result).toContain(`<span class="spent-cards ${className}"> </span>`);
-    expect(component.pagination.dynamicBullets).toBeTrue();
+  it('should render pagination container', () => {
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
+    fixture.detectChanges();
+    const pagination = getElementBySelector(fixture, '.swiper-pagination');
+    expect(pagination).toBeTruthy();
   });
 
   it('should render single card if only one card is present', () => {
-    component.cardDetails = [cardDetailsRes[0]];
+    fixture.componentRef.setInput('cardDetails', [cardDetailsRes[0]]);
     fixture.detectChanges();
-    const swiper = getElementBySelector(fixture, 'swiper');
+    const swiper = getElementBySelector(fixture, '.swiper');
     expect(swiper).toBeTruthy();
     const cardDetail = getElementBySelector(fixture, '.spent-cards app-card-detail');
     expect(cardDetail).toBeTruthy();
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
     // Adding + 1 for add new card swiper slide
-    expect(swiperSlides.length).toBe(component.cardDetails.length + 1);
+    expect(swiperSlides.length).toBe(2);
   });
 
   it('should have add card slide at the end', () => {
-    component.cardDetails = cardDetailsRes;
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
     fixture.detectChanges();
 
     const swiperSlides = getAllElementsBySelector(fixture, '.swiper-slide');
@@ -95,11 +99,11 @@ describe('SpentCardsComponent', () => {
     const addCardComponent = getElementBySelector(fixture, '[data-testid="add-card"]');
     expect(addCardComponent).toBeTruthy();
 
-    expect(lastSlide.contains(addCardComponent)).toBeTrue();
+    expect(lastSlide?.contains(addCardComponent)).toBeTrue();
   });
 
   it('should not have add card slide if showAddCardSlide is false', () => {
-    component.cardDetails = cardDetailsRes;
+    fixture.componentRef.setInput('cardDetails', cardDetailsRes);
     component.showAddCardSlide = false;
 
     fixture.detectChanges();

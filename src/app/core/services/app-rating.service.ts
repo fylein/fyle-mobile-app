@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map, of, switchMap, take, catchError } from 'rxjs';
+import { Observable, forkJoin, from, map, of, switchMap, take, catchError } from 'rxjs';
 import { PopoverController } from '@ionic/angular/standalone';
 import { AppReview } from '@capawesome/capacitor-app-review';
 import { LaunchDarklyService } from './launch-darkly.service';
@@ -80,39 +80,57 @@ export class AppRatingService {
   }
 
   checkEligibility(): Observable<boolean> {
-    // TODO: Uncomment all eligibility checks before production release.
-    // All checks are commented out for testing — this always returns true.
-    return of(true);
-
-    // return this.launchDarklyService.getVariation('in_app_rating', false).pipe(
-    //   switchMap((flagEnabled) => (flagEnabled ? this.runEligibilityChecks() : of(false))),
-    // );
+    return this.launchDarklyService
+      .getVariation('in_app_rating', false)
+      .pipe(switchMap((flagEnabled) => (flagEnabled ? this.runEligibilityChecks() : of(false))));
   }
 
-  // TODO: Uncomment when checkEligibility is uncommented.
-  // Also add forkJoin and from to the rxjs import.
-  // private runEligibilityChecks(): Observable<boolean> {
-  //   return forkJoin({
-  //     eou: from(this.authService.getEou()),
-  //     isConnected: this.networkService.isOnline().pipe(take(1)),
-  //     isDelegator: from(this.orgUserService.isSwitchedToDelegator()),
-  //     isOldEnoughOnMobile: this.isUserOldEnoughOnMobile(),
-  //     promptHistory: this.getPromptHistory(),
-  //     hasEnoughExpenses: this.hasEnoughExpenses(),
-  //   }).pipe(
-  //     map(({ eou, isConnected, isDelegator, isOldEnoughOnMobile, promptHistory, hasEnoughExpenses }) => {
-  //       if (!isConnected) return false;
-  //       if (!eou?.ou?.org_name) return false;
-  //       if (eou.ou.org_name.toLowerCase().includes('fyle for')) return false;
-  //       if (isDelegator) return false;
-  //       if (!this.isUserOldEnough(eou)) return false;
-  //       if (!isOldEnoughOnMobile) return false;
-  //       if (!this.isNativePromptCooldownMet(promptHistory)) return false;
-  //       if (!this.isDismissalCooldownMet(promptHistory)) return false;
-  //       return hasEnoughExpenses;
-  //     }),
-  //   );
-  // }
+  private runEligibilityChecks(): Observable<boolean> {
+    return forkJoin({
+      eou: from(this.authService.getEou()),
+      isConnected: this.networkService.isOnline().pipe(take(1)),
+      isDelegator: from(this.orgUserService.isSwitchedToDelegator()),
+      isOldEnoughOnMobile: this.isUserOldEnoughOnMobile(),
+      promptHistory: this.getPromptHistory(),
+      hasEnoughExpenses: this.hasEnoughExpenses(),
+    }).pipe(map((data) => this.evaluateEligibility(data)));
+  }
+
+  private evaluateEligibility(data: {
+    eou: ExtendedOrgUser;
+    isConnected: boolean;
+    isDelegator: boolean;
+    isOldEnoughOnMobile: boolean;
+    promptHistory: AppRatingHistory;
+    hasEnoughExpenses: boolean;
+  }): boolean {
+    if (!this.isBasicCriteriaMet(data)) {
+      return false;
+    }
+
+    if (!this.isOrgValid(data.eou)) {
+      return false;
+    }
+
+    if (!this.isUserOldEnough(data.eou)) {
+      return false;
+    }
+
+    return this.isNativePromptCooldownMet(data.promptHistory) && this.isDismissalCooldownMet(data.promptHistory);
+  }
+
+  private isBasicCriteriaMet(data: {
+    isConnected: boolean;
+    isDelegator: boolean;
+    isOldEnoughOnMobile: boolean;
+    hasEnoughExpenses: boolean;
+  }): boolean {
+    return data.isConnected && !data.isDelegator && data.isOldEnoughOnMobile && data.hasEnoughExpenses;
+  }
+
+  private isOrgValid(eou: ExtendedOrgUser): boolean {
+    return !!eou?.ou?.org_name && !eou.ou.org_name.toLowerCase().includes('fyle for');
+  }
 
   isUserOldEnough(eou: ExtendedOrgUser): boolean {
     const createdAt = eou?.ou?.created_at;
