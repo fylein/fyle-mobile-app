@@ -215,7 +215,13 @@ export class AppRatingService {
       cssClass: 'pop-up-in-center',
     });
 
-    await popover.present();
+    try {
+      await popover.present();
+    } catch (error) {
+      this.trackingService.eventTrack('In App Rating Pre Prompt Shown Failed', { error: error as string });
+      return;
+    }
+
     this.trackingService.eventTrack('In App Rating Pre Prompt Shown', {});
 
     const { data } = await popover.onWillDismiss<{ action: string }>();
