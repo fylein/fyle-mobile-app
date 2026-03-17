@@ -214,6 +214,23 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should handle advance request link from staging with org_id', () => {
+      deepLinkService.redirect({
+        redirect_uri:
+          'https://staging1.fyle.tech/app/main/advance_request/arequWF8HsgOd1?org_id=orrb8EW1zZsy',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: 'arequWF8HsgOd1',
+          orgId: 'orrb8EW1zZsy',
+        },
+      ]);
+    });
+
     it('should navigate to the dashboard when the URI contains "/my_dashboard" along with advance request ID', () => {
       const orgId = 'oroX1Q9TTEO';
       const referrer = 'transactional_email';

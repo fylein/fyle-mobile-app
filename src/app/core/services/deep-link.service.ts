@@ -113,11 +113,9 @@ export class DeepLinkService {
           properties.push_notification_type = notificationType;
         }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
-      } else if (
-        redirectUri.match('/advance_request/areq') &&
-        redirectUri.match(/\/advance_request\/([^/?&]+)/)?.[1]?.length === 14
-      ) {
-        const advReqId = redirectUri.match(/\/advance_request\/([^/?&]+)/)?.[1];
+      } else if (redirectUri.match('/advance_request/areq')) {
+        const advReqMatch = redirectUri.match(/\/advance_request\/(areq[^/?&]+)/);
+        const advReqId = advReqMatch?.[1];
         const subModule = 'advReq';
         const properties: Record<string, string> = {
           sub_module: subModule,
