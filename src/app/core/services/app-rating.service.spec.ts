@@ -137,6 +137,132 @@ describe('AppRatingService', () => {
         done();
       });
     });
+
+    it('should return false when not connected to internet', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(false)); // Fails here
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when switched to delegator', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(true); // Fails here
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when not enough expenses', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(false)); // Fails here
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when org name contains fyle for', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({
+        ou: { org_name: 'Fyle for Acme', created_at: new Date('2020-01-01') },
+      } as any); // Fails here
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when org name is missing', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { created_at: new Date('2020-01-01') } } as any); // Fails here
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when user is not old enough', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date() } } as any); // Fails here
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when native prompt cooldown is not met', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(
+        of({ nativePrompts: [new Date().toISOString()], dismissals: [] }),
+      ); // Fails here
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return false when dismissal cooldown is not met', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(
+        of({ nativePrompts: [], dismissals: [new Date().toISOString()] }),
+      ); // Fails here
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
   });
 
   describe('isUserOldEnough', () => {
@@ -216,6 +342,14 @@ describe('AppRatingService', () => {
   });
 
   describe('hasEnoughExpenses', () => {
+    it('should return false when response data is missing', (done) => {
+      expensesService.getExpenseStats.and.returnValue(of({} as any));
+      service.hasEnoughExpenses().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
     it('should return true when expense count is >= 10', (done) => {
       expensesService.getExpenseStats.and.returnValue(of({ data: { count: 10, total_amount: 5000 } }));
       service.hasEnoughExpenses().subscribe((result) => {

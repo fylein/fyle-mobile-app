@@ -24,6 +24,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { FileService } from 'src/app/core/services/file.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { AppRatingService } from 'src/app/core/services/app-rating.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -236,6 +237,7 @@ describe('AddEditExpensePage', () => {
       'deleteExpenses',
     ]);
     const appRatingServiceSpy = jasmine.createSpyObj('AppRatingService', ['notifySaveSuccess']);
+    const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
 
     TestBed.configureTestingModule({
@@ -432,6 +434,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: AppRatingService,
           useValue: appRatingServiceSpy,
+        },
+        {
+          provide: RefinerService,
+          useValue: refinerServiceSpy,
         },
         {
           provide: LaunchDarklyService,
