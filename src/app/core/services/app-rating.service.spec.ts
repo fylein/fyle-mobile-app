@@ -94,9 +94,46 @@ describe('AppRatingService', () => {
   });
 
   describe('checkEligibility', () => {
-    it('should return true (testing mode with all checks commented out)', (done) => {
+    it('should return false when launch darkly flag is disabled', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(false));
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
+        done();
+      });
+    });
+
+    it('should return true when flag is enabled and all eligibility checks pass', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      // Mock all dependencies for runEligibilityChecks
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(true));
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
       service.checkEligibility().subscribe((result) => {
         expect(result).toBeTrue();
+        done();
+      });
+    });
+
+    it('should return false when flag is enabled but eligibility checks fail', (done) => {
+      launchDarklyService.getVariation.and.returnValue(of(true));
+
+      // Mock all dependencies for runEligibilityChecks
+      authService.getEou.and.resolveTo({ ou: { org_name: 'Acme Corp', created_at: new Date('2020-01-01') } } as any);
+      networkService.isOnline.and.returnValue(of(true));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
+
+      spyOn(service, 'isUserOldEnoughOnMobile').and.returnValue(of(false)); // Fails here
+      spyOn(service, 'getPromptHistory').and.returnValue(of({ nativePrompts: [], dismissals: [] }));
+      spyOn(service, 'hasEnoughExpenses').and.returnValue(of(true));
+
+      service.checkEligibility().subscribe((result) => {
+        expect(result).toBeFalse();
         done();
       });
     });
