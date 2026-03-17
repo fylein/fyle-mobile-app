@@ -194,11 +194,10 @@ describe('FyViewAttachmentComponent', () => {
   }));
 
   it('ionViewWillEnter(): should update the swiper', () => {
-    component.imageSlides = {
-      swiperRef: jasmine.createSpyObj('swiperRef', ['update']),
-    } as any;
+    const mockUpdate = jasmine.createSpy('update');
+    Object.defineProperty(component, 'swiperRef', { get: () => ({ update: mockUpdate }), configurable: true });
     component.ionViewWillEnter();
-    expect(component.imageSlides.swiperRef.update).toHaveBeenCalledTimes(1);
+    expect(mockUpdate).toHaveBeenCalledTimes(1);
   });
 
   it('zoomIn(): should scale in the zoom with 0.25x', () => {
@@ -225,40 +224,31 @@ describe('FyViewAttachmentComponent', () => {
 
   it('goToNextSlide(): should trigger appropiate methods on the swiper component on event', () => {
     const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slideNext']);
-    component.imageSlides = {
-      swiperRef: mockSwiperRef,
-    } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiperRef, configurable: true });
     component.goToNextSlide();
     expect(mockSwiperRef.slideNext).toHaveBeenCalledTimes(1);
   });
 
   it('goToPrevSlide(): should trigger appropiate methods on the swiper component on event', () => {
     const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slidePrev']);
-    component.imageSlides = {
-      swiperRef: mockSwiperRef,
-    } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiperRef, configurable: true });
     component.goToPrevSlide();
     expect(mockSwiperRef.slidePrev).toHaveBeenCalledTimes(1);
   });
 
   it('getActiveIndex(): should be able to set the proper activeIndex', () => {
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: 6,
-      },
-    } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => ({ activeIndex: 6 }), configurable: true });
     component.getActiveIndex();
     expect(component.activeIndex).toBe(6);
   });
 
   it('deleteAttachment(): should be able to show delete attachment popover and perform deletion', fakeAsync(async () => {
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: Promise.resolve(1),
-        slideNext: jasmine.createSpy('slideNext'),
-        slidePrev: jasmine.createSpy('slidePrev'),
-      },
-    } as any;
+    const mockSwiper = {
+      activeIndex: 1,
+      slideNext: jasmine.createSpy('slideNext'),
+      slidePrev: jasmine.createSpy('slidePrev'),
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiper, configurable: true });
 
     popoverController.create.and.returnValue(
       Promise.resolve({
@@ -269,7 +259,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any,
+      }) as any
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
@@ -290,13 +280,12 @@ describe('FyViewAttachmentComponent', () => {
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion', fakeAsync(async () => {
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: Promise.resolve(0),
-        slideNext: jasmine.createSpy('slideNext'),
-        slidePrev: jasmine.createSpy('slidePrev'),
-      },
-    } as any;
+    const mockSwiper = {
+      activeIndex: 0,
+      slideNext: jasmine.createSpy('slideNext'),
+      slidePrev: jasmine.createSpy('slidePrev'),
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiper, configurable: true });
 
     popoverController.create.and.returnValue(
       Promise.resolve({
@@ -307,7 +296,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any,
+      }) as any
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
@@ -328,13 +317,12 @@ describe('FyViewAttachmentComponent', () => {
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(async () => {
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: Promise.resolve(0),
-        slideNext: jasmine.createSpy('slideNext'),
-        slidePrev: jasmine.createSpy('slidePrev'),
-      },
-    } as any;
+    const mockSwiper = {
+      activeIndex: 0,
+      slideNext: jasmine.createSpy('slideNext'),
+      slidePrev: jasmine.createSpy('slidePrev'),
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiper, configurable: true });
 
     component.attachments = [
       {
@@ -353,7 +341,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any,
+      }) as any
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
@@ -389,13 +377,12 @@ describe('FyViewAttachmentComponent', () => {
       },
     ];
 
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: Promise.resolve(1),
-        slideNext: jasmine.createSpy('slideNext'),
-        slidePrev: jasmine.createSpy('slidePrev'),
-      },
-    } as any;
+    const mockSwiper = {
+      activeIndex: 1,
+      slideNext: jasmine.createSpy('slideNext'),
+      slidePrev: jasmine.createSpy('slidePrev'),
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiper, configurable: true });
 
     popoverController.create.and.returnValue(
       Promise.resolve({
@@ -406,7 +393,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any,
+      }) as any
     );
 
     spenderFileService.deleteFilesBulk.and.returnValue(of({}));
@@ -440,13 +427,12 @@ describe('FyViewAttachmentComponent', () => {
       value: () => true,
       writable: true,
     });
-    component.imageSlides = {
-      swiperRef: {
-        activeIndex: Promise.resolve(0),
-        slideNext: jasmine.createSpy('slideNext'),
-        slidePrev: jasmine.createSpy('slidePrev'),
-      },
-    } as any;
+    const mockSwiper = {
+      activeIndex: 0,
+      slideNext: jasmine.createSpy('slideNext'),
+      slidePrev: jasmine.createSpy('slidePrev'),
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiper, configurable: true });
 
     popoverController.create.and.returnValue(
       Promise.resolve({
@@ -457,7 +443,7 @@ describe('FyViewAttachmentComponent', () => {
               action: 'remove',
             },
           }),
-      }) as any,
+      }) as any
     );
 
     approverFileService.deleteFilesBulk.and.returnValue(of(void 0));
@@ -674,20 +660,20 @@ describe('FyViewAttachmentComponent', () => {
 
   it('goToNextSlide(): should call swiperRef.slideNext', () => {
     const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slideNext']);
-    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiperRef, configurable: true });
     component.goToNextSlide();
     expect(mockSwiperRef.slideNext).toHaveBeenCalled();
   });
 
   it('goToPrevSlide(): should call swiperRef.slidePrev', () => {
     const mockSwiperRef = jasmine.createSpyObj('swiperRef', ['slidePrev']);
-    component.imageSlides = { swiperRef: mockSwiperRef } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => mockSwiperRef, configurable: true });
     component.goToPrevSlide();
     expect(mockSwiperRef.slidePrev).toHaveBeenCalled();
   });
 
   it('getActiveIndex(): should set activeIndex from swiperRef', () => {
-    component.imageSlides = { swiperRef: { activeIndex: 42 } } as any;
+    Object.defineProperty(component, 'swiperRef', { get: () => ({ activeIndex: 42 }), configurable: true });
     component.getActiveIndex();
     expect(component.activeIndex).toBe(42);
   });
