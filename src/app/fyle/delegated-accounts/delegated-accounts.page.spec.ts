@@ -111,8 +111,6 @@ describe('DelegatedAccountsPage', () => {
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {

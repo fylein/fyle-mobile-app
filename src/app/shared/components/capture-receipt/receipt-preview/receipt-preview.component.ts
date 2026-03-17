@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, OnDestroy, inject, input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, Input, OnInit, OnDestroy, inject, input, viewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonTitle, IonToolbar, ModalController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { from, Subscription, switchMap, tap } from 'rxjs';
@@ -6,8 +6,6 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
-import { SwiperComponent, SwiperModule } from 'swiper/angular';
-import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Image } from 'src/app/core/models/image-type.model';
 import { RotationDirection } from 'src/app/core/enums/rotation-direction.enum';
@@ -20,14 +18,13 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { DEVICE_PLATFORM } from 'src/app/constants';
 import { AndroidSettings, IOSSettings, NativeSettings } from 'capacitor-native-settings';
-
-// install Swiper modules
-SwiperCore.use([Pagination]);
+import { SwiperContainer } from 'swiper/element';
 
 @Component({
   selector: 'app-receipt-preview',
   templateUrl: './receipt-preview.component.html',
   styleUrls: ['./receipt-preview.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     IonButton,
     IonButtons,
@@ -40,7 +37,6 @@ SwiperCore.use([Pagination]);
     MatIcon,
     NgClass,
     PinchZoomComponent,
-    SwiperModule,
     TranslocoPipe
   ],
 })
@@ -67,9 +63,11 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
   nativeSettings = NativeSettings;
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the query. This prevents migration.
-  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
+  readonly swiperElement = viewChild<ElementRef<SwiperContainer>>('swiper');
+
+  private get swiperRef() {
+    return this.swiperElement()?.nativeElement?.swiper;
+  }
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -105,7 +103,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
 
     if (data && data.base64ImageWithSource) {
       this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
-      await this.swiper?.swiperRef.update();
+      this.swiperRef?.update();
       this.trackingService.cropReceipt();
     }
   }
@@ -168,7 +166,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
         this.closeModal();
       },
     );
-    this.swiper?.swiperRef.update();
+    this.swiperRef?.update();
   }
 
   ionViewWillLeave(): void {
@@ -324,7 +322,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   }
 
   async deleteReceipt(): Promise<void> {
-    const activeIndex = await this.swiper?.swiperRef.activeIndex;
+    const activeIndex = this.swiperRef?.activeIndex ?? 0;
     const title = this.translocoService.translate('receiptPreview.removeReceiptTitle');
     const message = this.translocoService.translate('receiptPreview.removeReceiptMessage');
     const deletePopOver = await this.popoverController.create({
@@ -352,8 +350,8 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
         if (this.base64ImagesWithSource.length === 0) {
           this.retake();
         } else {
-          await this.swiper?.swiperRef.update();
-          this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+          await this.swiperRef?.update();
+          this.activeIndex = this.swiperRef?.activeIndex ?? 0;
         }
       }
     }
@@ -367,17 +365,17 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
   }
 
   async goToNextSlide(): Promise<void> {
-    await this.swiper?.swiperRef.slideNext();
-    await this.swiper?.swiperRef.update();
+    this.swiperRef?.slideNext();
+    await this.swiperRef?.update();
   }
 
   async goToPrevSlide(): Promise<void> {
-    await this.swiper?.swiperRef.slidePrev();
-    await this.swiper?.swiperRef.update();
+    this.swiperRef?.slidePrev();
+    await this.swiperRef?.update();
   }
 
   async ionSlideDidChange(): Promise<void> {
-    this.activeIndex = (await this.swiper?.swiperRef.activeIndex) ?? 0;
+    this.activeIndex = this.swiperRef?.activeIndex ?? 0;
   }
 
   private rotateImageData(currentImage: Image, direction: RotationDirection): void {
@@ -399,7 +397,7 @@ export class ReceiptPreviewComponent implements OnInit, OnDestroy {
         ...currentImage,
         base64Image: canvas.toDataURL('image/jpeg', 0.9),
       };
-      this.swiper?.swiperRef.update();
+      this.swiperRef?.update();
       this.rotatingDirection = null;
     };
   }

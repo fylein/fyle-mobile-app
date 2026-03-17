@@ -184,6 +184,7 @@ describe('DashboardPage', () => {
     const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
     const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['initializePushNotifications']);
+
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -283,6 +284,13 @@ describe('DashboardPage', () => {
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
+
+    component.eou$ = of(apiEouRes);
+    component.isUserFromINCluster$ = of(false);
+    component.canShowOptInBanner$ = of(false);
+    component.canShowEmailOptInBanner$ = of(false);
+    component.orgSettings$ = of(orgSettingsRes);
+
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -946,6 +954,7 @@ describe('DashboardPage', () => {
   describe('setShowOptInBanner():', () => {
     beforeEach(() => {
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigOptInData));
+      component.isUserFromINCluster$ = of(false);
     });
 
     it('should set canShowOptInBanner to false if user is verified', (done) => {
@@ -1095,6 +1104,7 @@ describe('DashboardPage', () => {
   describe('setShowEmailOptInBanner():', () => {
     beforeEach(() => {
       featureConfigService.getConfiguration.and.returnValue(of(featureConfigEmailOptInData));
+      component.isUserFromINCluster$ = of(false);
     });
 
     it('should set canShowEmailOptInBanner to false if feature config value is true', (done) => {
@@ -1198,25 +1208,26 @@ describe('DashboardPage', () => {
   }));
 
   describe('setSwiperConfig():', () => {
-    it('should set default swiper config when observables are not ready', () => {
-      // Setup: Ensure observables are undefined
-      component.canShowOptInBanner$ = undefined as any;
-      component.canShowEmailOptInBanner$ = undefined as any;
+    let mockSwiper: any;
+
+    beforeEach(() => {
+      component.isUserFromINCluster$ = of(false);
+    });
+
+    it('should set default swiper config when no banners are shown', fakeAsync(() => {
+      component.canShowOptInBanner$ = of(false);
+      component.canShowEmailOptInBanner$ = of(false);
 
       component.setSwiperConfig();
+      tick();
 
-      // Verify default config is set
       expect(component.swiperConfig).toEqual({
         slidesPerView: 1,
         spaceBetween: 0,
         centeredSlides: true,
-        loop: false,
-        autoplay: false,
-        pagination: false,
+        pagination: component.optInBannerPagination,
       });
-    });
-
-    let mockSwiper: any;
+    }));
 
     beforeEach(() => {
       mockSwiper = {
@@ -1230,6 +1241,7 @@ describe('DashboardPage', () => {
           stop: jasmine.createSpy('stop'),
         },
         params: {},
+        slides: [{}],
         update: jasmine.createSpy('update'),
       };
 
