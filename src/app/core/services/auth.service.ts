@@ -51,6 +51,8 @@ export class AuthService {
       accessToken,
       that.storageService.delete('user'),
       that.storageService.delete('role'),
+      that.storageService.delete('feature_configs'),
+      that.storageService.delete('spenderOnboardingRedirect'),
       that.tokenService.resetAccessToken(),
       that.tokenService.setRefreshToken(token),
     ]).pipe(
