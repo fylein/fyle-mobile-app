@@ -186,6 +186,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const orgId = that.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.txnId as string;
     const reportId = this.activatedRoute.snapshot.params.reportId as string;
+    const advReqId = this.activatedRoute.snapshot.params.advReqId as string;
     const myExpensesFilters = this.activatedRoute.snapshot.params.my_expenses_filters as string;
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
     const openVirtualCards = this.activatedRoute.snapshot.params.openVirtualCards as string;
@@ -194,6 +195,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       return this.redirectToExpensePage(orgId, txnId);
     } else if (orgId && reportId) {
       return this.redirectToReportPage(orgId, reportId);
+    } else if (orgId && advReqId) {
+      return this.redirectToAdvReqPage(orgId, advReqId);
     } else if (orgId && myExpensesFilters) {
       return this.redirectToMyExpenses(orgId, myExpensesFilters);
     } else if (openSMSOptInDialog === 'true' && orgId) {
@@ -370,6 +373,37 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             {
               sub_module: 'report',
               id: reportId,
+              orgId,
+            },
+          ]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
+  }
+
+  redirectToAdvReqPage(orgId: string, advReqId: string): void {
+    from(this.loaderService.showLoader('Please wait...', 2000))
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        map((eou) => {
+          this.setSentryUser(eou);
+        }),
+        finalize(() => this.loaderService.hideLoader()),
+      )
+      .subscribe({
+        next: () => {
+          this.router.navigate([
+            '/',
+            'deep_link_redirection',
+            {
+              sub_module: 'advReq',
+              id: advReqId,
               orgId,
             },
           ]);

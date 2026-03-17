@@ -158,6 +158,23 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should include orgId when report link has org_id query param', () => {
+      const reportID = 'rpPOqztgHIms';
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/reports/${reportID}?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'report',
+          id: reportID,
+          orgId: 'orKaeO5xojOD',
+        },
+      ]);
+    });
+
     it('should navigate to switch organisation page when the there is no redirection URL', () => {
       deepLinkService.redirect({});
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
@@ -176,6 +193,23 @@ describe('DeepLinkService', () => {
         {
           sub_module: 'advReq',
           id: advReqID,
+        },
+      ]);
+    });
+
+    it('should include orgId when advance request link has org_id query param', () => {
+      const advReqID = 'areqVDe9nW1X4v';
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/advance_request/${advReqID}?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: advReqID,
+          orgId: 'orKaeO5xojOD',
         },
       ]);
     });
@@ -217,6 +251,18 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should include orgId when my_expenses txn link has org_id query param', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_expenses/?state=all&txnId=tx7DBLXRzSpE&org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledWith([
+        '/',
+        'deep_link_redirection',
+        { sub_module: 'expense', id: 'tx7DBLXRzSpE', orgId: 'orKaeO5xojOD' },
+      ]);
+    });
+
     it('should navigate to deep_link_redirection with push_notification_type when notificationType is provided for corporate_cards', () => {
       deepLinkService.redirect(
         {
@@ -249,6 +295,22 @@ describe('DeepLinkService', () => {
           sub_module: 'expense',
           id: 'txMLI4Cc5zY5',
           orgId: 'orOTDe765hQp',
+        },
+      ]);
+    });
+
+    it('should prefer org_id query param for /tx links when present', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/orOTDe765hQp/txMLI4Cc5zY5?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'expense',
+          id: 'txMLI4Cc5zY5',
+          orgId: 'orKaeO5xojOD',
         },
       ]);
     });
