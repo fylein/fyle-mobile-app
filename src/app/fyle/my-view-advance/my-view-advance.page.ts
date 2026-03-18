@@ -71,6 +71,7 @@ export class MyViewAdvancePage {
   }
 
   ionViewWillEnter(): void {
+    console.log('advance req');
     const id = this.activatedRoute.snapshot.params.id as string;
 
     // Setup the advance$ stream before subscribing

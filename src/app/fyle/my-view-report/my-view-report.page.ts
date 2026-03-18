@@ -80,6 +80,7 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
+import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -166,6 +167,8 @@ export class MyViewReportPage {
   private orgUserService = inject(OrgUserService);
 
   private navController = inject(NavController);
+
+  private deepLinkService = inject(DeepLinkService);
 
   private launchDarklyService = inject(LaunchDarklyService);
 
@@ -406,6 +409,7 @@ export class MyViewReportPage {
   }
 
   ionViewWillEnter(): void {
+    this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(sampleLink));
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;

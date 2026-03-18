@@ -513,7 +513,6 @@ describe('DeepLinkRedirectionPage', () => {
     }));
 
     it('should call switch_org if tadvancedRequestService.getEreq fails', fakeAsync(() => {
-      spyOn(component, 'switchOrg');
       const error = 'Something went wrong';
       advanceRequestService.getEReq.and.returnValue(throwError(() => error));
       component.redirectToAdvReqModule();
