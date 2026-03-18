@@ -8,4 +8,5 @@ export interface Delegatee {
   full_name: string;
   start_at: Date;
   end_at: Date;
+  scopes?: Array<'SUBMIT' | 'APPROVE' | 'ALL'>;
 }
