@@ -17,6 +17,7 @@ import { ApproverService } from './platform/v1/approver/approver.service';
 import { EmailExistsResponse } from '../models/email-exists-response.model';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 import { TrackingService } from './tracking.service';
+import { DelegationService } from './delegation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -47,6 +48,8 @@ export class RouterAuthService {
   private approverService = inject(ApproverService);
 
   private trackingService = inject(TrackingService);
+
+  private delegationService = inject(DelegationService);
 
   private getTrimmedEmail(email: string): string {
     return email.trim().toLowerCase();
@@ -85,8 +88,11 @@ export class RouterAuthService {
     await this.tokenService.setClusterDomain(domain);
   }
 
-  async newAccessToken(accessToken: string): Promise<void> {
+  async newAccessToken(accessToken: string, scopes?: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null): Promise<void> {
     await this.tokenService.setAccessToken(accessToken);
+    if (scopes !== undefined) {
+      await this.delegationService.setScopes(scopes);
+    }
   }
 
   async fetchAccessToken(refreshToken: string): Promise<AuthResponse> {
@@ -111,7 +117,7 @@ export class RouterAuthService {
     await this.newRefreshToken(data.refresh_token);
     await this.setClusterDomain(data.cluster_domain);
     const resp = await this.fetchAccessToken(data.refresh_token);
-    await this.newAccessToken(resp.access_token);
+    await this.newAccessToken(resp.access_token, resp.scopes);
     return data;
   }
 

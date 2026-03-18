@@ -5,4 +5,5 @@ export interface AuthResponse {
   refresh_token?: string;
   cluster_domain?: string;
   org_id?: string;
+  scopes?: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null;
 }

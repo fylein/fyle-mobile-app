@@ -13,6 +13,7 @@ import { AccessTokenData } from '../models/access-token-data.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { EmployeeResponse } from '../models/employee-response.model';
+import { DelegationService } from './delegation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +30,8 @@ export class AuthService {
   private jwtHelperService = inject(JwtHelperService);
 
   private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
+
+  private delegationService = inject(DelegationService);
 
   getEou(): Promise<ExtendedOrgUser> {
     return this.storageService.get<ExtendedOrgUser>('user');
@@ -61,7 +64,12 @@ export class AuthService {
             access_token: accessToken,
           })
           .pipe(
-            switchMap((res) => from(that.tokenService.setAccessToken(res.access_token))),
+            switchMap((res) =>
+              forkJoin([
+                from(that.tokenService.setAccessToken(res.access_token)),
+                from(that.delegationService.setScopes(res.scopes)),
+              ]),
+            ),
             switchMap(() => that.refreshEou()),
           ),
       ),
@@ -110,6 +118,8 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
+        await this.storageService.delete('delegatee_id');
+        await this.delegationService.setScopes(null);
       }),
     );
   }

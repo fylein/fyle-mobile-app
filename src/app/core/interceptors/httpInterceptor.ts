@@ -78,7 +78,9 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         globalCacheBusterNotifier.next();
         return EMPTY;
       }),
-      concatMap((authResponse) => this.routerAuthService.newAccessToken(authResponse.access_token)),
+      concatMap((authResponse) =>
+        this.routerAuthService.newAccessToken(authResponse.access_token, authResponse.scopes),
+      ),
       concatMap(() => from(this.tokenService.getAccessToken())),
     );
   }
