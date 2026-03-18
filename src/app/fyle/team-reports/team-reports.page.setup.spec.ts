@@ -1,4 +1,4 @@
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { TeamReportsPage } from './team-reports.page';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
