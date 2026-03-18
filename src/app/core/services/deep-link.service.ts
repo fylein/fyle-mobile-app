@@ -36,6 +36,8 @@ export class DeepLinkService {
     const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
+      const orgIdFromUri = redirectUri.match(/org_id=([^&]+)/)?.[1];
+      const resolvedOrgId = orgIdFromUri ? decodeURIComponent(orgIdFromUri) : orgId;
       if (redirectUri.match('verify')) {
         this.router.navigate([
           '/',
