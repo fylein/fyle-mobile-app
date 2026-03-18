@@ -202,4 +202,57 @@ describe('AppVersionService', () => {
       done();
     });
   });
+
+  describe('getFirstMobileLoginDate()', () => {
+    it('should return the first mobile login date for the given OS', (done) => {
+      const mockResponse = {
+        data: [
+          {
+            created_at: '2026-01-01T00:00:00.000Z',
+          },
+        ],
+      };
+      spenderPlatformV1ApiService.get.and.returnValue(of(mockResponse));
+
+      appVersionService.getFirstMobileLoginDate('ios').subscribe((res) => {
+        expect(res).toEqual(new Date('2026-01-01T00:00:00.000Z'));
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mobile_app/versions', {
+          params: {
+            order: 'created_at.asc',
+            'os->name': 'eq.IOS',
+            limit: 1,
+          },
+        });
+        done();
+      });
+    });
+
+    it('should return null if no mobile login date is found', (done) => {
+      const mockResponse = {
+        data: [],
+      };
+      spenderPlatformV1ApiService.get.and.returnValue(of(mockResponse));
+
+      appVersionService.getFirstMobileLoginDate('android').subscribe((res) => {
+        expect(res).toBeNull();
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mobile_app/versions', {
+          params: {
+            order: 'created_at.asc',
+            'os->name': 'eq.ANDROID',
+            limit: 1,
+          },
+        });
+        done();
+      });
+    });
+
+    it('should return null if response data is missing', (done) => {
+      spenderPlatformV1ApiService.get.and.returnValue(of({}));
+
+      appVersionService.getFirstMobileLoginDate('ios').subscribe((res) => {
+        expect(res).toBeNull();
+        done();
+      });
+    });
+  });
 });

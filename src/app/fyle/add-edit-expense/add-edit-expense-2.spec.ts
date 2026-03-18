@@ -49,6 +49,8 @@ import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
+import { AppRatingService } from 'src/app/core/services/app-rating.service';
+import { RefinerService } from 'src/app/core/services/refiner.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -170,6 +172,8 @@ export function TestCases2(getTestBed) {
     let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+    let appRatingService: jasmine.SpyObj<AppRatingService>;
+    let refinerService: jasmine.SpyObj<RefinerService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportsService: jasmine.SpyObj<SpenderReportsService>;
     let advanceWalletsService: jasmine.SpyObj<AdvanceWalletsService>;
@@ -229,6 +233,8 @@ export function TestCases2(getTestBed) {
       ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      appRatingService = TestBed.inject(AppRatingService) as jasmine.SpyObj<AppRatingService>;
+      refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       advanceWalletsService = TestBed.inject(AdvanceWalletsService) as jasmine.SpyObj<AdvanceWalletsService>;
@@ -675,6 +681,39 @@ export function TestCases2(getTestBed) {
       expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/enterprise/my_expenses', { skipLocationChange: true });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense']);
     }));
+
+    describe('triggerPostSavePrompts():', () => {
+      it('should not trigger prompts if last save did not succeed', () => {
+        (component as any).lastSaveSucceeded = false;
+        component.triggerPostSavePrompts();
+        expect(appRatingService.notifySaveSuccess).not.toHaveBeenCalled();
+        expect(launchDarklyService.getVariation).not.toHaveBeenCalled();
+      });
+
+      it('should trigger prompts and reset flag if last save succeeded and nps survey is disabled', () => {
+        (component as any).lastSaveSucceeded = true;
+        launchDarklyService.getVariation.and.returnValue(of(false));
+
+        component.triggerPostSavePrompts();
+
+        expect((component as any).lastSaveSucceeded).toBeFalse();
+        expect(appRatingService.notifySaveSuccess).toHaveBeenCalledTimes(1);
+        expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+        expect(refinerService.startSurvey).not.toHaveBeenCalled();
+      });
+
+      it('should trigger prompts and start nps survey if flag is enabled', () => {
+        (component as any).lastSaveSucceeded = true;
+        launchDarklyService.getVariation.and.returnValue(of(true));
+
+        component.triggerPostSavePrompts();
+
+        expect((component as any).lastSaveSucceeded).toBeFalse();
+        expect(appRatingService.notifySaveSuccess).toHaveBeenCalledTimes(1);
+        expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
+        expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Save Expense' });
+      });
+    });
 
     describe('saveExpense():', () => {
       it('should save an expense and match as personal if created from a personal card', () => {
