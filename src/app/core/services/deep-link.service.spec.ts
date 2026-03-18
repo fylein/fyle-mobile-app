@@ -108,6 +108,18 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should navigate directly to my_expenses when draft link has no org_id', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_expenses/?state=draft`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [FilterState.DRAFT] }),
+        },
+      });
+    });
+
     it('should navigate to the verify page when the redirect URI contains "/verify"', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/verify/`,
@@ -122,6 +134,24 @@ describe('DeepLinkService', () => {
         {
           verification_code: 'ouX8dwsbLCLv',
           org_id: 'orYtMVz2qisQ',
+        },
+      ]);
+    });
+
+    it('should prefer org_id from redirect_uri for verify links', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/verify/?org_id=orKaeO5xojOD`,
+        verification_code: 'ouX8dwsbLCLv',
+        org_id: 'orYtMVz2qisQ',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'verify',
+        {
+          verification_code: 'ouX8dwsbLCLv',
+          org_id: 'orKaeO5xojOD',
         },
       ]);
     });
@@ -214,6 +244,14 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should fall back to switch_org when advance_request id is missing', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/advance_request/`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+
     it('should handle advance request link from staging with org_id', () => {
       deepLinkService.redirect({
         redirect_uri:
@@ -252,6 +290,23 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should use org_id from redirect_uri for my_dashboard', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_dashboard?org_id=orKaeO5xojOD&referrer=transactional_email`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'my_dashboard',
+          openSMSOptInDialog: false,
+          orgId: 'orKaeO5xojOD',
+          referrer: 'transactional_email',
+        },
+      ]);
+    });
+
     it('should navigate to deep_link_redirection with manage_corporate_cards when redirect URI contains corporate_cards', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
@@ -264,6 +319,21 @@ describe('DeepLinkService', () => {
         {
           sub_module: 'manage_corporate_cards',
           orgId: 'orNVthTo2Zyo',
+        },
+      ]);
+    });
+
+    it('should navigate to corporate cards without orgId when not provided', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: undefined,
         },
       ]);
     });
