@@ -74,6 +74,12 @@
       "draft": "Draft",
       "pulledBack": "Pulled Back"
     },
+    "appRating": {
+      "leaveARating": "Leave a rating",
+      "notNow": "Not now",
+      "ratingPromptMessage": "If Sage Expense Management has been helpful, would you like to leave a quick rating?",
+      "ratingPromptTitle": "Enjoying the app so far?"
+    },
     "transaction": {
       "days": "Days",
       "day": "Day",
