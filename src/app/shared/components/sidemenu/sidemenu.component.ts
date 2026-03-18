@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, inject, output } from '@angular/core';
 import * as Sentry from '@sentry/angular';
-import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import { Observable, from, forkJoin, concat, combineLatest, of } from 'rxjs';
+import { shareReplay, switchMap } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -26,18 +26,13 @@ import { TranslocoService } from '@jsverse/transloco';
 import { SidemenuHeaderComponent } from './sidemenu-header/sidemenu-header.component';
 import { SidemenuContentComponent } from './sidemenu-content/sidemenu-content.component';
 import { SidemenuFooterComponent } from './sidemenu-footer/sidemenu-footer.component';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
-  imports: [
-    IonContent,
-    IonMenu,
-    SidemenuContentComponent,
-    SidemenuFooterComponent,
-    SidemenuHeaderComponent
-  ],
+  imports: [IonContent, IonMenu, SidemenuContentComponent, SidemenuFooterComponent, SidemenuHeaderComponent],
 })
 export class SidemenuComponent implements OnInit {
   private deviceService = inject(DeviceService);
@@ -67,6 +62,8 @@ export class SidemenuComponent implements OnInit {
   private spenderOnboardingService = inject(SpenderOnboardingService);
 
   private translocoService = inject(TranslocoService);
+
+  private delegationService = inject(DelegationService);
 
   readonly switchDelegator = output<boolean>();
 
@@ -151,7 +148,7 @@ export class SidemenuComponent implements OnInit {
       }),
       this.isConnected$,
     ]).subscribe(
-      ([
+      async ([
         {
           orgs,
           currentOrg,
@@ -175,6 +172,7 @@ export class SidemenuComponent implements OnInit {
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
+        await this.delegationService.updateDelegationScopesFromEou(eou);
 
         if (eou) {
           Sentry.setUser({
@@ -199,7 +197,7 @@ export class SidemenuComponent implements OnInit {
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        this.setupSideMenu(isConnected, orgs, isDelegatee);
+        await this.setupSideMenu(isConnected, orgs, isDelegatee);
       },
     );
   }
@@ -415,12 +413,22 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
-        this.filteredSidemenuList = [
-          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
-          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
-        ];
-      });
+      from(this.delegationService.inDelegateeMode())
+        .pipe(
+          switchMap((isSwitchedToDelegator) => {
+            // When switched to a delegator account, skip onboarding checks entirely.
+            if (isSwitchedToDelegator) {
+              return of(false);
+            }
+            return this.spenderOnboardingService.checkForRedirectionToOnboarding();
+          }),
+        )
+        .subscribe((redirectionAllowed) => {
+          this.filteredSidemenuList = [
+            ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+            ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+          ];
+        });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }
