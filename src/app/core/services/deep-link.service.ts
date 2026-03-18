@@ -45,7 +45,7 @@ export class DeepLinkService {
           'verify',
           {
             verification_code: verificationCode,
-            org_id: orgId,
+            org_id: resolvedOrgId,
           },
         ]);
       } else if (redirectUri.match('new_password')) {
