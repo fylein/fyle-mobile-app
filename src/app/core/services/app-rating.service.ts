@@ -224,14 +224,18 @@ export class AppRatingService {
 
     this.trackingService.eventTrack('In App Rating Pre Prompt Shown', {});
 
-    const { data } = await popover.onWillDismiss<{ action: string }>();
+    const { data, role } = await popover.onWillDismiss<{ action: string }>();
 
     if (data?.action === 'rate') {
       this.trackingService.eventTrack('In App Rating Accepted', {});
       await this.triggerNativeReview();
       this.recordInteraction('nativePrompts');
     } else {
-      this.trackingService.eventTrack('In App Rating Dismissed', {});
+      const isBackdropDismiss = role === 'backdrop';
+      this.trackingService.eventTrack(
+        isBackdropDismiss ? 'In App Rating Dismissed By Tapping Outside' : 'In App Rating Dismissed',
+        isBackdropDismiss ? { dismissMethod: 'backdrop_tap' } : {},
+      );
       this.recordInteraction('dismissals');
     }
   }
