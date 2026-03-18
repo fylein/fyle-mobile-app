@@ -571,7 +571,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   getTransactionFields(): Observable<Partial<ExpenseFieldsObj>> {

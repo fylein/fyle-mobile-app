@@ -30,7 +30,10 @@ describe('NetworkService', () => {
 
   describe('getConnectionStatus():', () => {
     it('should get connection status', (done) => {
-      networkService.isConnected$ = of(true);
+      Object.defineProperty(networkService, 'isConnected$', {
+        value: of(true),
+        writable: true,
+      });
 
       networkService.getConnectionStatus().subscribe((res) => {
         expect(res).toEqual(ConnectionMessageStatus.onlineMessageHidden);
@@ -39,7 +42,10 @@ describe('NetworkService', () => {
     });
 
     it('should get connection status when device is offline', (done) => {
-      networkService.isConnected$ = of(false);
+      Object.defineProperty(networkService, 'isConnected$', {
+        value: of(false),
+        writable: true,
+      });
 
       networkService.getConnectionStatus().subscribe((res) => {
         expect(res).toEqual(ConnectionMessageStatus.disconnected);

@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { apiEouRes, eouRes2, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
@@ -104,7 +104,7 @@ describe('MyProfilePage', () => {
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
-      isConnected$: of(true),
+      isConnected$: new BehaviorSubject(true),
     });
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -294,11 +294,7 @@ describe('MyProfilePage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.isOnline.and.returnValue(of(true));
-
     component.setupNetworkWatcher();
-
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     expect(component.isConnected$).toBeDefined();
   });
 

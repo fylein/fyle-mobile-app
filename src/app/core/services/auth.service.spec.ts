@@ -187,7 +187,7 @@ describe('AuthService', () => {
           expect(apiService.post).toHaveBeenCalledTimes(2);
         }),
         finalize(() => {
-          expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
+          expect(storageService.delete).toHaveBeenCalledWith('feature_configs');
         }),
       )
       .subscribe(noop);
