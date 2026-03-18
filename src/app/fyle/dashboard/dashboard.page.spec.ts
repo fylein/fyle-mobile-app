@@ -374,6 +374,18 @@ describe('DashboardPage', () => {
     expect(component.filterPills).toBeUndefined();
   });
 
+  describe('onCardCountChange():', () => {
+    it('should set cardCount signal to the given count', () => {
+      expect(component.cardCount()).toBe(0);
+
+      component.onCardCountChange(3);
+      expect(component.cardCount()).toBe(3);
+
+      component.onCardCountChange(0);
+      expect(component.cardCount()).toBe(0);
+    });
+  });
+
   describe('ionViewWillLeave():', () => {
     it('should call unsubscribe hardware back button and set onPageExit to null', () => {
       spyOn(component.onPageExit$, 'next');
@@ -1473,6 +1485,26 @@ describe('DashboardPage', () => {
       // Mock swiperComponent to return undefined
       const swiperInstance = component['swiperInstance'];
       expect(swiperInstance).toBeUndefined();
+    });
+  });
+
+  describe('initOptInSwiper():', () => {
+    it('should destroy and clear existing optInSwiperInstance before creating a new one', () => {
+      const mockSwiper = { destroy: jasmine.createSpy('destroy') } as any;
+      component['optInSwiperInstance'] = mockSwiper;
+      component.swiperConfig = {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        centeredSlides: true,
+        loop: false,
+        autoplay: false,
+        pagination: false,
+      };
+
+      component['initOptInSwiper']();
+
+      expect(mockSwiper.destroy).toHaveBeenCalledWith(true, true);
+      expect(component['optInSwiperInstance']).not.toBe(mockSwiper);
     });
   });
 
