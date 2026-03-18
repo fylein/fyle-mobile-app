@@ -2,11 +2,11 @@ import { Component, EventEmitter, OnInit, inject } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { combineLatest, concat, forkJoin, of, Subject } from 'rxjs';
+import { combineLatest, concat, forkJoin, from, of, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states.enum';
 import { getCurrencySymbol, AsyncPipe } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -20,21 +20,13 @@ import { StatBadgeComponent } from '../stat-badge/stat-badge.component';
 import { FyZeroStateComponent } from '../../../shared/components/fy-zero-state/fy-zero-state.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { IonCol, IonGrid, IonRow } from '@ionic/angular/standalone';
-
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-stats',
   templateUrl: './stats.component.html',
   styleUrls: ['./stats.component.scss'],
-  imports: [
-    AsyncPipe,
-    FyZeroStateComponent,
-    IonCol,
-    IonGrid,
-    IonRow,
-    StatBadgeComponent,
-    TranslocoPipe
-  ],
+  imports: [AsyncPipe, FyZeroStateComponent, IonCol, IonGrid, IonRow, StatBadgeComponent, TranslocoPipe],
 })
 export class StatsComponent implements OnInit {
   private dashboardService = inject(DashboardService);
@@ -53,6 +45,8 @@ export class StatsComponent implements OnInit {
 
   private paymentModeService = inject(PaymentModesService);
 
+  private delegationService = inject(DelegationService);
+
   homeCurrency$: Observable<string>;
 
   isConnected$: Observable<boolean>;
@@ -64,6 +58,10 @@ export class StatsComponent implements OnInit {
   incompleteExpensesStats$: Observable<{ count: number; sum: number }>;
 
   unapprovedTeamReportsStats$: Observable<PlatformReportsStatsResponse>;
+
+  canViewPersonalStats$: Observable<boolean> = of(true);
+
+  canViewTeamReportsStats$: Observable<boolean> = of(true);
 
   isUnreportedExpensesStatsLoading = true;
 
@@ -144,14 +142,48 @@ export class StatsComponent implements OnInit {
   }
 
   initializeUnapprovedTeamReportsStats(): void {
+    const inDelegateeMode$ = from(this.delegationService.inDelegateeMode()).pipe(
+      catchError(() => of(false)),
+      shareReplay(1),
+    );
+    const scopes$ = from(this.delegationService.getScopes()).pipe(
+      catchError(() => of(null)),
+      shareReplay(1),
+    );
+
+    this.canViewPersonalStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
+      map(({ inDelegateeMode, scopes }) => {
+        if (!inDelegateeMode) {
+          return true;
+        }
+
+        return !!scopes && (scopes.includes('ALL') || scopes.includes('SUBMIT'));
+      }),
+      shareReplay(1),
+    );
+
+    this.canViewTeamReportsStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
+      map(({ inDelegateeMode, scopes }) => {
+        // Base users: delegation scopes are irrelevant; let approver role decide.
+        if (!inDelegateeMode) {
+          return true;
+        }
+
+        // Delegatee mode: be strict; only APPROVE/ALL can see team stats.
+        return !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
+      }),
+      shareReplay(1),
+    );
+
     this.unapprovedTeamReportsStats$ = combineLatest({
       currentOrg: this.orgService.getCurrentOrg(),
       primaryOrg: this.orgService.getPrimaryOrg(),
+      canViewTeamReportsStats: this.canViewTeamReportsStats$,
     }).pipe(
-      switchMap(({ currentOrg, primaryOrg }) => {
+      switchMap(({ currentOrg, primaryOrg, canViewTeamReportsStats }) => {
         const showTeamReportStats = currentOrg.id === primaryOrg.id;
-        if (showTeamReportStats) {
-          return this.dashboardService.getUnapprovedTeamReportsStats();
+        if (showTeamReportStats && canViewTeamReportsStats) {
+          return this.dashboardService.getUnapprovedTeamReportsStats().pipe(catchError(() => of(null)));
         } else {
           return of(null);
         }
