@@ -713,7 +713,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    console.log('advance');
     this.isIos = this.platform.is('ios');
     this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
