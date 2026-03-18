@@ -404,9 +404,9 @@ export class TasksService {
     teamReports: Observable<DashboardTask[]>;
     addCorporateCard: Observable<DashboardTask[]>;
   } {
-    const canViewPersonalTasks = !!scopes && (scopes.includes('ALL') || scopes.includes('SUBMIT'));
-    const canViewTeamTasks = !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
-    const canAddCorporateCard = !!scopes && scopes.includes('ALL');
+    const canViewExclusiveAllDelegateTasks = !!scopes && scopes.includes('ALL');
+    const canViewPersonalTasks = canViewExclusiveAllDelegateTasks || (!!scopes && scopes.includes('SUBMIT'));
+    const canViewTeamTasks = canViewExclusiveAllDelegateTasks || (!!scopes && scopes.includes('APPROVE'));
 
     return {
       mobileNumberVerification: this.gatedTasks$(canViewPersonalTasks, () => this.getMobileNumberVerificationTasks()),
@@ -419,10 +419,10 @@ export class TasksService {
         this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       ),
       draftExpenses: this.gatedTasks$(canViewPersonalTasks, () => this.getDraftExpensesTasks()),
-      sentBackAdvances: this.gatedTasks$(canViewPersonalTasks, () => this.getSentBackAdvanceTasks()),
+      sentBackAdvances: this.gatedTasks$(canViewExclusiveAllDelegateTasks, () => this.getSentBackAdvanceTasks()),
       setCommuteDetails: this.gatedTasks$(canViewPersonalTasks, () => this.getCommuteDetailsTasks()),
       teamReports: this.gatedTasks$(canViewTeamTasks, () => this.getTeamReportsTasks(showTeamReportTask)),
-      addCorporateCard: this.gatedTasks$(canAddCorporateCard, () => this.getAddCorporateCardTask()),
+      addCorporateCard: this.gatedTasks$(canViewExclusiveAllDelegateTasks, () => this.getAddCorporateCardTask()),
     };
   }
 
