@@ -38,7 +38,6 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData, platformExpenseDataWithPendingGasCharge } from 'src/app/core/mock-data/platform/v1/expense.data';

@@ -1,5 +1,4 @@
 import { TitleCasePipe } from '@angular/common';
-import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';

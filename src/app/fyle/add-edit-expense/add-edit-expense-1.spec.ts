@@ -1,5 +1,4 @@
 import { TitleCasePipe } from '@angular/common';
-import { EventEmitter } from '@angular/core';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -13,7 +12,6 @@ import {
   PopoverController,
 } from '@ionic/angular/standalone';
 import { Subscription, of } from 'rxjs';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-options.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
@@ -21,14 +19,12 @@ import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
 import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { orgSettingsRes, orgSettingsParamsWithAdvanceWallet } from 'src/app/core/mock-data/org-settings.data';
 import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   unflattenedExpData,
   unflattenedTxn,
@@ -73,13 +69,10 @@ import {
   unflattenedAccount1Data,
   paymentModeDataAdvanceWallet,
 } from 'src/app/core/test-data/accounts.service.spec.data';
-import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
-import { sortedCategory } from 'src/app/core/mock-data/org-category.data';
 import { CostCentersService } from 'src/app/core/services/cost-centers.service';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 
