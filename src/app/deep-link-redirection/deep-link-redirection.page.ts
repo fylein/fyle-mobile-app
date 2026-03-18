@@ -9,6 +9,7 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { ExtendedOrgUser } from '../core/models/extended-org-user.model';
 import { IonContent } from '@ionic/angular/standalone';
 
 @Component({
@@ -223,7 +224,7 @@ export class DeepLinkRedirectionPage {
 
   async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    let currentEou;
+    let currentEou: ExtendedOrgUser;
     try {
       currentEou = await this.authService.getEou();
     } catch {
@@ -232,7 +233,6 @@ export class DeepLinkRedirectionPage {
       return;
     }
     const orgId = this.activatedRoute.snapshot.params.orgId as string;
-    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
     const advReqId = this.activatedRoute.snapshot.params.id as string;
     if (!advReqId) {
       await this.loaderService.hideLoader();
@@ -262,18 +262,26 @@ export class DeepLinkRedirectionPage {
         finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((res) => {
-        const id = res.advance.id || res.areq.id;
+        if (!res) {
+          this.switchOrg();
+          return;
+        }
+
+        const advanceId = res.advance?.id;
+        const areqId = res.areq?.id;
+        const id = advanceId || areqId;
+        if (!id) {
+          this.switchOrg();
+          return;
+        }
 
         let route = ['/', 'enterprise', 'my_view_advance_request'];
-        if (res.advance.id) {
+        if (advanceId) {
           route = ['/', 'enterprise', 'my_view_advance'];
-        } else if (res.ou.id !== currentEou.ou.id) {
+        } else if (res.ou?.id && res.ou.id !== currentEou.ou.id) {
           route = ['/', 'enterprise', 'view_team_advance'];
         }
         const params: Record<string, string> = { id };
-        if (pushNotificationType) {
-          params.push_notification_type = pushNotificationType;
-        }
         this.router.navigate([...route, params]);
       });
   }
