@@ -97,6 +97,22 @@ describe('DeepLinkService', () => {
         redirect_uri: `${baseURL}/my_expenses/?state=draft&org_id=orKaeO5xojOD`,
       });
 
+      expect(router.navigate).toHaveBeenCalledWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'my_expenses',
+          orgId: 'orKaeO5xojOD',
+          filters: JSON.stringify({ state: [FilterState.DRAFT] }),
+        },
+      ]);
+    });
+
+    it('should navigate directly to my_expenses when draft link has no org_id', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_expenses/?state=draft`,
+      });
+
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], {
         queryParams: {
           filters: JSON.stringify({ state: [FilterState.DRAFT] }),
@@ -118,6 +134,24 @@ describe('DeepLinkService', () => {
         {
           verification_code: 'ouX8dwsbLCLv',
           org_id: 'orYtMVz2qisQ',
+        },
+      ]);
+    });
+
+    it('should prefer org_id from redirect_uri for verify links', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/verify/?org_id=orKaeO5xojOD`,
+        verification_code: 'ouX8dwsbLCLv',
+        org_id: 'orYtMVz2qisQ',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'verify',
+        {
+          verification_code: 'ouX8dwsbLCLv',
+          org_id: 'orKaeO5xojOD',
         },
       ]);
     });
@@ -154,6 +188,23 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should include orgId when report link has org_id query param', () => {
+      const reportID = 'rpPOqztgHIms';
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/reports/${reportID}?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'report',
+          id: reportID,
+          orgId: 'orKaeO5xojOD',
+        },
+      ]);
+    });
+
     it('should navigate to switch organisation page when the there is no redirection URL', () => {
       deepLinkService.redirect({});
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
@@ -172,6 +223,48 @@ describe('DeepLinkService', () => {
         {
           sub_module: 'advReq',
           id: advReqID,
+        },
+      ]);
+    });
+
+    it('should include orgId when advance request link has org_id query param', () => {
+      const advReqID = 'areqVDe9nW1X4v';
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/advance_request/${advReqID}?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: advReqID,
+          orgId: 'orKaeO5xojOD',
+        },
+      ]);
+    });
+
+    it('should fall back to switch_org when advance_request id is missing', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/advance_request/`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
+    });
+
+    it('should handle advance request link from staging with org_id', () => {
+      deepLinkService.redirect({
+        redirect_uri:
+          'https://staging1.fyle.tech/app/main/advance_request/arequWF8HsgOd1?org_id=orrb8EW1zZsy',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: 'arequWF8HsgOd1',
+          orgId: 'orrb8EW1zZsy',
         },
       ]);
     });
@@ -197,6 +290,23 @@ describe('DeepLinkService', () => {
       ]);
     });
 
+    it('should use org_id from redirect_uri for my_dashboard', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_dashboard?org_id=orKaeO5xojOD&referrer=transactional_email`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'my_dashboard',
+          openSMSOptInDialog: false,
+          orgId: 'orKaeO5xojOD',
+          referrer: 'transactional_email',
+        },
+      ]);
+    });
+
     it('should navigate to deep_link_redirection with manage_corporate_cards when redirect URI contains corporate_cards', () => {
       deepLinkService.redirect({
         redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
@@ -210,6 +320,33 @@ describe('DeepLinkService', () => {
           sub_module: 'manage_corporate_cards',
           orgId: 'orNVthTo2Zyo',
         },
+      ]);
+    });
+
+    it('should navigate to corporate cards without orgId when not provided', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/settings/profile/corporate_cards`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'manage_corporate_cards',
+          orgId: undefined,
+        },
+      ]);
+    });
+
+    it('should include orgId when my_expenses txn link has org_id query param', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_expenses/?state=all&txnId=tx7DBLXRzSpE&org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledWith([
+        '/',
+        'deep_link_redirection',
+        { sub_module: 'expense', id: 'tx7DBLXRzSpE', orgId: 'orKaeO5xojOD' },
       ]);
     });
 
@@ -245,6 +382,22 @@ describe('DeepLinkService', () => {
           sub_module: 'expense',
           id: 'txMLI4Cc5zY5',
           orgId: 'orOTDe765hQp',
+        },
+      ]);
+    });
+
+    it('should prefer org_id query param for /tx links when present', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/orOTDe765hQp/txMLI4Cc5zY5?org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'expense',
+          id: 'txMLI4Cc5zY5',
+          orgId: 'orKaeO5xojOD',
         },
       ]);
     });

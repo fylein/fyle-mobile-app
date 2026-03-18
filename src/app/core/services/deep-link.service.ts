@@ -36,6 +36,8 @@ export class DeepLinkService {
     const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
+      const orgIdFromUri = redirectUri.match(/org_id=([^&]+)/)?.[1];
+      const resolvedOrgId = orgIdFromUri ? decodeURIComponent(orgIdFromUri) : orgId;
       if (redirectUri.match('verify')) {
         this.router.navigate([
           '/',
@@ -43,7 +45,7 @@ export class DeepLinkService {
           'verify',
           {
             verification_code: verificationCode,
-            org_id: orgId,
+            org_id: resolvedOrgId,
           },
         ]);
       } else if (redirectUri.match('new_password')) {
@@ -55,13 +57,19 @@ export class DeepLinkService {
             token: refreshToken,
           },
         ]);
-      } else if (redirectUri.match('/reports/rp') && redirectUri.split('/reports/').pop().length === 12) {
-        const reportId = redirectUri.split('/reports/').pop();
+      } else if (
+        redirectUri.match('/reports/rp') &&
+        redirectUri.match(/\/reports\/([^/?&]+)/)?.[1]?.length === 12
+      ) {
+        const reportId = redirectUri.match(/\/reports\/([^/?&]+)/)?.[1];
         const subModule = 'report';
         const properties: Record<string, string> = {
           sub_module: subModule,
           id: reportId,
         };
+        if (resolvedOrgId) {
+          properties.orgId = resolvedOrgId;
+        }
         if (notificationType) {
           properties.push_notification_type = notificationType;
         }
@@ -70,11 +78,23 @@ export class DeepLinkService {
         const filters = {
           state: [FilterState.DRAFT],
         };
-        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
-          queryParams: {
-            filters: JSON.stringify(filters),
-          },
-        });
+        if (resolvedOrgId) {
+          this.router.navigate([
+            '/',
+            'deep_link_redirection',
+            {
+              sub_module: 'my_expenses',
+              orgId: resolvedOrgId,
+              filters: JSON.stringify(filters),
+            },
+          ]);
+        } else {
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: {
+              filters: JSON.stringify(filters),
+            },
+          });
+        }
       } else if (
         redirectUri.match('/my_expenses/') &&
         redirectUri.includes('txnId=') &&
@@ -86,33 +106,37 @@ export class DeepLinkService {
           sub_module: subModule,
           id: txnId,
         };
+        if (resolvedOrgId) {
+          properties.orgId = resolvedOrgId;
+        }
         if (notificationType) {
           properties.push_notification_type = notificationType;
         }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
-      } else if (
-        redirectUri.match('/advance_request/areq') &&
-        redirectUri.split('/advance_request/').pop().length === 14
-      ) {
-        const advReqId = redirectUri.split('/advance_request/').pop();
+      } else if (redirectUri.match('/advance_request/areq') && redirectUri.match(/\/advance_request\/(areq[^/?&]+)/)?.[1]) {
+        const advReqId = redirectUri.match(/\/advance_request\/(areq[^/?&]+)/)?.[1];
         const subModule = 'advReq';
         const properties: Record<string, string> = {
           sub_module: subModule,
           id: advReqId,
         };
+        if (resolvedOrgId) {
+          properties.orgId = resolvedOrgId;
+        }
         if (notificationType) {
           properties.push_notification_type = notificationType;
         }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
       } else if (redirectUri.match('/tx') && redirectUri.split('/').length > 2) {
         const urlArray = redirectUri.split('/');
-        const txnId = urlArray[urlArray.length - 1];
-        const orgId = urlArray[urlArray.length - 2];
-        if (txnId && orgId && txnId.startsWith('tx') && orgId.startsWith('or')) {
+        const txnId = urlArray[urlArray.length - 1].split('?')[0];
+        const orgIdFromPath = urlArray[urlArray.length - 2];
+        const resolvedTxnOrgId = resolvedOrgId || orgIdFromPath;
+        if (txnId && resolvedTxnOrgId && txnId.startsWith('tx') && resolvedTxnOrgId.startsWith('or')) {
           const properties: Record<string, string> = {
             sub_module: 'expense',
             id: txnId,
-            orgId,
+            orgId: resolvedTxnOrgId,
           };
           if (notificationType) {
             properties.push_notification_type = notificationType;
@@ -122,13 +146,13 @@ export class DeepLinkService {
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         }
         this.trackingService.smsDeepLinkOpened({
-          orgId,
+          orgId: resolvedTxnOrgId,
           txnId,
         });
       } else if (redirectUri.match('corporate_cards')) {
         const properties: Record<string, string> = {
           sub_module: 'manage_corporate_cards',
-          orgId,
+          orgId: resolvedOrgId,
         };
         if (notificationType) {
           properties.push_notification_type = notificationType;
@@ -137,12 +161,11 @@ export class DeepLinkService {
       } else if (redirectUri.match('my_dashboard')) {
         // https://staging1.fyle.tech/app/main/my_dashboard?org_id=oroX1Q9TTEOg&open_sms_dialog=true&referrer=transactional_email
         const referrer = redirectUri.match(/referrer=(\w+)/)?.[1];
-        const orgId = redirectUri.match(/org_id=(\w+)/)?.[1];
         const openSMSOptInDialog = redirectUri.includes('open_sms_dialog=true');
         const properties = {
           sub_module: 'my_dashboard',
           openSMSOptInDialog,
-          orgId,
+          orgId: resolvedOrgId,
           referrer,
         };
         this.trackingService.smsDeepLinkOpened(properties);

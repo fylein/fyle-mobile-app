@@ -302,6 +302,9 @@ describe('SwitchOrgPage', () => {
       spyOn(component, 'getOrgsWhichContainSearchText').and.returnValue(orgData1);
       spyOn(component, 'proceed').and.resolveTo();
       spyOn(component, 'redirectToExpensePage').and.returnValue();
+      spyOn(component, 'redirectToReportPage').and.returnValue();
+      spyOn(component, 'redirectToAdvReqPage').and.returnValue();
+      spyOn(component, 'redirectToMyExpenses').and.returnValue();
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.resolveTo();
@@ -373,6 +376,41 @@ describe('SwitchOrgPage', () => {
       expect(component.redirectToExpensePage).toHaveBeenCalledOnceWith(orgId, txnId);
     });
 
+    it('should redirect to report page if orgId and reportId are present in route params', () => {
+      const orgId = 'orOTDe765hQp';
+      const reportId = 'rpPOqztgHIms';
+      activatedRoute.snapshot.params = {
+        orgId,
+        reportId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToReportPage).toHaveBeenCalledOnceWith(orgId, reportId);
+    });
+
+    it('should redirect to advance request page if orgId and advReqId are present in route params', () => {
+      const orgId = 'orOTDe765hQp';
+      const advReqId = 'areqGzKF1Tne23';
+      activatedRoute.snapshot.params = {
+        orgId,
+        advReqId,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToAdvReqPage).toHaveBeenCalledOnceWith(orgId, advReqId);
+    });
+
+    it('should redirect to my_expenses if orgId and my_expenses_filters are present in route params', () => {
+      const orgId = 'orOTDe765hQp';
+      const myExpensesFilters = '{"state":["DRAFT"]}';
+      activatedRoute.snapshot.params = {
+        orgId,
+        my_expenses_filters: myExpensesFilters,
+      };
+      component.ionViewWillEnter();
+
+      expect(component.redirectToMyExpenses).toHaveBeenCalledOnceWith(orgId, myExpensesFilters);
+    });
     it('should redirect to dashboard if openSMSOptInDialog is true and orgId is present', () => {
       spyOn(component, 'redirectToDashboard').and.returnValue();
       const orgId = 'orNVthTo2Zyo';
@@ -470,6 +508,111 @@ describe('SwitchOrgPage', () => {
       component.redirectToExpensePage(orgId, txnId);
       tick(200);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org']);
+    }));
+  });
+
+  describe('redirectToReportPage(): ', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      userEventService.clearTaskCache.and.returnValue();
+      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'setSentryUser').and.returnValue();
+      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
+    });
+
+    it('should redirect to report deep link after switching org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const reportId = 'rpPOqztgHIms';
+      component.redirectToReportPage(orgId, reportId);
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
+      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'report',
+          id: reportId,
+          orgId,
+        },
+      ]);
+    }));
+  });
+
+  describe('redirectToMyExpenses(): ', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      userEventService.clearTaskCache.and.returnValue();
+      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'setSentryUser').and.returnValue();
+      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
+    });
+
+    it('should redirect to my_expenses after switching org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const filters = '{"state":["DRAFT"]}';
+      component.redirectToMyExpenses(orgId, filters);
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
+      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: { filters },
+      });
+    }));
+  });
+
+  describe('redirectToAdvReqPage(): ', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      orgService.switchOrg.and.returnValue(of(apiEouRes));
+      userEventService.clearTaskCache.and.returnValue();
+      recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'setSentryUser').and.returnValue();
+      spyOn(globalCacheBusterNotifier, 'next').and.returnValue();
+    });
+
+    it('should redirect to advance request deep link after switching org', fakeAsync(() => {
+      const orgId = 'orNVthTo2Zyo';
+      const advReqId = 'areqGzKF1Tne23';
+      component.redirectToAdvReqPage(orgId, advReqId);
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 2000);
+      expect(orgService.switchOrg).toHaveBeenCalledOnceWith(orgId);
+      expect(globalCacheBusterNotifier.next).toHaveBeenCalledOnceWith();
+      expect(userEventService.clearTaskCache).toHaveBeenCalledOnceWith();
+      expect(recentLocalStorageItemsService.clearRecentLocalStorageCache).toHaveBeenCalledOnceWith();
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'deep_link_redirection',
+        {
+          sub_module: 'advReq',
+          id: advReqId,
+          orgId,
+        },
+      ]);
     }));
   });
 

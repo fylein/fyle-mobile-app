@@ -9,6 +9,7 @@ import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
+import { ExtendedOrgUser } from '../core/models/extended-org-user.model';
 import { IonContent } from '@ionic/angular/standalone';
 
 @Component({
@@ -51,6 +52,8 @@ export class DeepLinkRedirectionPage {
       this.redirectToDashboardModule();
     } else if (subModule === 'manage_corporate_cards') {
       this.redirectToCorporateCardsModule();
+    } else if (subModule === 'my_expenses') {
+      this.redirectToMyExpensesModule();
     }
   }
 
@@ -166,33 +169,121 @@ export class DeepLinkRedirectionPage {
       });
   }
 
+  async redirectToMyExpensesModule(): Promise<void> {
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+    const filters = this.activatedRoute.snapshot.params.filters as string;
+
+    if (!orgId) {
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams: filters ? { filters } : {},
+      });
+      return;
+    }
+
+    const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
+      switchMap(() => from(this.authService.getEou())),
+      catchError(() => {
+        this.switchOrg();
+        return EMPTY;
+      }),
+      shareReplay(1),
+    );
+
+    eou$
+      .pipe(
+        filter((eou) => orgId === eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () =>
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+            queryParams: filters ? { filters } : {},
+          }),
+        error: () => this.switchOrg(),
+      });
+
+    eou$
+      .pipe(
+        filter((eou) => orgId !== eou.ou.org_id),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe({
+        next: () =>
+          this.router.navigate([
+            '/',
+            'auth',
+            'switch_org',
+            {
+              orgId,
+              my_expenses_filters: filters,
+            },
+          ]),
+        error: () => this.switchOrg(),
+      });
+  }
+
   async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    const currentEou = await this.authService.getEou();
-    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
-    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string).subscribe(
-      (res) => {
-        const id = res.advance.id || res.areq.id;
+    let currentEou: ExtendedOrgUser;
+    try {
+      currentEou = await this.authService.getEou();
+    } catch {
+      await this.loaderService.hideLoader();
+      this.switchOrg();
+      return;
+    }
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
+    const advReqId = this.activatedRoute.snapshot.params.id as string;
+    if (!advReqId) {
+      await this.loaderService.hideLoader();
+      this.switchOrg();
+      return;
+    }
+    if (orgId && orgId !== currentEou.ou.org_id) {
+      await this.loaderService.hideLoader();
+      this.router.navigate([
+        '/',
+        'auth',
+        'switch_org',
+        {
+          orgId,
+          advReqId,
+        },
+      ]);
+      return;
+    }
+    this.advanceRequestService
+      .getEReq(advReqId)
+      .pipe(
+        catchError(() => {
+          this.switchOrg();
+          return EMPTY;
+        }),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe((res) => {
+        if (!res) {
+          this.switchOrg();
+          return;
+        }
+
+        const advanceId = res.advance?.id;
+        const areqId = res.areq?.id;
+        const id = advanceId || areqId;
+        if (!id) {
+          this.switchOrg();
+          return;
+        }
 
         let route = ['/', 'enterprise', 'my_view_advance_request'];
-        if (res.advance.id) {
+        if (advanceId) {
           route = ['/', 'enterprise', 'my_view_advance'];
-        } else if (res.ou.id !== currentEou.ou.id) {
+        } else if (res.ou?.id && res.ou.id !== currentEou.ou.id) {
           route = ['/', 'enterprise', 'view_team_advance'];
         }
         const params: Record<string, string> = { id };
-        if (pushNotificationType) {
-          params.push_notification_type = pushNotificationType;
-        }
         this.router.navigate([...route, params]);
-      },
-      () => {
-        this.switchOrg();
-      },
-      async () => {
-        await this.loaderService.hideLoader();
-      },
-    );
+      });
   }
 
   async redirectToExpenseModule(): Promise<void> {
@@ -259,10 +350,28 @@ export class DeepLinkRedirectionPage {
   async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
 
-    const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
-    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+    const orgId = this.activatedRoute.snapshot.params.orgId as string;
     const reportId = this.activatedRoute.snapshot.params.id as string;
+    if (orgId) {
+      const currentEou = await this.authService.getEou();
+      if (orgId !== currentEou.ou.org_id) {
+        await this.loaderService.hideLoader();
+        this.router.navigate([
+          '/',
+          'auth',
+          'switch_org',
+          {
+            orgId,
+            reportId,
+          },
+        ]);
+        return;
+      }
+    }
+
+    const spenderReport$ = this.spenderReportsService.getReportById(reportId);
+    const approverReport$ = this.approverReportsService.getReportById(reportId);
+    const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
 
     spenderReport$.subscribe(
       (spenderReport) => {

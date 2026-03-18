@@ -165,9 +165,9 @@ export class MyViewReportPage {
 
   private orgUserService = inject(OrgUserService);
 
-  private navController = inject(NavController);
-
   private launchDarklyService = inject(LaunchDarklyService);
+
+  private navController = inject(NavController);
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
@@ -447,7 +447,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === 'EXPENSE_REPORT_COMMENTS') {
+      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === "EXPENSE_REPORT_COMMENTS") {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });

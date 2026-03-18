@@ -166,6 +166,91 @@ describe('DeepLinkRedirectionPage', () => {
       tick(500);
       expect(component.switchOrg).toHaveBeenCalledTimes(1);
     }));
+
+    it('should redirect to switch_org when orgId is provided and differs from current org', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'report',
+        id: 'rpPOqztgHIms',
+        orgId: 'orOTHER12345',
+      };
+
+      component.redirectToReportModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'switch_org',
+        {
+          orgId: 'orOTHER12345',
+          reportId: 'rpPOqztgHIms',
+        },
+      ]);
+    }));
+  });
+
+  describe('redirectToMyExpensesModule():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      spyOn(component, 'switchOrg').and.returnValue();
+    });
+
+    it('should navigate to my_expenses directly when no orgId is provided', () => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_expenses',
+        filters: '{"state":["DRAFT"]}',
+      };
+
+      component.redirectToMyExpensesModule();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: { filters: '{"state":["DRAFT"]}' },
+      });
+    });
+
+    it('should navigate to my_expenses when orgId matches current org', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_expenses',
+        orgId: apiEouRes.ou.org_id,
+        filters: '{"state":["DRAFT"]}',
+      };
+
+      component.redirectToMyExpensesModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: { filters: '{"state":["DRAFT"]}' },
+      });
+    }));
+
+    it('should navigate to switch_org when orgId differs from current org', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_expenses',
+        orgId: 'orOTHER12345',
+        filters: '{"state":["DRAFT"]}',
+      };
+
+      component.redirectToMyExpensesModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'switch_org',
+        {
+          orgId: 'orOTHER12345',
+          my_expenses_filters: '{"state":["DRAFT"]}',
+        },
+      ]);
+    }));
   });
 
   describe('redirectToExpenseModule():', () => {
@@ -264,6 +349,12 @@ describe('DeepLinkRedirectionPage', () => {
   });
 
   describe('redirectToAdvanceModule():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      spyOn(component, 'switchOrg').and.returnValue();
+    });
+
     it('should redirect to view_team_advance page if the org ids do not match each other', fakeAsync(() => {
       const updatedApiEouRes = {
         ...apiEouRes,
@@ -324,6 +415,73 @@ describe('DeepLinkRedirectionPage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
 
+    it('should redirect to switch_org when orgId differs from current org', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+        orgId: 'orOTHER12345',
+      };
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(authService.getEou).toHaveBeenCalledOnceWith();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'auth',
+        'switch_org',
+        { orgId: 'orOTHER12345', advReqId: 'areqGzKF1Tne23' },
+      ]);
+    }));
+
+    it('should switch org when advReqId is missing', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: null,
+      };
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should switch org when getEou fails', fakeAsync(() => {
+      authService.getEou.and.rejectWith();
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+      };
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should switch org when advance request fetch fails', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+      };
+      advanceRequestService.getEReq.and.returnValue(throwError(() => new Error('failed')));
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+    }));
+
     it('should redirect to view_advance page if the advance request id is provided', fakeAsync(() => {
       const updatesErqUnflattened = {
         ...singleErqUnflattened,
@@ -355,7 +513,6 @@ describe('DeepLinkRedirectionPage', () => {
     }));
 
     it('should call switch_org if tadvancedRequestService.getEreq fails', fakeAsync(() => {
-      spyOn(component, 'switchOrg');
       const error = 'Something went wrong';
       advanceRequestService.getEReq.and.returnValue(throwError(() => error));
       component.redirectToAdvReqModule();
@@ -427,6 +584,18 @@ describe('DeepLinkRedirectionPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.redirectToCorporateCardsModule).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should call redirectToMyExpensesModule() if the sub_module is my_expenses', fakeAsync(() => {
+      activeroutemock.snapshot.params = {
+        sub_module: 'my_expenses',
+        orgId: 'orNVthTo2Zyo',
+      };
+      spyOn(component, 'redirectToMyExpensesModule').and.stub();
+      component.ionViewWillEnter();
+      fixture.detectChanges();
+      tick(500);
+      expect(component.redirectToMyExpensesModule).toHaveBeenCalledTimes(1);
     }));
   });
 
