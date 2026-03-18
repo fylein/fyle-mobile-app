@@ -65,6 +65,10 @@ export class SidemenuComponent implements OnInit {
 
   private delegationService = inject(DelegationService);
 
+  delegationInDelegateeMode = false;
+
+  delegationScopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null = null;
+
   readonly switchDelegator = output<boolean>();
 
   appVersion: string;
@@ -173,6 +177,8 @@ export class SidemenuComponent implements OnInit {
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
         await this.delegationService.updateDelegationScopesFromEou(eou);
+        this.delegationInDelegateeMode = await this.delegationService.inDelegateeMode();
+        this.delegationScopes = await this.delegationService.getScopes();
 
         if (eou) {
           Sentry.setUser({
@@ -202,6 +208,26 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
+  private hasDelegationScope(scope: 'SUBMIT' | 'APPROVE' | 'ALL'): boolean {
+    return !!this.delegationScopes?.includes(scope);
+  }
+
+  private isAllowedForAllOnly(): boolean {
+    return !this.delegationInDelegateeMode || this.hasDelegationScope('ALL');
+  }
+
+  private isAllowedForTeamMenu(): boolean {
+    return !this.delegationInDelegateeMode || this.hasDelegationScope('ALL') || this.hasDelegationScope('APPROVE');
+  }
+
+  private isAllowedForMyExpensesAndReportsMenu(): boolean {
+    if (!this.delegationInDelegateeMode) {
+      return true;
+    }
+
+    return this.hasDelegationScope('ALL') || this.hasDelegationScope('SUBMIT');
+  }
+
   getCardOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
@@ -210,7 +236,8 @@ export class SidemenuComponent implements OnInit {
           this.orgSettings.org_personal_cards_settings.allowed &&
           this.orgSettings.org_personal_cards_settings.enabled &&
           this.employeeSettings?.is_personal_cards_enabled &&
-          !isOnboardingPending,
+          !isOnboardingPending &&
+          this.isAllowedForAllOnly(),
         route: ['/', 'enterprise', 'personal_cards'],
       },
     ];
@@ -218,6 +245,10 @@ export class SidemenuComponent implements OnInit {
   }
 
   getTeamOptions(isOnboardingPending: boolean): Partial<SidemenuItem>[] {
+    if (!this.isAllowedForTeamMenu()) {
+      return [];
+    }
+
     const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;
 
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
@@ -229,7 +260,11 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: this.translocoService.translate('sidemenu.advances'),
-        isVisible: allowedAdvancesActions && allowedAdvancesActions.approve && !isOnboardingPending,
+        isVisible:
+          allowedAdvancesActions &&
+          allowedAdvancesActions.approve &&
+          !isOnboardingPending &&
+          !this.delegationInDelegateeMode,
         route: ['/', 'enterprise', 'team_advance'],
       },
     ];
@@ -255,7 +290,7 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: this.translocoService.translate('sidemenu.myExpenses'),
-        isVisible: !isOnboardingPending,
+        isVisible: !isOnboardingPending && this.isAllowedForMyExpensesAndReportsMenu(),
         icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
@@ -269,7 +304,7 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: this.translocoService.translate('sidemenu.myExpenseReports'),
-        isVisible: !isOnboardingPending,
+        isVisible: !isOnboardingPending && this.isAllowedForMyExpensesAndReportsMenu(),
         icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
@@ -277,14 +312,16 @@ export class SidemenuComponent implements OnInit {
       {
         title: this.translocoService.translate('sidemenu.myAdvances'),
         isVisible:
-          (this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled) && !isOnboardingPending,
+          (this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled) &&
+          !isOnboardingPending &&
+          this.isAllowedForAllOnly(),
         icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },
       {
         title: this.translocoService.translate('sidemenu.team'),
-        isVisible: !!teamOptions.length && !isOnboardingPending,
+        isVisible: !!teamOptions.length && !isOnboardingPending && this.isAllowedForTeamMenu(),
         icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
@@ -378,7 +415,7 @@ export class SidemenuComponent implements OnInit {
       },
       {
         title: this.translocoService.translate('sidemenu.settings'),
-        isVisible: true,
+        isVisible: this.isAllowedForAllOnly(),
         icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
