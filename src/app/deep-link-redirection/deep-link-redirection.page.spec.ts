@@ -349,6 +349,12 @@ describe('DeepLinkRedirectionPage', () => {
   });
 
   describe('redirectToAdvanceModule():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      spyOn(component, 'switchOrg').and.returnValue();
+    });
+
     it('should redirect to view_team_advance page if the org ids do not match each other', fakeAsync(() => {
       const updatedApiEouRes = {
         ...apiEouRes,
@@ -428,6 +434,52 @@ describe('DeepLinkRedirectionPage', () => {
         'switch_org',
         { orgId: 'orOTHER12345', advReqId: 'areqGzKF1Tne23' },
       ]);
+    }));
+
+    it('should switch org when advReqId is missing', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: null,
+      };
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should switch org when getEou fails', fakeAsync(() => {
+      authService.getEou.and.rejectWith();
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+      };
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should switch org when advance request fetch fails', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      activeroutemock.snapshot.params = {
+        sub_module: 'advReq',
+        id: 'areqGzKF1Tne23',
+      };
+      advanceRequestService.getEReq.and.returnValue(throwError(() => new Error('failed')));
+
+      component.redirectToAdvReqModule();
+      tick(200);
+
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
+      expect(component.switchOrg).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
 
     it('should redirect to view_advance page if the advance request id is provided', fakeAsync(() => {
