@@ -233,6 +233,12 @@ export class DeepLinkRedirectionPage {
     }
     const orgId = this.activatedRoute.snapshot.params.orgId as string;
     const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
+    const advReqId = this.activatedRoute.snapshot.params.id as string;
+    if (!advReqId) {
+      await this.loaderService.hideLoader();
+      this.switchOrg();
+      return;
+    }
     if (orgId && orgId !== currentEou.ou.org_id) {
       await this.loaderService.hideLoader();
       this.router.navigate([
@@ -241,13 +247,21 @@ export class DeepLinkRedirectionPage {
         'switch_org',
         {
           orgId,
-          advReqId: this.activatedRoute.snapshot.params.id as string,
+          advReqId,
         },
       ]);
       return;
     }
-    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string).subscribe(
-      (res) => {
+    this.advanceRequestService
+      .getEReq(advReqId)
+      .pipe(
+        catchError(() => {
+          this.switchOrg();
+          return EMPTY;
+        }),
+        finalize(() => from(this.loaderService.hideLoader())),
+      )
+      .subscribe((res) => {
         const id = res.advance.id || res.areq.id;
 
         let route = ['/', 'enterprise', 'my_view_advance_request'];
@@ -261,15 +275,7 @@ export class DeepLinkRedirectionPage {
           params.push_notification_type = pushNotificationType;
         }
         this.router.navigate([...route, params]);
-      },
-      async () => {
-        await this.loaderService.hideLoader();
-        this.switchOrg();
-      },
-      async () => {
-        await this.loaderService.hideLoader();
-      },
-    );
+      });
   }
 
   async redirectToExpenseModule(): Promise<void> {
