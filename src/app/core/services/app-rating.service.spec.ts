@@ -630,7 +630,7 @@ describe('AppRatingService', () => {
       service.attemptRatingPrompt();
       tick();
 
-      expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Dismissed Outside', {
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Dismissed By Tapping Outside', {
         dismissMethod: 'backdrop_tap',
       });
       expect(featureConfigService.saveConfiguration).toHaveBeenCalledTimes(1);
