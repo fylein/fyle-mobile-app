@@ -3,12 +3,7 @@ import { ModalController } from '@ionic/angular/standalone';
 import { FyMultiselectModalComponent } from './fy-multiselect-modal.component';
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatChipInputEvent } from '@angular/material/chips';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { TranslocoService, TranslocoModule } from '@jsverse/transloco';
 import { of } from 'rxjs';
@@ -31,14 +26,7 @@ describe('FyMultiselectModalComponent', () => {
     });
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconTestingModule,
-        MatIconModule,
-        MatCheckboxModule,
-        MatChipsModule,
-        MatFormFieldModule,
-        FormsModule,
-        BrowserAnimationsModule,
         TranslocoModule,
         FyMultiselectModalComponent,
       ],
@@ -95,8 +83,6 @@ describe('FyMultiselectModalComponent', () => {
         selected: false,
       },
     ];
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -202,6 +188,7 @@ describe('FyMultiselectModalComponent', () => {
   }));
 
   it('should show all available options', () => {
+    fixture.detectChanges();
     const options = getAllElementsBySelector(fixture, '.selection-modal--list-element');
 
     expect(getTextContent(options[0])).toEqual(component.options[0].label);

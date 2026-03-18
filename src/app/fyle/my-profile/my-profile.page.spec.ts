@@ -283,8 +283,6 @@ describe('MyProfilePage', () => {
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
 
     component.eou$ = of(apiEouRes);
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
