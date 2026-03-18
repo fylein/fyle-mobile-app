@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { BehaviorSubject, combineLatest, forkJoin, from, noop, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -11,6 +11,7 @@ import { TaskIcon } from '../models/task-icon.enum';
 import { DashboardTask } from '../models/dashboard-task.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
+import { DelegationService } from './delegation.service';
 import { ReportService } from './report.service';
 import { UserEventService } from './user-event.service';
 import { CurrencyService } from './currency.service';
@@ -41,6 +42,8 @@ export class TasksService {
   private userEventService = inject(UserEventService);
 
   private authService = inject(AuthService);
+
+  private delegationService = inject(DelegationService);
 
   private advancesRequestService = inject(AdvanceRequestService);
 
@@ -332,12 +335,46 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(
-    isReportAutoSubmissionScheduled = false,
-    filters?: TaskFilters,
+  private emptyTasks$(): Observable<DashboardTask[]> {
+    return of<DashboardTask[]>([]);
+  }
+
+  private gatedTasks$(canAccess: boolean, factory: () => Observable<DashboardTask[]>): Observable<DashboardTask[]> {
+    return canAccess ? factory() : this.emptyTasks$();
+  }
+
+  private isNoTaskFilterSelected(filters?: TaskFilters): boolean {
+    if (!filters) {
+      return true;
+    }
+
+    return ![
+      filters.draftExpenses,
+      filters.draftReports,
+      filters.sentBackReports,
+      filters.unreportedExpenses,
+      filters.potentialDuplicates,
+      filters.teamReports,
+      filters.sentBackAdvances,
+    ].some(Boolean);
+  }
+
+  private getTasksRequestMapForBaseUser(
+    isReportAutoSubmissionScheduled: boolean,
     showTeamReportTask?: boolean,
-  ): Observable<DashboardTask[]> {
-    return forkJoin({
+  ): {
+    mobileNumberVerification: Observable<DashboardTask[]>;
+    potentialDuplicates: Observable<DashboardTask[]>;
+    sentBackReports: Observable<DashboardTask[]>;
+    unreportedExpenses: Observable<DashboardTask[]>;
+    unsubmittedReports: Observable<DashboardTask[]>;
+    draftExpenses: Observable<DashboardTask[]>;
+    sentBackAdvances: Observable<DashboardTask[]>;
+    setCommuteDetails: Observable<DashboardTask[]>;
+    teamReports: Observable<DashboardTask[]>;
+    addCorporateCard: Observable<DashboardTask[]>;
+  } {
+    return {
       mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
@@ -348,69 +385,133 @@ export class TasksService {
       setCommuteDetails: this.getCommuteDetailsTasks(),
       teamReports: this.getTeamReportsTasks(showTeamReportTask),
       addCorporateCard: this.getAddCorporateCardTask(),
-    }).pipe(
-      map(
-        ({
-          mobileNumberVerification,
-          potentialDuplicates,
-          sentBackReports,
-          unreportedExpenses,
-          unsubmittedReports,
-          draftExpenses,
-          teamReports,
-          sentBackAdvances,
-          setCommuteDetails,
-          addCorporateCard,
-        }) => {
-          this.totalTaskCount$.next(
-            mobileNumberVerification.length +
-              sentBackReports.length +
-              draftExpenses.length +
-              unsubmittedReports.length +
-              unreportedExpenses.length +
-              teamReports.length +
-              potentialDuplicates.length +
-              sentBackAdvances.length +
-              setCommuteDetails.length +
-              addCorporateCard.length,
-          );
-          this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
-          this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
-          this.teamReportsTaskCount$.next(teamReports.length);
+    };
+  }
 
-          this.advancesTaskCount$.next(sentBackAdvances.length);
-          if (
-            !filters?.draftExpenses &&
-            !filters?.draftReports &&
-            !filters?.sentBackReports &&
-            !filters?.unreportedExpenses &&
-            !filters?.potentialDuplicates &&
-            !filters?.teamReports &&
-            !filters?.sentBackAdvances
-          ) {
-            return mobileNumberVerification
-              .concat(addCorporateCard)
-              .concat(potentialDuplicates)
-              .concat(sentBackReports)
-              .concat(sentBackAdvances)
-              .concat(teamReports)
-              .concat(draftExpenses)
-              .concat(unsubmittedReports)
-              .concat(unreportedExpenses)
-              .concat(setCommuteDetails);
-          } else {
-            return this.getFilteredTaskList(filters, {
-              potentialDuplicates,
-              sentBackReports,
-              draftExpenses,
-              unsubmittedReports,
-              unreportedExpenses,
-              teamReports,
-              sentBackAdvances,
-            });
-          }
-        },
+  private getTasksRequestMapForDelegatee(
+    scopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null,
+    isReportAutoSubmissionScheduled: boolean,
+    showTeamReportTask?: boolean,
+  ): {
+    mobileNumberVerification: Observable<DashboardTask[]>;
+    potentialDuplicates: Observable<DashboardTask[]>;
+    sentBackReports: Observable<DashboardTask[]>;
+    unreportedExpenses: Observable<DashboardTask[]>;
+    unsubmittedReports: Observable<DashboardTask[]>;
+    draftExpenses: Observable<DashboardTask[]>;
+    sentBackAdvances: Observable<DashboardTask[]>;
+    setCommuteDetails: Observable<DashboardTask[]>;
+    teamReports: Observable<DashboardTask[]>;
+    addCorporateCard: Observable<DashboardTask[]>;
+  } {
+    const canViewPersonalTasks = !!scopes && (scopes.includes('ALL') || scopes.includes('SUBMIT'));
+    const canViewTeamTasks = !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
+    const canAddCorporateCard = !!scopes && scopes.includes('ALL');
+
+    return {
+      mobileNumberVerification: this.gatedTasks$(canViewPersonalTasks, () => this.getMobileNumberVerificationTasks()),
+      potentialDuplicates: this.gatedTasks$(canViewPersonalTasks, () => this.getPotentialDuplicatesTasks()),
+      sentBackReports: this.gatedTasks$(canViewPersonalTasks, () => this.getSentBackReportTasks()),
+      unreportedExpenses: this.gatedTasks$(canViewPersonalTasks, () =>
+        this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
       ),
+      unsubmittedReports: this.gatedTasks$(canViewPersonalTasks, () =>
+        this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
+      ),
+      draftExpenses: this.gatedTasks$(canViewPersonalTasks, () => this.getDraftExpensesTasks()),
+      sentBackAdvances: this.gatedTasks$(canViewPersonalTasks, () => this.getSentBackAdvanceTasks()),
+      setCommuteDetails: this.gatedTasks$(canViewPersonalTasks, () => this.getCommuteDetailsTasks()),
+      teamReports: this.gatedTasks$(canViewTeamTasks, () => this.getTeamReportsTasks(showTeamReportTask)),
+      addCorporateCard: this.gatedTasks$(canAddCorporateCard, () => this.getAddCorporateCardTask()),
+    };
+  }
+
+  private composeTaskList(
+    taskLists: {
+      mobileNumberVerification: DashboardTask[];
+      potentialDuplicates: DashboardTask[];
+      sentBackReports: DashboardTask[];
+      unreportedExpenses: DashboardTask[];
+      unsubmittedReports: DashboardTask[];
+      draftExpenses: DashboardTask[];
+      teamReports: DashboardTask[];
+      sentBackAdvances: DashboardTask[];
+      setCommuteDetails: DashboardTask[];
+      addCorporateCard: DashboardTask[];
+    },
+    filters?: TaskFilters,
+  ): DashboardTask[] {
+    const {
+      mobileNumberVerification,
+      potentialDuplicates,
+      sentBackReports,
+      unreportedExpenses,
+      unsubmittedReports,
+      draftExpenses,
+      teamReports,
+      sentBackAdvances,
+      setCommuteDetails,
+      addCorporateCard,
+    } = taskLists;
+
+    this.totalTaskCount$.next(
+      mobileNumberVerification.length +
+        sentBackReports.length +
+        draftExpenses.length +
+        unsubmittedReports.length +
+        unreportedExpenses.length +
+        teamReports.length +
+        potentialDuplicates.length +
+        sentBackAdvances.length +
+        setCommuteDetails.length +
+        addCorporateCard.length,
+    );
+    this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
+    this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
+    this.teamReportsTaskCount$.next(teamReports.length);
+    this.advancesTaskCount$.next(sentBackAdvances.length);
+
+    if (this.isNoTaskFilterSelected(filters)) {
+      return mobileNumberVerification
+        .concat(addCorporateCard)
+        .concat(potentialDuplicates)
+        .concat(sentBackReports)
+        .concat(sentBackAdvances)
+        .concat(teamReports)
+        .concat(draftExpenses)
+        .concat(unsubmittedReports)
+        .concat(unreportedExpenses)
+        .concat(setCommuteDetails);
+    }
+
+    return this.getFilteredTaskList(filters, {
+      potentialDuplicates,
+      sentBackReports,
+      draftExpenses,
+      unsubmittedReports,
+      unreportedExpenses,
+      teamReports,
+      sentBackAdvances,
+    });
+  }
+
+  getTasks(
+    isReportAutoSubmissionScheduled = false,
+    filters?: TaskFilters,
+    showTeamReportTask?: boolean,
+  ): Observable<DashboardTask[]> {
+    const inDelegateeMode$ = from(this.delegationService.inDelegateeMode()).pipe(catchError(() => of(false)));
+    const scopes$ = from(this.delegationService.getScopes()).pipe(catchError(() => of(null)));
+
+    return combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
+      switchMap(({ inDelegateeMode, scopes }) =>
+        forkJoin(
+          inDelegateeMode
+            ? this.getTasksRequestMapForDelegatee(scopes, isReportAutoSubmissionScheduled, showTeamReportTask)
+            : this.getTasksRequestMapForBaseUser(isReportAutoSubmissionScheduled, showTeamReportTask),
+        ),
+      ),
+      map((taskLists) => this.composeTaskList(taskLists, filters)),
     );
   }
 
@@ -523,23 +624,40 @@ export class TasksService {
   }
 
   getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
-    return from(this.authService.getEou()).pipe(
+    const zeroResponse: PlatformReportsStatsResponse = {
+      count: 0,
+      failed_amount: null,
+      failed_count: null,
+      processing_amount: 0,
+      processing_count: 0,
+      reimbursable_amount: 0,
+      total_amount: 0,
+    };
+
+    return from(this.delegationService.inDelegateeMode()).pipe(
+      switchMap((inDelegateeMode) => {
+        if (!inDelegateeMode) {
+          return from(this.authService.getEou());
+        }
+
+        return from(this.delegationService.getScopes()).pipe(
+          map((scopes) => !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'))),
+          catchError(() => of(false)),
+          switchMap((canAccessApproveStats) => (canAccessApproveStats ? from(this.authService.getEou()) : of(null))),
+        );
+      }),
       switchMap((eou) => {
+        if (!eou) {
+          return of(zeroResponse);
+        }
+
         if (eou.ou.roles.includes('APPROVER')) {
           return this.approverReportsService.getReportsStats({
             next_approver_user_ids: `cs.[${eou.us.id}]`,
             state: `eq.${ReportState.APPROVER_PENDING}`,
           });
         }
-        const zeroResponse: PlatformReportsStatsResponse = {
-          count: 0,
-          failed_amount: null,
-          failed_count: null,
-          processing_amount: 0,
-          processing_count: 0,
-          reimbursable_amount: 0,
-          total_amount: 0,
-        };
+
         return of(zeroResponse);
       }),
     );
