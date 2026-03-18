@@ -36,8 +36,6 @@ export class DeepLinkService {
     const refreshToken: string = redirectionParam.token;
 
     if (redirectUri) {
-      const orgIdFromUri = redirectUri.match(/org_id=([^&]+)/)?.[1];
-      const resolvedOrgId = orgIdFromUri ? decodeURIComponent(orgIdFromUri) : orgId;
       if (redirectUri.match('verify')) {
         this.router.navigate([
           '/',
@@ -45,7 +43,7 @@ export class DeepLinkService {
           'verify',
           {
             verification_code: verificationCode,
-            org_id: resolvedOrgId,
+            org_id: orgId,
           },
         ]);
       } else if (redirectUri.match('new_password')) {
