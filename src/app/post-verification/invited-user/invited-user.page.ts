@@ -26,7 +26,6 @@ import { PasswordCheckTooltipComponent } from '../../shared/components/password-
 import { FormButtonValidationDirective } from '../../shared/directive/form-button-validation.directive';
 import { IonButton, IonContent, IonIcon } from '@ionic/angular/standalone';
 
-
 @Component({
   selector: 'app-invited-user',
   templateUrl: './invited-user.page.html',

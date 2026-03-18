@@ -1,6 +1,6 @@
-import { Component, OnInit, EventEmitter, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
+import { Component, OnInit, NgZone, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { IonApp, IonFooter, IonRouterOutlet, MenuController, NavController, Platform } from '@ionic/angular/standalone';
-import { from, concat, Observable, noop, forkJoin, of } from 'rxjs';
+import { from, Observable, noop, forkJoin, of } from 'rxjs';
 import { switchMap, shareReplay, filter, take, map } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart, ActivatedRoute, Params, UrlTree } from '@angular/router';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -108,8 +108,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   isSwitchedToDelegator: boolean;
 
-  isUserLoggedIn = false;
-
   isOnline: boolean;
 
   showFooter: boolean;
@@ -121,6 +119,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   totalTasksCount: number;
 
   routesWithFooter = [
+    '',
     'my_dashboard',
     'my_expenses',
     'my_advances',
@@ -164,7 +163,6 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(data.url));
       });
     });
-
     // Initialize push notification click listener early to catch notifications
     // that launched the app from a killed state
     if (Capacitor.isNativePlatform()) {
@@ -219,12 +217,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
-  setSidenavPostOnboarding(): void {
+  setSideNav(): void {
+    // need to reload sidenav once onboarding is complete
     this.spenderOnboardingService
-      .setOnboardingStatusAsComplete()
+      .onboardingComplete$
       .pipe(
         switchMap(() => this.isConnected$.pipe(take(1))),
         map((isOnline) => {
@@ -262,22 +261,19 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     forkJoin({
       loggedInStatus: this.routerAuthService.isLoggedIn(),
-      isOnline: this.isConnected$.pipe(take(1)),
-    }).subscribe(({ loggedInStatus, isOnline }) => {
-      this.isUserLoggedIn = loggedInStatus;
+    }).subscribe(({ loggedInStatus }) => {
 
-      if (this.isUserLoggedIn) {
+      if (loggedInStatus) {
+        const markOptions: PerformanceMarkOptions = {
+          detail: loggedInStatus,
+        };
+        performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
         if (this.isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();
         }
       }
-
-      const markOptions: PerformanceMarkOptions = {
-        detail: this.isUserLoggedIn,
-      };
-      performance.mark(PerfTrackers.appLaunchStartTime, markOptions);
     });
 
     this.userEventService.onSetToken(() => {
@@ -290,7 +286,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }, 500);
     });
 
-    this.setSidenavPostOnboarding();
+    this.setSideNav();
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();

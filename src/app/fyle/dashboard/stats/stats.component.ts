@@ -88,7 +88,7 @@ export class StatsComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   initializeReportStats(): void {
@@ -155,27 +155,8 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  trackOrgLaunchTime(isMultiOrg: boolean): void {
-    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
-      // Time taken for the app to launch and display the first screen
-      performance.mark(PerfTrackers.appLaunchEndTime);
-
-      // Measure time taken to launch app
-      performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
-
-      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-      const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
-
-      // Converting the duration to seconds and fix it to 3 decimal places
-      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
-
-      this.trackingService.appLaunchTime({
-        'App launch time': launchTimeDuration,
-        'Is logged in': isLoggedIn,
-        'Is multi org': isMultiOrg,
-      });
-    }
+  trackOrgLaunchTime(): void {
+    this.trackingService.trackAppLaunchTimeIfFirstScreen();
   }
 
   /*
@@ -200,14 +181,9 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.initializeUnapprovedTeamReportsStats();
+    this.trackOrgLaunchTime();
 
-    this.orgService.getOrgs().subscribe((orgs) => {
-      const isMultiOrg = orgs?.length > 1;
-
-      this.trackOrgLaunchTime(isMultiOrg);
-
-      this.trackDashboardLaunchTime();
-    });
+    this.trackDashboardLaunchTime();
   }
 
   ngOnInit(): void {

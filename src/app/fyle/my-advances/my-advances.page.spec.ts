@@ -170,13 +170,11 @@ describe('MyAdvancesPage', () => {
   });
 
   it('setupNetworkWatcher(): should setup a network watcher', (done) => {
-    networkService.isOnline.and.returnValue(of(true));
     spyOn(component, 'redirectToDashboardPage');
 
     component.setupNetworkWatcher();
 
     expect(component.isConnected$).toBeDefined();
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
     expect(component.redirectToDashboardPage).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((res) => {
       expect(res).toBeTrue();

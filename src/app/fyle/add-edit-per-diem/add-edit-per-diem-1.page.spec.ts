@@ -441,11 +441,8 @@ export function TestCases1(getTestBed) {
     });
 
     it('setupNetworkWatcher(): should setup network watching', (done) => {
-      networkService.isOnline.and.returnValue(of(true));
-
       component.setupNetworkWatcher();
       expect(component.isConnected$).toBeDefined();
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       component.isConnected$.subscribe((res) => {
         expect(res).toBeTrue();
         done();
@@ -561,9 +558,9 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getSubCategories(): ', () => {
-      xit('should return all categories having category name as per diem', (done) => {
+      it('should return all categories having sub_category name', (done) => {
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
-        mockPerDiemCategory.sub_category = '';
+        mockPerDiemCategory.sub_category = 'sub';
         categoriesService.getAll.and.returnValue(of([...expectedAllOrgCategories, mockPerDiemCategory]));
         component.getSubCategories().subscribe((res) => {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
@@ -572,25 +569,13 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      xit('should return empty array if category name is undefined', (done) => {
+      it('should return empty array if category sub_category is null', (done) => {
         const mockPerDiemCategory = cloneDeep(perDiemCategory);
-        mockPerDiemCategory.name = undefined;
+        mockPerDiemCategory.sub_category = null;
         categoriesService.getAll.and.returnValue(of([mockPerDiemCategory]));
         component.getSubCategories().subscribe((res) => {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(res).toEqual([]);
-          done();
-        });
-      });
-
-      // todo @arjun fix
-      xit('should return all categories having name as per diem if sub category is undefined', (done) => {
-        const mockPerDiemCategory = cloneDeep(perDiemCategory);
-        mockPerDiemCategory.sub_category = undefined;
-        categoriesService.getAll.and.returnValue(of([mockPerDiemCategory]));
-        component.getSubCategories().subscribe((res) => {
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
-          expect(res).toEqual([mockPerDiemCategory]);
           done();
         });
       });

@@ -102,7 +102,7 @@ export class SidemenuComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    this.isConnected$ = this.networkService.isConnected$.pipe(shareReplay(1));
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   showSideMenuOffline(): void {
@@ -404,10 +404,6 @@ export class SidemenuComponent implements OnInit {
       this.router.navigate(['/', 'enterprise', 'my_profile']);
       this.menuController.close();
     }
-  }
-
-  reloadSidemenu(): void {
-    this.setupSideMenu();
   }
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {

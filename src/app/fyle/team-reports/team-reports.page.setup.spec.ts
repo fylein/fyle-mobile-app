@@ -1,3 +1,4 @@
+import { BehaviorSubject, of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { TeamReportsPage } from './team-reports.page';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
@@ -33,7 +34,7 @@ class MockFooterComponent {}
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'getConnectionStatus'], {
-      isConnected$: of(true),
+      isConnected$: new BehaviorSubject(true),
     });
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
