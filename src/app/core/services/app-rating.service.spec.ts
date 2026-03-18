@@ -621,6 +621,23 @@ describe('AppRatingService', () => {
       expect(savedValue.dismissals.length).toBe(1);
     }));
 
+    it('should track In App Rating Dismissed Outside when user taps backdrop', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({ data: undefined, role: 'backdrop' });
+      featureConfigService.getConfiguration.and.returnValue(
+        of({ value: { nativePrompts: [], dismissals: [] } } as FeatureConfig<AppRatingHistory>),
+      );
+
+      service.attemptRatingPrompt();
+      tick();
+
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('In App Rating Dismissed Outside', {
+        dismissMethod: 'backdrop_tap',
+      });
+      expect(featureConfigService.saveConfiguration).toHaveBeenCalledTimes(1);
+      const savedValue = featureConfigService.saveConfiguration.calls.mostRecent().args[0].value as AppRatingHistory;
+      expect(savedValue.dismissals.length).toBe(1);
+    }));
+
     it('should append to existing history when recording interaction', fakeAsync(() => {
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'dismiss' }, role: undefined });
       const existingHistory: AppRatingHistory = {
