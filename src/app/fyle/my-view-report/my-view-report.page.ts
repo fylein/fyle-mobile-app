@@ -22,7 +22,6 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
-  NavController,
   PopoverController,
   SegmentCustomEvent,
 } from '@ionic/angular/standalone';
@@ -80,7 +79,6 @@ import { EllipsisPipe } from '../../shared/pipes/ellipses.pipe';
 import { ExactCurrencyPipe } from '../../shared/pipes/exact-currency.pipe';
 import { ReportState as ReportStatePipe } from '../../shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-case.pipe';
-import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -165,10 +163,6 @@ export class MyViewReportPage {
   private translocoService = inject(TranslocoService);
 
   private orgUserService = inject(OrgUserService);
-
-  private navController = inject(NavController);
-
-  private deepLinkService = inject(DeepLinkService);
 
   private launchDarklyService = inject(LaunchDarklyService);
 
@@ -409,7 +403,6 @@ export class MyViewReportPage {
   }
 
   ionViewWillEnter(): void {
-    this.deepLinkService.redirect(this.deepLinkService.getJsonFromUrl(sampleLink));
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
@@ -451,7 +444,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === 'EXPENSE_REPORT_COMMENTS') {
+      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === "EXPENSE_REPORT_COMMENTS") {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
@@ -545,7 +538,7 @@ export class MyViewReportPage {
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
       () => {
-        this.navController.back();
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
       },
     );
   }
@@ -671,7 +664,7 @@ export class MyViewReportPage {
     const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
-      this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
+      this.router.navigate(['/', 'enterprise', 'my_reports']);
     }
   }
 
@@ -681,7 +674,7 @@ export class MyViewReportPage {
       .resubmit(this.reportId)
       .pipe(finalize(() => (this.submitReportLoader = false)))
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
         const message = `Report resubmitted successfully.`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
@@ -727,7 +720,7 @@ export class MyViewReportPage {
       .pipe(finalize(() => (this.submitReportLoader = false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
+          this.router.navigate(['/', 'enterprise', 'my_reports']);
           const message = `Report submitted successfully.`;
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
