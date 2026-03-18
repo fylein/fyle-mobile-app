@@ -200,7 +200,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       });
   }
 
@@ -215,15 +215,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'add_edit_expense',
-        {
-          dataUrl: this.base64ImagesWithSource[0]?.base64Image,
-          canExtractData: isInstafyleEnabled,
-        },
-      ]);
+      this.router.navigate(
+        [
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+            canExtractData: isInstafyleEnabled,
+          },
+        ],
+        { replaceUrl: true },
+      );
     });
   }
 
@@ -346,7 +349,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       });
   }
 

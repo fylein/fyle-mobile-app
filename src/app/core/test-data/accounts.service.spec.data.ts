@@ -2722,7 +2722,7 @@ export const accountsData: PlatformAccount[] = deepFreeze([
   },
 ]);
 
-export const orgSettingsDataWithoutAdvPro = deepFreeze({
+export const orgSettingsDataWithAdvPro = deepFreeze({
   ...orgSettingsData,
   advanced_projects: {
     allowed: true,

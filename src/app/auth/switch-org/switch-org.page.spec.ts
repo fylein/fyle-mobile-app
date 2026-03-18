@@ -292,7 +292,6 @@ describe('SwitchOrgPage', () => {
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
-    fixture.detectChanges();
     spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
@@ -311,6 +310,7 @@ describe('SwitchOrgPage', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
+      fixture.detectChanges();
     });
 
     it('should show orgs and setup search bar', fakeAsync(() => {
@@ -1047,6 +1047,7 @@ describe('SwitchOrgPage', () => {
   });
 
   it('openSearchBar(): should open search bar', () => {
+    fixture.detectChanges();
     component.openSearchBar();
 
     const contentClassList = component.contentRef.nativeElement.classList;
@@ -1058,7 +1059,7 @@ describe('SwitchOrgPage', () => {
 
   it('cancelSearch(): should cancel the search and remove the bar', () => {
     spyOn(component, 'resetSearch');
-
+    fixture.detectChanges();
     const contentClassList = component.contentRef.nativeElement.classList;
     const searchBarClassList = component.searchRef.nativeElement.classList;
 

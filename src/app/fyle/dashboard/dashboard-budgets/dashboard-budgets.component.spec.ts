@@ -62,6 +62,7 @@ describe('DashboardBudgetsComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(DashboardBudgetsComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('budgets', [mockBudget]);
     fixture.detectChanges();
   });
 

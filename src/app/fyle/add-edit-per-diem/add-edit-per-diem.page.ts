@@ -501,7 +501,7 @@ export class AddEditPerDiemPage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
     }
   }
 

@@ -5,8 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController, PopoverController } from '@ionic/angular/standalone';
-import { BehaviorSubject, finalize, of } from 'rxjs';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
+import { BehaviorSubject, finalize, of, Subscription } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
@@ -91,6 +91,8 @@ describe('ViewTeamReportPageV2', () => {
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
   let browserHandlerService: jasmine.SpyObj<BrowserHandlerService>;
+  let platform: Platform;
+  let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -131,6 +133,7 @@ describe('ViewTeamReportPageV2', () => {
     launchDarklyService = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const browserHandlerServiceSpy = jasmine.createSpyObj('BrowserHandlerService', ['openLinkWithToolbarColor']);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
       imports: [ViewTeamReportPage, getTranslocoTestingModule(), MatIconTestingModule],
@@ -228,6 +231,11 @@ describe('ViewTeamReportPageV2', () => {
           provide: BrowserHandlerService,
           useValue: browserHandlerServiceSpy,
         },
+        {
+          provide: NavController,
+          useValue: navControllerSpy,
+        },
+        Platform,
         ...getFormatPreferenceProviders(),
         {
           provide: TIMEZONE,
@@ -260,6 +268,8 @@ describe('ViewTeamReportPageV2', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     browserHandlerService = TestBed.inject(BrowserHandlerService) as jasmine.SpyObj<BrowserHandlerService>;
+    platform = TestBed.inject(Platform);
+    navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     launchDarklyService.getVariation.and.returnValue(of(true));
     fixture.detectChanges();
   }));
@@ -268,10 +278,14 @@ describe('ViewTeamReportPageV2', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ionViewWillLeave(): should execute the on page exit next function', () => {
+  it('ionViewWillLeave(): should unsubscribe hardwareBackButtonAction and execute the on page exit next function', () => {
     spyOn(component.onPageExit, 'next');
+    (component as any).hardwareBackButtonAction = new Subscription();
+    spyOn((component as any).hardwareBackButtonAction, 'unsubscribe');
 
     component.ionViewWillLeave();
+
+    expect((component as any).hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
   });
 
@@ -652,7 +666,7 @@ describe('ViewTeamReportPageV2', () => {
         currencyCode: reportWithExpenses.currency,
       });
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
     }));
@@ -718,7 +732,7 @@ describe('ViewTeamReportPageV2', () => {
       tick();
 
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).not.toHaveBeenCalled();
     }));
@@ -742,7 +756,7 @@ describe('ViewTeamReportPageV2', () => {
       tick();
 
       expect(approverReportsService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith('nps_survey', false);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
     }));
@@ -906,7 +920,7 @@ describe('ViewTeamReportPageV2', () => {
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
       ToastContent: 'Report Sent Back successfully',
     });
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], { replaceUrl: true });
   });
 
   it('openViewReportInfoModal(): should open report info modal', async () => {

@@ -187,6 +187,7 @@ describe('DashboardPage', () => {
     const budgetsServiceSpy = jasmine.createSpyObj('BudgetsService', ['getSpenderBudgetByParams']);
     const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['initializePushNotifications']);
+
     TestBed.configureTestingModule({
       imports: [DashboardPage, MatIconTestingModule, getTranslocoTestingModule()],
       providers: [
@@ -286,6 +287,13 @@ describe('DashboardPage', () => {
 
     fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
+
+    component.eou$ = of(apiEouRes);
+    component.isUserFromINCluster$ = of(false);
+    component.canShowOptInBanner$ = of(false);
+    component.canShowEmailOptInBanner$ = of(false);
+    component.orgSettings$ = of(orgSettingsRes);
+
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -567,14 +575,19 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('registerBackButtonAction(): should call platform.backButton.subscribeWithPriority once with BackButtonActionPriority.LOW and backButtonActionHandler', () => {
+  it('registerBackButtonAction(): should call platform.backButton.subscribeWithPriority with BackButtonActionPriority.LOW and a callback that invokes backButtonActionHandler', () => {
     const backButtonActionHandlerSpy = spyOn(component, 'backButtonActionHandler');
-    spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
+    const subscribeWithPrioritySpy = spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
     component.registerBackButtonAction();
-    expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
-      BackButtonActionPriority.LOW,
-      backButtonActionHandlerSpy,
-    );
+
+    expect(subscribeWithPrioritySpy).toHaveBeenCalledOnceWith(BackButtonActionPriority.LOW, jasmine.any(Function));
+
+    // Verify the callback invokes backButtonActionHandler when called (with processNextHandler param)
+    const callback = subscribeWithPrioritySpy.calls.mostRecent().args[1];
+    const processNextHandler = jasmine.createSpy('processNextHandler');
+    callback(processNextHandler);
+
+    expect(backButtonActionHandlerSpy).toHaveBeenCalledTimes(1);
   });
 
   it('onTaskClicked(): should set currentStateIndex to 1, navigate to tasks page with queryParams.state as tasks and track tasksPageOpened event', () => {
@@ -945,6 +958,7 @@ describe('DashboardPage', () => {
       featureConfigService.getByFeatureAndKey.and.returnValue(
         of({ feature: 'DASHBOARD_OPT_IN_BANNER', key: 'OPT_IN_BANNER_SHOWN', value: { count: 0 } }),
       );
+      component.isUserFromINCluster$ = of(false);
     });
 
     it('should set canShowOptInBanner to false if user is verified', (done) => {
@@ -1102,6 +1116,7 @@ describe('DashboardPage', () => {
           value: false,
         }),
       );
+      component.isUserFromINCluster$ = of(false);
     });
 
     it('should set canShowEmailOptInBanner to false if feature config value is true', (done) => {
@@ -1221,25 +1236,26 @@ describe('DashboardPage', () => {
   }));
 
   describe('setSwiperConfig():', () => {
-    it('should set default swiper config when observables are not ready', () => {
-      // Setup: Ensure observables are undefined
-      component.canShowOptInBanner$ = undefined as any;
-      component.canShowEmailOptInBanner$ = undefined as any;
+    let mockSwiper: any;
+
+    beforeEach(() => {
+      component.isUserFromINCluster$ = of(false);
+    });
+
+    it('should set default swiper config when no banners are shown', fakeAsync(() => {
+      component.canShowOptInBanner$ = of(false);
+      component.canShowEmailOptInBanner$ = of(false);
 
       component.setSwiperConfig();
+      tick();
 
-      // Verify default config is set
       expect(component.swiperConfig).toEqual({
         slidesPerView: 1,
         spaceBetween: 0,
         centeredSlides: true,
-        loop: false,
-        autoplay: false,
-        pagination: false,
+        pagination: component.optInBannerPagination,
       });
-    });
-
-    let mockSwiper: any;
+    }));
 
     beforeEach(() => {
       mockSwiper = {
@@ -1253,6 +1269,7 @@ describe('DashboardPage', () => {
           stop: jasmine.createSpy('stop'),
         },
         params: {},
+        slides: [{}],
         update: jasmine.createSpy('update'),
       };
 

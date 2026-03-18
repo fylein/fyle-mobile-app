@@ -27,9 +27,7 @@ import {
 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsParams2,
-  orgSettingsRes,
   orgSettingsWithExpenseFormAutofill,
-  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
@@ -37,11 +35,7 @@ import {
   newExpenseMileageData1,
   newExpenseMileageData2,
   unflattenedTxnData,
-  unflattenedTxnWithSourceID,
-  unflattenedTxnWithSourceID2,
-  unflattenedTxnWithAdvanceWallet,
 } from 'src/app/core/mock-data/unflattened-txn.data';
-import { unflattenedExpDataWithAdvanceWalletWithoutId } from 'src/app/core/mock-data/unflattened-expense.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -427,7 +421,7 @@ export function TestCases2(getTestBed) {
           expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(2);
           expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(2);
-          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'two_wheeler');
+          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
           expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
           expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
             'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',

@@ -24,7 +24,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ModalController, NavController, PopoverController } from '@ionic/angular/standalone';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular/standalone';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -175,6 +175,7 @@ describe('SplitExpensePage', () => {
   let projectsService: jasmine.SpyObj<ProjectsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
   let activateRouteMock: ActivatedRoute;
+  let platform: Platform;
   let destroy$: Subject<void>;
   let formControlSpy: jasmine.SpyObj<UntypedFormControl>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
@@ -290,6 +291,7 @@ describe('SplitExpensePage', () => {
           provide: NavController,
           useValue: navControllerSpy,
         },
+        Platform,
         {
           provide: PopoverController,
           useValue: popoverControllerSpy,
@@ -350,6 +352,7 @@ describe('SplitExpensePage', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    platform = TestBed.inject(Platform);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
@@ -878,6 +881,10 @@ describe('SplitExpensePage', () => {
 
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
+      spyOn(platform.backButton, 'subscribeWithPriority').and.returnValue({
+        unsubscribe: jasmine.createSpy('unsubscribe'),
+      } as any);
+
       categoriesService.getAll.and.returnValue(of(testActiveCategoryList));
       categoriesService.filterRequired.and.returnValue(testActiveCategoryList);
 
@@ -2825,6 +2832,7 @@ describe('SplitExpensePage', () => {
           ToastType.FAILURE,
           'msb-failure-with-camera-icon-for-split-exp',
         );
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
         expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
         expect(component.showSuccessToast).not.toHaveBeenCalled();
       }
@@ -2846,6 +2854,7 @@ describe('SplitExpensePage', () => {
           ToastType.FAILURE,
           'msb-failure-with-camera-icon-for-split-exp',
         );
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
         expect(component.showSuccessToast).not.toHaveBeenCalled();
       }
     }));

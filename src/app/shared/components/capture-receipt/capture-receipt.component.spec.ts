@@ -112,7 +112,11 @@ describe('CaptureReceiptComponent', () => {
     const performanceSpy = jasmine.createSpyObj('peformance', ['getEntriesByName', 'mark', 'measure']);
     const cameraPreviewSpy = jasmine.createSpyObj('CameraPreviewComponent', ['setUpAndStartCamera', 'stopCamera']);
     const cameraPreviewServiceSpy = jasmine.createSpyObj('CameraPreviewService', ['capture']);
-    const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages', 'checkPermissions', 'requestCameraPermissions']);
+    const cameraServiceSpy = jasmine.createSpyObj('CameraService', [
+      'pickImages',
+      'checkPermissions',
+      'requestCameraPermissions',
+    ]);
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate']);
     TestBed.configureTestingModule({
       imports: [CaptureReceiptComponent],
@@ -187,10 +191,12 @@ describe('CaptureReceiptComponent', () => {
         },
       ],
       schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
-    }).overrideComponent(CameraPreviewComponent, {
-      remove: {imports: [CameraPreviewComponent]},
-      add: {imports: [CameraPreviewStubComponent]},
-    }).compileComponents();
+    })
+      .overrideComponent(CameraPreviewComponent, {
+        remove: { imports: [CameraPreviewComponent] },
+        add: { imports: [CameraPreviewStubComponent] },
+      })
+      .compileComponents();
     fixture = TestBed.createComponent(CaptureReceiptComponent);
     component = fixture.componentInstance;
 
@@ -213,7 +219,7 @@ describe('CaptureReceiptComponent', () => {
     cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
     translocoService = TestBed.inject(TranslocoService) as jasmine.SpyObj<TranslocoService>;
     component.cameraPreview = cameraPreviewSpy;
-    
+
     // Mock CameraService.pickImages
     cameraService.pickImages.and.resolveTo({
       photos: [
@@ -221,14 +227,14 @@ describe('CaptureReceiptComponent', () => {
         { webPath: 'photo2.webp', format: 'jpeg' },
       ],
     });
-    
+
     // Mock webPathToBase64 to return different base64 content for each call
     let callCount = 0;
     utilityService.webPathToBase64.and.callFake(() => {
       callCount++;
       return Promise.resolve(`base64encodedcontent${callCount}`);
     });
-    
+
     networkService.isOnline.and.returnValue(of(true));
     orgService.getOrgs.and.returnValue(of(orgData1));
     platformEmployeeSettingsService.get.and.returnValue(of(employeeSettingsData));
@@ -405,7 +411,7 @@ describe('CaptureReceiptComponent', () => {
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.addMultipleExpensesToQueue).toHaveBeenCalledOnceWith(component.base64ImagesWithSource);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
   });
 
   describe('navigateToExpenseForm():', () => {
@@ -424,30 +430,36 @@ describe('CaptureReceiptComponent', () => {
     it('should navigate to expense form', () => {
       component.navigateToExpenseForm();
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'add_edit_expense',
-        {
-          dataUrl: component.base64ImagesWithSource[0]?.base64Image,
-          canExtractData: true,
-        },
-      ]);
+      expect(router.navigate).toHaveBeenCalledOnceWith(
+        [
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            dataUrl: component.base64ImagesWithSource[0]?.base64Image,
+            canExtractData: true,
+          },
+        ],
+        { replaceUrl: true },
+      );
     });
 
     it('should navigate to expense form with dataUrl params as undefined if base64ImagesWithSource is undefined', () => {
       component.base64ImagesWithSource = [];
       component.navigateToExpenseForm();
       expect(platformEmployeeSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith([
-        '/',
-        'enterprise',
-        'add_edit_expense',
-        {
-          dataUrl: undefined,
-          canExtractData: true,
-        },
-      ]);
+      expect(router.navigate).toHaveBeenCalledOnceWith(
+        [
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            dataUrl: undefined,
+            canExtractData: true,
+          },
+        ],
+        { replaceUrl: true },
+      );
     });
   });
 
@@ -487,7 +499,7 @@ describe('CaptureReceiptComponent', () => {
       component.openReceiptPreviewModal();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 10000);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       expect(component.addMultipleExpensesToQueue).toHaveBeenCalledOnceWith(component.base64ImagesWithSource);
       expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
     });
@@ -676,7 +688,8 @@ describe('CaptureReceiptComponent', () => {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Storage permission',
-          message: 'Please allow Sage Expense Management to access device photos. Click Settings and allow Storage access',
+          message:
+            'Please allow Sage Expense Management to access device photos. Click Settings and allow Storage access',
           primaryCta: {
             text: 'Open settings',
             action: 'OPEN_SETTINGS',
@@ -750,7 +763,7 @@ describe('CaptureReceiptComponent', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       component.base64ImagesWithSource = [];
-      
+
       cameraService.checkPermissions.and.resolveTo({ photos: 'granted', camera: 'granted' });
       cameraService.pickImages.and.resolveTo({
         photos: [
@@ -758,28 +771,28 @@ describe('CaptureReceiptComponent', () => {
           { webPath: 'photo2.webp', format: 'jpeg' },
         ],
       });
-      
+
       let callCount = 0;
       utilityService.webPathToBase64.and.callFake(() => {
         callCount++;
         return Promise.resolve(`base64encodedcontent${callCount}`);
       });
-      
+
       component.onGalleryUpload();
-      
+
       // Wait for checkPermissions
       tick();
-      
+
       // Wait for showLoader
       tick();
-      
+
       // Wait for pickImages to resolve
       tick();
-      
+
       // Wait for webPathToBase64 calls and for...of loop to complete
       tick();
       tick();
-      
+
       expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
@@ -801,24 +814,22 @@ describe('CaptureReceiptComponent', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       component.base64ImagesWithSource = [];
-      
+
       cameraService.checkPermissions.and.resolveTo({ photos: 'limited', camera: 'limited' });
       cameraService.pickImages.and.resolveTo({
-        photos: [
-          { webPath: 'photo1.webp', format: 'jpeg' },
-        ],
+        photos: [{ webPath: 'photo1.webp', format: 'jpeg' }],
       });
-      
+
       utilityService.webPathToBase64.and.resolveTo('base64encodedcontent1');
-      
+
       component.onGalleryUpload();
-      
+
       tick(); // checkPermissions
       tick(); // showLoader
       tick(); // pickImages
       tick(); // webPathToBase64
       tick(); // hideLoader
-      
+
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait...', 0);
       expect(cameraService.pickImages).toHaveBeenCalledTimes(1);
@@ -844,9 +855,9 @@ describe('CaptureReceiptComponent', () => {
       loaderService.hideLoader.and.resolveTo();
       cameraService.pickImages.and.resolveTo({ photos: [] });
       spyOn(component, 'openReceiptPreviewModal');
-      
+
       component.onGalleryUpload();
-      
+
       tick(); // checkPermissions (first call)
       tick(); // requestCameraPermissions
       tick(); // onGalleryUpload recursive call starts
@@ -854,7 +865,7 @@ describe('CaptureReceiptComponent', () => {
       tick(); // showLoader
       tick(); // pickImages
       tick(); // hideLoader and openReceiptPreviewModal
-      
+
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(2);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
     }));
@@ -875,9 +886,9 @@ describe('CaptureReceiptComponent', () => {
       loaderService.hideLoader.and.resolveTo();
       cameraService.pickImages.and.resolveTo({ photos: [] });
       spyOn(component, 'openReceiptPreviewModal');
-      
+
       component.onGalleryUpload();
-      
+
       tick(); // checkPermissions (first call)
       tick(); // requestCameraPermissions
       tick(); // onGalleryUpload recursive call starts
@@ -885,20 +896,20 @@ describe('CaptureReceiptComponent', () => {
       tick(); // showLoader
       tick(); // pickImages
       tick(); // hideLoader and openReceiptPreviewModal
-      
+
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(2);
       expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
     }));
 
     it('should show permission denied popover when permissions are denied', fakeAsync(() => {
       const showPermissionDeniedPopoverSpy = spyOn(component, 'showPermissionDeniedPopover');
-      
+
       cameraService.checkPermissions.and.resolveTo({ photos: 'denied', camera: 'denied' });
-      
+
       component.onGalleryUpload();
-      
+
       tick(); // checkPermissions
-      
+
       expect(cameraService.checkPermissions).toHaveBeenCalledTimes(1);
       expect(showPermissionDeniedPopoverSpy).toHaveBeenCalledOnceWith('GALLERY');
     }));

@@ -14,7 +14,7 @@ import { FreshChatService } from './core/services/fresh-chat.service';
 import { SpenderOnboardingService } from './core/services/spender-onboarding.service';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
 import { NavController } from '@ionic/angular/standalone';
@@ -30,6 +30,7 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { AppShortcuts } from '@capawesome/capacitor-app-shortcuts';
 import { BackButtonService } from './core/services/back-button.service';
+import { DeepLinkService } from './core/services/deep-link.service';
 import { getTranslocoTestingModule } from './core/testing/transloco-testing.utils';
 import { SidemenuComponent } from './shared/components/sidemenu/sidemenu.component';
 import { FyConnectionComponent } from './shared/components/fy-connection/fy-connection.component';
@@ -75,18 +76,34 @@ describe('AppComponent', () => {
   let menuController: jasmine.SpyObj<MenuController>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
+  let deepLinkService: jasmine.SpyObj<DeepLinkService>;
+  let appUrlOpenCallback: ((data: { url: string }) => void) | null = null;
+  let capacitorIsNativePlatformSpy: jasmine.Spy;
+  let appShortcutsAddListenerSpy: jasmine.Spy;
+  let appShortcutClickCallback: ((event: { shortcutId: string }) => void) | null = null;
   beforeEach(waitForAsync(() => {
     // Mock Capacitor plugins before component creation
     // Create spies that return resolved promises
     const splashScreenHideSpy = jasmine.createSpy('hide').and.resolveTo();
     const statusBarSetStyleSpy = jasmine.createSpy('setStyle').and.resolveTo();
     const textZoomSetSpy = jasmine.createSpy('set').and.resolveTo();
-    const appAddListenerSpy = jasmine.createSpy('addListener').and.resolveTo({ remove: jasmine.createSpy('remove') });
+    const appAddListenerSpy = jasmine.createSpy('addListener').and.callFake((eventName: string, cb: (data: { url: string }) => void) => {
+      if (eventName === 'appUrlOpen') {
+        appUrlOpenCallback = cb;
+      }
+      return Promise.resolve({ remove: jasmine.createSpy('remove') });
+    });
 
     // Mock AppShortcuts plugin
-    const appShortcutsAddListenerSpy = jasmine
-      .createSpy('addListener')
-      .and.resolveTo({ remove: jasmine.createSpy('remove') });
+    appShortcutsAddListenerSpy = jasmine.createSpy('addListener').and.callFake((eventName: string, cb: (event: { shortcutId: string }) => void) => {
+      if (eventName === 'click') {
+        appShortcutClickCallback = cb;
+      }
+      return Promise.resolve({ remove: jasmine.createSpy('remove') });
+    });
+
+    capacitorIsNativePlatformSpy = jasmine.createSpy('isNativePlatform').and.returnValue(false);
+    Object.defineProperty(Capacitor, 'isNativePlatform', { value: capacitorIsNativePlatformSpy, writable: true });
 
     // Replace the methods on the imported modules
     Object.defineProperty(SplashScreen, 'hide', { value: splashScreenHideSpy, writable: true });
@@ -118,7 +135,7 @@ describe('AppComponent', () => {
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'setOnboardingStatusAsComplete',
     ], {
-      onboardingComplete$: of(false),
+      onboardingComplete$: new BehaviorSubject<boolean>(false),
     });
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex', 'updateSelectionMode'], {
       selectionMode$: of(false),
@@ -147,6 +164,7 @@ describe('AppComponent', () => {
       'footerExpensesTabClicked',
       'footerReportsTabClicked',
       'appShortcutUsed',
+      'eventTrack',
     ]);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateRoot', 'back']);
     spenderOnboardingServiceSpy.setOnboardingStatusAsComplete.and.returnValue(of(null));
@@ -163,6 +181,7 @@ describe('AppComponent', () => {
       'unregister',
       'initializeNotificationClickListener',
     ]);
+    const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getJsonFromUrl', 'redirect']);
 
     // Configure tracking service with missing methods
     trackingServiceSpy.updateIdentityIfNotPresent = jasmine.createSpy('updateIdentityIfNotPresent').and.resolveTo();
@@ -199,6 +218,7 @@ describe('AppComponent', () => {
         { provide: MenuController, useValue: menuControllerSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
         { provide: PushNotificationService, useValue: pushNotificationServiceSpy },
+        { provide: DeepLinkService, useValue: deepLinkServiceSpy },
       ],
     })
       .overrideComponent(AppComponent, {
@@ -230,6 +250,7 @@ describe('AppComponent', () => {
     menuController = TestBed.inject(MenuController) as jasmine.SpyObj<MenuController>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
     pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
+    deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
   }));
 
   describe('ngAfterViewInit', () => {
@@ -337,6 +358,42 @@ describe('AppComponent', () => {
 
       // Should not throw any error
       expect().nothing();
+    });
+  });
+
+  describe('setSideNav():', () => {
+    it('should call showSideMenuOnline when online after setting onboarding complete', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(true);
+      spenderOnboardingService.onboardingComplete$.next(true);
+
+      component.setSideNav();
+
+      expect(component.sidemenuRef.showSideMenuOnline).toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOffline).not.toHaveBeenCalled();
+    });
+
+    it('should call showSideMenuOffline when offline after setting onboarding complete', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.componentInstance;
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(false);
+      spenderOnboardingService.onboardingComplete$.next(true);
+
+      component.setSideNav();
+
+      expect(component.sidemenuRef.showSideMenuOnline).not.toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOffline).toHaveBeenCalled();
     });
   });
 
@@ -529,37 +586,48 @@ describe('AppComponent', () => {
     expect(state).toBeNull();
   });
 
-  it('updateFooterState() should set currentActiveState and update index for my_dashboard without tasks state', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const component = fixture.debugElement.componentInstance;
-    component.currentPath = 'my_dashboard';
-    component.updateFooterState(null);
-    expect(component.currentActiveState).toBe(FooterState.HOME);
-    expect(footerService.updateCurrentStateIndex).toHaveBeenCalledWith(0);
-  });
+  describe('updateFooterState', () => {
+    it('should set currentActiveState to TASKS and update index to 1 when my_dashboard and state is tasks', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+      component.currentPath = 'my_dashboard';
+      (component as any).updateFooterState('tasks');
+      expect(component.currentActiveState).toBe(FooterState.TASKS);
+      expect(footerService.updateCurrentStateIndex).toHaveBeenCalledWith(1);
+    });
 
-  it('updateFooterState() should set currentActiveState for my_expenses', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const component = fixture.debugElement.componentInstance;
-    component.currentPath = 'my_expenses';
-    component.updateFooterState(null);
-    expect(component.currentActiveState).toBe(FooterState.EXPENSES);
-  });
+    it('should set currentActiveState and update index for my_dashboard without tasks state', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+      component.currentPath = 'my_dashboard';
+      (component as any).updateFooterState(null);
+      expect(component.currentActiveState).toBe(FooterState.HOME);
+      expect(footerService.updateCurrentStateIndex).toHaveBeenCalledWith(0);
+    });
 
-  it('updateFooterState() should set currentActiveState for my_reports', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const component = fixture.debugElement.componentInstance;
-    component.currentPath = 'my_reports';
-    component.updateFooterState(null);
-    expect(component.currentActiveState).toBe(FooterState.REPORTS);
-  });
+    it('should set currentActiveState for my_expenses', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+      component.currentPath = 'my_expenses';
+      (component as any).updateFooterState(null);
+      expect(component.currentActiveState).toBe(FooterState.EXPENSES);
+    });
 
-  it('updateFooterState() should set currentActiveState to null for other paths', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const component = fixture.debugElement.componentInstance;
-    component.currentPath = 'some_other_path';
-    component.updateFooterState(null);
-    expect(component.currentActiveState).toBeNull();
+    it('should set currentActiveState for my_reports', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+      component.currentPath = 'my_reports';
+      (component as any).updateFooterState(null);
+      expect(component.currentActiveState).toBe(FooterState.REPORTS);
+    });
+
+    it('should set currentActiveState to null for other paths', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+      component.currentPath = 'some_other_path';
+      (component as any).updateFooterState(null);
+      expect(component.currentActiveState).toBeNull();
+    });
   });
 
   it('getTotalTasksCount() should update totalTasksCount when connected', () => {
@@ -676,6 +744,127 @@ describe('AppComponent', () => {
 
       expect(component.isOnline).toBeFalse();
     });
+
+    it('should call showSideMenuOnline after onSetToken callback when online (setTimeout 500ms)', () => {
+      jasmine.clock().install();
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSideNav');
+      spyOn(component, 'getShowFooter');
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(true);
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+      jasmine.clock().tick(500);
+
+      expect(component.sidemenuRef.showSideMenuOnline).toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOffline).not.toHaveBeenCalled();
+      jasmine.clock().uninstall();
+    });
+
+    it('should call showSideMenuOffline after onSetToken callback when offline (setTimeout 500ms)', () => {
+      jasmine.clock().install();
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSideNav');
+      spyOn(component, 'getShowFooter');
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(false);
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+      jasmine.clock().tick(500);
+
+      expect(component.sidemenuRef.showSideMenuOffline).toHaveBeenCalled();
+      expect(component.sidemenuRef.showSideMenuOnline).not.toHaveBeenCalled();
+      jasmine.clock().uninstall();
+    });
+
+    it('should call setSideNav during ngOnInit', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      const setSidenavSpy = spyOn(component, 'setSideNav');
+      spyOn(component, 'getShowFooter');
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(true);
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      expect(setSidenavSpy).toHaveBeenCalled();
+    });
+
+    it('should run onLogout callback and reset state and navigate to sign_in', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const component = fixture.debugElement.componentInstance;
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'setSideNav');
+      spyOn(component, 'getShowFooter');
+
+      component.sidemenuRef = {
+        showSideMenuOnline: jasmine.createSpy('showSideMenuOnline'),
+        showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
+      } as any;
+      component.isConnected$ = of(true);
+      component.isSwitchedToDelegator = true;
+      (router as any).events = of(new NavigationEnd(1, '/test', '/test'));
+
+      component.ngOnInit();
+
+      // Invoke the onLogout callback that was registered in ngOnInit
+      const onLogoutCallback = userEventService.onLogout.calls.mostRecent()?.args[0];
+      expect(onLogoutCallback).toBeDefined();
+      onLogoutCallback();
+
+      expect(trackingService.onSignOut).toHaveBeenCalled();
+      expect(freshChatService.destroy).toHaveBeenCalled();
+      expect(pushNotificationService.unregister).toHaveBeenCalled();
+      expect(component.isSwitchedToDelegator).toBeFalse();
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'sign_in']);
+    });
+  });
+
+  describe('app version check (platform.ready)', () => {
+    it('should eventTrack Auto Logged out and navigate to app_version when user app version is unsupported', async () => {
+      const appSupportMessage = 'Please update your app';
+      const userAppVersionDetails = {
+        appSupportDetails: { message: appSupportMessage, supported: false },
+        lastLoggedInVersion: '5.0.0',
+        deviceInfo: extendedDeviceInfoMockData,
+        eou: {},
+      };
+      appVersionService.getUserAppVersionDetails.and.returnValue(of(userAppVersionDetails as any));
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+
+      const fixture = TestBed.createComponent(AppComponent);
+      await fixture.whenStable();
+
+      expect(trackingService.eventTrack).toHaveBeenCalledWith('Auto Logged out', {
+        lastLoggedInVersion: '5.0.0',
+        appVersion: extendedDeviceInfoMockData.appVersion,
+      });
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'app_version', { message: appSupportMessage }]);
+    });
   });
 
   describe('handleAppShortcut', () => {
@@ -707,6 +896,47 @@ describe('AppComponent', () => {
 
       expect(trackingService.appShortcutUsed).toHaveBeenCalledWith({ action: 'unknown_shortcut' });
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_dashboard']);
+    });
+  });
+
+  describe('initializeApp (Capacitor.isNativePlatform)', () => {
+    it('should call pushNotificationService.initializeNotificationClickListener when native platform', () => {
+      capacitorIsNativePlatformSpy.and.returnValue(true);
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(pushNotificationService.initializeNotificationClickListener).toHaveBeenCalled();
+    });
+
+    it('should not call pushNotificationService.initializeNotificationClickListener when not native platform', () => {
+      capacitorIsNativePlatformSpy.and.returnValue(false);
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(pushNotificationService.initializeNotificationClickListener).not.toHaveBeenCalled();
+    });
+
+  });
+
+  describe('App.addListener(\'appUrlOpen\')', () => {
+    it('should register appUrlOpen listener and on callback call getJsonFromUrl then redirect inside zone', () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      fixture.detectChanges();
+
+      expect(appUrlOpenCallback).not.toBeNull();
+      const mockJson = { redirect_uri: 'https://staging.fylehq.ninja/app/main/#/enterprise/reports/xyz' };
+      deepLinkService.getJsonFromUrl.and.returnValue(mockJson);
+
+      appUrlOpenCallback!({ url: 'https://fyle.app.link/branchio_redirect?redirect_uri=...' });
+
+      expect(deepLinkService.getJsonFromUrl).toHaveBeenCalledWith('https://fyle.app.link/branchio_redirect?redirect_uri=...');
+      expect(deepLinkService.redirect).toHaveBeenCalledWith(mockJson);
+    });
+
+    it('should call App.addListener with \'appUrlOpen\'', () => {
+      TestBed.createComponent(AppComponent);
+
+      expect((App as any).addListener).toHaveBeenCalledWith('appUrlOpen', jasmine.any(Function));
     });
   });
 });

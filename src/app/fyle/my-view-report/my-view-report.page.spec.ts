@@ -221,7 +221,10 @@ describe('MyViewReportPage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
-        { provide: NavController, useValue: { push: NavController.prototype.back } },
+        {
+          provide: NavController,
+          useValue: { push: jasmine.createSpy('push'), back: jasmine.createSpy('back') },
+        },
         ...getFormatPreferenceProviders(),
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
@@ -693,7 +696,7 @@ describe('MyViewReportPage', () => {
     component.deleteReportPopup(platformReportData);
     tick(2000);
 
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(platformReportData);
     expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteReportPopupParams(platformReportData));
   }));
@@ -721,7 +724,7 @@ describe('MyViewReportPage', () => {
     click(resubmitButton);
 
     expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
       panelClass: ['msb-success-with-camera-icon'],
@@ -782,7 +785,7 @@ describe('MyViewReportPage', () => {
       cssClass: 'pop-up-in-center',
     });
     expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
       panelClass: ['msb-success-with-camera-icon'],

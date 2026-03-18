@@ -94,8 +94,6 @@ describe('TeamAdvancePage', () => {
       sortDir: null,
     });
     component.filters = {};
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {

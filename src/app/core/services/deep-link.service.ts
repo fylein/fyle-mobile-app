@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Redirect } from '../models/redirect.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { TrackingService } from './tracking.service';
+import { FilterState } from '../enums/filter-state.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -65,8 +66,21 @@ export class DeepLinkService {
           properties.push_notification_type = notificationType;
         }
         this.router.navigate(['/', 'deep_link_redirection', properties]);
-      } else if (redirectUri.match('/my_expenses/') && redirectUri.split('txnId=').pop().length === 12) {
-        const txnId = redirectUri.split('txnId=').pop();
+      } else if (redirectUri.match('/my_expenses/') && redirectUri.match('state=draft')) {
+        const filters = {
+          state: [FilterState.DRAFT],
+        };
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+          queryParams: {
+            filters: JSON.stringify(filters),
+          },
+        });
+      } else if (
+        redirectUri.match('/my_expenses/') &&
+        redirectUri.includes('txnId=') &&
+        redirectUri.match(/txnId=([^&]+)/)?.[1]?.length === 12
+      ) {
+        const txnId = redirectUri.match(/txnId=([^&]+)/)?.[1];
         const subModule = 'expense';
         const properties: Record<string, string> = {
           sub_module: subModule,

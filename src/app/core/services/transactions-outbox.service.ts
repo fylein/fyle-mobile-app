@@ -61,13 +61,17 @@ export class TransactionsOutboxService {
   }
 
   private handleSyncError(err: HttpErrorResponse): void {
-    const error = err.error as PlatformApiError;
+    const errorObject = err.error as PlatformApiError;
     // handle platform API error and s3 upload error messages
     const trackingError = {
-      data: error && 'data' in error ? error.data : undefined,
+      error: {
+        data: errorObject && 'data' in errorObject ? errorObject.data : undefined,
+        message: errorObject && 'message' in errorObject ? errorObject.message : undefined,
+        error: errorObject && 'error' in errorObject ? errorObject.error : undefined,
+      },
       errorMessage: err.message,
     };
-    this.trackingService.syncError({ label: trackingError });
+    this.trackingService.syncError(trackingError);
   }
 
   get singleCaptureCount(): number {

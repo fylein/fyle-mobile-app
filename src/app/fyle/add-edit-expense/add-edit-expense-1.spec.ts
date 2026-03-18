@@ -270,6 +270,7 @@ export function TestCases1(getTestBed) {
         component.goBack();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
           queryParams: undefined,
+          replaceUrl: true,
         });
       });
     });
