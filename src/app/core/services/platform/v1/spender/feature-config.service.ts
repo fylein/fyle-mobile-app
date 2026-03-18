@@ -1,12 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
-import { Observable, Subject, from, map, switchMap } from 'rxjs';
-import { FeatureConfig } from 'src/app/core/models/feature-config.model';
+import { Observable, Subject, from, map, of, switchMap, tap } from 'rxjs';
+import { FeatureConfig, FeatureConfigMinimal } from 'src/app/core/models/feature-config.model';
 import { AuthService } from '../../../auth.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
+import { StorageService } from '../../../storage.service';
 
 const featureConfigCacheBuster$ = new Subject<void>();
+
+const FEATURE_CONFIGS_STORAGE_KEY = 'feature_configs';
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +18,53 @@ export class FeatureConfigService {
   private spenderPlatformV1ApiService = inject(SpenderPlatformV1ApiService);
 
   private authService = inject(AuthService);
+
+  private storageService = inject(StorageService);
+
+  @Cacheable({
+    cacheBusterObserver: featureConfigCacheBuster$,
+    cacheHasher: () => 'feature_configs_spender',
+  })
+  getAll<T>(): Observable<FeatureConfigMinimal<T>[]> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((extendedOrgUser) => {
+        return from(this.storageService.get<FeatureConfigMinimal<T>[]>(FEATURE_CONFIGS_STORAGE_KEY)).pipe(
+          switchMap((cached) => {
+            if (cached?.length > 0) {
+              return of(cached);
+            }
+            return this.spenderPlatformV1ApiService
+              .get<PlatformApiResponse<FeatureConfig<T>[]>>('/feature_configs', {
+                params: {
+                  target_client: 'eq.MOBILEAPP',
+                  user_id: `eq.${extendedOrgUser.us.id}`,
+                },
+              })
+              .pipe(
+                map(({data}) => {
+                  const minimalData = data.map((config) => ({
+                    feature: config.feature,
+                    key: config.key,
+                    value: config.value,
+                  }));
+                  void this.storageService.set(FEATURE_CONFIGS_STORAGE_KEY, minimalData);
+                  return minimalData;
+                }),
+              );
+          }),
+        );
+      }),
+    );
+  }
+
+  getByFeatureAndKey<T>(feature: string, key: string): Observable<FeatureConfigMinimal<T>> {
+    return this.getAll<T>().pipe(
+      map(
+        (configs) =>
+          configs.find((config) => config.feature === feature && config.key === key) ?? null,
+      ),
+    );
+  }
 
   @Cacheable({
     cacheBusterObserver: featureConfigCacheBuster$,
@@ -63,6 +113,8 @@ export class FeatureConfigService {
       data: [params],
     };
 
-    return this.spenderPlatformV1ApiService.post('/feature_configs/bulk', payload);
+    return this.spenderPlatformV1ApiService.post<void>('/feature_configs/bulk', payload).pipe(
+      tap(() => this.storageService.delete(FEATURE_CONFIGS_STORAGE_KEY)),
+    );
   }
 }

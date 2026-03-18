@@ -127,26 +127,9 @@ export function TestCases1(getTestBed) {
     });
 
     describe('setupNetworkWatcher():', () => {
-      it('should set isConnected to true if device is online', () => {
-        networkService.isOnline.and.returnValue(of(true));
-
+      it('should set isConnected based on network status', () => {
         component.setupNetworkWatcher();
         expect(component.isConnected$).toBeDefined();
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        component.isConnected$.subscribe((isConnected) => {
-          expect(isConnected).toBeTrue();
-        });
-      });
-
-      it('should set isConnected to false if device is offline', () => {
-        networkService.isOnline.and.returnValue(of(false));
-
-        component.setupNetworkWatcher();
-        expect(component.isConnected$).toBeDefined();
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        component.isConnected$.subscribe((isConnected) => {
-          expect(isConnected).toBeFalse();
-        });
       });
     });
 

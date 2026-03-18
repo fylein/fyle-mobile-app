@@ -117,7 +117,9 @@ describe('AppComponent', () => {
     const freshChatServiceSpy = jasmine.createSpyObj('FreshChatService', ['destroy']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'setOnboardingStatusAsComplete',
-    ]);
+    ], {
+      onboardingComplete$: of(false),
+    });
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex', 'updateSelectionMode'], {
       selectionMode$: of(false),
       footerCurrentStateIndex$: of(1),
@@ -243,7 +245,6 @@ describe('AppComponent', () => {
     it('should initialize after view is ready', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.componentInstance;
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Mock sidemenuRef
@@ -294,7 +295,6 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
 
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Trigger token set event
@@ -314,7 +314,6 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
 
-      component.isUserLoggedIn = true;
       component.isOnline = false;
 
       // Trigger token set event
@@ -330,7 +329,6 @@ describe('AppComponent', () => {
       const component = fixture.componentInstance;
 
       component.sidemenuRef = null;
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Trigger token set event
@@ -594,7 +592,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
@@ -613,7 +611,7 @@ describe('AppComponent', () => {
 
       expect(component.setupNetworkWatcher).toHaveBeenCalled();
       expect(component.totalTasksCount).toBe(0);
-      expect(component.setSidenavPostOnboarding).toHaveBeenCalled();
+      expect(component.setSideNav).toHaveBeenCalled();
       expect(component.getShowFooter).toHaveBeenCalled();
       expect(gmapsService.loadLibrary).toHaveBeenCalled();
     });
@@ -623,7 +621,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
@@ -655,7 +653,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
