@@ -223,7 +223,14 @@ export class DeepLinkRedirectionPage {
 
   async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
-    const currentEou = await this.authService.getEou();
+    let currentEou;
+    try {
+      currentEou = await this.authService.getEou();
+    } catch {
+      await this.loaderService.hideLoader();
+      this.switchOrg();
+      return;
+    }
     const orgId = this.activatedRoute.snapshot.params.orgId as string;
     const pushNotificationType = this.activatedRoute.snapshot.params.push_notification_type as string;
     if (orgId && orgId !== currentEou.ou.org_id) {
@@ -255,7 +262,8 @@ export class DeepLinkRedirectionPage {
         }
         this.router.navigate([...route, params]);
       },
-      () => {
+      async () => {
+        await this.loaderService.hideLoader();
         this.switchOrg();
       },
       async () => {
