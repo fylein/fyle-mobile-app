@@ -23,6 +23,7 @@ import { TestCases1 } from './add-edit-advance-request-1.page.spec';
 import { UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TestCases2 } from './add-edit-advance-request-2.page.spec';
+import { BehaviorSubject } from 'rxjs';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
@@ -57,7 +58,7 @@ describe('AddEditAdvanceRequestPage', () => {
     ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['isOnline'], {
-      isConnected$: of(true),
+      isConnected$: new BehaviorSubject(true),
     });
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
