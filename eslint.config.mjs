@@ -137,7 +137,7 @@ export default defineConfig([
       "@fyle/i18n-key-naming-convention": "error",
       "@fyle/no-hardcoded-strings": "warn",
       "@fyle/no-datepipe-transform-format-arg": "error",
-      "@fyle/no-mutate-display-format-tokens": "error",
+      "@fyle/no-date-currency-mutation": "error",
 
       "@typescript-eslint/no-restricted-imports": ["error", {
         paths: [
@@ -154,7 +154,7 @@ export default defineConfig([
     files: ["src/app/core/services/config.service.ts"],
     rules: {
       // ConfigService is the single place allowed to update DATE_PIPE_DEFAULT_OPTIONS and FORMAT_PREFERENCES.
-      "@fyle/no-mutate-display-format-tokens": "off",
+      "@fyle/no-date-currency-mutation": "off",
     },
   },
   {
