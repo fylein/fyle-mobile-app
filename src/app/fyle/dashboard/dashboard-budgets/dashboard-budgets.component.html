@@ -13,17 +13,11 @@
           }
         </div>
       }
-      <swiper
-        #swiper
-        class="dashboard-budgets__swiper"
-        [slidesPerView]="1.1"
-        [spaceBetween]="16"
-        [pagination]="pagination"
-        [centeredSlides]="budgets().length === 1"
-      >
-        @for (budget of budgets(); track budget.id) {
-          <ng-template swiperSlide>
-            <div class="dashboard-budgets__item">
+      <div class="swiper dashboard-budgets__swiper" #swiperContainer>
+        <div class="swiper-wrapper">
+          @for (budget of budgets(); track budget.id) {
+            <div class="swiper-slide">
+              <div class="dashboard-budgets__item">
               <!-- Header -->
               <div class="dashboard-budgets__item-header">
                 <div class="dashboard-budgets__item-header-container">
@@ -126,10 +120,12 @@
                   </div>
                 </div>
               </div>
+              </div>
             </div>
-          </ng-template>
-        }
-      </swiper>
+          }
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
     }
   }
 </div>

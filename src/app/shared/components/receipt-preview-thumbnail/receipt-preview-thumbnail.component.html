@@ -51,15 +51,15 @@
     </div>
   }
 
-  <swiper
-    #slides
-    (onSwiper)="getActiveIndex()"
-    (slideChange)="getActiveIndex()"
-    [slidesPerView]="1"
-    [spaceBetween]="80"
+  <swiper-container
+    #swiperElement
+    (swiperinit)="getActiveIndex()"
+    (swiperslidechange)="getActiveIndex()"
+    slides-per-view="1"
+    space-between="80"
   >
     @for (attachment of attachments; track attachment) {
-      <ng-template swiperSlide>
+      <swiper-slide>
         <div class="receipt-preview-thumbnail--container" (click)="previewAttachments()">
           @if (attachment?.type !== 'pdf') {
             <pinch-zoom class="pinch-zoom" disableZoomControl="disable" backgroundColor="white">
@@ -85,7 +85,7 @@
             </div>
           }
         </div>
-      </ng-template>
+      </swiper-slide>
     }
-  </swiper>
+  </swiper-container>
 </div>

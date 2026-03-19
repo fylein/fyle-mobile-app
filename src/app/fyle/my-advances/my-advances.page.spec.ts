@@ -76,7 +76,9 @@ describe('MyAdvancesPage', () => {
       'getSpenderAdvances',
       'destroyAdvancesCacheBuster',
     ]);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const filtersHelperServiceSpy = jasmine.createSpyObj('FiltersHelperService', [
       'generateFilterPills',
       'openFilterModal',
@@ -168,14 +170,11 @@ describe('MyAdvancesPage', () => {
   });
 
   it('setupNetworkWatcher(): should setup a network watcher', (done) => {
-    networkService.connectivityWatcher.and.returnValue(null);
-    networkService.isOnline.and.returnValue(of(true));
     spyOn(component, 'redirectToDashboardPage');
 
     component.setupNetworkWatcher();
 
-    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+    expect(component.isConnected$).toBeDefined();
     expect(component.redirectToDashboardPage).toHaveBeenCalledTimes(1);
     component.isConnected$.subscribe((res) => {
       expect(res).toBeTrue();

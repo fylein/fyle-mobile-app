@@ -187,7 +187,7 @@ describe('AuthService', () => {
           expect(apiService.post).toHaveBeenCalledTimes(2);
         }),
         finalize(() => {
-          expect(storageService.delete).toHaveBeenCalledWith('recentlyUsedProjects');
+          expect(storageService.delete).toHaveBeenCalledWith('feature_configs');
         }),
       )
       .subscribe(noop);
@@ -197,6 +197,8 @@ describe('AuthService', () => {
   it('newRefreshToken(): should refresh new token', (done) => {
     storageService.delete.withArgs('user').and.resolveTo(null);
     storageService.delete.withArgs('role').and.resolveTo(null);
+    storageService.delete.withArgs('feature_configs').and.resolveTo(null);
+    storageService.delete.withArgs('spenderOnboardingRedirect').and.resolveTo(null);
     tokenService.resetAccessToken.and.resolveTo({ value: true });
     tokenService.setRefreshToken.withArgs(access_token_2).and.resolveTo({ value: true });
     tokenService.getAccessToken.and.resolveTo(access_token);
@@ -208,7 +210,9 @@ describe('AuthService', () => {
       expect(res).toEqual(eouRes3);
       expect(storageService.delete).toHaveBeenCalledWith('user');
       expect(storageService.delete).toHaveBeenCalledWith('role');
-      expect(storageService.delete).toHaveBeenCalledTimes(2);
+      expect(storageService.delete).toHaveBeenCalledWith('feature_configs');
+      expect(storageService.delete).toHaveBeenCalledWith('spenderOnboardingRedirect');
+      expect(storageService.delete).toHaveBeenCalledTimes(4);
       expect(tokenService.resetAccessToken).toHaveBeenCalledOnceWith();
       expect(tokenService.setRefreshToken).toHaveBeenCalledOnceWith(access_token_2);
       expect(tokenService.setAccessToken).toHaveBeenCalledOnceWith(apiAuthResponseRes.access_token);

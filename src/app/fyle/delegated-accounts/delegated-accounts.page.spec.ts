@@ -111,8 +111,6 @@ describe('DelegatedAccountsPage', () => {
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -172,7 +170,7 @@ describe('DelegatedAccountsPage', () => {
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set delegatee acc list to empty array if no accounts are provided', fakeAsync(() => {
+    it('should set delegatee acc list to empty array if no accounts are provided', () => {
       component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
       const input = component.searchDelegatees.nativeElement;
       activatedRoute.snapshot.params.switchToOwn = null;
@@ -181,15 +179,16 @@ describe('DelegatedAccountsPage', () => {
       orgUserService.excludeByStatus.and.returnValue(null);
 
       component.ionViewWillEnter();
-      tick(500);
 
       input.value = 'ajain@fyle.in';
       input.dispatchEvent(new Event('keyup'));
-      tick(500);
+
+      fixture.detectChanges();
 
       expect(component.delegatedAccList).toEqual([]);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
-    }));
+    })
+    ;
   });
 });

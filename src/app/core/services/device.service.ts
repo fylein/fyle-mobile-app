@@ -6,6 +6,7 @@ import { forkJoin, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { environment } from 'src/environments/environment';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ import { environment } from 'src/environments/environment';
 export class DeviceService {
   constructor() {}
 
+  @Cacheable()
   getDeviceInfo(): Observable<ExtendedDeviceInfo> {
     return forkJoin({
       deviceInfo: Device.getInfo(),

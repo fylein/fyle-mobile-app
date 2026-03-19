@@ -1,35 +1,37 @@
-import { Component, OnInit, Input, ViewChild, DoCheck, inject, input, output } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, OnInit, Input, DoCheck, inject, input, output, viewChild } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { SwiperComponent, SwiperModule } from 'swiper/angular';
 import { NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { IonSpinner } from '@ionic/angular/standalone';
+import { SwiperContainer } from 'swiper/element';
 
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
   styleUrls: ['./receipt-preview-thumbnail.component.scss'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     IonSpinner,
     MatIcon,
     NgClass,
     PdfViewerModule,
     PinchZoomComponent,
-    SwiperModule,
     TranslocoPipe
   ],
 })
 export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   private trackingService = inject(TrackingService);
 
-  // TODO: Skipped for migration because:
-  //  Your application code writes to the query. This prevents migration.
-  @ViewChild('slides', { static: false }) imageSlides?: SwiperComponent;
+  readonly swiperElement = viewChild<ElementRef<SwiperContainer>>('swiperElement');
+
+  private get swiperRef() {
+    return this.swiperElement()?.nativeElement?.swiper;
+  }
 
   // TODO: Skipped for migration because:
   //  Your application code writes to the input. This prevents migration.
@@ -71,11 +73,11 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   goToNextSlide() {
-    this.imageSlides.swiperRef.slideNext(100);
+    this.swiperRef?.slideNext(100);
   }
 
   goToPrevSlide() {
-    this.imageSlides.swiperRef.slidePrev(100);
+    this.swiperRef?.slidePrev(100);
   }
 
   addAttachments(event) {
@@ -88,13 +90,13 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   }
 
   getActiveIndex() {
-    this.activeIndex = this.imageSlides.swiperRef.activeIndex;
+    this.activeIndex = this.swiperRef?.activeIndex ?? 0;
   }
 
   ngDoCheck() {
     if (this.attachments?.length !== this.previousCount) {
       this.previousCount = this.attachments.length;
-      timer(100).subscribe(() => this.imageSlides.swiperRef.slideTo(this.attachments.length));
+      timer(100).subscribe(() => this.swiperRef?.slideTo(this.attachments.length));
       this.getActiveIndex();
     }
   }
