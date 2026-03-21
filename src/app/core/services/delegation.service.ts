@@ -52,6 +52,25 @@ export class DelegationService {
     return this.storageService.get(this.scopesStorageKey);
   }
 
+  hasAllScope(scopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null): boolean {
+    return !!scopes?.includes('ALL');
+  }
+
+  canAccessAnyOfWithScopes(
+    scopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null,
+    required: ReadonlyArray<'SUBMIT' | 'APPROVE'>,
+  ): boolean {
+    if (!scopes) {
+      return false;
+    }
+
+    if (scopes.includes('ALL')) {
+      return true;
+    }
+
+    return scopes.some((s) => required.includes(s as 'SUBMIT' | 'APPROVE'));
+  }
+
   async canAccessAnyOf(required: ReadonlyArray<'SUBMIT' | 'APPROVE'>): Promise<boolean> {
     const inDelegateeMode = await this.inDelegateeMode();
     if (!inDelegateeMode) {
