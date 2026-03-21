@@ -318,6 +318,43 @@ describe('ViewPerDiemPage', () => {
       spyOn(component, 'getPolicyDetails');
     });
 
+    it('should not call delegation check when LD flag is disabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+      const activatedRoute = TestBed.inject(ActivatedRoute) as unknown as {
+        snapshot: { params: { view: ExpenseView } };
+      };
+
+      ldService.getVariation.and.returnValue(of(false));
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick();
+
+      expect(component.controlledDelegateAccessEnabled).toBeFalse();
+      expect(component.delegateeOwnedExpense()).toBeFalse();
+      expect(delegationService.isDelegateeOwnedExpense).not.toHaveBeenCalled();
+    }));
+
+    it('should compute delegateeOwnedExpense when LD flag is enabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+      const activatedRoute = TestBed.inject(ActivatedRoute) as unknown as {
+        snapshot: { params: { view: ExpenseView } };
+      };
+
+      ldService.getVariation.and.returnValue(of(true));
+      delegationService.isDelegateeOwnedExpense.and.resolveTo(true);
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick();
+
+      expect(component.controlledDelegateAccessEnabled).toBeTrue();
+      expect(delegationService.isDelegateeOwnedExpense).toHaveBeenCalledTimes(1);
+      expect(component.delegateeOwnedExpense()).toBeTrue();
+    }));
+
     it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
       component.ionViewWillEnter();
       component.perDiemExpense$

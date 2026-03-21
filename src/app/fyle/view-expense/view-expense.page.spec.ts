@@ -541,6 +541,37 @@ describe('ViewExpensePage', () => {
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
     });
 
+    it('should not call delegation check when LD flag is disabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+
+      ldService.getVariation.and.returnValue(of(false));
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick(0);
+
+      expect(component.controlledDelegateAccessEnabled).toBeFalse();
+      expect(component.delegateeOwnedExpense()).toBeFalse();
+      expect(delegationService.isDelegateeOwnedExpense).not.toHaveBeenCalled();
+    }));
+
+    it('should compute delegateeOwnedExpense when LD flag is enabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+
+      ldService.getVariation.and.returnValue(of(true));
+      delegationService.isDelegateeOwnedExpense.and.resolveTo(true);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick();
+
+      expect(component.controlledDelegateAccessEnabled).toBeTrue();
+      expect(delegationService.isDelegateeOwnedExpense).toHaveBeenCalledTimes(1);
+      expect(component.delegateeOwnedExpense()).toBeTrue();
+    }));
+
     it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
