@@ -52,6 +52,42 @@ export class DelegationService {
     return this.storageService.get(this.scopesStorageKey);
   }
 
+  async canAccessAnyOf(required: ReadonlyArray<'SUBMIT' | 'APPROVE'>): Promise<boolean> {
+    const inDelegateeMode = await this.inDelegateeMode();
+    if (!inDelegateeMode) {
+      return true;
+    }
+
+    const scopes = await this.getScopes();
+    if (!scopes) {
+      return false;
+    }
+
+    if (scopes.includes('ALL')) {
+      return true;
+    }
+
+    return scopes.some((s) => required.includes(s as 'SUBMIT' | 'APPROVE'));
+  }
+
+  canAccessSubmitFeatures(): Promise<boolean> {
+    return this.canAccessAnyOf(['SUBMIT']);
+  }
+
+  canAccessApproveFeatures(): Promise<boolean> {
+    return this.canAccessAnyOf(['APPROVE']);
+  }
+
+  async canAccessAllOnlyFeatures(): Promise<boolean> {
+    const inDelegateeMode = await this.inDelegateeMode();
+    if (!inDelegateeMode) {
+      return true;
+    }
+
+    const scopes = await this.getScopes();
+    return !!scopes?.includes('ALL');
+  }
+
   async inDelegateeMode(): Promise<boolean> {
     const accessToken = await this.tokenService.getAccessToken();
     const tokenPayload = this.jwtHelperService.decodeToken(accessToken) as AccessTokenData;
