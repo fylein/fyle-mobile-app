@@ -194,7 +194,7 @@ export class SidemenuComponent implements OnInit {
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        await this.setupSideMenu(isConnected, orgs, isDelegatee);
+        this.setupSideMenu(isConnected, orgs, isDelegatee);
       },
     );
   }
@@ -406,22 +406,12 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      from(this.delegationService.inDelegateeMode())
-        .pipe(
-          switchMap((isSwitchedToDelegator) => {
-            // When switched to a delegator account, skip onboarding checks entirely.
-            if (isSwitchedToDelegator) {
-              return of(false);
-            }
-            return this.spenderOnboardingService.checkForRedirectionToOnboarding();
-          }),
-        )
-        .subscribe((redirectionAllowed) => {
-          this.filteredSidemenuList = [
-            ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
-            ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
-          ];
-        });
+      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
+        this.filteredSidemenuList = [
+          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+        ];
+      });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }
