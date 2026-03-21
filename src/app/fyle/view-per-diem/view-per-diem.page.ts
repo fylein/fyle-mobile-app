@@ -53,6 +53,7 @@ import { SnakeCaseToSpaceCase } from '../../shared/pipes/snake-case-to-space-cas
 import { ExpenseState as ExpenseStatePipe } from '../../shared/pipes/expense-state.pipe';
 import { FyCurrencyPipe } from '../../shared/pipes/fy-currency.pipe';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -122,9 +123,13 @@ export class ViewPerDiemPage {
 
   private delegationService = inject(DelegationService);
 
+  private launchDarklyService = inject(LaunchDarklyService);
+
   perDiemExpense$: Observable<Expense>;
 
   readonly delegateeOwnedExpense = signal<boolean | null>(null);
+
+  controlledDelegateAccessEnabled = false;
 
   orgSettings: OrgSettings;
 
@@ -235,6 +240,7 @@ export class ViewPerDiemPage {
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
     this.delegateeOwnedExpense.set(null);
+    this.controlledDelegateAccessEnabled = false;
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
@@ -250,13 +256,25 @@ export class ViewPerDiemPage {
       shareReplay(1),
     );
 
-    this.perDiemExpense$
-      .pipe(
-        take(1),
-        switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
-      )
-      .subscribe((isDelegateeOwnedExpense) => {
-        this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+    this.launchDarklyService
+      .getVariation('controlled_delegate_access_enabled', false)
+      .pipe(take(1))
+      .subscribe((enabled) => {
+        this.controlledDelegateAccessEnabled = enabled;
+
+        if (!enabled || this.view !== ExpenseView.team) {
+          this.delegateeOwnedExpense.set(false);
+          return;
+        }
+
+        this.perDiemExpense$
+          .pipe(
+            take(1),
+            switchMap((expense) => from(this.delegationService.isDelegateeOwnedExpense(expense.user_id))),
+          )
+          .subscribe((isDelegateeOwnedExpense) => {
+            this.delegateeOwnedExpense.set(isDelegateeOwnedExpense);
+          });
       });
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));

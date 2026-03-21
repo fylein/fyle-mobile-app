@@ -14,6 +14,7 @@ import { ViewMileagePage } from './view-mileage.page';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular/standalone';
 import { DelegationService } from 'src/app/core/services/delegation.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
@@ -130,11 +131,14 @@ describe('ViewMileagePage', () => {
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
     const delegationServiceSpy = jasmine.createSpyObj('DelegationService', ['isDelegateeOwnedExpense']);
     delegationServiceSpy.isDelegateeOwnedExpense.and.resolveTo(false);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
+    launchDarklyServiceSpy.getVariation.and.returnValue(of(false));
 
     TestBed.configureTestingModule({
       imports: [ViewMileagePage],
       providers: [
         { provide: DelegationService, useValue: delegationServiceSpy },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
         {
           useValue: loaderServiceSpy,
           provide: LoaderService,
@@ -451,6 +455,37 @@ describe('ViewMileagePage', () => {
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
       spenderExpenseCommentService.getTransformedComments.and.returnValue(of(getEstatusApiResponse));
     });
+
+    it('should not call delegation check when LD flag is disabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+
+      ldService.getVariation.and.returnValue(of(false));
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick();
+
+      expect(component.controlledDelegateAccessEnabled).toBeFalse();
+      expect(component.delegateeOwnedExpense()).toBeFalse();
+      expect(delegationService.isDelegateeOwnedExpense).not.toHaveBeenCalled();
+    }));
+
+    it('should compute delegateeOwnedExpense when LD flag is enabled in team view', fakeAsync(() => {
+      const ldService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      const delegationService = TestBed.inject(DelegationService) as jasmine.SpyObj<DelegationService>;
+
+      ldService.getVariation.and.returnValue(of(true));
+      delegationService.isDelegateeOwnedExpense.and.resolveTo(true);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+
+      component.ionViewWillEnter();
+      tick();
+
+      expect(component.controlledDelegateAccessEnabled).toBeTrue();
+      expect(delegationService.isDelegateeOwnedExpense).toHaveBeenCalledTimes(1);
+      expect(component.delegateeOwnedExpense()).toBeTrue();
+    }));
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
       spyOn(component.updateFlag$, 'next');
