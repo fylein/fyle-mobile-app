@@ -138,36 +138,13 @@ export class StatsComponent implements OnInit {
   }
 
   initializeUnapprovedTeamReportsStats(): void {
-    const inDelegateeMode$ = from(this.delegationService.inDelegateeMode()).pipe(
+    this.canViewPersonalStats$ = from(this.delegationService.canAccessSubmitFeatures()).pipe(
       catchError(() => of(false)),
       shareReplay(1),
     );
-    const scopes$ = from(this.delegationService.getScopes()).pipe(
-      catchError(() => of(null)),
-      shareReplay(1),
-    );
 
-    this.canViewPersonalStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
-      map(({ inDelegateeMode, scopes }) => {
-        if (!inDelegateeMode) {
-          return true;
-        }
-
-        return !!scopes && (scopes.includes('ALL') || scopes.includes('SUBMIT'));
-      }),
-      shareReplay(1),
-    );
-
-    this.canViewTeamReportsStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
-      map(({ inDelegateeMode, scopes }) => {
-        // Base users: delegation scopes are irrelevant; let approver role decide.
-        if (!inDelegateeMode) {
-          return true;
-        }
-
-        // Delegatee mode: be strict; only APPROVE/ALL can see team stats.
-        return !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
-      }),
+    this.canViewTeamReportsStats$ = from(this.delegationService.canAccessApproveFeatures()).pipe(
+      catchError(() => of(false)),
       shareReplay(1),
     );
 
