@@ -28,12 +28,12 @@
 
 @use 'assets/fonts/font.css';
 @use 'theme/colors';
-
-@use 'swiper/scss';
-@use 'swiper/scss/navigation';
-@use 'swiper/scss/pagination';
 @use 'driver.js/dist/driver.css';
 @use '../src/assets/styles/fy_driver_tour';
+
+@import 'swiper/css';
+@import 'swiper/css/navigation';
+@import 'swiper/css/pagination';
 
 $header-input-interior: #eeeeee;
 
@@ -1355,7 +1355,7 @@ ion-popover.delete-button-class {
   margin-left: 0;
 }
 
-.opt-in-banners__swiper .swiper-wrapper {
+.opt-in-banners__swiper .swiper-wrapper .swiper-slide {
   margin-top: 0;
   padding-bottom: 16px;
 }

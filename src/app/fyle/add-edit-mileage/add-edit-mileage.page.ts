@@ -595,11 +595,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$;
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
 
@@ -837,7 +833,7 @@ export class AddEditMileagePage implements OnInit {
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.system_category?.toLowerCase() &&
             !!orgCategory.sub_category,
-        ); 
+        );
       }),
       shareReplay(1),
     );
@@ -963,15 +959,11 @@ export class AddEditMileagePage implements OnInit {
             recentValue &&
             recentValue.vehicle_types &&
             recentValue.vehicle_types.length > 0;
-          if (isRecentVehicleTypePresent) {
+          const mileageRatePresentForRecentVehicleType = isRecentVehicleTypePresent && mileageRates.find((mileageRate) => mileageRate.vehicle_type === recentValue.vehicle_types[0]);
+          if (isRecentVehicleTypePresent && mileageRatePresentForRecentVehicleType) {
             vehicleType = recentValue.vehicle_types[0];
             this.presetVehicleType = recentValue.vehicle_types[0];
-          }
-          if (
-            !isRecentVehicleTypePresent &&
-            mileageRates &&
-            mileageRates.length > 0
-          ) {
+          } else if (mileageRates && mileageRates.length > 0) {
             vehicleType = mileageRates[0].vehicle_type;
           }
 
@@ -1947,7 +1939,7 @@ export class AddEditMileagePage implements OnInit {
           recentCostCenters,
           commuteDeductionDetails,
         }) => {
-          this.expenseLevelBillable = (etxn?.tx?.billable ?? null);
+          this.expenseLevelBillable = etxn?.tx?.billable ?? null;
 
           if (project) {
             this.selectedProject$.next(project);
@@ -2189,7 +2181,7 @@ export class AddEditMileagePage implements OnInit {
     if (this.activatedRoute.snapshot.params.persist_filters || this.isRedirectedFromReport) {
       this.navController.back();
     } else {
-      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
     }
   }
 

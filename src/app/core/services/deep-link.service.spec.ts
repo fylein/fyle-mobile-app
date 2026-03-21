@@ -7,6 +7,7 @@ import { unflattenedTxnData } from '../mock-data/unflattened-txn.data';
 import { expenseRouteData } from '../test-data/deep-link.service.spec.data';
 import { appRoutes } from 'src/app/app-routes';
 import { fyleRoutes } from 'src/app/fyle/fyle.routes';
+import { FilterState } from '../enums/filter-state.enum';
 
 describe('DeepLinkService', () => {
   let deepLinkService: DeepLinkService;
@@ -89,6 +90,18 @@ describe('DeepLinkService', () => {
         'deep_link_redirection',
         { sub_module: 'expense', id: 'tx1oTNwgRdRq' },
       ]);
+    });
+
+    it('should navigate to my_expenses with draft filters when the redirect URI contains draft state', () => {
+      deepLinkService.redirect({
+        redirect_uri: `${baseURL}/my_expenses/?state=draft&org_id=orKaeO5xojOD`,
+      });
+
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: [FilterState.DRAFT] }),
+        },
+      });
     });
 
     it('should navigate to the verify page when the redirect URI contains "/verify"', () => {

@@ -295,9 +295,7 @@ export class TeamReportsPage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = this.networkService.isConnected$;
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);

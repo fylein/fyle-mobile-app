@@ -108,7 +108,9 @@ describe('MyViewReportPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: new BehaviorSubject(true),
+    });
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'deleteReport',
       'showToastMessage',
@@ -219,7 +221,10 @@ describe('MyViewReportPage', () => {
           provide: LaunchDarklyService,
           useValue: launchDarklyServiceSpy,
         },
-        { provide: NavController, useValue: { push: NavController.prototype.back } },
+        {
+          provide: NavController,
+          useValue: { push: jasmine.createSpy('push'), back: jasmine.createSpy('back') },
+        },
         ...getFormatPreferenceProviders(),
         { provide: TIMEZONE, useValue: new BehaviorSubject<string>('UTC') },
       ],
@@ -270,19 +275,15 @@ describe('MyViewReportPage', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should setup network watcher', () => {
-      networkService.isOnline.and.returnValue(of(true));
-
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
     });
 
     it('should navigate to dashboard if device is not online', () => {
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$.next(false);
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
   });
@@ -695,7 +696,7 @@ describe('MyViewReportPage', () => {
     component.deleteReportPopup(platformReportData);
     tick(2000);
 
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(platformReportData);
     expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteReportPopupParams(platformReportData));
   }));
@@ -723,7 +724,7 @@ describe('MyViewReportPage', () => {
     click(resubmitButton);
 
     expect(spenderReportsService.resubmit).toHaveBeenCalledWith(component.reportId);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
       panelClass: ['msb-success-with-camera-icon'],
@@ -784,7 +785,7 @@ describe('MyViewReportPage', () => {
       cssClass: 'pop-up-in-center',
     });
     expect(spenderReportsService.submit).toHaveBeenCalledWith(component.reportId);
-    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...properties,
       panelClass: ['msb-success-with-camera-icon'],

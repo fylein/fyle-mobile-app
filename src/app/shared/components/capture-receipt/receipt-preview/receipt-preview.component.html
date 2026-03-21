@@ -43,15 +43,15 @@
 </ion-header>
 
 <ion-content>
-  <swiper
+  <swiper-container
     #swiper
     class="full-height ion-slides"
-    [centeredSlides]="true"
-    [pagination]="false"
-    (activeIndexChange)="ionSlideDidChange()"
+    centered-slides="true"
+    pagination="false"
+    (swiperslidechange)="ionSlideDidChange()"
   >
     @for (base64ImageWithSource of base64ImagesWithSource; track $index; let i = $index) {
-      <ng-template swiperSlide>
+      <swiper-slide>
         <pinch-zoom class="receipt-preview__image-container">
           <img
             [src]="base64ImageWithSource.base64Image"
@@ -63,9 +63,9 @@
             }"
           />
         </pinch-zoom>
-      </ng-template>
+      </swiper-slide>
     }
-  </swiper>
+  </swiper-container>
 
   @if (base64ImagesWithSource.length > 1) {
     <div class="receipt-preview__controls">

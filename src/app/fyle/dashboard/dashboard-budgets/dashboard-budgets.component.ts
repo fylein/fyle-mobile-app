@@ -1,9 +1,15 @@
-import { Component, inject, input, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
-import SwiperCore, { Pagination } from 'swiper';
-import { PaginationOptions } from 'swiper/types';
-import { SwiperModule } from 'swiper/angular';
 import { IonSkeletonText, ModalController } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -11,17 +17,18 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatIcon } from '@angular/material/icon';
 import { BudgetTotalUtilisationInfoModalComponent } from './budget-total-utilisation-info-modal/budget-total-utilisation-info-modal.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-
-// install Swiper modules
-SwiperCore.use([Pagination]);
+import Swiper from 'swiper';
+import { Pagination } from 'swiper/modules';
 
 @Component({
   selector: 'app-dashboard-budgets',
   templateUrl: './dashboard-budgets.component.html',
   styleUrls: ['./dashboard-budgets.component.scss'],
-  imports: [TranslocoPipe, SwiperModule, IonSkeletonText, CommonModule, MatIcon, HumanizeCurrencyPipe],
+  imports: [TranslocoPipe, IonSkeletonText, CommonModule, MatIcon, HumanizeCurrencyPipe],
 })
-export class DashboardBudgetsComponent implements OnDestroy {
+export class DashboardBudgetsComponent implements AfterViewInit, OnDestroy {
+  readonly swiperContainer = viewChild<ElementRef<HTMLElement>>('swiperContainer');
+
   readonly budgets = input<Budget[]>([]);
 
   readonly homeCurrency = signal<string | null>(null);
@@ -30,12 +37,14 @@ export class DashboardBudgetsComponent implements OnDestroy {
 
   readonly areDashboardTabsEnabled = input<boolean>(false);
 
-  readonly pagination: PaginationOptions = {
+  readonly pagination = {
     dynamicBullets: true,
-    renderBullet(index, className): string {
+    renderBullet(index: number, className: string): string {
       return '<span class="dashboard-budgets ' + className + '"> </span>';
     },
   };
+
+  private swiperInstance: Swiper | null = null;
 
   private currencyService: CurrencyService = inject(CurrencyService);
 
@@ -54,9 +63,33 @@ export class DashboardBudgetsComponent implements OnDestroy {
       });
   }
 
+  ngAfterViewInit(): void {
+    this.initSwiper();
+  }
+
   ngOnDestroy(): void {
+    this.swiperInstance?.destroy(true, true);
+    this.swiperInstance = null;
     this.componentDestroyed$.next();
     this.componentDestroyed$.complete();
+  }
+
+  private initSwiper(): void {
+    if (this.swiperInstance) {
+      this.swiperInstance.destroy(true, true);
+      this.swiperInstance = null;
+    }
+    this.swiperInstance = new Swiper(this.swiperContainer().nativeElement, {
+      modules: [Pagination],
+      slidesPerView: 1.1,
+      spaceBetween: 16,
+      centeredSlides: this.budgets()?.length === 1,
+      pagination: {
+        el: '.swiper-pagination',
+        type: 'bullets',
+        ...this.pagination,
+      },
+    });
   }
 
   getCurrentBudgetType(budget: Budget): string {

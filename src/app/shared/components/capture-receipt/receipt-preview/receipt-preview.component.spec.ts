@@ -9,8 +9,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { PinchZoomComponent } from '@meddv/ngx-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
-import { SwiperComponent } from 'swiper/angular';
-import { Component, input } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { Subscription, of } from 'rxjs';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { CameraService } from 'src/app/core/services/camera.service';
@@ -27,25 +26,7 @@ describe('ReceiptPreviewComponent', () => {
   let utilityService: jasmine.SpyObj<UtilityService>;
   let cameraService: jasmine.SpyObj<CameraService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-
-  @Component({
-    selector: 'swiper',
-    template: '',
-    providers: [{ provide: SwiperComponent, useClass: SwiperStubComponent }],
-    imports: [MatIconModule, MatIconTestingModule, PinchZoomComponent],
-  })
-  class SwiperStubComponent {
-    readonly pagination = input(undefined);
-
-    readonly centeredSlides = input(undefined);
-
-    swiperRef = {
-      update: () => {},
-      activeIndex: 0,
-      slideNext: () => {},
-      slidePrev: () => {},
-    };
-  }
+  let swiperSpy: { update: jasmine.Spy; slideNext: jasmine.Spy; slidePrev: jasmine.Spy; activeIndex: number };
 
   const images = [
     {
@@ -65,17 +46,15 @@ describe('ReceiptPreviewComponent', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['webPathToBase64']);
     const cameraServiceSpy = jasmine.createSpyObj('CameraService', ['pickImages', 'checkPermissions']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt', 'eventTrack', 'discardReceipt']);
-    const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
     TestBed.configureTestingModule({
       imports: [
-        
         MatIconModule,
         MatIconTestingModule,
         getTranslocoTestingModule(),
         PinchZoomComponent,
         ReceiptPreviewComponent,
-        SwiperStubComponent,
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         Platform,
         {
@@ -120,8 +99,14 @@ describe('ReceiptPreviewComponent', () => {
     cameraService = TestBed.inject(CameraService) as jasmine.SpyObj<CameraService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     component.base64ImagesWithSource = images;
-    component.swiper = swiperSpy;
-    
+    swiperSpy = {
+      update: jasmine.createSpy('swiperUpdate'),
+      slideNext: jasmine.createSpy('swiperSlideNext'),
+      slidePrev: jasmine.createSpy('swiperSlidePrev'),
+      activeIndex: 0,
+    };
+    Object.defineProperty(component, 'swiperRef', { get: () => swiperSpy, configurable: true });
+
     // Mock CameraService.pickImages
     cameraService.pickImages.and.resolveTo({
       photos: [
@@ -160,10 +145,9 @@ describe('ReceiptPreviewComponent', () => {
 
   it('ionViewWillEnter(): should detet back button click', () => {
     spyOn(platform.backButton, 'subscribeWithPriority').and.callThrough();
-    spyOn(component.swiper.swiperRef, 'update').and.callThrough();
 
     component.ionViewWillEnter();
-    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
+    expect(swiperSpy.update).toHaveBeenCalledTimes(1);
   });
 
   it('ionViewWillLeave(): should unsubscribe when component is destroyed', () => {
@@ -380,7 +364,10 @@ describe('ReceiptPreviewComponent', () => {
     });
 
     it('should set activeIndex to 0 if swiperRef.activeIndex is null in deleteReceipt', async () => {
-      component.swiper = { swiperRef: { activeIndex: null, update: async () => {} } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ activeIndex: null, update: async () => {} }),
+        configurable: true,
+      });
       component.base64ImagesWithSource = [{ base64Image: 'img1' }, { base64Image: 'img2' }];
       component.activeIndex = 0;
       component.popoverController = {
@@ -405,21 +392,15 @@ describe('ReceiptPreviewComponent', () => {
   });
 
   it('goToNextSlide(): should go to the next slide', async () => {
-    spyOn(component.swiper.swiperRef, 'slideNext').and.callThrough();
-    spyOn(component.swiper.swiperRef, 'update').and.callThrough();
-
     await component.goToNextSlide();
-    expect(component.swiper.swiperRef.slideNext).toHaveBeenCalledTimes(1);
-    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
+    expect(swiperSpy.slideNext).toHaveBeenCalledTimes(1);
+    expect(swiperSpy.update).toHaveBeenCalledTimes(1);
   });
 
   it('goToPrevSlide(): should to the to previous slide', async () => {
-    spyOn(component.swiper.swiperRef, 'slidePrev').and.callThrough();
-    spyOn(component.swiper.swiperRef, 'update').and.callThrough();
-
     await component.goToPrevSlide();
-    expect(component.swiper.swiperRef.slidePrev).toHaveBeenCalledTimes(1);
-    expect(component.swiper.swiperRef.update).toHaveBeenCalledTimes(1);
+    expect(swiperSpy.slidePrev).toHaveBeenCalledTimes(1);
+    expect(swiperSpy.update).toHaveBeenCalledTimes(1);
   });
 
   it('ionSlideDidChange(): should detect slide change and update active index', () => {
@@ -457,7 +438,10 @@ describe('ReceiptPreviewComponent', () => {
       component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
       component.activeIndex = 0;
       component.rotatingDirection = null;
-      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ update: jasmine.createSpy() }),
+        configurable: true,
+      });
     });
 
     it('should return early if already rotating', () => {
@@ -503,7 +487,10 @@ describe('ReceiptPreviewComponent', () => {
       component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
       component.activeIndex = 0;
       component.rotatingDirection = null;
-      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ update: jasmine.createSpy() }),
+        configurable: true,
+      });
       component.rotateImage(1);
       tick(500);
       expect(component.base64ImagesWithSource[0].base64Image).toBe('data:image/jpeg;base64,rotated');
@@ -536,7 +523,10 @@ describe('ReceiptPreviewComponent', () => {
     }));
 
     it('should set activeIndex to 0 if swiperRef.activeIndex is null in deleteReceipt', async () => {
-      component.swiper = { swiperRef: { activeIndex: null, update: async () => {} } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ activeIndex: null, update: async () => {} }),
+        configurable: true,
+      });
       component.base64ImagesWithSource = [{ base64Image: 'img1' }, { base64Image: 'img2' }];
       component.activeIndex = 0;
       component.popoverController = {
@@ -551,7 +541,10 @@ describe('ReceiptPreviewComponent', () => {
     });
 
     it('should set activeIndex to 0 if swiperRef.activeIndex is null in ionSlideDidChange', async () => {
-      component.swiper = { swiperRef: { activeIndex: null } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ activeIndex: null }),
+        configurable: true,
+      });
       component.activeIndex = 1;
       await component.ionSlideDidChange();
       expect(component.activeIndex).toBe(0);
@@ -583,7 +576,10 @@ describe('ReceiptPreviewComponent', () => {
       component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
       component.activeIndex = 0;
       component.rotatingDirection = null;
-      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ update: jasmine.createSpy() }),
+        configurable: true,
+      });
       // Call with LEFT
       component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.LEFT);
       tick(10);
@@ -616,7 +612,10 @@ describe('ReceiptPreviewComponent', () => {
       component.base64ImagesWithSource = [{ base64Image: 'data:image/jpeg;base64,original' }];
       component.activeIndex = 0;
       component.rotatingDirection = null;
-      component.swiper = { swiperRef: { update: jasmine.createSpy() } } as any;
+      Object.defineProperty(component, 'swiperRef', {
+        get: () => ({ update: jasmine.createSpy() }),
+        configurable: true,
+      });
       // Call with RIGHT
       component.rotateImageData({ base64Image: 'data:image/jpeg;base64,original' }, component.RotationDirection.RIGHT);
       tick(10);

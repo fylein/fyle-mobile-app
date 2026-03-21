@@ -966,9 +966,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   loadData(event: { target?: { complete?: () => void } }): void {

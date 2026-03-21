@@ -114,9 +114,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   nativeSettings = NativeSettings;
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+    this.isOffline$ = this.networkService.isConnected$.pipe(
       map((connected) => !connected),
       shareReplay(1),
     );
@@ -202,7 +200,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
       .pipe(finalize(() => this.loaderService.hideLoader()))
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       });
   }
 
@@ -217,15 +215,18 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'add_edit_expense',
-        {
-          dataUrl: this.base64ImagesWithSource[0]?.base64Image,
-          canExtractData: isInstafyleEnabled,
-        },
-      ]);
+      this.router.navigate(
+        [
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          {
+            dataUrl: this.base64ImagesWithSource[0]?.base64Image,
+            canExtractData: isInstafyleEnabled,
+          },
+        ],
+        { replaceUrl: true },
+      );
     });
   }
 
@@ -294,33 +295,25 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   addPerformanceTrackers(): void {
-    this.orgService.getOrgs().subscribe((orgs) => {
-      const isMultiOrg = orgs.length > 1;
-
       if (
-        performance.getEntriesByName(PerfTrackers.captureSingleReceiptTime).length < 1 &&
+        performance.getEntriesByName(PerfTrackers.appLaunchToCaptureSingleReceiptTime).length < 1 &&
         performance.getEntriesByName(PerfTrackers.appLaunchTime).length < 2
       ) {
         // Time taken for capturing single receipt for the first time
         performance.mark(PerfTrackers.captureSingleReceiptTime);
 
         // Measure total time taken from launching the app to capturing first single receipt
-        performance.measure(PerfTrackers.captureSingleReceiptTime, PerfTrackers.appLaunchStartTime);
+        performance.measure(PerfTrackers.appLaunchToCaptureSingleReceiptTime,  PerfTrackers.appLaunchStartTime, PerfTrackers.captureSingleReceiptTime);
 
-        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
+        const appLaunchToCaptureSingleReceiptTime = performance.getEntriesByName(PerfTrackers.appLaunchToCaptureSingleReceiptTime);
 
         // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
+        const appLaunchToCaptureSingleReceiptTimeInSeconds = (appLaunchToCaptureSingleReceiptTime[0]?.duration / 1000)?.toFixed(3);
 
         this.trackingService.captureSingleReceiptTime({
-          'Capture receipt time': launchTimeDuration,
-          'Is logged in': isLoggedIn,
-          'Is multi org': isMultiOrg,
+          'Capture receipt time': appLaunchToCaptureSingleReceiptTimeInSeconds,
         });
       }
-    });
   }
 
   openReceiptPreviewModal(): void {
@@ -356,7 +349,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+        this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
       });
   }
 

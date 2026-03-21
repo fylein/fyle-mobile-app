@@ -18,6 +18,9 @@ import { of } from 'rxjs';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { PlatformApiError } from '../models/platform/platform-api-error.model';
+import { CurrencyService } from './currency.service';
+import { ParsedReceipt } from '../models/parsed_receipt.model';
+import { throwError } from 'rxjs';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -31,6 +34,7 @@ describe('TransactionsOutboxService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let platformEmployeeSettingsService: jasmine.SpyObj<PlatformEmployeeSettingsService>;
+  let currencyService: jasmine.SpyObj<CurrencyService>;
   const singleCaptureCountInSession = 0;
   let httpMock: HttpTestingController;
   let httpTestingController: HttpTestingController;
@@ -45,6 +49,7 @@ describe('TransactionsOutboxService', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post', 'syncError']);
     const platformEmployeeSettingsServiceSpy = jasmine.createSpyObj('PlatformEmployeeSettingsService', ['get']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
 
     TestBed.configureTestingModule({
       imports: [],
@@ -59,6 +64,7 @@ describe('TransactionsOutboxService', () => {
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: PlatformEmployeeSettingsService, useValue: platformEmployeeSettingsServiceSpy },
+        { provide: CurrencyService, useValue: currencyServiceSpy },
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
@@ -75,6 +81,7 @@ describe('TransactionsOutboxService', () => {
     platformEmployeeSettingsService = TestBed.inject(
       PlatformEmployeeSettingsService,
     ) as jasmine.SpyObj<PlatformEmployeeSettingsService>;
+    currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     httpMock = TestBed.inject(HttpTestingController);
     httpTestingController = TestBed.inject(HttpTestingController);
     transactionsOutboxService.setRoot(rootUrl);
@@ -135,6 +142,90 @@ describe('TransactionsOutboxService', () => {
       const res = transactionsOutboxService.isPDF(fileType);
       expect(res).toBeFalse();
     });
+  });
+
+  describe('parseReceipt():', () => {
+    const extractUrl = `${rootUrl}/data_extractor/extract`;
+    const mockParsedReceipt: ParsedReceipt = {
+      data: {
+        amount: 100,
+        currency: 'USD',
+        date: new Date('2024-01-15'),
+        vendor_name: 'Test Vendor',
+      },
+    };
+
+    it('should POST to data_extractor/extract with 000.jpeg when fileType is not pdf', fakeAsync(async () => {
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      const data = 'base64encodedImage';
+      const promise = transactionsOutboxService.parseReceipt(data);
+
+      tick();
+      const req = httpMock.expectOne(extractUrl);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body.files[0].name).toBe('000.jpeg');
+      expect(req.request.body.files[0].content).toBe(data);
+      expect(req.request.body.suggested_currency).toBe('USD');
+      req.flush(mockParsedReceipt);
+
+      const result = await promise;
+      expect(result).toEqual(mockParsedReceipt);
+    }));
+
+    it('should POST with 000.pdf when fileType is pdf', fakeAsync(async () => {
+      currencyService.getHomeCurrency.and.returnValue(of('INR'));
+      const data = 'base64encodedPdf';
+      const promise = transactionsOutboxService.parseReceipt(data, 'pdf');
+
+      tick();
+      const req = httpMock.expectOne(extractUrl);
+      expect(req.request.body.files[0].name).toBe('000.pdf');
+      expect(req.request.body.files[0].content).toBe(data);
+      expect(req.request.body.suggested_currency).toBe('INR');
+      req.flush(mockParsedReceipt);
+
+      const result = await promise;
+      expect(result).toEqual(mockParsedReceipt);
+    }));
+
+    it('should include suggested_currency from getHomeCurrency in request when getHomeCurrency succeeds', fakeAsync(async () => {
+      currencyService.getHomeCurrency.and.returnValue(of('EUR'));
+      const promise = transactionsOutboxService.parseReceipt('data');
+
+      tick();
+      const req = httpMock.expectOne(extractUrl);
+      expect(req.request.body.suggested_currency).toBe('EUR');
+      req.flush(mockParsedReceipt);
+
+      await promise;
+    }));
+
+    it('should still POST and resolve when getHomeCurrency fails (suggested_currency null)', fakeAsync(async () => {
+      currencyService.getHomeCurrency.and.returnValue(throwError(() => new Error('currency error')));
+      const promise = transactionsOutboxService.parseReceipt('data');
+
+      tick();
+      const req = httpMock.expectOne(extractUrl);
+      expect(req.request.body.suggested_currency).toBeNull();
+      req.flush(mockParsedReceipt);
+
+      const result = await promise;
+      expect(result).toEqual(mockParsedReceipt);
+    }));
+
+    it('should resolve with response as ParsedReceipt', fakeAsync(async () => {
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      const promise = transactionsOutboxService.parseReceipt('x');
+
+      tick();
+      const req = httpMock.expectOne(extractUrl);
+      req.flush(mockParsedReceipt);
+
+      const result = await promise;
+      expect(result).toEqual(mockParsedReceipt);
+      expect(result.data.amount).toBe(100);
+      expect(result.data.vendor_name).toBe('Test Vendor');
+    }));
   });
 
   it('uploadData(): should upload data', (done) => {
@@ -282,7 +373,7 @@ describe('TransactionsOutboxService', () => {
   });
 
   describe('handleSyncError():', () => {
-    it('should call trackingService.syncError with data and errorMessage when error has PlatformApiError shape with data', () => {
+    it('should call trackingService.syncError with error object and errorMessage when error has PlatformApiError shape with data', () => {
       const apiError: PlatformApiError<{ code: string }> = {
         data: { code: 'VALIDATION_ERROR' },
         error: 'Bad Request',
@@ -298,10 +389,12 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: { code: 'VALIDATION_ERROR' },
-          errorMessage: err.message,
+          message: 'Invalid payload',
+          error: 'Bad Request',
         },
+        errorMessage: err.message,
       });
     });
 
@@ -317,14 +410,16 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: undefined,
-          errorMessage: err.message,
+          message: 'Access denied',
+          error: 'Forbidden',
         },
+        errorMessage: err.message,
       });
     });
 
-    it('should call trackingService.syncError with undefined data when err.error is null', () => {
+    it('should call trackingService.syncError with undefined error fields when err.error is null', () => {
       const err = new HttpErrorResponse({
         error: null,
         status: 500,
@@ -335,10 +430,12 @@ describe('TransactionsOutboxService', () => {
       (transactionsOutboxService as any).handleSyncError(err);
 
       expect(trackingService.syncError).toHaveBeenCalledOnceWith({
-        label: {
+        error: {
           data: undefined,
-          errorMessage: err.message,
+          message: undefined,
+          error: undefined,
         },
+        errorMessage: err.message,
       });
     });
   });
