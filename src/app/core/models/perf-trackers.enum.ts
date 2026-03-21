@@ -7,4 +7,5 @@ export enum PerfTrackers {
   dashboardLaunchTime = 'dashboard launch time',
   onClickSwitchOrg = 'on click switch org',
   captureSingleReceiptTime = 'capture single receipt time',
+  appLaunchToCaptureSingleReceiptTime = 'app launch to capture single receipt time',
 }

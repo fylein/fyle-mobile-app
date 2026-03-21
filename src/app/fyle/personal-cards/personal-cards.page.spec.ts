@@ -100,7 +100,9 @@ describe('PersonalCardsPage', () => {
       'getMatchedExpensesSuggestions',
       'isMfaEnabled',
     ]);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(false),
+    });
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const inAppBrowserServiceSpy = jasmine.createSpyObj('InAppBrowserService', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -258,12 +260,11 @@ describe('PersonalCardsPage', () => {
     });
 
     it('setupNetworkWatcher(): should setup network watcher', () => {
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$ = of(false);
 
       component.setupNetworkWatcher();
 
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
 

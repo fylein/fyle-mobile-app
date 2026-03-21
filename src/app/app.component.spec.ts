@@ -14,7 +14,7 @@ import { FreshChatService } from './core/services/fresh-chat.service';
 import { SpenderOnboardingService } from './core/services/spender-onboarding.service';
 import { FooterService } from './core/services/footer.service';
 import { TasksService } from './core/services/tasks.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { FooterState } from './shared/components/footer/footer-state.enum';
 import { TrackingService } from './core/services/tracking.service';
 import { NavController } from '@ionic/angular/standalone';
@@ -127,14 +127,16 @@ describe('AppComponent', () => {
     appVersionServiceSpy.getUserAppVersionDetails.and.returnValue(of(null));
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['isLoggedIn']);
     routerAuthServiceSpy.isLoggedIn.and.returnValue(of(true));
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline'], {
-      isOnline$: of(true),
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
     });
     networkServiceSpy.isOnline.and.returnValue(of(true));
     const freshChatServiceSpy = jasmine.createSpyObj('FreshChatService', ['destroy']);
     const spenderOnboardingServiceSpy = jasmine.createSpyObj('SpenderOnboardingService', [
       'setOnboardingStatusAsComplete',
-    ]);
+    ], {
+      onboardingComplete$: new BehaviorSubject<boolean>(false),
+    });
     const footerServiceSpy = jasmine.createSpyObj('FooterService', ['updateCurrentStateIndex', 'updateSelectionMode'], {
       selectionMode$: of(false),
       footerCurrentStateIndex$: of(1),
@@ -264,7 +266,6 @@ describe('AppComponent', () => {
     it('should initialize after view is ready', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.componentInstance;
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Mock sidemenuRef
@@ -315,7 +316,6 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
 
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Trigger token set event
@@ -335,7 +335,6 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
 
-      component.isUserLoggedIn = true;
       component.isOnline = false;
 
       // Trigger token set event
@@ -351,7 +350,6 @@ describe('AppComponent', () => {
       const component = fixture.componentInstance;
 
       component.sidemenuRef = null;
-      component.isUserLoggedIn = true;
       component.isOnline = true;
 
       // Trigger token set event
@@ -363,7 +361,7 @@ describe('AppComponent', () => {
     });
   });
 
-  describe('setSidenavPostOnboarding():', () => {
+  describe('setSideNav():', () => {
     it('should call showSideMenuOnline when online after setting onboarding complete', () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.componentInstance;
@@ -373,11 +371,10 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
       component.isConnected$ = of(true);
-      spenderOnboardingService.setOnboardingStatusAsComplete.and.returnValue(of(null));
+      spenderOnboardingService.onboardingComplete$.next(true);
 
-      component.setSidenavPostOnboarding();
+      component.setSideNav();
 
-      expect(spenderOnboardingService.setOnboardingStatusAsComplete).toHaveBeenCalled();
       expect(component.sidemenuRef.showSideMenuOnline).toHaveBeenCalled();
       expect(component.sidemenuRef.showSideMenuOffline).not.toHaveBeenCalled();
     });
@@ -391,11 +388,10 @@ describe('AppComponent', () => {
         showSideMenuOffline: jasmine.createSpy('showSideMenuOffline'),
       } as any;
       component.isConnected$ = of(false);
-      spenderOnboardingService.setOnboardingStatusAsComplete.and.returnValue(of(null));
+      spenderOnboardingService.onboardingComplete$.next(true);
 
-      component.setSidenavPostOnboarding();
+      component.setSideNav();
 
-      expect(spenderOnboardingService.setOnboardingStatusAsComplete).toHaveBeenCalled();
       expect(component.sidemenuRef.showSideMenuOnline).not.toHaveBeenCalled();
       expect(component.sidemenuRef.showSideMenuOffline).toHaveBeenCalled();
     });
@@ -664,7 +660,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
@@ -683,7 +679,7 @@ describe('AppComponent', () => {
 
       expect(component.setupNetworkWatcher).toHaveBeenCalled();
       expect(component.totalTasksCount).toBe(0);
-      expect(component.setSidenavPostOnboarding).toHaveBeenCalled();
+      expect(component.setSideNav).toHaveBeenCalled();
       expect(component.getShowFooter).toHaveBeenCalled();
       expect(gmapsService.loadLibrary).toHaveBeenCalled();
     });
@@ -693,7 +689,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
@@ -725,7 +721,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       // Mock sidemenuRef to prevent undefined errors
@@ -755,7 +751,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       component.sidemenuRef = {
@@ -779,7 +775,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       component.sidemenuRef = {
@@ -797,12 +793,12 @@ describe('AppComponent', () => {
       jasmine.clock().uninstall();
     });
 
-    it('should call setSidenavPostOnboarding during ngOnInit', () => {
+    it('should call setSideNav during ngOnInit', () => {
       const fixture = TestBed.createComponent(AppComponent);
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      const setSidenavSpy = spyOn(component, 'setSidenavPostOnboarding');
+      const setSidenavSpy = spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       component.sidemenuRef = {
@@ -822,7 +818,7 @@ describe('AppComponent', () => {
       const component = fixture.debugElement.componentInstance;
 
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'setSidenavPostOnboarding');
+      spyOn(component, 'setSideNav');
       spyOn(component, 'getShowFooter');
 
       component.sidemenuRef = {

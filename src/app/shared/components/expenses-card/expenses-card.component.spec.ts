@@ -85,7 +85,9 @@ describe('ExpensesCardComponent', () => {
 
     fileServiceSpy.downloadUrl.and.returnValue(of('/assets/svg/list-plus.svg'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
       'isSyncInProgress',
       'fileUpload',
@@ -224,7 +226,6 @@ describe('ExpensesCardComponent', () => {
       return translation;
     });
 
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardV1Component);
     component = fixture.componentInstance;
 
@@ -818,8 +819,6 @@ describe('ExpensesCardComponent', () => {
   it('setupNetworkWatcher(): should setup the network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
     const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
-
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
       expect(connectionStatus).toBeTrue();
