@@ -18,7 +18,7 @@ export class VerifiedOrgAuthGuard {
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return forkJoin({
       eou: from(this.authService.getEou()),
-      passwordStatus: this.userService.getUserPasswordStatus(),
+      passwordStatus: this.userService.getUserPasswordStatusCached(),
     }).pipe(
       map(({ eou, passwordStatus }) => {
         const isPasswordSetRequired = passwordStatus.is_password_required && !passwordStatus.is_password_set;

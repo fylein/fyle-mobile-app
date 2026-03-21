@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, catchError, forkJoin, from, map, Observable, of, Subject } from 'rxjs';
+import { BehaviorSubject, catchError, forkJoin, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { OnboardingWelcomeStepStatus } from '../models/onboarding-welcome-step-status.model';
@@ -9,9 +9,13 @@ import { UtilityService } from './utility.service';
 import { AuthService } from './auth.service';
 import { PlatformOrgSettingsService } from './platform/v1/spender/org-settings.service';
 import { OrgSettings } from '../models/org-settings.model';
-import { Cacheable, CacheBuster } from 'ts-cacheable';
+import { StorageService } from './storage.service';
+import { Cacheable } from 'ts-cacheable';
 
-const spenderOnboardingCacheBuster$ = new Subject<void>();
+const SPENDER_ONBOARDING_REDIRECT_KEY = 'spenderOnboardingRedirect';
+
+const onboardingCompleteCacheBuster$ = new BehaviorSubject<boolean>(false);
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,12 +28,46 @@ export class SpenderOnboardingService {
 
   private orgSettingsService = inject(PlatformOrgSettingsService);
 
-  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(true);
+  private storageService = inject(StorageService);
 
-  @Cacheable({
-    cacheBusterObserver: spenderOnboardingCacheBuster$,
-  })
+  onboardingComplete$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
+  /**
+   * Public check: not cached. If user previously skipped onboarding (in-memory), never redirect again.
+   * Otherwise delegates to the cached API-based check.
+   */
   checkForRedirectionToOnboarding(): Observable<boolean> {
+    if (this.onboardingComplete$.getValue()) {
+      return of(false);
+    }
+    return this.shouldRedirectToOnboarding();
+  }
+
+  /**
+   * Cached (in-memory + storage) result from API/org settings. Used by checkForRedirectionToOnboarding.
+   */
+  @Cacheable({
+    cacheBusterObserver: onboardingCompleteCacheBuster$,
+  })
+  shouldRedirectToOnboarding(): Observable<boolean> {
+    return from(
+      this.storageService.get<{ shouldRedirectToOnboarding: boolean }>(SPENDER_ONBOARDING_REDIRECT_KEY),
+    ).pipe(
+      switchMap((cached) =>
+        cached
+          ? of(cached.shouldRedirectToOnboarding)
+          : this.runCheckForRedirectionToOnboarding().pipe(
+              tap((result) =>
+                this.storageService.set(SPENDER_ONBOARDING_REDIRECT_KEY, {
+                  shouldRedirectToOnboarding: result,
+                }),
+              ),
+            ),
+      ),
+    );
+  }
+
+  private runCheckForRedirectionToOnboarding(): Observable<boolean> {
     return forkJoin([
       this.orgSettingsService.get(),
       this.getOnboardingStatus(),
@@ -49,13 +87,6 @@ export class SpenderOnboardingService {
       }),
       catchError(() => of(false)),
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: spenderOnboardingCacheBuster$,
-  })
-  setOnboardingStatusAsComplete(): Observable<boolean> {
-    return this.onboardingComplete$.asObservable();
   }
 
   getOnboardingStatus(): Observable<OnboardingStatus> {
@@ -125,8 +156,10 @@ export class SpenderOnboardingService {
     return this.processSmsOptInStep(data);
   }
 
-  setOnboardingStatusEvent(): void {
+  setOnboardingComplete(): Promise<void> {
     this.onboardingComplete$.next(true);
+    onboardingCompleteCacheBuster$.next(true);
+    return this.storageService.set(SPENDER_ONBOARDING_REDIRECT_KEY, { shouldRedirectToOnboarding: false });
   }
 
   private checkCCCEnabled(orgSettings: OrgSettings): boolean {
