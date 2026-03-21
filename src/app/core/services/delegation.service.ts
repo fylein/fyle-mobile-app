@@ -54,9 +54,6 @@ export class DelegationService {
 
   async inDelegateeMode(): Promise<boolean> {
     const accessToken = await this.tokenService.getAccessToken();
-    if (!accessToken) {
-      return false;
-    }
     const tokenPayload = this.jwtHelperService.decodeToken(accessToken) as AccessTokenData;
     return !!tokenPayload?.proxy_org_user_id;
   }
