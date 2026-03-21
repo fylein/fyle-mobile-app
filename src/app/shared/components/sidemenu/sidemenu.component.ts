@@ -103,10 +103,7 @@ export class SidemenuComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   showSideMenuOffline(): void {
@@ -176,7 +173,14 @@ export class SidemenuComponent implements OnInit {
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
-        await this.delegationService.updateDelegationScopesFromEou(eou);
+
+        // Only relevant when switched to a delegator account; clear otherwise to avoid stale values.
+        const isInDelegateeMode = isSwitchedToDelegator;
+        if (isInDelegateeMode) {
+          await this.delegationService.updateDelegationScopesFromEou(eou);
+        } else {
+          await this.delegationService.setScopes(null);
+        }
         this.delegationInDelegateeMode = await this.delegationService.inDelegateeMode();
         this.delegationScopes = await this.delegationService.getScopes();
 
@@ -203,7 +207,7 @@ export class SidemenuComponent implements OnInit {
         }
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
-        await this.setupSideMenu(isConnected, orgs, isDelegatee);
+        this.setupSideMenu(isConnected, orgs, isDelegatee);
       },
     );
   }
@@ -444,28 +448,14 @@ export class SidemenuComponent implements OnInit {
     }
   }
 
-  reloadSidemenu(): void {
-    this.setupSideMenu();
-  }
-
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
-      from(this.delegationService.inDelegateeMode())
-        .pipe(
-          switchMap((isSwitchedToDelegator) => {
-            // When switched to a delegator account, skip onboarding checks entirely.
-            if (isSwitchedToDelegator) {
-              return of(false);
-            }
-            return this.spenderOnboardingService.checkForRedirectionToOnboarding();
-          }),
-        )
-        .subscribe((redirectionAllowed) => {
-          this.filteredSidemenuList = [
-            ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
-            ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
-          ];
-        });
+      this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
+        this.filteredSidemenuList = [
+          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+        ];
+      });
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }

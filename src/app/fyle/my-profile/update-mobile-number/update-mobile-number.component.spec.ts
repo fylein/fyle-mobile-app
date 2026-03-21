@@ -89,7 +89,6 @@ describe('UpdateMobileNumberComponent', () => {
       return translation;
     });
     component.extendedOrgUser = apiEouRes;
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -98,6 +97,7 @@ describe('UpdateMobileNumberComponent', () => {
 
   describe('ngOnInit(): ', () => {
     it('should set inputValue to mobile number', () => {
+      component.ngOnInit();
       expect(component.inputValue).toEqual('123456');
     });
 

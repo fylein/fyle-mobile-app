@@ -404,9 +404,9 @@ export class TasksService {
     teamReports: Observable<DashboardTask[]>;
     addCorporateCard: Observable<DashboardTask[]>;
   } {
-    const canViewExclusiveAllDelegateTasks = !!scopes && scopes.includes('ALL');
-    const canViewPersonalTasks = canViewExclusiveAllDelegateTasks || (!!scopes && scopes.includes('SUBMIT'));
-    const canViewTeamTasks = canViewExclusiveAllDelegateTasks || (!!scopes && scopes.includes('APPROVE'));
+    const canViewExclusiveAllDelegateTasks = this.delegationService.hasAllScope(scopes);
+    const canViewPersonalTasks = this.delegationService.canAccessAnyOfWithScopes(scopes, ['SUBMIT']);
+    const canViewTeamTasks = this.delegationService.canAccessAnyOfWithScopes(scopes, ['APPROVE']);
 
     return {
       mobileNumberVerification: this.gatedTasks$(canViewPersonalTasks, () => this.getMobileNumberVerificationTasks()),
@@ -634,18 +634,9 @@ export class TasksService {
       total_amount: 0,
     };
 
-    return from(this.delegationService.inDelegateeMode()).pipe(
-      switchMap((inDelegateeMode) => {
-        if (!inDelegateeMode) {
-          return from(this.authService.getEou());
-        }
-
-        return from(this.delegationService.getScopes()).pipe(
-          map((scopes) => !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'))),
-          catchError(() => of(false)),
-          switchMap((canAccessApproveStats) => (canAccessApproveStats ? from(this.authService.getEou()) : of(null))),
-        );
-      }),
+    return from(this.delegationService.canAccessApproveFeatures()).pipe(
+      catchError(() => of(false)),
+      switchMap((canAccessApproveStats) => (canAccessApproveStats ? from(this.authService.getEou()) : of(null))),
       switchMap((eou) => {
         if (!eou) {
           return of(zeroResponse);

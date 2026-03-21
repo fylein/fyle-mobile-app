@@ -86,11 +86,7 @@ export class StatsComponent implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   initializeReportStats(): void {
@@ -142,36 +138,13 @@ export class StatsComponent implements OnInit {
   }
 
   initializeUnapprovedTeamReportsStats(): void {
-    const inDelegateeMode$ = from(this.delegationService.inDelegateeMode()).pipe(
+    this.canViewPersonalStats$ = from(this.delegationService.canAccessSubmitFeatures()).pipe(
       catchError(() => of(false)),
       shareReplay(1),
     );
-    const scopes$ = from(this.delegationService.getScopes()).pipe(
-      catchError(() => of(null)),
-      shareReplay(1),
-    );
 
-    this.canViewPersonalStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
-      map(({ inDelegateeMode, scopes }) => {
-        if (!inDelegateeMode) {
-          return true;
-        }
-
-        return !!scopes && (scopes.includes('ALL') || scopes.includes('SUBMIT'));
-      }),
-      shareReplay(1),
-    );
-
-    this.canViewTeamReportsStats$ = combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$ }).pipe(
-      map(({ inDelegateeMode, scopes }) => {
-        // Base users: delegation scopes are irrelevant; let approver role decide.
-        if (!inDelegateeMode) {
-          return true;
-        }
-
-        // Delegatee mode: be strict; only APPROVE/ALL can see team stats.
-        return !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
-      }),
+    this.canViewTeamReportsStats$ = from(this.delegationService.canAccessApproveFeatures()).pipe(
+      catchError(() => of(false)),
       shareReplay(1),
     );
 
@@ -191,27 +164,8 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  trackOrgLaunchTime(isMultiOrg: boolean): void {
-    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
-      // Time taken for the app to launch and display the first screen
-      performance.mark(PerfTrackers.appLaunchEndTime);
-
-      // Measure time taken to launch app
-      performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
-
-      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-      const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
-
-      // Converting the duration to seconds and fix it to 3 decimal places
-      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
-
-      this.trackingService.appLaunchTime({
-        'App launch time': launchTimeDuration,
-        'Is logged in': isLoggedIn,
-        'Is multi org': isMultiOrg,
-      });
-    }
+  trackOrgLaunchTime(): void {
+    this.trackingService.trackAppLaunchTimeIfFirstScreen();
   }
 
   /*
@@ -236,14 +190,9 @@ export class StatsComponent implements OnInit {
     that.initializeReportStats();
     that.initializeExpensesStats();
     that.initializeUnapprovedTeamReportsStats();
+    this.trackOrgLaunchTime();
 
-    this.orgService.getOrgs().subscribe((orgs) => {
-      const isMultiOrg = orgs?.length > 1;
-
-      this.trackOrgLaunchTime(isMultiOrg);
-
-      this.trackDashboardLaunchTime();
-    });
+    this.trackDashboardLaunchTime();
   }
 
   ngOnInit(): void {

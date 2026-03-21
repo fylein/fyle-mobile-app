@@ -10,3 +10,9 @@ export interface FeatureConfig<T> {
   created_at: string;
   updated_at: string;
 }
+
+export interface FeatureConfigMinimal<T> {
+  feature: string;
+  key: string;
+  value: T;
+}

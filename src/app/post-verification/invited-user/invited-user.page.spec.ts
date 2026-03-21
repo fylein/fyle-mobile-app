@@ -52,7 +52,9 @@ describe('InvitedUserPage', () => {
   let spenderOnboardingService: jasmine.SpyObj<SpenderOnboardingService>;
 
   beforeEach(waitForAsync(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postUser', 'markActive']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou']);
@@ -107,7 +109,6 @@ describe('InvitedUserPage', () => {
     spenderOnboardingService = TestBed.inject(SpenderOnboardingService) as jasmine.SpyObj<SpenderOnboardingService>;
     orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
 
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));
     authService.getEou.and.resolveTo(currentEouRes);
     fixture = TestBed.createComponent(InvitedUserPage);
@@ -124,8 +125,6 @@ describe('InvitedUserPage', () => {
 
   it('ngOnInit(): should set the fullname value from eou$ and setup network watcher', fakeAsync(() => {
     networkService.isOnline.and.returnValue(of(true));
-    const eventEmitterMock = new EventEmitter<boolean>();
-    networkService.connectivityWatcher.and.returnValue(eventEmitterMock);
     component.eou$ = of(currentEouRes);
     component.fg.controls.fullName.setValue('Abhishek Jain');
     component.ngOnInit();

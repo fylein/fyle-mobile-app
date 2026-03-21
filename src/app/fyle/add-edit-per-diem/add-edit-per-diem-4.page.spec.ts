@@ -44,10 +44,7 @@ import { txnCustomProperties } from 'src/app/core/test-data/dependent-fields.ser
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { createExpenseProperties3, editExpenseProperties } from 'src/app/core/mock-data/track-expense-properties.data';
 import { expectedErptPlatform } from 'src/app/core/mock-data/report-unflattened.data';
-import { expenseStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { editExpensePropertiesPlatform } from 'src/app/core/mock-data/track-expense-properties.data';
 import { cloneDeep } from 'lodash';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';

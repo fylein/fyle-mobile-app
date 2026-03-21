@@ -42,14 +42,12 @@ import {
   paymentModesWithAdvanceWalletsResData,
   paymentModesWithZeroAdvanceWalletBalanceResData,
   unflattenedTransactionAdvanceWallet,
-  paymentModeDataAdvanceWallet,
   multiplePaymentModesWithCompanyAccData2,
   multiplePaymentModesWithCompanyAccData3,
   paymentModeDataAdvanceWallet2,
 } from '../test-data/accounts.service.spec.data';
 import { AccountsService } from './accounts.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { cloneDeep } from 'lodash';
 import { TranslocoService } from '@jsverse/transloco';
 
 const accountsCallResponse1 = [account1Data, account2Data];

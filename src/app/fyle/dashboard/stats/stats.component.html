@@ -1,7 +1,7 @@
 <div class="stats">
   <ion-grid class="stats--body">
-    @if (canViewPersonalStats$ | async) {
-      @if (isConnected$ | async) {
+    @if (isConnected$ | async; as isConnected) {
+      @if (canViewPersonalStats$ | async) {
         <ion-row class="stats--expenses-stats-row">
           <ion-col class="stats--expenses-stats-col">
             <div class="stats--header">
@@ -9,8 +9,6 @@
             </div>
           </ion-col>
         </ion-row>
-      }
-      @if (isConnected$ | async) {
         <ion-row>
           <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
             <app-stat-badge
@@ -37,8 +35,6 @@
             ></app-stat-badge>
           </ion-col>
         </ion-row>
-      }
-      @if (isConnected$ | async) {
         <ion-row class="stats--report-stats-row">
           <ion-col class="stats--report-stats-col">
             <div class="stats--header">
@@ -46,8 +42,6 @@
             </div>
           </ion-col>
         </ion-row>
-      }
-      @if (isConnected$ | async) {
         @if (reportStatsData$ | async; as reportStatsData) {
           <ion-row>
             <ion-col
@@ -160,65 +154,59 @@
           </ion-row>
         }
       }
-    }
-    @if (isConnected$ | async) {
       @if ((isUserAnApprover$ | async) && (isOrgPrimary$ | async) && (canViewTeamReportsStats$ | async)) {
-        @if (unapprovedTeamReportsStats$ | async) {
+        @if (unapprovedTeamReportsStats$ | async; as teamReportStats) {
           <div class="approval-pending-stat" id="approval-pending-stat">
-            @if (isConnected$ | async) {
-              <ion-row class="stats--report-stats-row-team">
-                <ion-col class="stats--report-stats-col">
-                  <div class="stats--header">
-                    <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
-                  </div>
-                </ion-col>
-              </ion-row>
-            }
-            @if (isConnected$ | async) {
-              <ion-row>
-                <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
-                  <app-stat-badge
-                    [currency]="homeCurrency$ | async"
-                    [currencySymbol]="currencySymbol$ | async"
-                    [name]="'stats.approvalPending' | transloco"
-                    [reportState]="ReportStates.UNAPPROVED_TEAM_REPORTS"
-                    [count]="(unapprovedTeamReportsStats$ | async)?.count"
-                    [value]="(unapprovedTeamReportsStats$ | async)?.total_amount"
-                    [loading]="isIncompleteExpensesStatsLoading"
-                    (badgeClicked)="goToTeamReportsPage($event)"
-                  ></app-stat-badge>
-                </ion-col>
-              </ion-row>
-            }
+            <ion-row class="stats--report-stats-row-team">
+              <ion-col class="stats--report-stats-col">
+                <div class="stats--header">
+                  <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
+                <app-stat-badge
+                  [currency]="homeCurrency$ | async"
+                  [currencySymbol]="currencySymbol$ | async"
+                  [name]="'stats.approvalPending' | transloco"
+                  [reportState]="ReportStates.UNAPPROVED_TEAM_REPORTS"
+                  [count]="teamReportStats.count"
+                  [value]="teamReportStats.total_amount"
+                  [loading]="isIncompleteExpensesStatsLoading"
+                  (badgeClicked)="goToTeamReportsPage($event)"
+                ></app-stat-badge>
+              </ion-col>
+            </ion-row>
           </div>
         } @else {
-          <ion-row class="stats--report-stats-row-team">
-            <ion-col class="stats--report-stats-col">
-              <div class="stats--header">
-                <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
-              </div>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
-              <app-stat-badge [loading]="true"></app-stat-badge>
-            </ion-col>
-          </ion-row>
+          @if (isUnapprovedTeamReportsStatsLoading) {
+            <ion-row class="stats--report-stats-row-team">
+              <ion-col class="stats--report-stats-col">
+                <div class="stats--header">
+                  <span>{{ 'stats.teamExpenseReports' | transloco }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top">
+                <app-stat-badge [loading]="true"></app-stat-badge>
+              </ion-col>
+            </ion-row>
+          }
         }
       }
+    } @else {
+      <div class="stats--zero-state">
+        <app-fy-zero-state
+          class="stats--zero-state"
+          image="../../../../assets/images/no-internet.svg"
+          [header]="'stats.offlineHeader' | transloco"
+          [message]="'stats.offlineMessage' | transloco"
+          [unscaledImage]="true"
+          [useNewStyling]="true"
+        ></app-fy-zero-state>
+      </div>
     }
   </ion-grid>
-
-  @if (!(isConnected$ | async)) {
-    <div class="stats--zero-state">
-      <app-fy-zero-state
-        class="stats--zero-state"
-        image="../../../../assets/images/no-internet.svg"
-        [header]="'stats.offlineHeader' | transloco"
-        [message]="'stats.offlineMessage' | transloco"
-        [unscaledImage]="true"
-        [useNewStyling]="true"
-      ></app-fy-zero-state>
-    </div>
-  }
 </div>
