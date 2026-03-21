@@ -57,8 +57,6 @@ import {
   orgSettingsData,
   paymentModeDataCCC,
   paymentModesData,
-  advanceWallet1Data,
-  multiplePaymentModesWithoutAdvData,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { employeeSettingsData } from 'src/app/core/mock-data/employee-settings.data';
 import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
@@ -74,7 +72,6 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoTax,
-  orgSettingsParamsWithAdvanceWallet,
 } from 'src/app/core/mock-data/org-settings.data';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';

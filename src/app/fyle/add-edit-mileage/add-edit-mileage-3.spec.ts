@@ -29,14 +29,7 @@ import {
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { createExpenseProperties4, editExpenseProperties1 } from 'src/app/core/mock-data/track-expense-properties.data';
-import { expenseStatusData, txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
-  editTransaction2,
-  editTransaction3,
-  editTransaction4,
-  editTransaction5,
-  editTransaction6,
-  editUnflattenedTransaction,
   editUnflattenedTransactionPlatform,
   editUnflattenedTransactionPlatform2,
   editUnflattenedTransactionPlatformWithAdvanceWallet,
@@ -50,9 +43,6 @@ import {
   unflattendedTxnWithPolicyAmount,
   unflattenedMileageDataWithPolicyAmount,
   unflattenedTxnData,
-  unflattenedTxnDataWithReportID,
-  unflattenedTxnDataWithReportID2UserReview,
-  unflattenedTxnDataWithSubCategory,
   unflattenedTxnWithTrackData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { AccountsService } from 'src/app/core/services/accounts.service';

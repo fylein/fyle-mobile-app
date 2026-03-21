@@ -2,7 +2,7 @@ import { EventEmitter, Injectable, inject } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Device } from '@capacitor/device';
 import { NetworkService } from './network.service';
-import { forkJoin, from, merge, Observable, of } from 'rxjs';
+import { forkJoin, from, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { map, take } from 'rxjs/operators';
@@ -212,9 +212,7 @@ export class RefinerService {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = merge(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   getRegion(homeCurrency: string): string {

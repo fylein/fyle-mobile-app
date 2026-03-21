@@ -1,3 +1,4 @@
+import { of } from 'rxjs';
 import { CurrencyPipe } from '@angular/common';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -100,7 +101,9 @@ describe('AddEditPerDiemPage', () => {
       'findLatestExpenseComment',
       'post',
     ]);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const advanceWalletsServiceSpy = jasmine.createSpyObj('AdvanceWalletsService', ['getAllAdvanceWallets']);
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);

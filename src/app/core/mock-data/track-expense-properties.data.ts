@@ -68,11 +68,6 @@ export const createExpenseProperties4: ExpenseProperties = deepFreeze({
   Used_Autofilled_StartLocation: true,
 });
 
-export const editExpenseProperties: ExpenseProperties = deepFreeze({
-  ...createExpenseProperties3,
-  Type: 'Per Diem',
-});
-
 export const editExpensePropertiesPlatform: ExpenseProperties = deepFreeze({
   Type: 'Per Diem',
   Amount: 2263.68,

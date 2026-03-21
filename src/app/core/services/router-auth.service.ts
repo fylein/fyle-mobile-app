@@ -88,11 +88,9 @@ export class RouterAuthService {
     await this.tokenService.setClusterDomain(domain);
   }
 
-  async newAccessToken(accessToken: string, scopes?: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null): Promise<void> {
+  async newAccessToken(accessToken: string, scopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'> | null): Promise<void> {
     await this.tokenService.setAccessToken(accessToken);
-    if (scopes !== undefined) {
-      await this.delegationService.setScopes(scopes);
-    }
+    await this.delegationService.setScopes(scopes);
   }
 
   async fetchAccessToken(refreshToken: string): Promise<AuthResponse> {

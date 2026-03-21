@@ -1,6 +1,6 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { DeviceService } from './device.service';
@@ -20,7 +20,9 @@ describe('SmartlookService', () => {
   let smartlook: jasmine.SpyObj<Smartlook>;
 
   beforeEach(() => {
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: new BehaviorSubject(true),
+    });
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
@@ -54,17 +56,12 @@ describe('SmartlookService', () => {
   });
 
   it('setupNetworkWatcher(): should setup a network watcher', () => {
-    const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
-    emitterSpy.asObservable.and.returnValue(of(true));
     smartLookService.setupNetworkWatcher();
-    networkService.isOnline.and.returnValue(of(true));
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
-    expect(networkService.isOnline).toHaveBeenCalledTimes(2);
+    expect(smartLookService.isConnected$).toBeDefined();
   });
 
   describe('init():', () => {
     beforeEach(() => {
-      networkService.isOnline.and.returnValue(of(true));
       smartLookService.setupNetworkWatcher();
     });
 
@@ -121,7 +118,7 @@ describe('SmartlookService', () => {
       const mockEou = cloneDeep(apiEouRes);
       mockEou.us.email = 'test@example.com';
 
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$.next(false);
       smartLookService.setupNetworkWatcher();
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(mockEou);

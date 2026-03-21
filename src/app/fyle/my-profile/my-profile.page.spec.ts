@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
 import { cloneDeep } from 'lodash';
-import { of, throwError } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { apiEouRes, eouRes2, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
@@ -103,7 +103,9 @@ describe('MyProfilePage', () => {
       'eventTrack',
     ]);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: new BehaviorSubject(true),
+    });
     const orgSettingsServiceSpy = jasmine.createSpyObj('PlatformOrgSettingsService', ['get']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
@@ -283,8 +285,6 @@ describe('MyProfilePage', () => {
     walkthroughService = TestBed.inject(WalkthroughService) as jasmine.SpyObj<WalkthroughService>;
 
     component.eou$ = of(apiEouRes);
-
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -292,12 +292,8 @@ describe('MyProfilePage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.isOnline.and.returnValue(of(true));
-
     component.setupNetworkWatcher();
-
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+    expect(component.isConnected$).toBeDefined();
   });
 
   describe('signOut():', () => {

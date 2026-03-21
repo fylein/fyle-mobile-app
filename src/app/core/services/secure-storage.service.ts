@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 import 'capacitor-secure-storage-plugin';
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
+import { PCacheable, PCacheBuster } from 'ts-cacheable';
+
+const secureStorageCacheBuster$ = new Subject<void>();
 
 // This is used only for storing access token, refresh token and cluster domain in token service
 @Injectable({
@@ -9,6 +13,9 @@ import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 export class SecureStorageService {
   constructor() {}
 
+  @PCacheBuster({
+    cacheBusterNotifier: secureStorageCacheBuster$,
+  })
   async set<T>(key: string, value: T): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.set({
@@ -22,6 +29,9 @@ export class SecureStorageService {
     }
   }
 
+  @PCacheable({
+    cacheBusterObserver: secureStorageCacheBuster$,
+  })
   async get<T>(key: string): Promise<T> {
     try {
       const stringifiedObject = await SecureStoragePlugin.get({
@@ -30,11 +40,15 @@ export class SecureStorageService {
       if (stringifiedObject?.value) {
         return JSON.parse(stringifiedObject.value) as T;
       }
+      return null;
     } catch {
       return null;
     }
   }
 
+  @PCacheBuster({
+    cacheBusterNotifier: secureStorageCacheBuster$,
+  })
   async delete(key: string): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.remove({ key });
@@ -43,6 +57,9 @@ export class SecureStorageService {
     }
   }
 
+  @PCacheBuster({
+    cacheBusterNotifier: secureStorageCacheBuster$,
+  })
   async clearAll(): Promise<{ value: boolean }> {
     try {
       return await SecureStoragePlugin.clear();
