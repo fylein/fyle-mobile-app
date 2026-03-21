@@ -169,7 +169,12 @@ export class SidemenuComponent implements OnInit {
         this.allowedActions = allowedActions;
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
-        await this.delegationService.updateDelegationScopesFromEou(eou);
+
+        // Only relevant in delegatee mode; clear otherwise to avoid stale values.
+        const inDelegateeMode = await this.delegationService.inDelegateeMode();
+        if (inDelegateeMode) {
+          await this.delegationService.updateDelegationScopesFromEou(eou);
+        }
 
         if (eou) {
           Sentry.setUser({
