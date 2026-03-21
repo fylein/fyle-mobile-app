@@ -90,7 +90,11 @@ describe('SwitchOrgPage', () => {
   beforeEach(waitForAsync(() => {
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const userServiceSpy = jasmine.createSpyObj('UserService', ['getUserPasswordStatus', 'isPendingDetails']);
+    const userServiceSpy = jasmine.createSpyObj('UserService', [
+      'getUserPasswordStatus',
+      'isPendingDetails',
+      'clearUserPasswordStatusCache',
+    ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'getRoles', 'logout']);
     const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
@@ -288,7 +292,6 @@ describe('SwitchOrgPage', () => {
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
     component.contentRef = fixture.debugElement.query(By.css('.switch-org__content-container__content-block'));
-    fixture.detectChanges();
     spenderOnboardingService.checkForRedirectionToOnboarding.and.returnValue(of(false));
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
   }));
@@ -307,6 +310,7 @@ describe('SwitchOrgPage', () => {
       orgService.getPrimaryOrg.and.returnValue(of(orgData2[1]));
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'trackSwitchOrgLaunchTime').and.returnValue(null);
+      fixture.detectChanges();
     });
 
     it('should show orgs and setup search bar', fakeAsync(() => {
@@ -692,16 +696,16 @@ describe('SwitchOrgPage', () => {
   }));
 
   describe('navigateToSetupPage():', () => {
-    it('should navigate to setup page if org the roles has OWNER', () => {
-      component.navigateToSetupPage(['OWNER']);
-
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'setup_account']);
-    });
-
-    it('should navigate to invite user if OWNER role is not present', () => {
-      component.navigateToSetupPage(['ADMIN']);
+    it('should navigate to invited user page', () => {
+      component.navigateToSetupPage();
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'post_verification', 'invited_user']);
+    });
+
+    it('should clear user password status cache when navigating', () => {
+      component.navigateToSetupPage();
+
+      expect(userService.clearUserPasswordStatusCache).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -734,9 +738,9 @@ describe('SwitchOrgPage', () => {
   describe('handleInviteLinkFlow():', () => {
     it('should handle the flow if user has entered through invite link and navigate to setup page', (done) => {
       spyOn(component, 'navigateToSetupPage');
-      component.handleInviteLinkFlow(roles, true).subscribe((res) => {
+      component.handleInviteLinkFlow(true).subscribe((res) => {
         expect(res).toBeNull();
-        expect(component.navigateToSetupPage).toHaveBeenCalledOnceWith(roles);
+        expect(component.navigateToSetupPage).toHaveBeenCalledOnceWith();
         done();
       });
     });
@@ -744,7 +748,7 @@ describe('SwitchOrgPage', () => {
     it('should mark the user active if password is set', (done) => {
       spyOn(component, 'markUserActive').and.returnValue(of(apiEouRes));
 
-      component.handleInviteLinkFlow(roles).subscribe((res) => {
+      component.handleInviteLinkFlow().subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(component.markUserActive).toHaveBeenCalledTimes(1);
         done();
@@ -756,9 +760,9 @@ describe('SwitchOrgPage', () => {
     it('should handle flow if the user comes from invite link', (done) => {
       spyOn(component, 'handleInviteLinkFlow').and.returnValue(of(apiEouRes));
 
-      component.handlePendingDetails(roles, true, true).subscribe((res) => {
+      component.handlePendingDetails(true, true).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
-        expect(component.handleInviteLinkFlow).toHaveBeenCalledOnceWith(roles, true);
+        expect(component.handleInviteLinkFlow).toHaveBeenCalledOnceWith(true);
         done();
       });
     });
@@ -766,7 +770,7 @@ describe('SwitchOrgPage', () => {
     it('should show email verification alert if the user has not come through invite link', (done) => {
       spyOn(component, 'showEmailNotVerifiedAlert').and.resolveTo();
 
-      component.handlePendingDetails(roles, false, true).subscribe((res) => {
+      component.handlePendingDetails(false, true).subscribe((res) => {
         expect(res).toBeNull();
         expect(component.showEmailNotVerifiedAlert).toHaveBeenCalledTimes(1);
         done();
@@ -865,20 +869,14 @@ describe('SwitchOrgPage', () => {
       spyOn(component, 'handlePendingDetails').and.returnValue(of(apiEouRes));
       const config = {
         isPendingDetails: true,
-        roles,
         eou: apiEouRes,
         isFromInviteLink: true,
-        isPasswordSetRequired: true,
       };
 
       component.navigateBasedOnUserStatus(config).subscribe((res) => {
         expect(res).toEqual(apiEouRes);
         expect(userService.getUserPasswordStatus).toHaveBeenCalledTimes(1);
-        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(
-          config.roles,
-          config.isFromInviteLink,
-          config.isPasswordSetRequired,
-        );
+        expect(component.handlePendingDetails).toHaveBeenCalledOnceWith(true, true);
         done();
       });
     });
@@ -911,11 +909,9 @@ describe('SwitchOrgPage', () => {
     tick(1000);
     expect(userService.isPendingDetails).toHaveBeenCalledTimes(1);
     expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(authService.getRoles).toHaveBeenCalledTimes(1);
     expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.navigateBasedOnUserStatus).toHaveBeenCalledOnceWith({
       isPendingDetails: true,
-      roles,
       eou: apiEouRes,
       isFromInviteLink: undefined,
     });
@@ -1051,6 +1047,7 @@ describe('SwitchOrgPage', () => {
   });
 
   it('openSearchBar(): should open search bar', () => {
+    fixture.detectChanges();
     component.openSearchBar();
 
     const contentClassList = component.contentRef.nativeElement.classList;
@@ -1062,7 +1059,7 @@ describe('SwitchOrgPage', () => {
 
   it('cancelSearch(): should cancel the search and remove the bar', () => {
     spyOn(component, 'resetSearch');
-
+    fixture.detectChanges();
     const contentClassList = component.contentRef.nativeElement.classList;
     const searchBarClassList = component.searchRef.nativeElement.classList;
 

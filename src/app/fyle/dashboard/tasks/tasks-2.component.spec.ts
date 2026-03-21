@@ -114,7 +114,6 @@ export function TestCases2(getTestBed) {
       popoverController.create.and.returnValues(Promise.resolve(addCardPopoverSpy));
       orgSettingsService = TestBed.inject(PlatformOrgSettingsService) as jasmine.SpyObj<PlatformOrgSettingsService>;
       networkService.isOnline.and.returnValue(of(true));
-      networkService.connectivityWatcher.and.returnValue(null);
     }));
 
     describe('init():', () => {

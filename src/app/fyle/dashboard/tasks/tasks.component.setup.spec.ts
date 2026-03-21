@@ -1,3 +1,4 @@
+import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { ModalController, PopoverController } from '@ionic/angular/standalone';
 
@@ -85,7 +86,9 @@ describe('TasksComponent', () => {
       },
     };
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create', 'onDidDismiss']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, getTranslocoTestingModule(), TasksComponent],
       providers: [

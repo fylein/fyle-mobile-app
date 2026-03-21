@@ -12,6 +12,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import mixpanel, { Config } from 'mixpanel-browser';
 import { AddAttachmentProperties } from '../models/add-attachment-properties.model';
 import { AppLaunchTimeProperties } from '../models/app-launch-time-properties.model';
+import { PerfTrackers } from '../models/perf-trackers.enum';
 import { CaptureSingleReceiptTimeProperties } from '../models/capture-single-receipt-time-properties.model';
 import { CardEnrolledProperties } from '../models/card-enrolled-properties.model';
 import { CardEnrollmentErrorsProperties } from '../models/card-enrollment-errors-properties.model';
@@ -368,7 +369,7 @@ export class TrackingService {
   }
 
   // sync error event
-  syncError(properties: { label: { data: Record<string, unknown>; errorMessage: string } }): void {
+  syncError(properties: { error: { data: Record<string, unknown>; message: string; error: string }; errorMessage: string }): void {
     this.eventTrack('Sync Error', properties);
   }
 
@@ -639,6 +640,34 @@ export class TrackingService {
   // Track app launch time
   appLaunchTime(properties = {} as AppLaunchTimeProperties): void {
     this.eventTrack('app launch time', properties);
+  }
+
+  /**
+   * Records app launch time when the first screen is shown (dashboard or spender onboarding).
+   * Call from dashboard stats init and from spender onboarding ionViewWillEnter so launch time
+   * is measured at first visible screen, not only after onboarding completes.
+   */
+  trackAppLaunchTimeIfFirstScreen(): void {
+    if (
+      performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1 &&
+      performance.getEntriesByName(PerfTrackers.appLaunchStartTime)?.length > 0
+    ) {
+      performance.mark(PerfTrackers.appLaunchEndTime);
+      performance.measure(
+        PerfTrackers.appLaunchTime,
+        PerfTrackers.appLaunchStartTime,
+        PerfTrackers.appLaunchEndTime,
+      );
+      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+      const startMark = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0];
+      const isLoggedIn = (startMark && (startMark as PerformanceEntry & { detail?: boolean }).detail) ?? false;
+      const duration = measureLaunchTime[0]?.duration;
+      const launchTimeDuration = duration != null ? (duration / 1000).toFixed(3) : '0';
+      this.appLaunchTime({
+        'App launch time': launchTimeDuration,
+        'Is logged in': isLoggedIn,
+      });
+    }
   }
 
   // Track time taken to capture single receipt for the first time

@@ -136,6 +136,25 @@ export default defineConfig([
       "custom-rules/prefer-semantic-extension-name": "error",
       "@fyle/i18n-key-naming-convention": "error",
       "@fyle/no-hardcoded-strings": "warn",
+      "@fyle/no-datepipe-transform-format-arg": "error",
+      "@fyle/no-date-currency-mutation": "error",
+
+      "@typescript-eslint/no-restricted-imports": ["error", {
+        paths: [
+          {
+            name: "@angular/common",
+            importNames: ["CurrencyPipe"],
+            message: "Use FyCurrencyPipe from '@fyle/pipe-fy-currency' instead.",
+          },
+        ],
+      }],
+    },
+  },
+  {
+    files: ["src/app/core/services/config.service.ts"],
+    rules: {
+      // ConfigService is the single place allowed to update DATE_PIPE_DEFAULT_OPTIONS and FORMAT_PREFERENCES.
+      "@fyle/no-date-currency-mutation": "off",
     },
   },
   {
@@ -146,6 +165,8 @@ export default defineConfig([
       "@angular-eslint/template/prefer-control-flow": "error",
       "@fyle/i18n-key-naming-convention": "error",
       "@fyle/no-hardcoded-strings": "warn",
+      "@fyle/no-angular-currency-pipe": "error",
+      "@fyle/no-inline-date-format": "error",
     },
   },
   {

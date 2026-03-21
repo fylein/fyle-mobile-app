@@ -95,8 +95,11 @@ describe('FyUserlistModalComponent', () => {
       'kawaljeet.ravi22@gmail.com',
       'abcdefg@somemail.com',
     ]);
-    fixture.detectChanges();
   }));
+
+  beforeEach(() => {
+    fixture.detectChanges();
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

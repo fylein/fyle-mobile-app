@@ -747,8 +747,8 @@ export class AddEditExpensePage implements OnInit {
       }
     }
 
-    // Execute the navigation.
-    this.router.navigate(navigationRoute, { queryParams });
+    // Execute the navigation, replacing the current URL to prevent stale form in history.
+    this.router.navigate(navigationRoute, { queryParams, replaceUrl: true });
   }
 
   async showClosePopup(): Promise<void> {
@@ -891,11 +891,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
-    );
+    this.isConnected$ = this.networkService.isConnected$;
   }
 
   async showSplitBlockedPopover(message: string): Promise<void> {
@@ -3666,7 +3662,7 @@ export class AddEditExpensePage implements OnInit {
     this.getDuplicateExpenses();
     this.isIos = this.platform.is('ios');
 
-    if (pushNotificationType === "EXPENSE_COMMENTS") {
+    if (pushNotificationType === 'EXPENSE_COMMENTS') {
       this.openCommentsModal();
     }
   }

@@ -40,7 +40,6 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData, platformExpenseDataWithPendingGasCharge } from 'src/app/core/mock-data/platform/v1/expense.data';
@@ -109,11 +108,9 @@ describe('ViewExpensePage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', [
-      'isConnected',
-      'connectivityWatcher',
-      'isOnline',
-    ]);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(false),
+    });
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'getApproverExpensePolicyViolations',
       'getSpenderExpensePolicyViolations',
@@ -312,12 +309,10 @@ describe('ViewExpensePage', () => {
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {
-    networkService.connectivityWatcher.and.returnValue(new EventEmitter(true));
-    networkService.isOnline.and.returnValue(of(false));
+    (networkService as any).isConnected$ = of(false);
 
     component.setupNetworkWatcher();
-    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-    expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+    expect(component.isConnected$).toBeDefined();
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   });
 
