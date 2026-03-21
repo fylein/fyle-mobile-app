@@ -9,14 +9,19 @@ import { DelegationRouteScope } from '../models/delegation-route-scope.model';
  *
  * Semantics (enforced only in delegatee mode):
  * - Delegates with `ALL` scope always have access.
- * - If `delegationAccess` includes a scope, that scope (and combinations thereof) can access.
- * - If `delegationAccess` is missing/empty => the route is **ALL-only** (SUBMIT/APPROVE delegates can't access).
+ * - If `allowedDelegationScopes` includes a scope, that scope (and combinations thereof) can access.
+ * - If `allowedDelegationScopes` is missing/empty => the route is **ALL-only** (SUBMIT/APPROVE delegates can't access).
  *
- * Examples:
- * - `['SUBMIT']`: SUBMIT + (SUBMIT+APPROVE) + ALL can access; APPROVE-only cannot.
- * - `['APPROVE']`: APPROVE + (SUBMIT+APPROVE) + ALL can access; SUBMIT-only cannot.
- * - `['SUBMIT','APPROVE']`: SUBMIT-only / APPROVE-only / both / ALL can access.
- * - `[]` or omitted: only ALL can access.
+ * Example (delegatee mode):
+ *
+ * // Route config:
+ * data: { allowedDelegationScopes: ['SUBMIT'] }
+ *
+ * // If delegate's actual scope (from /auth/access_token) is,
+ * // - ['SUBMIT']            -> then allowed
+ * // - ['SUBMIT','APPROVE']  -> allowed
+ * // - ['ALL']               -> allowed (ALL bypasses all checks)
+ * // - ['APPROVE']           -> NOT allowed (no SUBMIT)
  */
 
 @Injectable({
@@ -28,7 +33,7 @@ export class DelegationScopeGuard {
   private router = inject(Router);
 
   async canActivateChild(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
-    const allowed = (next.data?.['delegationAccess'] ?? []) as DelegationRouteAccess;
+    const allowedDelegationScopes = (next.data?.['allowedDelegationScopes'] ?? []) as DelegationRouteAccess;
 
     // Only enforce when in delegatee mode.
     const inDelegateeMode = await this.delegationService.inDelegateeMode();
@@ -46,9 +51,9 @@ export class DelegationScopeGuard {
       return true;
     }
 
-    // Default is ALL-only when delegationAccess isn't provided.
+    // Default is ALL-only when allowedDelegationScopes isn't provided.
     // ALL-only is not allowed for SUBMIT/APPROVE delegates but for ALL scope.
-    if (allowed.length === 0) {
+    if (allowedDelegationScopes.length === 0) {
       // Defensive: avoid a redirect loop if dashboard was misconfigured.
       if (state.url?.includes('/enterprise/my_dashboard')) {
         return true;
@@ -56,7 +61,7 @@ export class DelegationScopeGuard {
       return this.router.parseUrl('/enterprise/my_dashboard');
     }
 
-    if (!scopes.some((s) => allowed.includes(s as DelegationRouteScope))) {
+    if (!scopes.some((s) => allowedDelegationScopes.includes(s as DelegationRouteScope))) {
       return this.router.parseUrl('/enterprise/my_dashboard');
     }
 
