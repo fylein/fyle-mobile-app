@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, combineLatest, from, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -14,6 +14,7 @@ import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/re
 import { GroupedReportStats } from 'src/app/core/models/platform/v1/grouped-report-stats.model';
 import { TranslocoService } from '@jsverse/transloco';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +31,8 @@ export class DashboardService {
   private authService = inject(AuthService);
 
   private translocoService = inject(TranslocoService);
+
+  private delegationService = inject(DelegationService);
 
   getUnreportedExpensesStats(): Observable<Stats> {
     return this.expensesService
@@ -61,16 +64,25 @@ export class DashboardService {
   }
 
   getUnapprovedTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => {
+    const eou$ = from(this.authService.getEou());
+    const canAccessApproveStats$ = from(this.delegationService.canAccessApproveFeatures()).pipe(
+      catchError(() => of(false)),
+    );
+
+    return combineLatest({ eou: eou$, canAccessApproveStats: canAccessApproveStats$ }).pipe(
+      switchMap(({ eou, canAccessApproveStats }) => {
+        if (!canAccessApproveStats) {
+          return of(null);
+        }
+
         if (eou.ou?.roles?.includes('APPROVER')) {
           return this.approverReportsService.getReportsStats({
             next_approver_user_ids: `cs.[${eou.us.id}]`,
             state: `eq.${ReportStates.APPROVER_PENDING}`,
           });
-        } else {
-          return of(null);
         }
+
+        return of(null);
       }),
     );
   }

@@ -2,7 +2,21 @@ import { Component, EventEmitter, OnInit, inject, input, output, effect } from '
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { PlatformOrgSettingsService } from 'src/app/core/services/platform/v1/spender/org-settings.service';
-import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  concat,
+  filter,
+  forkJoin,
+  map,
+  shareReplay,
+  switchMap,
+  from,
+  of,
+  combineLatest,
+  take,
+  catchError,
+} from 'rxjs';
 import { getCurrencySymbol, AsyncPipe } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -17,6 +31,8 @@ import { SpentCardsComponent } from '../../../shared/components/spent-cards/spen
 import { AddCardComponent } from '../../../shared/components/add-card/add-card.component';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { DelegationService } from 'src/app/core/services/delegation.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 
 @Component({
   selector: 'app-card-stats',
@@ -38,6 +54,10 @@ export class CardStatsComponent implements OnInit {
   private popoverController = inject(PopoverController);
 
   private virtualCardsService = inject(VirtualCardsService);
+
+  private delegationService = inject(DelegationService);
+
+  private orgUserService = inject(OrgUserService);
 
   readonly cardAdded = output<void>();
 
@@ -174,6 +194,24 @@ export class CardStatsComponent implements OnInit {
     this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled),
     );
+
+    const canAddCardsByDelegation$ = from(this.orgUserService.isSwitchedToDelegator()).pipe(
+      switchMap((isSwitchedToDelegator) => {
+        if (!isSwitchedToDelegator) {
+          return of(true);
+        }
+        return from(this.delegationService.getScopes()).pipe(
+          map((scopes) => this.delegationService.hasAllScope(scopes)),
+          catchError(() => of(false)),
+        );
+      }),
+      shareReplay(1),
+    );
+
+    this.canAddCorporateCards$ = combineLatest([this.canAddCorporateCards$, canAddCardsByDelegation$]).pipe(
+      map(([canAddCardsBySettings, canAddCardsByDelegation]) => canAddCardsBySettings && canAddCardsByDelegation),
+      shareReplay(1),
+    );
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => ({
         enabled:
@@ -197,26 +235,34 @@ export class CardStatsComponent implements OnInit {
   }
 
   openAddCorporateCardPopover(): void {
-    forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
-      async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
-        const addCorporateCardPopover = await this.popoverController.create({
-          component: AddCorporateCardComponent,
-          cssClass: 'fy-dialog-popover',
-          componentProps: {
-            isVisaRTFEnabled,
-            isMastercardRTFEnabled,
-            isYodleeEnabled,
-          },
-        });
+    this.canAddCorporateCards$.pipe(take(1)).subscribe((canAdd) => {
+      if (!canAdd) {
+        return;
+      }
 
-        await addCorporateCardPopover.present();
-        const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{ success: boolean }>;
+      forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
+        async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
+          const addCorporateCardPopover = await this.popoverController.create({
+            component: AddCorporateCardComponent,
+            cssClass: 'fy-dialog-popover',
+            componentProps: {
+              isVisaRTFEnabled,
+              isMastercardRTFEnabled,
+              isYodleeEnabled,
+            },
+          });
 
-        if (popoverResponse.data?.success) {
-          this.handleEnrollmentSuccess();
-        }
-      },
-    );
+          await addCorporateCardPopover.present();
+          const popoverResponse = (await addCorporateCardPopover.onDidDismiss()) as OverlayResponse<{
+            success: boolean;
+          }>;
+
+          if (popoverResponse.data?.success) {
+            this.handleEnrollmentSuccess();
+          }
+        },
+      );
+    });
   }
 
   private handleEnrollmentSuccess(): void {
