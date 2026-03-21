@@ -72,7 +72,10 @@ describe('CameraOptionsPopupComponent', () => {
       };
       return translations[key] || key;
     });
-    fixture.detectChanges();
+    if (!(Capacitor.isNativePlatform as jasmine.Spy).and) {
+      spyOn(Capacitor, 'isNativePlatform');
+    }
+    (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
   }));
 
   it('should create', () => {
@@ -169,7 +172,7 @@ describe('CameraOptionsPopupComponent', () => {
   describe('getFileFromFilePicker():', () => {
     it('calls addAttachment with Category "Upload File" and Mode from input', async () => {
       fixture.componentRef.setInput('mode', 'Edit Advance Request');
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(inputEl, 'click');
 
@@ -182,7 +185,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     it('on web sets file input accept to application/pdf and triggers click', async () => {
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       fixture.detectChanges();
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(inputEl, 'click');
@@ -198,7 +201,7 @@ describe('CameraOptionsPopupComponent', () => {
   describe('getImageFromImagePicker():', () => {
     it('calls addAttachment with Category "Upload Image" and Mode from input', async () => {
       fixture.componentRef.setInput('mode', 'Add Expense');
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(inputEl, 'click');
 
@@ -211,7 +214,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     it('on web sets file input accept to image/* and triggers click', async () => {
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       fixture.detectChanges();
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(inputEl, 'click');
@@ -226,7 +229,7 @@ describe('CameraOptionsPopupComponent', () => {
 
   describe('triggerFileInput():', () => {
     it('sets input accept and calls click', async () => {
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       fixture.detectChanges();
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(inputEl, 'click');
@@ -239,7 +242,7 @@ describe('CameraOptionsPopupComponent', () => {
     });
 
     it('when input has a file and onchange fires, calls uploadFileCallback with that file', async () => {
-      spyOn(Capacitor, 'isNativePlatform').and.returnValue(false);
+      (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
       fixture.detectChanges();
       const inputEl = fixture.nativeElement.querySelector('input[type="file"]') as HTMLInputElement;
       spyOn(component, 'uploadFileCallback');

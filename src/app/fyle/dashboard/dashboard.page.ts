@@ -1,6 +1,16 @@
-import { Component, EventEmitter, ViewChild, computed, inject, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  OnDestroy,
+  ViewChild,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { combineLatest, concat, forkJoin, from, noop, Observable, of, Subject, Subscription } from 'rxjs';
-import { catchError, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
+import { catchError, filter, map, shareReplay, switchMap, take, takeUntil } from 'rxjs/operators';
 import {
   ActionSheetButton,
   ActionSheetController,
@@ -54,9 +64,9 @@ import { FooterService } from 'src/app/core/services/footer.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { EmployeeSettings } from 'src/app/core/models/employee-settings.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
-import SwiperCore, { Pagination, Autoplay } from 'swiper';
-import { PaginationOptions, Swiper, SwiperOptions } from 'swiper/types';
-import { SwiperComponent, SwiperModule } from 'swiper/angular';
+import { PaginationOptions, SwiperOptions } from 'swiper/types';
+import Swiper from 'swiper';
+import { Pagination, Autoplay } from 'swiper/modules';
 import { FyMenuIconComponent } from '../../shared/components/fy-menu-icon/fy-menu-icon.component';
 import { NgClass, AsyncPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
@@ -72,9 +82,6 @@ import { OverlayEventDetail, SegmentCustomEvent } from '@ionic/core';
 import { Budget } from 'src/app/core/models/budget.model';
 import { BudgetsService } from 'src/app/core/services/platform/v1/spender/budgets.service';
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
-
-// install Swiper modules
-SwiperCore.use([Pagination, Autoplay]);
 
 @Component({
   selector: 'app-dashboard',
@@ -100,14 +107,17 @@ SwiperCore.use([Pagination, Autoplay]);
     MatTabGroup,
     NgClass,
     StatsComponent,
-    SwiperModule,
     TasksComponent,
     TranslocoPipe,
     IonSegment,
     IonSegmentButton,
   ],
 })
-export class DashboardPage {
+export class DashboardPage implements OnDestroy {
+  readonly optInSwiper = viewChild<ElementRef<HTMLElement>>('optInSwiper');
+
+  private optInSwiperInstance: Swiper | null = null;
+
   private currencyService = inject(CurrencyService);
 
   private pushNotificationService = inject(PushNotificationService);
@@ -225,8 +235,6 @@ export class DashboardPage {
   //  Your application code writes to the query. This prevents migration.
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
-  readonly swiperComponent = viewChild<SwiperComponent>('optInSwiper');
-
   employeeSettings$: Observable<EmployeeSettings>;
 
   orgSettings$: Observable<OrgSettings>;
@@ -289,6 +297,7 @@ export class DashboardPage {
   readonly cardCount = signal<number>(0);
 
   optInBannerPagination: PaginationOptions = {
+    el: '.swiper-pagination',
     dynamicBullets: true,
     renderBullet(index, className): string {
       return '<span class="opt-in-banners ' + className + '"> </span>';
@@ -314,7 +323,7 @@ export class DashboardPage {
   }
 
   private get swiperInstance(): Swiper | undefined {
-    return this.swiperComponent()?.swiperRef;
+    return this.optInSwiperInstance ?? undefined;
   }
 
   private startNavbarWalkthrough(eou: ExtendedOrgUser): void {
@@ -379,13 +388,13 @@ export class DashboardPage {
     clearTimeout(this.dashboardAddExpenseWalkthroughTimer as number);
 
     this.featureConfigService
-      .getConfiguration<{
+      .getByFeatureAndKey<{
         isShown?: boolean;
         isFinished?: boolean;
-      }>({
-        feature: 'WALKTHROUGH',
-        key: 'DASHBOARD_ADD_EXPENSE',
-      })
+      }>(
+        'WALKTHROUGH',
+        'DASHBOARD_ADD_EXPENSE',
+      )
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
@@ -501,12 +510,12 @@ export class DashboardPage {
     };
 
     this.featureConfigService
-      .getConfiguration<{
+      .getByFeatureAndKey<{
         isShown?: boolean;
         isFinished?: boolean;
         overlayClickCount?: number;
         currentStepIndex?: number;
-      }>(showNavbarWalkthroughConfig)
+      }>(showNavbarWalkthroughConfig.feature, showNavbarWalkthroughConfig.key)
       .subscribe((config) => {
         const featureConfigValue = config?.value || {};
         const isFinished = featureConfigValue?.isFinished || false;
@@ -541,9 +550,7 @@ export class DashboardPage {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+    this.isConnected$ = this.networkService.isConnected$.pipe(
       takeUntil(this.onPageExit$),
       shareReplay(1),
     );
@@ -555,20 +562,20 @@ export class DashboardPage {
       key: 'OPT_IN_BANNER_SHOWN',
     };
 
-    const isBannerShown$ = this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+    const isBannerShown$ = this.featureConfigService.getByFeatureAndKey(optInBannerConfig.feature, optInBannerConfig.key).pipe(
       map((config) => config?.value),
-      shareReplay(1),
     );
 
     return forkJoin({
       isBannerShown: isBannerShown$,
       eou: this.eou$,
+      isUserFromINCluster: this.isUserFromINCluster$,
     }).pipe(
-      map(({ isBannerShown, eou }) => {
+      map(({ isBannerShown, eou, isUserFromINCluster }) => {
         const isUSDorCADCurrency = ['USD', 'CAD'].includes(eou.org.currency);
         const isInvalidUSMobileNumber = eou.ou.mobile && !eou.ou.mobile.startsWith('+1');
 
-        if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown) {
+        if (eou.ou.mobile_verified || !isUSDorCADCurrency || isInvalidUSMobileNumber || isBannerShown || isUserFromINCluster) {
           return false;
         }
 
@@ -584,9 +591,17 @@ export class DashboardPage {
       key: 'EMAIL_OPT_IN_BANNER_SHOWN',
     };
 
-    return this.featureConfigService.getConfiguration(optInBannerConfig).pipe(
+    const canShowEmailOptInBanner$ = this.featureConfigService.getByFeatureAndKey(optInBannerConfig.feature, optInBannerConfig.key).pipe(
       map((config) => config?.value),
       map((isBannerShown) => !isBannerShown),
+    );
+    return forkJoin({
+      canShowEmailOptInBanner: canShowEmailOptInBanner$,
+      isUserFromINCluster: this.isUserFromINCluster$,
+    }).pipe(
+      map(({ canShowEmailOptInBanner, isUserFromINCluster }) => {
+        return canShowEmailOptInBanner && !isUserFromINCluster;
+      }),
       shareReplay(1),
     );
   }
@@ -600,7 +615,7 @@ export class DashboardPage {
       key: 'REBRANDING_POPUP_SHOWN',
     };
 
-    return this.featureConfigService.getConfiguration(rebrandingPopupConfig).pipe(
+    return this.featureConfigService.getByFeatureAndKey(rebrandingPopupConfig.feature, rebrandingPopupConfig.key).pipe(
       map((config) => config?.value),
       map((isPopupShown) => !isPopupShown),
       shareReplay(1),
@@ -608,22 +623,17 @@ export class DashboardPage {
   }
 
   setSwiperConfig(): void {
-    // Set default config when observables are not ready
-    if (!this.canShowOptInBanner$ || !this.canShowEmailOptInBanner$) {
-      this.swiperConfig = {
-        slidesPerView: 1,
-        spaceBetween: 0,
-        centeredSlides: true,
-        loop: false,
-        autoplay: false,
-        pagination: false,
-      };
-      return;
-    }
+    this.swiperConfig = {
+      slidesPerView: 1,
+      spaceBetween: 0,
+      centeredSlides: true,
+      pagination: this.optInBannerPagination,
+    };
 
-    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$])
+    combineLatest([this.canShowOptInBanner$, this.canShowEmailOptInBanner$, this.isUserFromINCluster$])
       .pipe(take(1))
       .subscribe(([canShowOptInBanner, canShowEmailOptInBanner]) => {
+        this.initOptInSwiper();
         const showBothBanners = canShowOptInBanner && canShowEmailOptInBanner;
         const swiper = this.swiperInstance;
 
@@ -633,7 +643,9 @@ export class DashboardPage {
 
         swiper.loopDestroy?.();
         swiper.pagination.destroy();
-        swiper.update();
+        if (swiper.slides.length > 0) {
+          swiper.update();
+        }
 
         if (showBothBanners) {
           swiper.loopCreate?.();
@@ -648,8 +660,32 @@ export class DashboardPage {
           swiper.params.autoplay = false;
           swiper.pagination.destroy();
         }
-        swiper.update();
+        if (swiper.slides.length > 0) {
+          swiper.update();
+        }
       });
+  }
+
+  private initOptInSwiper(): void {
+    if (this.optInSwiperInstance) {
+      this.optInSwiperInstance.destroy(true, true);
+      this.optInSwiperInstance = null;
+    }
+    const config = this.swiperConfig;
+    this.optInSwiperInstance = new Swiper(this.optInSwiper()?.nativeElement, {
+      modules: [Pagination, Autoplay],
+      slidesPerView: config.slidesPerView ?? 1,
+      spaceBetween: config.spaceBetween ?? 0,
+      centeredSlides: config.centeredSlides ?? true,
+      loop: config.loop ?? false,
+      autoplay: config.autoplay ?? false,
+      pagination: config.pagination ?? false,
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.optInSwiperInstance?.destroy(true, true);
+    this.optInSwiperInstance = null;
   }
 
   async openSMSOptInDialog(extendedOrgUser: ExtendedOrgUser): Promise<void> {
@@ -688,12 +724,6 @@ export class DashboardPage {
 
   ionViewWillEnter(): void {
     this.isWalkthroughPaused = false;
-    this.swiperConfig = {
-      slidesPerView: 1,
-      spaceBetween: 0,
-      centeredSlides: true,
-      pagination: this.optInBannerPagination,
-    };
     this.setupNetworkWatcher();
     this.registerBackButtonAction();
     this.smartlookService.init();
@@ -714,18 +744,15 @@ export class DashboardPage {
     this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
-    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster());
+    this.isUserFromINCluster$ = from(this.utilityService.isUserFromINCluster()).pipe(shareReplay(1));
     const openSMSOptInDialog = this.activatedRoute.snapshot.params.openSMSOptInDialog as string;
 
     this.employeeSettings$.subscribe((employeeSettings) => {
       this.timezoneService.setTimezone(employeeSettings?.locale);
     });
 
-    const optInBanner$ = this.setShowOptInBanner();
-    const emailOptInBanner$ = this.setShowEmailOptInBanner();
-
-    this.canShowOptInBanner$ = optInBanner$;
-    this.canShowEmailOptInBanner$ = emailOptInBanner$;
+    this.canShowOptInBanner$ = this.setShowOptInBanner();
+    this.canShowEmailOptInBanner$ = this.setShowEmailOptInBanner();
 
     combineLatest([this.orgSettings$, this.eou$])
       .pipe(
@@ -767,8 +794,8 @@ export class DashboardPage {
       });
 
     forkJoin({
-      optInBanner: optInBanner$,
-      emailOptInBanner: emailOptInBanner$,
+      optInBanner: this.canShowOptInBanner$,
+      emailOptInBanner: this.canShowEmailOptInBanner$,
       showRebrandingPopup: this.canShowRebrandingPopup(),
       eou: this.eou$,
       showPushNotifUi: this.launchDarklyService.getVariation('show_push_notif_ui', false),
@@ -868,9 +895,8 @@ export class DashboardPage {
   }
 
   registerBackButtonAction(): void {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
-      BackButtonActionPriority.LOW,
-      this.backButtonActionHandler,
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () =>
+      this.backButtonActionHandler(),
     );
   }
 

@@ -19,6 +19,7 @@ import {
   IonToolbar,
   ModalController,
   NavController,
+  Platform,
   PopoverController,
 } from '@ionic/angular/standalone';
 import { isEmpty, isNumber } from 'lodash';
@@ -82,6 +83,7 @@ import { ReviewSplitExpenseComponent } from 'src/app/shared/components/review-sp
 import { FyMsgPopoverComponent } from 'src/app/shared/components/fy-msg-popover/fy-msg-popover.component';
 import { SplittingExpenseProperties } from 'src/app/core/models/splitting-expense-properties.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
 import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
 import { PlatformEmployeeSettingsService } from 'src/app/core/services/platform/v1/spender/employee-settings.service';
@@ -168,6 +170,8 @@ export class SplitExpensePage implements OnDestroy {
 
   private expensesService = inject(ExpensesService);
 
+  private platform = inject(Platform);
+
   readonly splitElements = viewChildren<ElementRef>('splitElement');
 
   splitExpensesFormArray = new UntypedFormArray([]);
@@ -245,6 +249,8 @@ export class SplitExpensePage implements OnDestroy {
   categoryDisableMsg = '';
 
   private splitExpenseData: Subscription;
+
+  private hardwareBackButtonAction: Subscription;
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -826,7 +832,7 @@ export class SplitExpensePage implements OnDestroy {
 
           const message = 'We were unable to split your expense. Please try again later.';
           this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
-          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
           return throwError(errResponse);
         }),
       )
@@ -843,7 +849,7 @@ export class SplitExpensePage implements OnDestroy {
               catchError((err) => {
                 const message = 'We were unable to split your expense. Please try again later.';
                 this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon-for-split-exp');
-                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                this.router.navigate(['/', 'enterprise', 'my_expenses'], { replaceUrl: true });
                 return throwError(err);
               }),
             )
@@ -1009,6 +1015,12 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   ionViewWillEnter(): void {
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.goBack();
+      },
+    );
     this.getRecentlySplitExpenseAndOpenReviewModal();
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
@@ -1124,6 +1136,7 @@ export class SplitExpensePage implements OnDestroy {
   }
 
   ionViewWillLeave(): void {
+    this.hardwareBackButtonAction?.unsubscribe();
     if (this.splitExpenseData) {
       this.splitExpenseData.unsubscribe();
     }

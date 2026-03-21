@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
@@ -95,17 +95,19 @@ describe('LocationService', () => {
       });
     });
 
-    it('should apply timeout when condition is true', (done) => {
-      const source$ = of('hello').pipe(delay(2000)); // emit value after 2 seconds
+    it('should apply timeout when condition is true', fakeAsync(() => {
+      const source$ = of('hello').pipe(delay(2000));
       const result$ = source$.pipe(locationService.timeoutWhen(true, 1000));
 
+      let error: unknown;
       result$.subscribe({
         error: (err) => {
-          expect(err).toBeInstanceOf(Error);
-          done();
+          error = err;
         },
       });
-    });
+      tick(1000);
+      expect(error).toBeInstanceOf(Error);
+    }));
   });
 
   describe('getGeocode():', () => {

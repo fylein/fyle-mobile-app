@@ -17,7 +17,9 @@ describe('FooterComponent', () => {
   let trackingServiceSpy: jasmine.SpyObj<TrackingService>;
   let routerSpy: jasmine.SpyObj<Router>;
   beforeEach(waitForAsync(() => {
-    networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'getConnectionStatus']);
+    networkServiceSpy = jasmine.createSpyObj('NetworkService', ['getConnectionStatus'], {
+      isConnected$: of(true),
+    });
 
     trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['footerButtonClicked']);
     routerSpy = jasmine.createSpyObj('Router', ['url']);

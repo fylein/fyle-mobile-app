@@ -341,9 +341,7 @@ export class MyReportsPage {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+    this.isConnected$ = this.networkService.isConnected$.pipe(
       takeUntil(this.onPageExit),
       shareReplay(1),
     );

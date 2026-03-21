@@ -80,9 +80,12 @@ describe('FySelectModalComponent', () => {
       }
       return translation;
     });
+  }));
+  
+  beforeEach(() => {
     fixture.detectChanges();
     inputElement = component.searchBarRef.nativeElement;
-  }));
+  });
 
   it('should create', () => {
     expect(component).toBeTruthy();

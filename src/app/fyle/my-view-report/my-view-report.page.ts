@@ -22,6 +22,7 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
+  NavController,
   PopoverController,
   SegmentCustomEvent,
 } from '@ionic/angular/standalone';
@@ -163,6 +164,8 @@ export class MyViewReportPage {
   private translocoService = inject(TranslocoService);
 
   private orgUserService = inject(OrgUserService);
+
+  private navController = inject(NavController);
 
   private launchDarklyService = inject(LaunchDarklyService);
 
@@ -307,9 +310,7 @@ export class MyViewReportPage {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+    this.isConnected$ = this.networkService.isConnected$.pipe(
       takeUntil(this.onPageExit),
       shareReplay(1),
     );
@@ -444,7 +445,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === "EXPENSE_REPORT_COMMENTS") {
+      if (report?.state === 'APPROVER_INQUIRY' || pushNotificationType === 'EXPENSE_REPORT_COMMENTS') {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
@@ -538,7 +539,7 @@ export class MyViewReportPage {
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
       BackButtonActionPriority.MEDIUM,
       () => {
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
+        this.navController.back();
       },
     );
   }
@@ -664,7 +665,7 @@ export class MyViewReportPage {
     const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
-      this.router.navigate(['/', 'enterprise', 'my_reports']);
+      this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
     }
   }
 
@@ -674,7 +675,7 @@ export class MyViewReportPage {
       .resubmit(this.reportId)
       .pipe(finalize(() => (this.submitReportLoader = false)))
       .subscribe(() => {
-        this.router.navigate(['/', 'enterprise', 'my_reports']);
+        this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
         const message = `Report resubmitted successfully.`;
         this.matSnackBar.openFromComponent(ToastMessageComponent, {
           ...this.snackbarProperties.setSnackbarProperties('success', { message }),
@@ -720,7 +721,7 @@ export class MyViewReportPage {
       .pipe(finalize(() => (this.submitReportLoader = false)))
       .subscribe({
         next: () => {
-          this.router.navigate(['/', 'enterprise', 'my_reports']);
+          this.router.navigate(['/', 'enterprise', 'my_reports'], { replaceUrl: true });
           const message = `Report submitted successfully.`;
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
