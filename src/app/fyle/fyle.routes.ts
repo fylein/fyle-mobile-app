@@ -7,10 +7,16 @@ const routes: Routes = [
     path: 'my_dashboard',
     loadComponent: () => import('./dashboard/dashboard.page').then((m) => m.DashboardPage),
     canActivate: [OnboardingGuard],
+    data: {
+      allowedDelegationScopes: ['SUBMIT', 'APPROVE'],
+    },
   },
   {
     path: 'my_expenses',
     loadComponent: () => import('./my-expenses/my-expenses.page').then((m) => m.MyExpensesPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'my_advances',
@@ -23,10 +29,16 @@ const routes: Routes = [
   {
     path: 'my_reports',
     loadComponent: () => import('./my-reports/my-reports.page').then((m) => m.MyReportsPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'my_view_report',
     loadComponent: () => import('./my-view-report/my-view-report.page').then((m) => m.MyViewReportPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'help',
@@ -44,6 +56,9 @@ const routes: Routes = [
   {
     path: 'add_edit_expense',
     loadComponent: () => import('./add-edit-expense/add-edit-expense.page').then((m) => m.AddEditExpensePage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'spender_onboarding',
@@ -52,10 +67,16 @@ const routes: Routes = [
   {
     path: 'team_reports',
     loadComponent: () => import('./team-reports/team-reports.page').then((m) => m.TeamReportsPage),
+    data: {
+      allowedDelegationScopes: ['APPROVE'],
+    },
   },
   {
     path: 'view_team_report',
     loadComponent: () => import('./view-team-report/view-team-report.page').then((m) => m.ViewTeamReportPage),
+    data: {
+      allowedDelegationScopes: ['APPROVE'],
+    },
   },
   {
     path: 'my_view_advance',
@@ -64,6 +85,10 @@ const routes: Routes = [
   {
     path: 'delegated_accounts',
     loadComponent: () => import('./delegated-accounts/delegated-accounts.page').then((m) => m.DelegatedAccountsPage),
+    data: {
+      // Every delegatee should be able to switch back.
+      allowedDelegationScopes: ['SUBMIT', 'APPROVE'],
+    },
   },
   {
     path: 'view_team_advance',
@@ -78,14 +103,23 @@ const routes: Routes = [
   {
     path: 'my_create_report',
     loadComponent: () => import('./my-create-report/my-create-report.page').then((m) => m.MyCreateReportPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'add_edit_per_diem',
     loadComponent: () => import('./add-edit-per-diem/add-edit-per-diem.page').then((m) => m.AddEditPerDiemPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'add_edit_mileage',
     loadComponent: () => import('./add-edit-mileage/add-edit-mileage.page').then((m) => m.AddEditMileagePage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'add_edit_advance_request',
@@ -95,10 +129,16 @@ const routes: Routes = [
   {
     path: 'split_expense',
     loadComponent: () => import('./split-expense/split-expense.page').then((m) => m.SplitExpensePage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'camera_overlay',
     loadComponent: () => import('./camera-overlay/camera-overlay.page').then((m) => m.CameraOverlayPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'personal_cards_matched_expenses',
@@ -114,19 +154,31 @@ const routes: Routes = [
   {
     path: 'view_expense',
     loadComponent: () => import('./view-expense/view-expense.page').then((m) => m.ViewExpensePage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT', 'APPROVE'],
+    },
   },
   {
     path: 'view_mileage',
     loadComponent: () => import('./view-mileage/view-mileage.page').then((m) => m.ViewMileagePage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT', 'APPROVE'],
+    },
   },
   {
     path: 'view_per_diem',
     loadComponent: () => import('./view-per-diem/view-per-diem.page').then((m) => m.ViewPerDiemPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT', 'APPROVE'],
+    },
   },
   {
     path: 'potential-duplicates',
     loadComponent: () =>
       import('./potential-duplicates/potential-duplicates.page').then((m) => m.PotentialDuplicatesPage),
+    data: {
+      allowedDelegationScopes: ['SUBMIT'],
+    },
   },
   {
     path: 'merge_expense',

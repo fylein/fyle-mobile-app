@@ -6,4 +6,5 @@ export interface Delegatee {
   full_name: string;
   start_at: string;
   end_at: string;
+  scopes: Array<'SUBMIT' | 'APPROVE' | 'ALL'>;
 }

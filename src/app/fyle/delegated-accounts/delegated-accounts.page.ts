@@ -9,12 +9,24 @@ import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-loc
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { Delegator } from 'src/app/core/models/platform/delegator.model';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IonButton, IonButtons, IonCol, IonContent, IonGrid, IonHeader, IonIcon, IonRow, IonToolbar, NavController } from '@ionic/angular/standalone';
+import {
+  IonButton,
+  IonButtons,
+  IonCol,
+  IonContent,
+  IonGrid,
+  IonHeader,
+  IonIcon,
+  IonRow,
+  IonToolbar,
+  NavController,
+} from '@ionic/angular/standalone';
 import { MatFormField, MatPrefix, MatInput } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatRipple } from '@angular/material/core';
 import { UpperCasePipe } from '@angular/common';
 import { InitialsPipe } from '../../shared/pipes/initials.pipe';
+import { DelegationService } from 'src/app/core/services/delegation.service';
 
 @Component({
   selector: 'app-delegated-accounts',
@@ -36,7 +48,7 @@ import { InitialsPipe } from '../../shared/pipes/initials.pipe';
     MatInput,
     MatPrefix,
     MatRipple,
-    UpperCasePipe
+    UpperCasePipe,
   ],
 })
 export class DelegatedAccountsPage {
@@ -56,6 +68,8 @@ export class DelegatedAccountsPage {
 
   private navController = inject(NavController);
 
+  private delegationService = inject(DelegationService);
+
   // TODO: Skipped for migration because:
   //  Your application code writes to the query. This prevents migration.
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
@@ -74,6 +88,9 @@ export class DelegatedAccountsPage {
     from(this.loaderService.showLoader('Switching Account'))
       .pipe(
         concatMap(() => from(this.authService.getEou())),
+        concatMap((eou) => {
+          return from(this.delegationService.setDelegateeUserId(eou.us.id)).pipe(map(() => eou));
+        }),
         concatMap((eou) => {
           globalCacheBusterNotifier.next();
           this.recentLocalStorageItemsService.clearRecentLocalStorageCache();

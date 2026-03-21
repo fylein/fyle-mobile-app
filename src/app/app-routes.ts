@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
+import { DelegationScopeGuard } from './core/guards/delegation-scope.guard';
 import { VerifiedOrgAuthGuard } from './core/guards/verified-org-auth.guard';
 
 export const appRoutes: Routes = [
@@ -21,6 +22,7 @@ export const appRoutes: Routes = [
     path: 'enterprise',
     loadChildren: () => import('./fyle/fyle.routes').then((m) => m.fyleRoutes),
     canActivate: [AuthGuard, VerifiedOrgAuthGuard],
+    canActivateChild: [DelegationScopeGuard],
   },
   {
     path: 'deep_link_redirection',
