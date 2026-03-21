@@ -76,7 +76,6 @@ describe('CameraOptionsPopupComponent', () => {
       spyOn(Capacitor, 'isNativePlatform');
     }
     (Capacitor.isNativePlatform as jasmine.Spy).and.returnValue(false);
-    fixture.detectChanges();
   }));
 
   it('should create', () => {

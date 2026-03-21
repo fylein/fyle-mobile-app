@@ -54,6 +54,8 @@ export class AuthService {
       accessToken,
       that.storageService.delete('user'),
       that.storageService.delete('role'),
+      that.storageService.delete('feature_configs'),
+      that.storageService.delete('spenderOnboardingRedirect'),
       that.tokenService.resetAccessToken(),
       that.tokenService.setRefreshToken(token),
     ]).pipe(
@@ -107,6 +109,8 @@ export class AuthService {
       this.apiService.post('/auth/logout'),
     ).pipe(
       finalize(async () => {
+        await this.storageService.delete('feature_configs');
+        await this.storageService.delete('userPasswordStatus');
         await this.storageService.delete('recentlyUsedProjects');
         await this.storageService.delete('recentlyUsedCategories');
         await this.storageService.delete('recentlyUsedMileageCategories');
@@ -118,6 +122,7 @@ export class AuthService {
         await this.storageService.delete('lastLoggedInDelegatee');
         await this.storageService.delete('lastLoggedInOrgQueue');
         await this.storageService.delete('isSidenavCollapsed');
+        await this.storageService.delete('spenderOnboardingRedirect');
         await this.storageService.delete('delegatee_id');
         await this.delegationService.setScopes(null);
       }),

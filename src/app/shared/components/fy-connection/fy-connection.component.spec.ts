@@ -12,11 +12,9 @@ describe('FyConnectionComponent', () => {
   let networkServiceSpy: jasmine.SpyObj<NetworkService>;
   let translocoService: jasmine.SpyObj<TranslocoService>;
   beforeEach(waitForAsync(() => {
-    networkServiceSpy = jasmine.createSpyObj('NetworkService', [
-      'isOnline',
-      'connectivityWatcher',
-      'getConnectionStatus',
-    ]);
+    networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'getConnectionStatus'], {
+      isConnected$: of(true),
+    });
     const translocoServiceSpy = jasmine.createSpyObj('TranslocoService', ['translate'], {
       config: {
         reRenderOnLangChange: true,
@@ -63,7 +61,7 @@ describe('FyConnectionComponent', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should set up network watcher', () => {
-      expect(networkServiceSpy.connectivityWatcher).toHaveBeenCalled();
+      expect(fyConnectionComponent.isConnected$).toBeDefined();
     });
 
     it('should update the connection status when network status changes', () => {

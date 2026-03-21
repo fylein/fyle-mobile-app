@@ -52,23 +52,49 @@ export class DelegationService {
     return this.storageService.get(this.scopesStorageKey);
   }
 
-  async inDelegateeMode(): Promise<boolean> {
-    const accessToken = await this.tokenService.getAccessToken();
-    if (!accessToken) {
+  async canAccessAnyOf(required: ReadonlyArray<'SUBMIT' | 'APPROVE'>): Promise<boolean> {
+    const inDelegateeMode = await this.inDelegateeMode();
+    if (!inDelegateeMode) {
+      return true;
+    }
+
+    const scopes = await this.getScopes();
+    if (!scopes) {
       return false;
     }
+
+    if (scopes.includes('ALL')) {
+      return true;
+    }
+
+    return scopes.some((s) => required.includes(s as 'SUBMIT' | 'APPROVE'));
+  }
+
+  canAccessSubmitFeatures(): Promise<boolean> {
+    return this.canAccessAnyOf(['SUBMIT']);
+  }
+
+  canAccessApproveFeatures(): Promise<boolean> {
+    return this.canAccessAnyOf(['APPROVE']);
+  }
+
+  async canAccessAllOnlyFeatures(): Promise<boolean> {
+    const inDelegateeMode = await this.inDelegateeMode();
+    if (!inDelegateeMode) {
+      return true;
+    }
+
+    const scopes = await this.getScopes();
+    return !!scopes?.includes('ALL');
+  }
+
+  async inDelegateeMode(): Promise<boolean> {
+    const accessToken = await this.tokenService.getAccessToken();
     const tokenPayload = this.jwtHelperService.decodeToken(accessToken) as AccessTokenData;
     return !!tokenPayload?.proxy_org_user_id;
   }
 
   async updateDelegationScopesFromEou(currentEou: ExtendedOrgUser): Promise<void> {
-    // Only relevant in delegatee mode; clear otherwise to avoid stale values.
-    const inDelegateeMode = await this.inDelegateeMode();
-    if (!inDelegateeMode) {
-      await this.setScopes(null);
-      return;
-    }
-
     const delegateeId = await this.getDelegateeUserId();
     const delegatee = currentEou?.delegatees?.find((d) => d.user_id === delegateeId);
     const newScopes = delegatee?.scopes ?? [];
