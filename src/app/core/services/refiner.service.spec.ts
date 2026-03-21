@@ -20,7 +20,9 @@ describe('RefinerService', () => {
   beforeEach(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['isSwitchedToDelegator']);
     const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
 
@@ -48,13 +50,8 @@ describe('RefinerService', () => {
 
   describe('setupNetworkWatcher', () => {
     it('should setup a network watcher', () => {
-      const emitterSpy = jasmine.createSpyObj('EventEmitter', ['asObservable']);
-      emitterSpy.asObservable.and.returnValue(of(true));
       refinerService.setupNetworkWatcher();
-      networkService.isOnline.and.returnValue(of(true));
-
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(2);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(2);
+      expect(refinerService.isConnected$).toBeDefined();
     });
   });
 

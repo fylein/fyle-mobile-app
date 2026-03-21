@@ -493,10 +493,7 @@ export class ExpensesCardV1Component implements OnInit {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true),
-    );
+    this.isConnected$ = this.networkService.isConnected$.pipe(startWith(true));
   }
 
   dismiss(event: Event): void {

@@ -108,7 +108,9 @@ describe('MyViewReportPage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: new BehaviorSubject(true),
+    });
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'deleteReport',
       'showToastMessage',
@@ -273,19 +275,15 @@ describe('MyViewReportPage', () => {
 
   describe('setupNetworkWatcher():', () => {
     it('should setup network watcher', () => {
-      networkService.isOnline.and.returnValue(of(true));
-
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
     });
 
     it('should navigate to dashboard if device is not online', () => {
-      networkService.isOnline.and.returnValue(of(false));
+      (networkService as any).isConnected$.next(false);
 
       component.setupNetworkWatcher();
-      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(component.isConnected$).toBeDefined();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
   });

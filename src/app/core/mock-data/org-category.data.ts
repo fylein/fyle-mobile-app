@@ -1159,7 +1159,7 @@ export const mileageCategories3: PlatformCategory[] = deepFreeze([
     id: 141300,
     name: 'Mileage',
     org_id: 'orrjqbDbeP9p',
-    sub_category: null,
+    sub_category: 'Pager',
     updated_at: new Date('2022-05-05T17:47:06.951Z'),
   },
 ]);
@@ -1174,7 +1174,7 @@ export const expectedMileageCategoriesData: PlatformCategory[] = deepFreeze([
     id: 141300,
     name: 'Mileage',
     org_id: 'orrjqbDbeP9p',
-    sub_category: null,
+    sub_category: 'Pager',
     updated_at: new Date('2022-05-05T17:47:06.951Z'),
   },
 ]);

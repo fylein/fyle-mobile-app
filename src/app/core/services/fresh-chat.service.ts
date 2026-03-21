@@ -33,9 +33,7 @@ export class FreshChatService {
   }
 
   setupNetworkWatcher(): void {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).subscribe(async (isOnline) => {
+    this.networkService.isConnected$.subscribe(async (isOnline) => {
       const eou = await this.authService.getEou();
       if (eou && isOnline) {
         const employeeSettings = await this.getEmployeeSettings();

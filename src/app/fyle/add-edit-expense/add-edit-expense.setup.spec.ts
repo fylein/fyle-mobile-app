@@ -1,3 +1,4 @@
+import { of } from 'rxjs';
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -155,7 +156,9 @@ describe('AddEditExpensePage', () => {
       'getExchangeRate',
       'getAll',
     ]);
-    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline'], {
+      isConnected$: of(true),
+    });
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
