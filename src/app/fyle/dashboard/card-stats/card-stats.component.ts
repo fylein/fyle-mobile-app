@@ -201,7 +201,7 @@ export class CardStatsComponent implements OnInit {
           return of(true);
         }
         return from(this.delegationService.getScopes()).pipe(
-          map((scopes) => !!scopes && scopes.includes('ALL')),
+          map((scopes) => this.delegationService.hasAllScope(scopes)),
           catchError(() => of(false)),
         );
       }),

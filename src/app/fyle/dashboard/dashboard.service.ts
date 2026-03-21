@@ -64,17 +64,15 @@ export class DashboardService {
   }
 
   getUnapprovedTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
-    const inDelegateeMode$ = from(this.delegationService.inDelegateeMode()).pipe(catchError(() => of(false)));
-    const scopes$ = from(this.delegationService.getScopes()).pipe(catchError(() => of(null)));
     const eou$ = from(this.authService.getEou());
+    const canAccessApproveStats$ = from(this.delegationService.canAccessApproveFeatures()).pipe(
+      catchError(() => of(false)),
+    );
 
-    return combineLatest({ inDelegateeMode: inDelegateeMode$, scopes: scopes$, eou: eou$ }).pipe(
-      switchMap(({ inDelegateeMode, scopes, eou }) => {
-        if (inDelegateeMode) {
-          const canAccessApproveStats = !!scopes && (scopes.includes('ALL') || scopes.includes('APPROVE'));
-          if (!canAccessApproveStats) {
-            return of(null);
-          }
+    return combineLatest({ eou: eou$, canAccessApproveStats: canAccessApproveStats$ }).pipe(
+      switchMap(({ eou, canAccessApproveStats }) => {
+        if (!canAccessApproveStats) {
+          return of(null);
         }
 
         if (eou.ou?.roles?.includes('APPROVER')) {

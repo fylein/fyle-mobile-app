@@ -174,15 +174,17 @@ export class SidemenuComponent implements OnInit {
         this.isSwitchedToDelegator = isSwitchedToDelegator;
         this.eou = eou;
 
+        // Delegatee mode == switched to a delegator account.
+        this.delegationInDelegateeMode = isSwitchedToDelegator;
+
         // Only relevant when switched to a delegator account; clear otherwise to avoid stale values.
-        const isInDelegateeMode = isSwitchedToDelegator;
-        if (isInDelegateeMode) {
+        if (this.delegationInDelegateeMode) {
           await this.delegationService.updateDelegationScopesFromEou(eou);
+          this.delegationScopes = await this.delegationService.getScopes();
         } else {
           await this.delegationService.setScopes(null);
+          this.delegationScopes = null;
         }
-        this.delegationInDelegateeMode = await this.delegationService.inDelegateeMode();
-        this.delegationScopes = await this.delegationService.getScopes();
 
         if (eou) {
           Sentry.setUser({
