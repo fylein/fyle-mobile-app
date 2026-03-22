@@ -413,6 +413,16 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
+      // When switched to a delegator account, skip onboarding checks entirely.
+      if (this.isSwitchedToDelegator) {
+        const redirectionAllowed = false;
+        this.filteredSidemenuList = [
+          ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
+          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected, redirectionAllowed),
+        ];
+        return;
+      }
+
       this.spenderOnboardingService.checkForRedirectionToOnboarding().subscribe((redirectionAllowed) => {
         this.filteredSidemenuList = [
           ...this.getPrimarySidemenuOptions(isConnected, redirectionAllowed),
