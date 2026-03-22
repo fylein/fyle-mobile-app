@@ -59,13 +59,6 @@ export class DelegationService {
   }
 
   async updateDelegationScopesFromEou(currentEou: ExtendedOrgUser): Promise<void> {
-    // Only relevant in delegatee mode; clear otherwise to avoid stale values.
-    const inDelegateeMode = await this.inDelegateeMode();
-    if (!inDelegateeMode) {
-      await this.setScopes(null);
-      return;
-    }
-
     const delegateeId = await this.getDelegateeUserId();
     const delegatee = currentEou?.delegatees?.find((d) => d.user_id === delegateeId);
     const newScopes = delegatee?.scopes ?? [];
